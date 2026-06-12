@@ -11,10 +11,12 @@ function wp_seed_content_testimonials_shortcode($atts)
         'columns' => 3,
         'featured' => 'all',
         'context' => '',
+        'template' => '',
     ), $atts, 'seed_testimonials');
 
     $limit = max(1, min(24, absint($atts['limit'])));
     $columns = wp_seed_content_clamp_columns($atts['columns']);
+    $template = sanitize_title($atts['template']);
     $meta_query = array();
 
     if ('true' === strtolower((string) $atts['featured'])) {
@@ -68,7 +70,7 @@ function wp_seed_content_testimonials_shortcode($atts)
             <?php
             while ($query->have_posts()) {
                 $query->the_post();
-                echo wp_seed_content_render_testimonial_card(get_the_ID()); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo wp_seed_content_render_testimonial_item(get_the_ID(), $template); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             }
             ?>
         </div>
@@ -79,3 +81,18 @@ function wp_seed_content_testimonials_shortcode($atts)
     return ob_get_clean();
 }
 add_shortcode('seed_testimonials', 'wp_seed_content_testimonials_shortcode');
+
+function wp_seed_content_render_testimonial_item($post_id, $template)
+{
+    $fallback = wp_seed_content_render_testimonial_card($post_id);
+
+    if ('' === $template || !function_exists('wp_seed_content_get_testimonial_template_placeholders')) {
+        return $fallback;
+    }
+
+    return wp_seed_content_render_template_by_slug(
+        $template,
+        wp_seed_content_get_testimonial_template_placeholders($post_id),
+        $fallback
+    );
+}
