@@ -141,6 +141,35 @@ Ils ne doivent pas :
 - casser si une categorie est absente ;
 - afficher des erreurs PHP publiques.
 
+### Generateurs de shortcodes
+
+Les generateurs admin doivent rester une aide a la construction de shortcodes explicites.
+
+Modele standard :
+
+```text
+module -> attributes schema -> admin generator -> shortcode text -> frontend render
+```
+
+Regles :
+
+- preferer les shortcodes explicites generes puis copies dans les pages ;
+- les generateurs sont non persistants par defaut ;
+- aucun reglage global ne doit modifier silencieusement les pages existantes ;
+- une modification admin ne doit pas changer le rendu d'une page si son shortcode n'a pas change ;
+- ne pas standardiser les champs metier entre modules ;
+- mutualiser la mecanique, pas les responsabilites editoriales ;
+- documenter les attributs publics de chaque shortcode.
+
+Interdit :
+
+- builder interne ;
+- layout editable dans l'admin ;
+- presets enregistrables avant decision V2 ;
+- reglage global d'affichage applique automatiquement aux shortcodes existants ;
+- detection builder obligatoire ;
+- integration native Divi, Spectra, Astra ou Gutenberg pour remplacer les shortcodes.
+
 ## 7. CSS
 
 Regles :

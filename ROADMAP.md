@@ -2,7 +2,7 @@
 
 Date : 12 juin 2026
 Statut : roadmap produit stricte
-Nature : cadrage des versions V1.0, V1.1, V1.2, V1.3, V2
+Nature : cadrage des versions V1.0, V1.1, V1.2, V1.3, V1.4, V1.5, V2
 
 ## Principe directeur
 
@@ -323,11 +323,182 @@ Dependances interdites en V1.2 :
 - options de style avancees ;
 - dependance externe nouvelle.
 
-## V1.3 - Module Quotes/Citations
+## V1.3 - Cards Generator et modele de generateur
 
 ### Objectifs
 
-Ajouter un module editorial separe pour citations, apres stabilisation du socle V1.0, de la maintenance multi-sites V1.1 et de la page Modules V1.2.
+Ajouter une configuration admin simple pour generer des shortcodes `[seed_cards]` plus puissants, sans creer de builder ni de reglage global d'affichage.
+
+V1.3 doit aussi poser le modele standard des futurs generateurs de shortcodes :
+
+```text
+module -> attributes schema -> admin generator -> shortcode text -> frontend render
+```
+
+Le modele standardise la mecanique, pas les champs metier.
+
+V1.3 peut ajouter :
+
+- activation/desactivation du module `Cards` ;
+- schema d'attributs pour `[seed_cards]` ;
+- generateur admin non persistant ;
+- shortcode genere et copiable ;
+- filtres par categorie ;
+- filtre par tag si l'implementation reste simple ;
+- choix du nombre d'articles ;
+- choix du nombre de colonnes ;
+- choix d'ordre limite :
+  - date desc ;
+  - date asc ;
+  - title asc ;
+- choix des elements visibles :
+  - image ;
+  - categorie ;
+  - date ;
+  - titre ;
+  - extrait ;
+  - bouton ;
+- choix du libelle du bouton ;
+- style simple optionnel :
+  - `default` ;
+  - `compact` ;
+  - `soft`.
+
+V1.3 ne doit pas ajouter :
+
+- reglage global modifiant silencieusement les pages existantes ;
+- preset enregistrable ;
+- layout interne editable ;
+- bloc Gutenberg ;
+- module Divi ;
+- integration Spectra ou Astra native ;
+- detection builder ;
+- nouveau CPT ;
+- ACF ;
+- modification automatique de pages existantes.
+
+### Criteres de sortie
+
+V1.3 peut etre consideree terminee quand :
+
+- `[seed_cards]` fonctionne comme avant sans attribut ;
+- `Cards` est actif par defaut ;
+- `Cards` peut etre desactive et reactive ;
+- le generateur admin produit un shortcode valide ;
+- le shortcode genere est copiable ;
+- les attributs existants restent compatibles ;
+- les nouveaux attributs sont whitelistes, sanitizes et documentes ;
+- categorie, limite, colonnes et ordre fonctionnent ;
+- les elements visibles peuvent etre masques sans erreur ;
+- aucun reglage global d'affichage Cards n'est stocke ;
+- aucune page existante n'est modifiee automatiquement ;
+- aucun couplage builder ou theme n'est introduit.
+
+### Criteres de validation
+
+Validation technique :
+
+- test `[seed_cards]` sans attribut ;
+- test categorie existante ;
+- test categorie absente ;
+- test tag existant si retenu ;
+- test tag absent si retenu ;
+- test `date desc`, `date asc`, `title asc` ;
+- test colonnes 1 a 4 ;
+- test limite bornee ;
+- test masquage image, categorie, date, titre, extrait, bouton ;
+- test libelle bouton sanitize ;
+- test desactivation/reactivation Cards ;
+- test absence d'impact sur `Testimonials`.
+
+Validation produit :
+
+- le generateur reste une aide a la construction de shortcode ;
+- le shortcode reste explicite dans les pages ;
+- aucune page n'est modifiee en coulisse ;
+- aucun style avance ou preset enregistrable n'est ajoute.
+
+### Risques
+
+- Transformer le generateur en vrai systeme de reglages.
+- Ajouter trop d'attributs au shortcode.
+- Casser des usages existants de `[seed_cards]`.
+- Rendre les pages dependantes d'une configuration globale invisible.
+- Introduire des styles avant la gouvernance V2.
+
+### Dependances
+
+Dependances autorisees :
+
+- WordPress natif ;
+- categories WordPress natives ;
+- tags WordPress natifs si simple ;
+- options WordPress natives pour l'activation du module uniquement ;
+- shortcodes existants.
+
+Dependances interdites en V1.3 :
+
+- ACF obligatoire ;
+- dependance externe ;
+- builder obligatoire ;
+- theme obligatoire ;
+- presets enregistrables ;
+- reglages globaux d'affichage.
+
+## V1.4 - Testimonials Generator
+
+### Objectifs
+
+Appliquer le modele de generateur standard au module `Testimonials`, sans modifier la logique metier des temoignages.
+
+V1.4 peut ajouter :
+
+- schema d'attributs pour `[seed_testimonials]` ;
+- generateur admin non persistant ;
+- shortcode genere et copiable ;
+- choix du nombre de temoignages ;
+- choix du nombre de colonnes ;
+- filtre `featured` ;
+- filtre `context` ;
+- choix limite des elements visibles :
+  - nom ;
+  - contexte ;
+  - date ;
+- style simple optionnel si la gouvernance CSS reste minimale.
+
+V1.4 ne doit pas ajouter :
+
+- modification du CPT `seed_testimonial` ;
+- suppression ou migration de temoignages ;
+- reglage global d'affichage Testimonials ;
+- logique de consentement affaiblie ;
+- integration ACF ;
+- bloc Gutenberg ;
+- module Divi.
+
+### Criteres de sortie
+
+V1.4 peut etre consideree terminee quand :
+
+- `[seed_testimonials]` fonctionne comme avant sans attribut ;
+- le generateur produit des shortcodes valides ;
+- les filtres `featured` et `context` restent compatibles ;
+- les temoignages sans consentement restent exclus ;
+- aucune page existante n'est modifiee automatiquement ;
+- aucun reglage global ne change le rendu existant.
+
+### Risques
+
+- Confondre generateur avec configuration globale.
+- Rendre visibles des temoignages non consentis.
+- Ajouter des champs metier inutiles.
+- Casser les usages existants du shortcode.
+
+## V1.5 - Module Quotes/Citations
+
+### Objectifs
+
+Ajouter un module editorial separe pour citations, apres stabilisation du socle V1.0, de la maintenance multi-sites V1.1, de la page Modules V1.2 et du modele de generateur V1.3/V1.4.
 
 Quotes/Citations peut etre pertinent si les citations doivent etre :
 
@@ -347,11 +518,14 @@ contenus structures + affichages reutilisables
 
 ### Perimetre minimal propose
 
-Si Quotes/Citations entre en V1.3, le perimetre minimal propose est :
+Si Quotes/Citations entre en V1.5, le perimetre minimal propose est :
 
 - module separe `quotes` ;
 - CPT `seed_quote` ;
 - shortcode `[seed_quotes]` ;
+- schema d'attributs pour `[seed_quotes]` ;
+- generateur admin non persistant ;
+- shortcode genere et copiable ;
 - champs natifs simples :
   - texte ;
   - auteur ;
@@ -369,7 +543,7 @@ Si Quotes/Citations entre en V1.3, le perimetre minimal propose est :
 - etat vide ;
 - aucune dependance ACF ;
 - aucun import automatique ;
-- aucune taxonomie dediee en V1.3 ;
+- aucune taxonomie dediee en V1.5 ;
 - aucune migration automatique depuis articles existants.
 
 Quotes doit etre un module separe, pas une extension de `testimonials`.
@@ -385,13 +559,15 @@ Quotes doit etre un module separe, pas une extension de `testimonials`.
 - Retarder la stabilisation de la maintenance multi-sites.
 - Multiplier les variantes de cartes avant V2.
 
-### Criteres d'entree en V1.3
+### Criteres d'entree en V1.5
 
-Quotes/Citations peut entrer en V1.3 uniquement si :
+Quotes/Citations peut entrer en V1.5 uniquement si :
 
 - V1.0 est validee ;
 - V1.1 update infrastructure est validee ;
 - V1.2 page Modules est validee ;
+- V1.3 Cards Generator est valide ;
+- V1.4 Testimonials Generator est valide ou explicitement reporte ;
 - les shortcodes V1.0 restent stables ;
 - le CSS V1.0 reste stable ;
 - le besoin Quotes/Citations est confirme par un usage reel ;
@@ -403,7 +579,7 @@ Quotes/Citations peut entrer en V1.3 uniquement si :
 - le module peut etre teste sans modifier un site de production ;
 - la creation d'un CPT `seed_quote` est explicitement revalidee.
 
-## V2 - Styles avances, modules configurables plus larges et ACF optionnel
+## V2 - Styles avances, presets enregistrables et ACF optionnel
 
 ### Objectifs
 
@@ -413,6 +589,7 @@ V2 peut ajouter :
 
 - page de reglages admin ;
 - configuration plus large des modules ;
+- presets enregistrables ;
 - integration ACF optionnelle ;
 - detection de presence ACF ;
 - fallbacks natifs si ACF est absent ;
@@ -459,13 +636,14 @@ Validation technique :
 Validation produit :
 
 - chaque nouveau reglage doit resoudre un besoin confirme ;
-- chaque variation de carte doit etre reutilisable ;
+- chaque variation ou preset doit etre reutilisable ;
 - aucun CPT ne doit etre ajoute sans justification ;
 - aucune configuration ne doit imposer un site pilote.
 
 ### Risques
 
 - Ajouter trop de reglages trop tot.
+- Transformer les generateurs en systeme de reglages globaux implicites.
 - Rendre l'administration plus complexe que le besoin reel.
 - Rendre ACF implicitement necessaire.
 - Introduire des comportements differents selon les themes.
@@ -581,9 +759,13 @@ V1.1 livre la maintenance multi-sites via mises a jour GitHub depuis l'admin Wor
 
 V1.2 livre la page admin Modules et la desactivation de `Testimonials`.
 
-V1.3 peut ajouter Quotes/Citations.
+V1.3 livre Cards Generator et pose le modele de generateur de shortcodes.
 
-V2 ameliore les styles, les modules configurables plus larges et l'optionnalite ACF.
+V1.4 peut ajouter Testimonials Generator.
+
+V1.5 peut ajouter Quotes/Citations.
+
+V2 ameliore les styles, les presets enregistrables, les modules configurables plus larges et l'optionnalite ACF.
 
 V3 industrialise les workflows avances.
 
