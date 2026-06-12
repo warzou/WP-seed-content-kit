@@ -123,3 +123,14 @@ Le projet est sur la bonne voie si :
 - le CSS reste confine ;
 - ACF ameliore l'experience sans etre obligatoire ;
 - les modules CPT peuvent etre actives selon le besoin reel.
+
+## 10. Prochaine etape V2 (templates)
+
+- Le V2 prévoit un pont template : `shortcode -> données -> placeholders -> post_content`.
+- Un CPT `seed_template` sera ajouté en premier pour stocker des templates réutilisables.
+- Premier pilote V2 : le module Témoignages.
+- Roadmap technique proposée :
+  - v0.2.0 : `seed_template` minimal + UI Templates ;
+  - v0.2.1 : moteur d’item-template Témoignages ;
+  - v0.2.2 : support `template="slug"` au shortcode ;
+  - v0.2.x : wrappers collections plus tard.

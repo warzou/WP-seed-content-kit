@@ -138,6 +138,24 @@ context
 type
 ```
 
+## 10. Architecture V2 (templates)
+
+Le V2 doit rester un pont d'injection, pas un builder.
+
+Principes :
+
+- Le plugin définit la **sélection** du contenu (CPT + requêtes + filtres).
+- Les constructeurs restent propriétaires de la **mise en page**.
+- Ajouter une mécanique de templates :
+  - CPT dédié `seed_template` pour stocker le contenu de template ;
+  - placeholders typés (texte/html/url/image/booléen) ;
+  - rendu via `post_content` du template ;
+  - fallback PHP existant quand aucun template n'est fourni.
+- Shortcode étendu avec `template="slug"` (ex: `[seed_testimonials template="accueil"]`).
+- Distinction :
+  - template d’item (une entité métier) ;
+  - wrapper de collection (global pour liste/grille, plus tard).
+
 ## 6. Compatibilite builders/themes
 
 ### Divi 4

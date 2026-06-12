@@ -579,6 +579,46 @@ Quotes/Citations peut entrer en V1.5 uniquement si :
 - le module peut etre teste sans modifier un site de production ;
 - la creation d'un CPT `seed_quote` est explicitement revalidee.
 
+## V2.0 - Templates de rendu via constructeurs
+
+### Objectifs
+
+Introduire des templates stockés dans WordPress pour séparer la logique métier du rendu visuel, sans créer de mini-builder.
+
+V2.0 peut ajouter :
+
+- CPT `seed_template` minimal ;
+- UI d'administration `Templates` ;
+- stockage du template dans `post_content` ;
+- placeholders typés ;
+- rendu via le shortcode avec `template="slug"` ;
+- distinction entre `item template` (ex: une carte de témoignage) et collection wrapper (étape ultérieure) ;
+- fallback PHP existant si aucun template valide n'est fourni.
+
+V2.0 ne doit pas ajouter :
+
+- génération de styles avancés ;
+- constructeur builder interne au plugin ;
+- remplacement global du rendu front existant ;
+- dépendances bloquantes.
+
+### Release cible
+
+- v0.2.0 : CPT `seed_template` minimal + UI Templates
+- v0.2.1 : moteur item-template pour Témoignages
+- v0.2.2 : `template="slug"` au shortcode
+- v0.2.x : collection wrappers et améliorations futures
+
+### Criteres de sortie
+
+V2.0 peut etre consideree terminee quand :
+
+- le plugin continue d’afficher correctement les shortcodes V1.x sans `template` ;
+- un template témoin est enregistré et réutilisable via shortcode ;
+- le placeholder de base (`{{photo}}`, `{{name}}`, `{{testimonial}}`) est injecté proprement ;
+- un fallback PHP protège les rendus existants ;
+- aucun réglage global ne prend le contrôle du visuel.
+
 ## V2 - Styles avances, presets enregistrables et ACF optionnel
 
 ### Objectifs
@@ -765,7 +805,7 @@ V1.4 peut ajouter Testimonials Generator.
 
 V1.5 peut ajouter Quotes/Citations.
 
-V2 ameliore les styles, les presets enregistrables, les modules configurables plus larges et l'optionnalite ACF.
+V2 commence par les templates de rendu via `seed_template` et `template="slug"` (pilotage des contenus), puis avance vers styles, presets enregistrables et options de configuration plus larges ; l'optionnalite ACF reste.
 
 V3 industrialise les workflows avances.
 
