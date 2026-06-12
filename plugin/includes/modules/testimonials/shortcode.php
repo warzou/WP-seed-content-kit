@@ -64,12 +64,20 @@ function wp_seed_content_testimonials_shortcode($atts)
     }
 
     ob_start();
+
+    $is_template_mode = '' !== $template && wp_seed_content_is_testimonial_template_valid($template);
+    $collection_class = $is_template_mode ? 'seed-testimonials__collection seed-testimonials__collection--template' : 'seed-testimonials__grid seed-testimonials__grid--cols-' . esc_attr($columns);
+    $section_class = $is_template_mode ? 'seed-testimonials seed-testimonials--template' : 'seed-testimonials';
     ?>
-    <section class="seed-testimonials" data-columns="<?php echo esc_attr($columns); ?>">
-        <div class="seed-testimonials__grid seed-testimonials__grid--cols-<?php echo esc_attr($columns); ?>">
+    <section class="<?php echo esc_attr($section_class); ?>" data-columns="<?php echo esc_attr($columns); ?>">
+        <div class="<?php echo esc_attr($collection_class); ?>">
             <?php
             while ($query->have_posts()) {
                 $query->the_post();
+                if ($is_template_mode) {
+                    echo wp_seed_content_render_template_testimonial_item(get_the_ID(), $template); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    continue;
+                }
                 echo wp_seed_content_render_testimonial_item(get_the_ID(), $template); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             }
             ?>
@@ -95,4 +103,24 @@ function wp_seed_content_render_testimonial_item($post_id, $template)
         wp_seed_content_get_testimonial_template_placeholders($post_id),
         $fallback
     );
+}
+
+function wp_seed_content_render_template_testimonial_item($post_id, $template)
+{
+    if ('' === $template) {
+        return wp_seed_content_render_testimonial_item($post_id, '');
+    }
+
+    $content = wp_seed_content_render_testimonial_item($post_id, $template);
+    return '<article class="seed-testimonial-template-item">' . $content . '</article>';
+}
+
+function wp_seed_content_is_testimonial_template_valid($slug)
+{
+    $template = wp_seed_content_get_template_by_slug($slug);
+    if (!$template) {
+        return false;
+    }
+
+    return 'testimonials' === wp_seed_content_get_template_module($template->ID);
 }

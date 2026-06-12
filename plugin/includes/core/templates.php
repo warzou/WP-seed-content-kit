@@ -102,7 +102,7 @@ function wp_seed_content_render_template_module_meta_box($post)
 
     $current = wp_seed_content_get_template_module($post->ID);
     $modules = wp_seed_content_get_template_modules();
-?>
+    ?>
     <input type="hidden" name="wp_seed_content_template_meta_nonce" value="<?php echo esc_attr(wp_create_nonce('wp_seed_content_template_meta')); ?>" />
     <p>
         <label for="wp-seed-template-module">
@@ -125,7 +125,29 @@ function wp_seed_content_render_template_module_meta_box($post)
     }
 ?>
     </select>
-    <p class="description"><?php esc_html_e('Choisissez le module associé au template pour générer automatiquement le shortcode.', 'wp-seed-content-kit'); ?></p>
+    <p class="description">
+        <?php
+        echo wp_kses_post(
+            sprintf(
+                /* translators: %s: shortcode attribute name */
+                __('L’identifiant du template est utilisé dans le shortcode : %s.', 'wp-seed-content-kit'),
+                '<code>template="' . esc_html__('identifiant', 'wp-seed-content-kit') . '"</code>'
+            )
+        );
+        ?>
+    </p>
+    <p class="description">
+        <?php
+        esc_html_e('Nomenclature conseillée : testimonial-home, testimonial-list, quote-home, directory-card.', 'wp-seed-content-kit');
+        ?>
+    </p>
+
+    <?php if ('testimonials' === $current) : ?>
+        <p class="description">
+            <strong><?php esc_html_e('Placeholders disponibles :', 'wp-seed-content-kit'); ?></strong><br />
+            <code>{{photo}}</code>, <code>{{name}}</code>, <code>{{text}}</code>
+        </p>
+    <?php endif; ?>
 <?php
 }
 
@@ -163,7 +185,7 @@ function wp_seed_content_save_template_module($post_id, $post, $update)
 function wp_seed_content_seed_template_columns($columns)
 {
     $columns['wp_seed_content_template_module'] = __('Module', 'wp-seed-content-kit');
-    $columns['wp_seed_content_template_slug'] = __('Slug', 'wp-seed-content-kit');
+    $columns['wp_seed_content_template_slug'] = __('Identifiant', 'wp-seed-content-kit');
     $columns['wp_seed_content_template_usage'] = __('Utilisation', 'wp-seed-content-kit');
     return $columns;
 }
@@ -202,6 +224,27 @@ function wp_seed_content_seed_template_column_content($column, $post_id)
         echo '</div>';
         return;
     }
+}
+
+function wp_seed_content_seed_template_list_help($which)
+{
+    if ('top' !== $which) {
+        return;
+    }
+
+    $screen = get_current_screen();
+    if (!$screen || 'edit-seed_template' !== $screen->id) {
+        return;
+    }
+
+    if ('seed_template' !== ($screen->post_type ?? '')) {
+        return;
+    }
+
+    echo '<div class="notice inline notice-info notice-alt" style="margin:8px 0 10px;">';
+    echo '<p>' . esc_html__('L’identifiant apparaît dans le shortcode via template="identifiant".', 'wp-seed-content-kit') . '</p>';
+    echo '<p>' . esc_html__('Exemples : testimonial-home, testimonial-list, quote-home, directory-card.', 'wp-seed-content-kit') . '</p>';
+    echo '</div>';
 }
 
 function wp_seed_content_enqueue_template_admin_scripts($hook)
@@ -246,4 +289,5 @@ function wp_seed_content_seed_template_init_admin_columns()
 
     add_action('save_post_seed_template', 'wp_seed_content_save_template_module', 10, 3);
     add_action('admin_enqueue_scripts', 'wp_seed_content_enqueue_template_admin_scripts');
+    add_action('manage_seed_template_posts_extra_tablenav', 'wp_seed_content_seed_template_list_help', 10, 1);
 }
