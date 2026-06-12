@@ -26,22 +26,8 @@ function wp_seed_content_render_testimonial_meta_box($post)
         <input type="text" id="wp_seed_content_testimonial_name" name="_seed_testimonial_name" value="<?php echo esc_attr(wp_seed_content_get_meta($post->ID, '_seed_testimonial_name')); ?>" class="widefat">
     </p>
     <p>
-        <label for="wp_seed_content_testimonial_text"><strong><?php esc_html_e('Texte', 'wp-seed-content-kit'); ?></strong></label><br>
+        <label for="wp_seed_content_testimonial_text"><strong><?php esc_html_e('Témoignage', 'wp-seed-content-kit'); ?></strong></label><br>
         <textarea id="wp_seed_content_testimonial_text" name="_seed_testimonial_text" rows="8" class="widefat"><?php echo esc_textarea(wp_seed_content_get_meta($post->ID, '_seed_testimonial_text')); ?></textarea>
-    </p>
-    <p>
-        <label for="wp_seed_content_testimonial_context"><strong><?php esc_html_e('Contexte', 'wp-seed-content-kit'); ?></strong></label><br>
-        <input type="text" id="wp_seed_content_testimonial_context" name="_seed_testimonial_context" value="<?php echo esc_attr(wp_seed_content_get_meta($post->ID, '_seed_testimonial_context')); ?>" class="widefat">
-    </p>
-    <p>
-        <label for="wp_seed_content_testimonial_date"><strong><?php esc_html_e('Date', 'wp-seed-content-kit'); ?></strong></label><br>
-        <input type="date" id="wp_seed_content_testimonial_date" name="_seed_testimonial_date" value="<?php echo esc_attr(wp_seed_content_get_meta($post->ID, '_seed_testimonial_date')); ?>">
-    </p>
-    <p>
-        <label>
-            <input type="checkbox" name="_seed_testimonial_consent" value="1" <?php checked(wp_seed_content_is_truthy_meta($post->ID, '_seed_testimonial_consent')); ?>>
-            <?php esc_html_e('Consentement de publication obtenu', 'wp-seed-content-kit'); ?>
-        </label>
     </p>
     <p>
         <label>

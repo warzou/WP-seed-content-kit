@@ -9,9 +9,6 @@ function wp_seed_content_testimonial_meta_definitions()
     return array(
         '_seed_testimonial_name' => array('type' => 'text'),
         '_seed_testimonial_text' => array('type' => 'textarea'),
-        '_seed_testimonial_context' => array('type' => 'text'),
-        '_seed_testimonial_date' => array('type' => 'date'),
-        '_seed_testimonial_consent' => array('type' => 'checkbox'),
         '_seed_featured' => array('type' => 'checkbox'),
     );
 }

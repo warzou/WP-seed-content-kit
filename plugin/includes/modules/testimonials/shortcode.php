@@ -15,13 +15,7 @@ function wp_seed_content_testimonials_shortcode($atts)
 
     $limit = max(1, min(24, absint($atts['limit'])));
     $columns = wp_seed_content_clamp_columns($atts['columns']);
-    $meta_query = array(
-        array(
-            'key' => '_seed_testimonial_consent',
-            'value' => '1',
-            'compare' => '=',
-        ),
-    );
+    $meta_query = array();
 
     if ('true' === strtolower((string) $atts['featured'])) {
         $meta_query[] = array(
@@ -47,16 +41,21 @@ function wp_seed_content_testimonials_shortcode($atts)
 
     wp_seed_content_enqueue_assets();
 
-    $query = new WP_Query(array(
+    $query_args = array(
         'post_type' => 'seed_testimonial',
         'post_status' => 'publish',
         'posts_per_page' => $limit,
         'orderby' => 'date',
         'order' => 'DESC',
-        'meta_query' => $meta_query,
         'ignore_sticky_posts' => true,
         'no_found_rows' => true,
-    ));
+    );
+
+    if (!empty($meta_query)) {
+        $query_args['meta_query'] = $meta_query;
+    }
+
+    $query = new WP_Query($query_args);
 
     if (!$query->have_posts()) {
         return '<p class="seed-testimonials__empty">' . esc_html__('Aucun témoignage à afficher pour le moment.', 'wp-seed-content-kit') . '</p>';
