@@ -25,6 +25,51 @@ function wp_seed_content_kit_get_module_options()
     );
 }
 
+function wp_seed_content_kit_get_default_module_menu_visibility()
+{
+    return array(
+        'seed_testimonial' => 'plugin',
+    );
+}
+
+function wp_seed_content_kit_get_module_menu_visibility()
+{
+    $stored = get_option('wp_seed_content_kit_module_menu_visibility', array());
+    if (!is_array($stored)) {
+        $stored = array();
+    }
+
+    $visibility = wp_parse_args($stored, wp_seed_content_kit_get_default_module_menu_visibility());
+    $allowed = array('plugin', 'root');
+
+    foreach ($visibility as $post_type => $value) {
+        if (!in_array($value, $allowed, true)) {
+            $visibility[$post_type] = 'plugin';
+        }
+    }
+
+    return array(
+        'seed_testimonial' => $visibility['seed_testimonial'],
+    );
+}
+
+function wp_seed_content_kit_get_module_menu_location($post_type)
+{
+    $post_type = sanitize_key($post_type);
+    $visibility = wp_seed_content_kit_get_module_menu_visibility();
+
+    return isset($visibility[$post_type]) ? $visibility[$post_type] : 'plugin';
+}
+
+function wp_seed_content_kit_get_post_type_menu_parent($post_type)
+{
+    if ('root' === wp_seed_content_kit_get_module_menu_location($post_type)) {
+        return true;
+    }
+
+    return 'wp-seed-content-kit';
+}
+
 function wp_seed_content_kit_is_module_active($module)
 {
     $module = sanitize_key($module);

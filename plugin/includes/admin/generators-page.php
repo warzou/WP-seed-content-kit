@@ -4,19 +4,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function wp_seed_content_kit_register_generators_page()
-{
-    add_submenu_page(
-        'wp-seed-content-kit',
-        __('Générateurs', 'wp-seed-content-kit'),
-        __('Générateurs', 'wp-seed-content-kit'),
-        'manage_options',
-        'wp-seed-content-kit-generators',
-        'wp_seed_content_kit_render_generators_page'
-    );
-}
-add_action('admin_menu', 'wp_seed_content_kit_register_generators_page');
-
 function wp_seed_content_kit_get_generator_terms($taxonomy)
 {
     $terms = get_terms(array(
@@ -42,12 +29,14 @@ function wp_seed_content_kit_render_generator_term_options($terms)
     }
 }
 
-function wp_seed_content_kit_render_cards_generator()
+function wp_seed_content_kit_render_cards_generator($show_heading = true)
 {
     $categories = wp_seed_content_kit_get_generator_terms('category');
     $tags = wp_seed_content_kit_get_generator_terms('post_tag');
     ?>
-    <h2><?php echo esc_html__('Générateur Cards', 'wp-seed-content-kit'); ?></h2>
+    <?php if ($show_heading) : ?>
+        <h2><?php echo esc_html__('Générateur Cards', 'wp-seed-content-kit'); ?></h2>
+    <?php endif; ?>
     <p><?php echo esc_html__('Générez un shortcode explicite à copier dans une page. Aucun réglage Cards n’est enregistré.', 'wp-seed-content-kit'); ?></p>
 
     <div id="wp-seed-content-kit-cards-generator">
@@ -232,29 +221,35 @@ function wp_seed_content_kit_render_cards_generator()
     <?php
 }
 
-function wp_seed_content_kit_render_planned_generator($label)
+function wp_seed_content_kit_render_planned_generator($label, $show_heading = true)
 {
     ?>
-    <hr />
-    <h2><?php echo esc_html($label); ?></h2>
+    <?php if ($show_heading) : ?>
+        <hr />
+        <h2><?php echo esc_html($label); ?></h2>
+    <?php endif; ?>
     <p><?php echo esc_html__('Prévu pour une prochaine version.', 'wp-seed-content-kit'); ?></p>
     <?php
 }
 
-function wp_seed_content_kit_render_generators_page()
+function wp_seed_content_kit_render_generators_tab()
 {
-    if (!current_user_can('manage_options')) {
-        wp_die(esc_html__('Vous n’avez pas l’autorisation de gérer les générateurs WP Seed Content Kit.', 'wp-seed-content-kit'));
-    }
-
     ?>
-    <div class="wrap">
-        <h1><?php echo esc_html__('WP Seed Content Kit - Générateurs', 'wp-seed-content-kit'); ?></h1>
-        <p><?php echo esc_html__('Les générateurs produisent des shortcodes explicites à copier dans vos pages. Ils ne stockent aucun réglage global.', 'wp-seed-content-kit'); ?></p>
+    <p><?php echo esc_html__('Les générateurs produisent des shortcodes explicites à copier dans vos pages. Ils ne stockent aucun réglage global.', 'wp-seed-content-kit'); ?></p>
 
-        <?php wp_seed_content_kit_render_cards_generator(); ?>
-        <?php wp_seed_content_kit_render_planned_generator(__('Générateur Témoignages', 'wp-seed-content-kit')); ?>
-        <?php wp_seed_content_kit_render_planned_generator(__('Générateur Citations', 'wp-seed-content-kit')); ?>
-    </div>
+    <details open="open">
+        <summary><strong><?php echo esc_html__('Générateur Cards', 'wp-seed-content-kit'); ?></strong></summary>
+        <?php wp_seed_content_kit_render_cards_generator(false); ?>
+    </details>
+
+    <details>
+        <summary><strong><?php echo esc_html__('Générateur Témoignages', 'wp-seed-content-kit'); ?></strong></summary>
+        <?php wp_seed_content_kit_render_planned_generator(__('Générateur Témoignages', 'wp-seed-content-kit'), false); ?>
+    </details>
+
+    <details>
+        <summary><strong><?php echo esc_html__('Générateur Citations', 'wp-seed-content-kit'); ?></strong></summary>
+        <?php wp_seed_content_kit_render_planned_generator(__('Générateur Citations', 'wp-seed-content-kit'), false); ?>
+    </details>
     <?php
 }
