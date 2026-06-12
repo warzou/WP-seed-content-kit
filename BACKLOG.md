@@ -12,11 +12,11 @@ Toute entree doit etre revalidee avant developpement.
 
 Le backlog ne doit pas affaiblir la frontiere V1.
 
-## V1.1 Candidate - Quotes
+## V1.3 Candidate - Quotes
 
 ### Decision
 
-Quotes est valide comme candidat V1.1.
+Quotes est valide comme candidat V1.3.
 
 Quotes ne rentre pas en V1.
 
@@ -24,7 +24,7 @@ Quotes doit etre un module separe.
 
 Quotes ne doit pas etre une extension du module `testimonials`.
 
-Aucun code Quotes ne doit etre ajoute avant validation complete de V1.
+Aucun code Quotes ne doit etre ajoute avant validation complete de V1.2 Modules.
 
 ### Pourquoi Quotes est pertinent
 
@@ -87,7 +87,7 @@ Differences importantes :
 
 ### Perimetre minimal propose
 
-Le perimetre minimal V1.1 propose est :
+Le perimetre minimal V1.3 propose est :
 
 - module `quotes` ;
 - CPT `seed_quote` ;
@@ -108,7 +108,7 @@ Le perimetre minimal V1.1 propose est :
   - `featured` ;
   - `context`.
 
-### Explicitement hors perimetre V1.1
+### Explicitement hors perimetre V1.3
 
 - ACF obligatoire.
 - Integration ACF.
@@ -144,13 +144,15 @@ Le perimetre minimal V1.1 propose est :
 - Coder un besoin propre a `avecguillaume.fr`.
 - Retarder la stabilisation V1.
 
-### Criteres d'entree en V1.1
+### Criteres d'entree en V1.3
 
-Quotes peut entrer en V1.1 uniquement si :
+Quotes peut entrer en V1.3 uniquement si :
 
 - V1 est terminee ;
 - V1 est testee localement ;
 - V1 est validee sur `avecguillaume.fr` ;
+- V1.1 update infrastructure est validee ;
+- V1.2 page Modules est validee ;
 - les criteres de release V1 ne sont pas affaiblis ;
 - le besoin de citations reutilisables est confirme ;
 - les citations ne peuvent pas rester simplement dans des articles natifs ;
@@ -162,7 +164,7 @@ Quotes peut entrer en V1.1 uniquement si :
 
 ### Recommandation actuelle
 
-Conserver Quotes en backlog V1.1.
+Conserver Quotes en backlog V1.3.
 
 Ne pas modifier V1.
 

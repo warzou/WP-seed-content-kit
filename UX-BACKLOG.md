@@ -51,7 +51,7 @@ Justification :
 - le ratio existant est conserve ;
 - aucun HTML ni comportement n'a ete ajoute.
 
-## V1.1 - Ameliorations candidates
+## V2 - Ameliorations candidates
 
 Objectif : ameliorer la finition visuelle des cartes sans ajouter de module ni changer le role des shortcodes.
 
@@ -62,7 +62,7 @@ Probleme observe :
 - les contenus sans image restent moins qualitatifs que les contenus avec image ;
 - le placeholder peut sembler vide sur des cartes editoriales.
 
-Piste V1.1 :
+Piste V2 :
 
 - affiner le placeholder CSS existant ;
 - conserver le meme element HTML ;
@@ -81,7 +81,7 @@ Probleme observe :
 - le lien `Lire` est fonctionnel mais tres discret ;
 - selon le theme, il peut manquer de hierarchie visuelle.
 
-Piste V1.1 :
+Piste V2 :
 
 - ameliorer le style du lien `.seed-card__button` ;
 - rester compatible avec l'heritage typographique du theme ;
@@ -100,7 +100,7 @@ Probleme observe :
 - les hauteurs de cartes varient selon la presence d'image, la taille des images sources et la longueur des titres ;
 - sur mobile, certaines cartes deviennent nettement plus longues que les autres.
 
-Piste V1.1 :
+Piste V2 :
 
 - stabiliser davantage la zone media ;
 - verifier l'effet des images reelles et des placeholders ;

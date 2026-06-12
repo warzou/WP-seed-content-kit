@@ -23,8 +23,9 @@ Ordre produit retenu :
 ```text
 V1.0 = socle actuel
 V1.1 = mises a jour GitHub via admin WordPress
-V1.2 = module Quotes/Citations
-V2 = styles avances, modules configurables, ACF optionnel
+V1.2 = page admin Modules + activation/desactivation Testimonials
+V1.3 = module Quotes/Citations
+V2 = styles avances, modules configurables plus larges, ACF optionnel
 ```
 
 ## 1. Convention de version
@@ -77,13 +78,14 @@ Exemples acceptes :
 Signification :
 
 - prochaine evolution fonctionnelle visible ;
-- peut correspondre a une V1.2 ou autre evolution produit revalidee ;
+- peut correspondre a V1.2 page admin Modules ou autre evolution produit revalidee ;
 - ne doit pas etre utilisee pour la premiere integration PUC ;
 - ne doit pas casser les shortcodes V1.
 
 Exemples attendus :
 
-- nouveau module editorial valide ;
+- premiere page admin Modules ;
+- activation/desactivation d'un module existant ;
 - variation d'affichage compatible ;
 - evolution produit sans rupture d'API shortcode.
 
@@ -91,7 +93,7 @@ Exemples attendus :
 
 Signification :
 
-- premiere V1.2 ;
+- premiere V1.3 ;
 - module Quotes/Citations si revalide ;
 - nouveau module editorial separe ;
 - ne doit pas casser l'infrastructure update V1.1 ;
@@ -367,10 +369,16 @@ Toute integration d'auto-update doit faire l'objet d'une revue de securite et d'
 
 ## Regle V1.2
 
-V1.2 est reservee au module Quotes/Citations si le besoin est revalide.
+V1.2 est reservee a la page admin Modules et a l'activation/desactivation du module `Testimonials`.
 
-Quotes/Citations ne doit pas etre integre en V1.1 afin de ne pas retarder la maintenance multi-sites.
+V1.2 ne doit pas ajouter Quotes/Citations, ne doit pas ajouter de styles avances, ne doit pas ajouter de detection builder et ne doit pas modifier l'API shortcode.
+
+## Regle V1.3
+
+V1.3 est reservee au module Quotes/Citations si le besoin est revalide.
+
+Quotes/Citations ne doit pas etre integre en V1.1 ou V1.2 afin de ne pas retarder la maintenance multi-sites ni la stabilisation de la page Modules.
 
 ## Regle V2
 
-V2 est reservee aux styles avances, modules configurables, reglages admin et ACF optionnel.
+V2 est reservee aux styles avances, modules configurables plus larges, reglages admin et ACF optionnel.

@@ -2,7 +2,7 @@
 
 Date : 12 juin 2026
 Statut : roadmap produit stricte
-Nature : cadrage des versions V1.0, V1.1, V1.2, V2
+Nature : cadrage des versions V1.0, V1.1, V1.2, V1.3, V2
 
 ## Principe directeur
 
@@ -232,11 +232,102 @@ Dependances interdites en V1.1 :
 - serveur d'update maison ;
 - service externe autre que GitHub Releases.
 
-## V1.2 - Module Quotes/Citations
+## V1.2 - Page admin Modules
 
 ### Objectifs
 
-Ajouter un module editorial separe pour citations, apres stabilisation du socle V1.0 et de la maintenance multi-sites V1.1.
+Introduire une premiere page d'administration legere pour rendre le socle plus maintenable sur plusieurs sites, sans ajouter de module editorial et sans changer les APIs shortcode.
+
+V1.2 doit fournir uniquement :
+
+- une page admin unique `WP Seed Content Kit > Modules` ;
+- une liste centralisee des modules ;
+- une option minimale `wp_seed_content_kit_modules` ;
+- `Cards` toujours actif ;
+- `Testimonials` actif par defaut, desactivable ;
+- `Quotes` affiche comme prevu, non activable ;
+- les shortcodes des modules actifs affiches et copiables ;
+- une aide d'integration builder par shortcode ;
+- un lien `Modules` dans la liste des extensions WordPress.
+
+V1.2 reste coherent avec le coeur du projet :
+
+```text
+contenus structures + affichages reutilisables
+```
+
+### Criteres de sortie
+
+V1.2 peut etre consideree terminee quand :
+
+- le plugin s'active sans erreur fatale ;
+- la page Modules est visible pour les administrateurs ;
+- l'acces a la page exige `manage_options` ;
+- la sauvegarde utilise nonce, sanitization et escaping ;
+- `Cards` reste disponible en permanence ;
+- `Testimonials` est actif par defaut ;
+- la desactivation de `Testimonials` retire le CPT et le shortcode au chargement suivant ;
+- la reactivation de `Testimonials` restaure le CPT et le shortcode ;
+- les contenus `seed_testimonial` existants ne sont pas supprimes ;
+- `Quotes` reste affiche comme prevu, sans CPT ni shortcode actif ;
+- aucun changement d'API shortcode n'est introduit ;
+- aucun couplage theme ou builder n'est introduit.
+
+### Criteres de validation
+
+Validation technique :
+
+- test d'activation du plugin ;
+- test d'acces a `WP Seed Content Kit > Modules` ;
+- test du lien `Modules` dans la liste des extensions ;
+- test de sauvegarde avec administrateur ;
+- test de refus d'acces sans `manage_options` si possible ;
+- test de desactivation puis reactivation de `Testimonials` ;
+- verification que `[seed_cards]` fonctionne toujours ;
+- verification que `[seed_testimonials]` disparait quand le module est desactive ;
+- verification que `[seed_testimonials]` revient quand le module est reactive ;
+- verification qu'aucun contenu existant n'est supprime.
+
+Validation produit :
+
+- la page reste informative et legere ;
+- aucun reglage avance n'est ajoute ;
+- aucune detection builder n'est ajoutee ;
+- aucune integration native Divi, Spectra, Astra ou Gutenberg n'est ajoutee ;
+- aucun module Quotes actif n'est ajoute.
+
+### Risques
+
+- Cacher temporairement le CPT `seed_testimonial` si `Testimonials` est desactive par erreur.
+- Confusion possible entre module desactive et contenu supprime.
+- Flush des permaliens lors du changement d'etat de module.
+- Derive vers une page de reglages trop large si la frontiere n'est pas maintenue.
+
+### Dependances
+
+Dependances autorisees :
+
+- WordPress natif ;
+- options WordPress natives ;
+- menu admin WordPress natif ;
+- shortcodes existants.
+
+Dependances interdites en V1.2 :
+
+- ACF obligatoire ;
+- nouveau module editorial actif ;
+- module Quotes/Citations actif ;
+- bloc Gutenberg dedie ;
+- module Divi dedie ;
+- detection builder ;
+- options de style avancees ;
+- dependance externe nouvelle.
+
+## V1.3 - Module Quotes/Citations
+
+### Objectifs
+
+Ajouter un module editorial separe pour citations, apres stabilisation du socle V1.0, de la maintenance multi-sites V1.1 et de la page Modules V1.2.
 
 Quotes/Citations peut etre pertinent si les citations doivent etre :
 
@@ -256,7 +347,7 @@ contenus structures + affichages reutilisables
 
 ### Perimetre minimal propose
 
-Si Quotes/Citations entre en V1.2, le perimetre minimal propose est :
+Si Quotes/Citations entre en V1.3, le perimetre minimal propose est :
 
 - module separe `quotes` ;
 - CPT `seed_quote` ;
@@ -278,8 +369,7 @@ Si Quotes/Citations entre en V1.2, le perimetre minimal propose est :
 - etat vide ;
 - aucune dependance ACF ;
 - aucun import automatique ;
-- aucune taxonomie dediee en V1.2 ;
-- aucune page de reglages admin ;
+- aucune taxonomie dediee en V1.3 ;
 - aucune migration automatique depuis articles existants.
 
 Quotes doit etre un module separe, pas une extension de `testimonials`.
@@ -295,12 +385,13 @@ Quotes doit etre un module separe, pas une extension de `testimonials`.
 - Retarder la stabilisation de la maintenance multi-sites.
 - Multiplier les variantes de cartes avant V2.
 
-### Criteres d'entree en V1.2
+### Criteres d'entree en V1.3
 
-Quotes/Citations peut entrer en V1.2 uniquement si :
+Quotes/Citations peut entrer en V1.3 uniquement si :
 
 - V1.0 est validee ;
 - V1.1 update infrastructure est validee ;
+- V1.2 page Modules est validee ;
 - les shortcodes V1.0 restent stables ;
 - le CSS V1.0 reste stable ;
 - le besoin Quotes/Citations est confirme par un usage reel ;
@@ -312,7 +403,7 @@ Quotes/Citations peut entrer en V1.2 uniquement si :
 - le module peut etre teste sans modifier un site de production ;
 - la creation d'un CPT `seed_quote` est explicitement revalidee.
 
-## V2 - Styles avances, modules configurables et ACF optionnel
+## V2 - Styles avances, modules configurables plus larges et ACF optionnel
 
 ### Objectifs
 
@@ -321,7 +412,7 @@ Ameliorer l'experience d'administration, les styles et la configurabilite du soc
 V2 peut ajouter :
 
 - page de reglages admin ;
-- activation/desactivation de modules ;
+- configuration plus large des modules ;
 - integration ACF optionnelle ;
 - detection de presence ACF ;
 - fallbacks natifs si ACF est absent ;
@@ -347,7 +438,7 @@ V2 peut etre consideree terminee quand :
 - ACF peut ameliorer l'UX sans devenir obligatoire ;
 - le plugin fonctionne avec ACF absent ;
 - le plugin fonctionne avec ACF actif ;
-- les modules peuvent etre actives/desactives sans casser les contenus existants ;
+- les modules peuvent etre configures sans casser les contenus existants ;
 - les reglages admin sont simples et documentes ;
 - les variantes de cartes restent CSS-scopees ;
 - les templates surchargeables ne rendent pas un theme enfant obligatoire.
@@ -362,7 +453,7 @@ Validation technique :
 - tests de sauvegarde des reglages admin ;
 - verification des capabilities admin ;
 - verification des nonces admin ;
-- verification de l'absence d'erreur si un module est desactive ;
+- verification de l'absence d'erreur si un module est configure ou desactive ;
 - verification du maintien des shortcodes V1.x.
 
 Validation produit :
@@ -488,9 +579,11 @@ V1.0 livre le socle minimal.
 
 V1.1 livre la maintenance multi-sites via mises a jour GitHub depuis l'admin WordPress.
 
-V1.2 peut ajouter Quotes/Citations.
+V1.2 livre la page admin Modules et la desactivation de `Testimonials`.
 
-V2 ameliore les styles, les modules configurables et l'optionnalite ACF.
+V1.3 peut ajouter Quotes/Citations.
+
+V2 ameliore les styles, les modules configurables plus larges et l'optionnalite ACF.
 
 V3 industrialise les workflows avances.
 
