@@ -14,6 +14,11 @@ function wp_seed_content_render_testimonial_card($post_id)
     ob_start();
     ?>
     <article class="seed-card seed-card--testimonial">
+        <?php if (has_post_thumbnail($post_id)) : ?>
+            <div class="seed-testimonials__photo">
+                <?php echo get_the_post_thumbnail($post_id, 'thumbnail', array('class' => 'seed-testimonials__photo-image', 'loading' => 'lazy')); ?>
+            </div>
+        <?php endif; ?>
         <div class="seed-card__body">
             <?php if ($text) : ?>
                 <blockquote class="seed-card__quote"><?php echo esc_html($text); ?></blockquote>

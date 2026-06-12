@@ -135,6 +135,18 @@
   line-height: 1.6;
 }
 
+.seed-testimonials__photo {
+  padding: 1rem 1rem 0;
+}
+
+.seed-testimonials__photo-image {
+  display: block;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
 .seed-card__testimonial-footer {
   display: grid;
   gap: 0.25rem;

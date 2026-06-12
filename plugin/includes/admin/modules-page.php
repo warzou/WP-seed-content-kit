@@ -26,7 +26,17 @@ function wp_seed_content_kit_register_modules_page()
         1
     );
 
-    if (!wp_seed_content_kit_is_module_active('testimonials')) {
+    if (wp_seed_content_kit_is_module_active('testimonials') && 'plugin' === wp_seed_content_kit_get_module_menu_location('seed_testimonial')) {
+        add_submenu_page(
+            'wp-seed-content-kit',
+            __('Témoignages', 'wp-seed-content-kit'),
+            __('Témoignages', 'wp-seed-content-kit'),
+            'edit_posts',
+            'edit.php?post_type=seed_testimonial',
+            null,
+            2
+        );
+    } elseif (!wp_seed_content_kit_is_module_active('testimonials')) {
         wp_seed_content_kit_register_placeholder_submenu(
             __('Témoignages', 'wp-seed-content-kit'),
             'wp-seed-content-kit-testimonials'

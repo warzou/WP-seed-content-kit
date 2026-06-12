@@ -67,7 +67,7 @@ function wp_seed_content_kit_get_post_type_menu_parent($post_type)
         return true;
     }
 
-    return 'wp-seed-content-kit';
+    return false;
 }
 
 function wp_seed_content_kit_is_module_active($module)

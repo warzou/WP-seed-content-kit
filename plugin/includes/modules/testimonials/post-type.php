@@ -18,7 +18,7 @@ function wp_seed_content_register_testimonial_post_type()
         'search_items' => __('Rechercher des témoignages', 'wp-seed-content-kit'),
         'not_found' => __('Aucun témoignage trouvé', 'wp-seed-content-kit'),
         'not_found_in_trash' => __('Aucun témoignage trouvé dans la corbeille', 'wp-seed-content-kit'),
-        'all_items' => __('Tous les témoignages', 'wp-seed-content-kit'),
+        'all_items' => __('Témoignages', 'wp-seed-content-kit'),
         'archives' => __('Archives des témoignages', 'wp-seed-content-kit'),
         'attributes' => __('Attributs du témoignage', 'wp-seed-content-kit'),
         'insert_into_item' => __('Insérer dans le témoignage', 'wp-seed-content-kit'),
