@@ -33,7 +33,7 @@ function wp_seed_content_kit_is_module_active($module)
         return true;
     }
 
-    if ('quotes' === $module) {
+    if (in_array($module, array('quotes', 'directory', 'audio'), true)) {
         return false;
     }
 
@@ -55,16 +55,8 @@ function wp_seed_content_kit_get_builder_usage_help()
 function wp_seed_content_kit_get_modules()
 {
     return array(
-        'cards' => array(
-            'label' => __('Cards', 'wp-seed-content-kit'),
-            'active' => true,
-            'planned' => false,
-            'activable' => false,
-            'shortcode' => '[seed_cards]',
-            'usage' => wp_seed_content_kit_get_builder_usage_help(),
-        ),
         'testimonials' => array(
-            'label' => __('Testimonials', 'wp-seed-content-kit'),
+            'label' => __('Témoignages', 'wp-seed-content-kit'),
             'active' => wp_seed_content_kit_is_module_active('testimonials'),
             'planned' => false,
             'activable' => true,
@@ -72,11 +64,27 @@ function wp_seed_content_kit_get_modules()
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
         ),
         'quotes' => array(
-            'label' => __('Quotes', 'wp-seed-content-kit'),
+            'label' => __('Citations', 'wp-seed-content-kit'),
             'active' => false,
             'planned' => true,
             'activable' => false,
-            'shortcode' => '[seed_quotes]',
+            'shortcode' => '',
+            'usage' => wp_seed_content_kit_get_builder_usage_help(),
+        ),
+        'directory' => array(
+            'label' => __('Annuaire', 'wp-seed-content-kit'),
+            'active' => false,
+            'planned' => true,
+            'activable' => false,
+            'shortcode' => '',
+            'usage' => wp_seed_content_kit_get_builder_usage_help(),
+        ),
+        'audio' => array(
+            'label' => __('Créations sonores', 'wp-seed-content-kit'),
+            'active' => false,
+            'planned' => true,
+            'activable' => false,
+            'shortcode' => '',
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
         ),
     );
