@@ -10,7 +10,13 @@ function wp_seed_content_cards_shortcode($atts)
         'limit' => 6,
         'columns' => 3,
         'category' => '',
+        'tag' => '',
+        'orderby' => 'date',
+        'order' => 'desc',
         'show_image' => 'true',
+        'show_category' => 'true',
+        'show_date' => 'true',
+        'show_title' => 'true',
         'show_excerpt' => 'true',
         'show_button' => 'true',
         'button_label' => __('Lire', 'wp-seed-content-kit'),
@@ -18,7 +24,12 @@ function wp_seed_content_cards_shortcode($atts)
 
     $limit = max(1, min(24, absint($atts['limit'])));
     $columns = wp_seed_content_clamp_columns($atts['columns']);
-    $category = sanitize_key($atts['category']);
+    $category = sanitize_title($atts['category']);
+    $tag = sanitize_title($atts['tag']);
+    $orderby = sanitize_key($atts['orderby']);
+    $orderby = in_array($orderby, array('date', 'title'), true) ? $orderby : 'date';
+    $order = strtolower(sanitize_key($atts['order']));
+    $order = in_array($order, array('asc', 'desc'), true) ? strtoupper($order) : 'DESC';
 
     wp_seed_content_enqueue_assets();
 
@@ -28,6 +39,8 @@ function wp_seed_content_cards_shortcode($atts)
         'posts_per_page' => $limit,
         'ignore_sticky_posts' => true,
         'no_found_rows' => true,
+        'orderby' => $orderby,
+        'order' => $order,
     );
 
     if ($category && 'all' !== $category) {
@@ -39,6 +52,15 @@ function wp_seed_content_cards_shortcode($atts)
         $query_args['category__in'] = array((int) $term->term_id);
     }
 
+    if ($tag && 'all' !== $tag) {
+        $term = get_term_by('slug', $tag, 'post_tag');
+        if (!$term || is_wp_error($term)) {
+            return '<p class="seed-cards__empty">' . esc_html__('No matching tag found.', 'wp-seed-content-kit') . '</p>';
+        }
+
+        $query_args['tag__in'] = array((int) $term->term_id);
+    }
+
     $query = new WP_Query($query_args);
 
     if (!$query->have_posts()) {
@@ -47,6 +69,9 @@ function wp_seed_content_cards_shortcode($atts)
 
     $card_args = array(
         'show_image' => wp_seed_content_bool_attr($atts['show_image'], true),
+        'show_category' => wp_seed_content_bool_attr($atts['show_category'], true),
+        'show_date' => wp_seed_content_bool_attr($atts['show_date'], true),
+        'show_title' => wp_seed_content_bool_attr($atts['show_title'], true),
         'show_excerpt' => wp_seed_content_bool_attr($atts['show_excerpt'], true),
         'show_button' => wp_seed_content_bool_attr($atts['show_button'], true),
         'button_label' => sanitize_text_field($atts['button_label']),
