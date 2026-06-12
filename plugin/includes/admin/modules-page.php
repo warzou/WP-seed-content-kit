@@ -68,6 +68,7 @@ function wp_seed_content_kit_register_modules_page()
     );
 }
 add_action('admin_menu', 'wp_seed_content_kit_register_modules_page');
+add_action('admin_post_wp_seed_content_kit_save_modules', 'wp_seed_content_kit_handle_modules_form');
 
 function wp_seed_content_kit_register_placeholder_submenu($label, $slug)
 {
@@ -316,7 +317,8 @@ function wp_seed_content_kit_render_configuration_tab()
         </div>
     <?php endif; ?>
 
-    <form method="post" action="<?php echo esc_url(add_query_arg(array('page' => 'wp-seed-content-kit', 'tab' => 'configuration'), admin_url('admin.php'))); ?>">
+    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+        <input type="hidden" name="action" value="wp_seed_content_kit_save_modules">
         <?php wp_nonce_field('wp_seed_content_kit_save_modules', 'wp_seed_content_kit_modules_nonce'); ?>
 
         <table class="widefat striped">
@@ -347,7 +349,7 @@ function wp_seed_content_kit_render_configuration_tab()
         <h2><?php echo esc_html__('Où l’utiliser ?', 'wp-seed-content-kit'); ?></h2>
         <?php wp_seed_content_kit_render_usage_help(array('usage' => wp_seed_content_kit_get_builder_usage_help())); ?>
 
-        <?php submit_button(__('Enregistrer les modules', 'wp-seed-content-kit')); ?>
+        <?php submit_button(__('Enregistrer la configuration', 'wp-seed-content-kit')); ?>
     </form>
     <?php
 }
@@ -356,11 +358,6 @@ function wp_seed_content_kit_render_modules_page()
 {
     if (!current_user_can('manage_options')) {
         wp_die(esc_html__('Vous n’avez pas l’autorisation de gérer WP Seed Content Kit.', 'wp-seed-content-kit'));
-    }
-
-    $request_method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper(sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD']))) : '';
-    if ('POST' === $request_method) {
-        wp_seed_content_kit_handle_modules_form();
     }
 
     $current_tab = wp_seed_content_kit_get_current_admin_tab();

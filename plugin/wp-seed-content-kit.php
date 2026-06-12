@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Seed Content Kit
  * Description: Modular editorial content and reusable displays for WordPress.
- * Version: 0.1.10
+ * Version: 0.1.11
  * Author: WP Seed Content Kit
  * Text Domain: wp-seed-content-kit
  */
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_SEED_CONTENT_KIT_VERSION', '0.1.10');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.1.11');
 define('WP_SEED_CONTENT_KIT_FILE', __FILE__);
 define('WP_SEED_CONTENT_KIT_DIR', plugin_dir_path(__FILE__));
 define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
