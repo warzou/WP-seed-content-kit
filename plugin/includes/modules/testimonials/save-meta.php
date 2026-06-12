@@ -52,5 +52,15 @@ function wp_seed_content_save_testimonial_meta($post_id, $post)
 
         update_post_meta($post_id, $key, $value);
     }
+
+    if (isset($_POST['wp_seed_content_testimonial_thumbnail_id']) && current_user_can('edit_post', $post_id)) {
+        $thumbnail_id = absint(wp_unslash($_POST['wp_seed_content_testimonial_thumbnail_id']));
+
+        if ($thumbnail_id > 0) {
+            set_post_thumbnail($post_id, $thumbnail_id);
+        } else {
+            delete_post_thumbnail($post_id);
+        }
+    }
 }
 add_action('save_post', 'wp_seed_content_save_testimonial_meta', 10, 2);
