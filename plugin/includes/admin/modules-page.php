@@ -16,6 +16,16 @@ function wp_seed_content_kit_register_modules_page()
         58
     );
 
+    add_submenu_page(
+        'wp-seed-content-kit',
+        __('Configuration / Générateurs', 'wp-seed-content-kit'),
+        __('Configuration / Générateurs', 'wp-seed-content-kit'),
+        'manage_options',
+        'wp-seed-content-kit',
+        'wp_seed_content_kit_render_modules_page',
+        1
+    );
+
     if (!wp_seed_content_kit_is_module_active('testimonials')) {
         wp_seed_content_kit_register_placeholder_submenu(
             __('Témoignages', 'wp-seed-content-kit'),
@@ -46,8 +56,6 @@ function wp_seed_content_kit_register_modules_page()
         'wp-seed-content-kit-help',
         'wp_seed_content_kit_render_help_page'
     );
-
-    remove_submenu_page('wp-seed-content-kit', 'wp-seed-content-kit');
 }
 add_action('admin_menu', 'wp_seed_content_kit_register_modules_page');
 

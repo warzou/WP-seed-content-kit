@@ -18,6 +18,18 @@ function wp_seed_content_register_testimonial_post_type()
         'search_items' => __('Rechercher des témoignages', 'wp-seed-content-kit'),
         'not_found' => __('Aucun témoignage trouvé', 'wp-seed-content-kit'),
         'not_found_in_trash' => __('Aucun témoignage trouvé dans la corbeille', 'wp-seed-content-kit'),
+        'all_items' => __('Tous les témoignages', 'wp-seed-content-kit'),
+        'archives' => __('Archives des témoignages', 'wp-seed-content-kit'),
+        'attributes' => __('Attributs du témoignage', 'wp-seed-content-kit'),
+        'insert_into_item' => __('Insérer dans le témoignage', 'wp-seed-content-kit'),
+        'uploaded_to_this_item' => __('Téléversé pour ce témoignage', 'wp-seed-content-kit'),
+        'featured_image' => __('Photo du témoignage', 'wp-seed-content-kit'),
+        'set_featured_image' => __('Définir la photo du témoignage', 'wp-seed-content-kit'),
+        'remove_featured_image' => __('Retirer la photo du témoignage', 'wp-seed-content-kit'),
+        'use_featured_image' => __('Utiliser comme photo du témoignage', 'wp-seed-content-kit'),
+        'filter_items_list' => __('Filtrer la liste des témoignages', 'wp-seed-content-kit'),
+        'items_list_navigation' => __('Navigation de la liste des témoignages', 'wp-seed-content-kit'),
+        'items_list' => __('Liste des témoignages', 'wp-seed-content-kit'),
     );
 
     register_post_type('seed_testimonial', array(
@@ -28,7 +40,7 @@ function wp_seed_content_register_testimonial_post_type()
         'show_in_rest' => true,
         'menu_position' => 20,
         'menu_icon' => 'dashicons-format-quote',
-        'supports' => array('title', 'revisions'),
+        'supports' => array('title', 'thumbnail', 'revisions'),
         'has_archive' => true,
         'rewrite' => array(
             'slug' => 'testimonials',
