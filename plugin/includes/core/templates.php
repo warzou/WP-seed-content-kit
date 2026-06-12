@@ -70,7 +70,21 @@ function wp_seed_content_get_template_module_name($module)
 function wp_seed_content_get_template_module($post_id)
 {
     $module = get_post_meta($post_id, '_wp_seed_content_template_module', true);
-    return is_string($module) ? sanitize_key($module) : '';
+    if (!is_string($module) || '' === trim($module)) {
+        $module = get_post_meta($post_id, '_seed_template_module', true);
+    }
+
+    if (!is_string($module)) {
+        return '';
+    }
+
+    $module = sanitize_key($module);
+    if ('' === $module) {
+        return '';
+    }
+
+    $modules = wp_seed_content_get_template_modules();
+    return isset($modules[$module]) ? $module : '';
 }
 
 function wp_seed_content_template_shortcode_for_post($post_id)
@@ -102,12 +116,17 @@ function wp_seed_content_render_template_module_meta_box($post)
 
     $current = wp_seed_content_get_template_module($post->ID);
     $modules = wp_seed_content_get_template_modules();
+    $supported_modules = array('testimonials');
     ?>
+    <p><strong><?php esc_html_e('Module du template', 'wp-seed-content-kit'); ?></strong></p>
     <input type="hidden" name="wp_seed_content_template_meta_nonce" value="<?php echo esc_attr(wp_create_nonce('wp_seed_content_template_meta')); ?>" />
     <p>
         <label for="wp-seed-template-module">
-            <strong><?php esc_html_e('Module', 'wp-seed-content-kit'); ?></strong>
+            <strong><?php esc_html_e('Module affiché par le shortcode', 'wp-seed-content-kit'); ?></strong>
         </label>
+    </p>
+    <p class="description">
+        <?php esc_html_e('Choisissez le module pour générer le shortcode d’utilisation.', 'wp-seed-content-kit'); ?>
     </p>
     <select id="wp-seed-template-module" name="wp_seed_content_template_module">
         <option value=""><?php esc_html_e('Non défini', 'wp-seed-content-kit'); ?></option>
@@ -116,15 +135,28 @@ function wp_seed_content_render_template_module_meta_box($post)
         if (!is_string($key)) {
             continue;
         }
+        $label = wp_seed_content_get_template_module_name($key);
+        if (!in_array($key, $supported_modules, true)) {
+            $label = sprintf(
+                /* translators: %s: module name */
+                __('%s (prévu)', 'wp-seed-content-kit'),
+                $label
+            );
+        }
         $selected = selected($current, $key, false);
 ?>
         <option value="<?php echo esc_attr($key); ?>" <?php echo $selected; ?>>
-            <?php echo esc_html(wp_seed_content_get_template_module_name($key)); ?>
+            <?php echo esc_html($label); ?>
         </option>
 <?php
     }
 ?>
     </select>
+    <p class="description">
+        <?php
+        esc_html_e('Modules fonctionnels : Témoignages. Modules préparés : Citations, Annuaire, Créations sonores.', 'wp-seed-content-kit');
+        ?>
+    </p>
     <p class="description">
         <?php
         echo wp_kses_post(
@@ -210,7 +242,7 @@ function wp_seed_content_seed_template_column_content($column, $post_id)
     if ('wp_seed_content_template_usage' === $column) {
         $shortcode = wp_seed_content_template_shortcode_for_post($post_id);
         if ('' === $shortcode) {
-            esc_html_e('Module non défini', 'wp-seed-content-kit');
+            esc_html_e('Sélectionnez un module dans le template', 'wp-seed-content-kit');
             return;
         }
 
