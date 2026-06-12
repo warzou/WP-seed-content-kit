@@ -232,17 +232,12 @@ function wp_seed_content_kit_render_cards_generator()
     <?php
 }
 
-function wp_seed_content_kit_render_planned_generator($label, $shortcode = '')
+function wp_seed_content_kit_render_planned_generator($label)
 {
     ?>
     <hr />
     <h2><?php echo esc_html($label); ?></h2>
-    <p><?php echo esc_html__('Prévu. Aucun générateur actif pour ce module dans cette version.', 'wp-seed-content-kit'); ?></p>
-    <?php if ($shortcode) : ?>
-        <p>
-            <input type="text" class="regular-text code" readonly="readonly" value="<?php echo esc_attr($shortcode); ?>" aria-label="<?php echo esc_attr(sprintf(__('Shortcode de base pour %s', 'wp-seed-content-kit'), $label)); ?>" />
-        </p>
-    <?php endif; ?>
+    <p><?php echo esc_html__('Prévu pour une prochaine version.', 'wp-seed-content-kit'); ?></p>
     <?php
 }
 
@@ -258,7 +253,7 @@ function wp_seed_content_kit_render_generators_page()
         <p><?php echo esc_html__('Les générateurs produisent des shortcodes explicites à copier dans vos pages. Ils ne stockent aucun réglage global.', 'wp-seed-content-kit'); ?></p>
 
         <?php wp_seed_content_kit_render_cards_generator(); ?>
-        <?php wp_seed_content_kit_render_planned_generator(__('Générateur Témoignages', 'wp-seed-content-kit'), '[seed_testimonials]'); ?>
+        <?php wp_seed_content_kit_render_planned_generator(__('Générateur Témoignages', 'wp-seed-content-kit')); ?>
         <?php wp_seed_content_kit_render_planned_generator(__('Générateur Citations', 'wp-seed-content-kit')); ?>
     </div>
     <?php

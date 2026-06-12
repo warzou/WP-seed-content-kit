@@ -101,6 +101,21 @@ function wp_seed_content_kit_get_module_status_label($module)
     return __('Inactif', 'wp-seed-content-kit');
 }
 
+function wp_seed_content_kit_render_module_status_badge($module)
+{
+    $classes = array('button', 'button-small', 'disabled');
+
+    if (!empty($module['active']) && empty($module['planned'])) {
+        $classes[] = 'button-primary';
+    }
+
+    printf(
+        '<span class="%s">%s</span>',
+        esc_attr(implode(' ', $classes)),
+        esc_html(wp_seed_content_kit_get_module_status_label($module))
+    );
+}
+
 function wp_seed_content_kit_render_shortcode_field($module_key, $module)
 {
     if (empty($module['active']) || empty($module['shortcode'])) {
@@ -172,21 +187,22 @@ function wp_seed_content_kit_render_modules_page()
                         <th scope="col"><?php echo esc_html__('Statut', 'wp-seed-content-kit'); ?></th>
                         <th scope="col"><?php echo esc_html__('Activable', 'wp-seed-content-kit'); ?></th>
                         <th scope="col"><?php echo esc_html__('Shortcode', 'wp-seed-content-kit'); ?></th>
-                        <th scope="col"><?php echo esc_html__('Où l’utiliser ?', 'wp-seed-content-kit'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($modules as $module_key => $module) : ?>
                         <tr>
                             <th scope="row"><?php echo esc_html($module['label']); ?></th>
-                            <td><?php echo esc_html(wp_seed_content_kit_get_module_status_label($module)); ?></td>
+                            <td><?php wp_seed_content_kit_render_module_status_badge($module); ?></td>
                             <td><?php wp_seed_content_kit_render_module_toggle($module_key, $module); ?></td>
                             <td><?php wp_seed_content_kit_render_shortcode_field($module_key, $module); ?></td>
-                            <td><?php wp_seed_content_kit_render_usage_help($module); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+
+            <h2><?php echo esc_html__('Où l’utiliser ?', 'wp-seed-content-kit'); ?></h2>
+            <?php wp_seed_content_kit_render_usage_help(array('usage' => wp_seed_content_kit_get_builder_usage_help())); ?>
 
             <?php submit_button(__('Enregistrer les modules', 'wp-seed-content-kit')); ?>
         </form>
