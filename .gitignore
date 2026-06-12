@@ -34,8 +34,13 @@ temp/
 dist/
 *.zip
 
-# Dependencies not required in V1
-vendor/
+# Dependencies
+/vendor/
+plugin/vendor/
+!plugin/vendor/
+plugin/vendor/*
+!plugin/vendor/plugin-update-checker/
+!plugin/vendor/plugin-update-checker/**
 node_modules/
 
 # Runtime/cache

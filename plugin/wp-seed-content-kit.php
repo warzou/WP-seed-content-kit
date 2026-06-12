@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Seed Content Kit
  * Description: Modular editorial content and reusable displays for WordPress.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Author: WP Seed Content Kit
  * Text Domain: wp-seed-content-kit
  */
@@ -11,13 +11,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_SEED_CONTENT_KIT_VERSION', '0.1.0');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.1.1');
 define('WP_SEED_CONTENT_KIT_FILE', __FILE__);
 define('WP_SEED_CONTENT_KIT_DIR', plugin_dir_path(__FILE__));
 define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
 
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/helpers.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/assets.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/update-checker.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/post-type.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/meta-boxes.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/save-meta.php';

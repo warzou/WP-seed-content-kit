@@ -203,8 +203,8 @@ Convention recommandee :
 
 ```text
 0.1.0 = V1 test initial
-0.1.1 = V1.0.1 UX polish / packaging test
-0.2.0 = V1.1 update infrastructure
+0.1.1 = V1.1 update infrastructure / Plugin Update Checker
+0.2.0 = prochaine evolution fonctionnelle visible
 ```
 
 ### 2. Publier un ZIP release
@@ -264,7 +264,7 @@ Tests obligatoires V1.1 :
 
 - detection d'une version superieure ;
 - affichage de la mise a jour dans l'admin ;
-- mise a jour depuis `0.1.x` vers `0.2.0` sur `avecguillaume.fr` ;
+- mise a jour depuis `0.1.0` vers `0.1.1` sur `avecguillaume.fr` ;
 - absence d'erreur fatale ;
 - shortcodes toujours actifs ;
 - CPT toujours present ;

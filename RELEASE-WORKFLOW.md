@@ -57,7 +57,9 @@ Usage :
 
 Signification :
 
-- correctif ou polish compatible V1 ;
+- patch/maintenance compatible V1 ;
+- infrastructure de mise a jour GitHub via admin WordPress ;
+- peut introduire Plugin Update Checker comme dependance embarquee ;
 - aucun changement d'API shortcode ;
 - aucun nouveau module ;
 - aucune architecture nouvelle.
@@ -68,22 +70,22 @@ Exemples acceptes :
 - correction CSS mineure ;
 - correction packaging ;
 - correction bug sans changement fonctionnel.
+- integration du mecanisme de mise a jour GitHub si elle ne change pas l'API shortcode.
 
 ### `0.2.0`
 
 Signification :
 
-- premiere V1.1 ;
-- infrastructure de mise a jour GitHub via admin WordPress ;
-- peut introduire Plugin Update Checker comme dependance embarquee ;
+- prochaine evolution fonctionnelle visible ;
+- peut correspondre a une V1.2 ou autre evolution produit revalidee ;
+- ne doit pas etre utilisee pour la premiere integration PUC ;
 - ne doit pas casser les shortcodes V1.
 
 Exemples attendus :
 
-- detection d'une nouvelle version depuis WordPress ;
-- telechargement du ZIP GitHub Release ;
-- mise a jour depuis l'ecran Extensions ;
-- rollback manuel documente.
+- nouveau module editorial valide ;
+- variation d'affichage compatible ;
+- evolution produit sans rupture d'API shortcode.
 
 ### `0.3.0`
 

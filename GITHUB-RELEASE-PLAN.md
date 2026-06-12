@@ -102,15 +102,17 @@ Role :
 - patch compatible ;
 - corrections UX/polish ;
 - corrections packaging ;
+- integration V1.1 GitHub Releases + Plugin Update Checker ;
+- detection et mise a jour depuis admin WordPress ;
 - aucun changement API shortcode.
 
 ### `0.2.0`
 
 Role :
 
-- V1.1 ;
-- integration future GitHub Releases + Plugin Update Checker ;
-- detection et mise a jour depuis admin WordPress.
+- prochaine evolution fonctionnelle visible ;
+- version reservee a un changement produit revalide ;
+- ne doit pas etre utilisee pour la premiere integration PUC.
 
 Non inclus dans ce plan :
 
