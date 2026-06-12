@@ -1,0 +1,42 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Local environment / secrets
+.env
+.env.*
+*.local
+*.key
+*.pem
+*.p12
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Backups / exports
+*.bak
+*.backup
+*.old
+*.sql
+*.sql.gz
+*.dump
+
+# Build / packages
+dist/
+*.zip
+
+# Dependencies not required in V1
+vendor/
+node_modules/
+
+# Runtime/cache
+.cache/
