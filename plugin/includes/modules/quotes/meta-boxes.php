@@ -8,7 +8,7 @@ function wp_seed_content_add_quote_meta_boxes()
 {
     add_meta_box(
         'wp_seed_content_quote_details',
-        __('DÃ©tails de la citation', 'wp-seed-content-kit'),
+        __('Détails de la citation', 'wp-seed-content-kit'),
         'wp_seed_content_render_quote_meta_box',
         'seed_quote',
         'normal',

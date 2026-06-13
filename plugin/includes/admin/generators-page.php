@@ -232,24 +232,343 @@ function wp_seed_content_kit_render_planned_generator($label, $show_heading = tr
     <?php
 }
 
+function wp_seed_content_kit_render_testimonials_generator($show_heading = true)
+{
+    ?>
+    <?php if ($show_heading) : ?>
+        <h2><?php echo esc_html__('Générateur Témoignages', 'wp-seed-content-kit'); ?></h2>
+    <?php endif; ?>
+    <p><?php echo esc_html__('Générez un shortcode [seed_testimonials] pour vos pages.', 'wp-seed-content-kit'); ?></p>
+    <div id="wp-seed-content-kit-testimonials-generator">
+        <table class="form-table" role="presentation">
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-testimonials-generator-limit"><?php echo esc_html__('Nombre', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <input id="seed-testimonials-generator-limit" type="number" min="0" value="3" data-seed-testimonials-attr="limit" data-seed-testimonials-default="3" />
+                        <p class="description">
+                            <?php echo esc_html__('Définissez 0 pour afficher toutes les entrées.', 'wp-seed-content-kit'); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-testimonials-generator-featured"><?php echo esc_html__('Mis en avant', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <label>
+                            <input id="seed-testimonials-generator-featured" type="checkbox" data-seed-testimonials-attr="featured" value="true" />
+                            <?php echo esc_html__('Ne prendre que les éléments mis en avant', 'wp-seed-content-kit'); ?>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-testimonials-generator-template"><?php echo esc_html__('Template', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <input id="seed-testimonials-generator-template" type="text" class="regular-text code" placeholder="<?php echo esc_attr__('Identifiant', 'wp-seed-content-kit'); ?>" data-seed-testimonials-attr="template" data-seed-testimonials-default="" />
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-testimonials-generator-shortcode"><?php echo esc_html__('Shortcode généré', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <input id="seed-testimonials-generator-shortcode" type="text" class="large-text code" readonly="readonly" value="[seed_testimonials]" />
+                        <p>
+                            <button type="button" class="button" id="seed-testimonials-generator-copy"><?php echo esc_html__('Copier', 'wp-seed-content-kit'); ?></button>
+                            <span id="seed-testimonials-generator-copy-status" aria-live="polite"></span>
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        (function () {
+            var wrapper = document.getElementById('wp-seed-content-kit-testimonials-generator');
+            var output = document.getElementById('seed-testimonials-generator-shortcode');
+            var copyButton = document.getElementById('seed-testimonials-generator-copy');
+            var copyStatus = document.getElementById('seed-testimonials-generator-copy-status');
+
+            if (!wrapper || !output) {
+                return;
+            }
+
+            function normalizeAttribute(value) {
+                return String(value).replace(/"/g, "'").replace(/\[/g, '').replace(/\]/g, '');
+            }
+
+            function isFieldEnabled(field) {
+                return !field.disabled && field.getAttribute;
+            }
+
+            function updateShortcode() {
+                var fields = wrapper.querySelectorAll('[data-seed-testimonials-attr]');
+                var parts = ['seed_testimonials'];
+
+                fields.forEach(function (field) {
+                    if (!isFieldEnabled(field)) {
+                        return;
+                    }
+
+                    var attr = field.getAttribute('data-seed-testimonials-attr');
+                    var defaultValue = field.getAttribute('data-seed-testimonials-default');
+                    var value = '';
+
+                    if ('checkbox' === field.type) {
+                        if (field.checked) {
+                            value = 'true';
+                        }
+                    } else {
+                        value = String(field.value).trim();
+                        if (!field.value.trim()) {
+                            value = '';
+                        }
+                    }
+
+                    if (!value) {
+                        return;
+                    }
+
+                    if (defaultValue && value === defaultValue) {
+                        return;
+                    }
+
+                    if ('limit' === attr && Number(value) === 0) {
+                        parts.push('limit="' + value + '"');
+                        return;
+                    }
+
+                    parts.push(attr + '="' + normalizeAttribute(value) + '"');
+                });
+
+                output.value = '[' + parts.join(' ') + ']';
+            }
+
+            wrapper.addEventListener('input', updateShortcode);
+            wrapper.addEventListener('change', updateShortcode);
+            if (copyButton) {
+                copyButton.addEventListener('click', function () {
+                    output.select();
+                    output.setSelectionRange(0, output.value.length);
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(output.value);
+                    } else {
+                        document.execCommand('copy');
+                    }
+                    if (copyStatus) {
+                        copyStatus.textContent = '<?php echo esc_js(__('Copié.', 'wp-seed-content-kit')); ?>';
+                    }
+                });
+            }
+
+            updateShortcode();
+        }());
+    </script>
+    <?php
+}
+
+function wp_seed_content_kit_render_quotes_generator($show_heading = true)
+{
+    ?>
+    <?php if ($show_heading) : ?>
+        <h2><?php echo esc_html__('Générateur Citations', 'wp-seed-content-kit'); ?></h2>
+    <?php endif; ?>
+    <p><?php echo esc_html__('Générez un shortcode [seed_quotes] pour vos pages.', 'wp-seed-content-kit'); ?></p>
+    <p class="description">
+        <?php echo esc_html__('Règle : limit=0 pour afficher toutes les citations. orderby peut être random, author ou date.', 'wp-seed-content-kit'); ?>
+    </p>
+    <div id="wp-seed-content-kit-quotes-generator">
+        <table class="form-table" role="presentation">
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-quotes-generator-limit"><?php echo esc_html__('Nombre', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <input id="seed-quotes-generator-limit" type="number" min="0" value="1" data-seed-quotes-attr="limit" data-seed-quotes-default="1" />
+                        <p class="description">
+                            <?php echo esc_html__('0 = toutes les citations, valeur vide = 1 citation aléatoire.', 'wp-seed-content-kit'); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-quotes-generator-featured"><?php echo esc_html__('Mis en avant', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <label>
+                            <input id="seed-quotes-generator-featured" type="checkbox" data-seed-quotes-attr="featured" value="true" />
+                            <?php echo esc_html__('Ne prendre que les citations mises en avant', 'wp-seed-content-kit'); ?>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-quotes-generator-orderby"><?php echo esc_html__('Trier par', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <select id="seed-quotes-generator-orderby" data-seed-quotes-attr="orderby" data-seed-quotes-default="random">
+                            <option value="random"><?php echo esc_html__('Aléatoire', 'wp-seed-content-kit'); ?></option>
+                            <option value="author"><?php echo esc_html__('Auteur', 'wp-seed-content-kit'); ?></option>
+                            <option value="date"><?php echo esc_html__('Date WordPress', 'wp-seed-content-kit'); ?></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-quotes-generator-order"><?php echo esc_html__('Ordre', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <select id="seed-quotes-generator-order" data-seed-quotes-attr="order" data-seed-quotes-default="DESC">
+                            <option value="DESC"><?php echo esc_html__('Décroissant', 'wp-seed-content-kit'); ?></option>
+                            <option value="ASC"><?php echo esc_html__('Croissant', 'wp-seed-content-kit'); ?></option>
+                        </select>
+                        <p class="description">
+                            <?php echo esc_html__('Ignoré quand orderby="random".', 'wp-seed-content-kit'); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-quotes-generator-template"><?php echo esc_html__('Template', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <input id="seed-quotes-generator-template" type="text" class="regular-text code" placeholder="<?php echo esc_attr__('Identifiant', 'wp-seed-content-kit'); ?>" data-seed-quotes-attr="template" data-seed-quotes-default="" />
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-quotes-generator-shortcode"><?php echo esc_html__('Shortcode généré', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <input id="seed-quotes-generator-shortcode" type="text" class="large-text code" readonly="readonly" value="[seed_quotes]" />
+                        <p>
+                            <button type="button" class="button" id="seed-quotes-generator-copy"><?php echo esc_html__('Copier', 'wp-seed-content-kit'); ?></button>
+                            <span id="seed-quotes-generator-copy-status" aria-live="polite"></span>
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        (function () {
+            var wrapper = document.getElementById('wp-seed-content-kit-quotes-generator');
+            var output = document.getElementById('seed-quotes-generator-shortcode');
+            var copyButton = document.getElementById('seed-quotes-generator-copy');
+            var copyStatus = document.getElementById('seed-quotes-generator-copy-status');
+            var orderSelect = document.getElementById('seed-quotes-generator-orderby');
+            var orderField = document.getElementById('seed-quotes-generator-order');
+
+            if (!wrapper || !output || !orderSelect || !orderField) {
+                return;
+            }
+
+            function normalizeAttribute(value) {
+                return String(value).replace(/"/g, "'").replace(/\[/g, '').replace(/\]/g, '');
+            }
+
+            function isRandomMode() {
+                return 'random' === String(orderSelect.value);
+            }
+
+            function syncOrderField() {
+                if (isRandomMode()) {
+                    orderField.disabled = true;
+                    orderField.value = 'DESC';
+                } else {
+                    orderField.disabled = false;
+                }
+            }
+
+            function updateShortcode() {
+                var fields = wrapper.querySelectorAll('[data-seed-quotes-attr]');
+                var parts = ['seed_quotes'];
+
+                fields.forEach(function (field) {
+                    if (field.disabled) {
+                        return;
+                    }
+
+                    var attr = field.getAttribute('data-seed-quotes-attr');
+                    var defaultValue = field.getAttribute('data-seed-quotes-default');
+                    var value = '';
+
+                    if ('checkbox' === field.type) {
+                        if (field.checked) {
+                            value = 'true';
+                        }
+                    } else {
+                        value = String(field.value).trim();
+                    }
+
+                    if (!value) {
+                        return;
+                    }
+
+                    if (defaultValue !== null && value === defaultValue) {
+                        if (!('template' === attr && value !== '')) {
+                            return;
+                        }
+                    }
+
+                    parts.push(attr + '="' + normalizeAttribute(value) + '"');
+                });
+
+                output.value = '[' + parts.join(' ') + ']';
+            }
+
+            wrapper.addEventListener('input', updateShortcode);
+            wrapper.addEventListener('change', function () {
+                syncOrderField();
+                updateShortcode();
+            });
+
+            if (copyButton) {
+                copyButton.addEventListener('click', function () {
+                    output.select();
+                    output.setSelectionRange(0, output.value.length);
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(output.value);
+                    } else {
+                        document.execCommand('copy');
+                    }
+                    if (copyStatus) {
+                        copyStatus.textContent = '<?php echo esc_js(__('Copié.', 'wp-seed-content-kit')); ?>';
+                    }
+                });
+            }
+
+            syncOrderField();
+            updateShortcode();
+        }());
+    </script>
+    <?php
+}
+
 function wp_seed_content_kit_render_generators_tab()
 {
     ?>
     <p><?php echo esc_html__('Les générateurs produisent des shortcodes explicites à copier dans vos pages. Ils ne stockent aucun réglage global.', 'wp-seed-content-kit'); ?></p>
 
-    <details open="open">
+    <details>
         <summary><strong><?php echo esc_html__('Générateur Cards', 'wp-seed-content-kit'); ?></strong></summary>
         <?php wp_seed_content_kit_render_cards_generator(false); ?>
     </details>
 
     <details>
         <summary><strong><?php echo esc_html__('Générateur Témoignages', 'wp-seed-content-kit'); ?></strong></summary>
-        <?php wp_seed_content_kit_render_planned_generator(__('Générateur Témoignages', 'wp-seed-content-kit'), false); ?>
+        <?php wp_seed_content_kit_render_testimonials_generator(false); ?>
     </details>
 
     <details>
         <summary><strong><?php echo esc_html__('Générateur Citations', 'wp-seed-content-kit'); ?></strong></summary>
-        <?php wp_seed_content_kit_render_planned_generator(__('Générateur Citations', 'wp-seed-content-kit'), false); ?>
+        <?php wp_seed_content_kit_render_quotes_generator(false); ?>
     </details>
     <?php
 }

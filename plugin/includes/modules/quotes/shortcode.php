@@ -90,7 +90,7 @@ function wp_seed_content_quotes_shortcode($atts)
     $query = new WP_Query($query_args);
 
     if (!$query->have_posts()) {
-        return '<p class="seed-quotes__empty">' . esc_html__('Aucune citation Ã  afficher pour le moment.', 'wp-seed-content-kit') . '</p>';
+        return '<p class="seed-quotes__empty">' . esc_html__('Aucune citation à afficher pour le moment.', 'wp-seed-content-kit') . '</p>';
     }
 
     $is_template_mode = '' !== $template && wp_seed_content_is_quote_template_valid($template);

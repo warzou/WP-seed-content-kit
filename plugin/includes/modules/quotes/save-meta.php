@@ -15,6 +15,43 @@ function wp_seed_content_quote_meta_definitions()
     );
 }
 
+function wp_seed_content_get_quote_title_from_text($text, $post_id = 0)
+{
+    $text = trim((string) wp_strip_all_tags($text));
+    if ($text !== '') {
+        $compact = preg_replace('/\s+/', ' ', $text);
+        return wp_html_excerpt($compact, 60, '');
+    }
+
+    if ((int) $post_id > 0) {
+        return sprintf(__('Citation #%d', 'wp-seed-content-kit'), (int) $post_id);
+    }
+
+    return __('Citation sans titre', 'wp-seed-content-kit');
+}
+
+function wp_seed_content_update_quote_post_title($post_id, $post)
+{
+    if ('seed_quote' !== $post->post_type) {
+        return;
+    }
+
+    $quote_text = isset($_POST['_seed_quote_text']) ? wp_unslash($_POST['_seed_quote_text']) : '';
+    $quote_text = wp_kses_post($quote_text);
+
+    $generated_title = wp_seed_content_get_quote_title_from_text($quote_text, $post_id);
+    if (trim($post->post_title) === $generated_title) {
+        return;
+    }
+
+    remove_action('save_post', 'wp_seed_content_save_quote_meta', 10, 2);
+    wp_update_post(array(
+        'ID' => $post_id,
+        'post_title' => $generated_title,
+    ));
+    add_action('save_post', 'wp_seed_content_save_quote_meta', 10, 2);
+}
+
 function wp_seed_content_save_quote_meta($post_id, $post)
 {
     if ('seed_quote' !== $post->post_type) {
@@ -54,5 +91,7 @@ function wp_seed_content_save_quote_meta($post_id, $post)
 
         update_post_meta($post_id, $key, $value);
     }
+
+    wp_seed_content_update_quote_post_title($post_id, $post);
 }
 add_action('save_post', 'wp_seed_content_save_quote_meta', 10, 2);
