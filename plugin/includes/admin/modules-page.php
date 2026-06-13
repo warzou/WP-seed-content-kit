@@ -43,10 +43,22 @@ function wp_seed_content_kit_register_modules_page()
         );
     }
 
-    wp_seed_content_kit_register_placeholder_submenu(
-        __('Citations', 'wp-seed-content-kit'),
-        'wp-seed-content-kit-quotes'
-    );
+    if (wp_seed_content_kit_is_module_active('quotes') && 'plugin' === wp_seed_content_kit_get_module_menu_location('seed_quote')) {
+        add_submenu_page(
+            'wp-seed-content-kit',
+            __('Citations', 'wp-seed-content-kit'),
+            __('Citations', 'wp-seed-content-kit'),
+            'edit_posts',
+            'edit.php?post_type=seed_quote',
+            null,
+            3
+        );
+    } elseif (!wp_seed_content_kit_is_module_active('quotes')) {
+        wp_seed_content_kit_register_placeholder_submenu(
+            __('Citations', 'wp-seed-content-kit'),
+            'wp-seed-content-kit-quotes'
+        );
+    }
 
     wp_seed_content_kit_register_placeholder_submenu(
         __('Annuaire', 'wp-seed-content-kit'),
@@ -116,10 +128,12 @@ function wp_seed_content_kit_handle_modules_form()
     $previous = wp_seed_content_kit_get_module_options();
     $next = array(
         'testimonials' => in_array('testimonials', $enabled_modules, true),
+        'quotes' => true,
     );
 
     $menu_visibility = array(
         'seed_testimonial' => 'plugin',
+        'seed_quote' => 'plugin',
     );
     if (
         isset($_POST['wp_seed_content_kit_module_menu_visibility'])
@@ -131,6 +145,13 @@ function wp_seed_content_kit_handle_modules_form()
             && 'root' === sanitize_key($posted_menu_visibility['seed_testimonial'])
         ) {
             $menu_visibility['seed_testimonial'] = 'root';
+        }
+
+        if (
+            isset($posted_menu_visibility['seed_quote'])
+            && 'root' === sanitize_key($posted_menu_visibility['seed_quote'])
+        ) {
+            $menu_visibility['seed_quote'] = 'root';
         }
     }
 
@@ -159,6 +180,16 @@ function wp_seed_content_kit_refresh_module_rewrite_rules($modules)
         wp_seed_content_register_testimonial_post_type();
     } elseif (function_exists('unregister_post_type') && post_type_exists('seed_testimonial')) {
         unregister_post_type('seed_testimonial');
+    }
+
+    if (!empty($modules['quotes'])) {
+        if (!function_exists('wp_seed_content_register_quote_post_type')) {
+            require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/post-type.php';
+        }
+
+        wp_seed_content_register_quote_post_type();
+    } elseif (function_exists('unregister_post_type') && post_type_exists('seed_quote')) {
+        unregister_post_type('seed_quote');
     }
 
     flush_rewrite_rules();
@@ -237,7 +268,16 @@ function wp_seed_content_kit_render_module_menu_visibility_toggle($module_key, $
 
 function wp_seed_content_kit_render_module_quick_links($module_key, $module)
 {
-    if ('testimonials' !== $module_key || empty($module['active'])) {
+    if (empty($module['active'])) {
+        echo esc_html__('Prévu', 'wp-seed-content-kit');
+        return;
+    }
+
+    if ('testimonials' === $module_key) {
+        $post_type = 'seed_testimonial';
+    } elseif ('quotes' === $module_key) {
+        $post_type = 'seed_quote';
+    } else {
         echo esc_html__('Prévu', 'wp-seed-content-kit');
         return;
     }
@@ -245,12 +285,12 @@ function wp_seed_content_kit_render_module_quick_links($module_key, $module)
     $links = array(
         sprintf(
             '<a href="%s">%s</a>',
-            esc_url(admin_url('edit.php?post_type=seed_testimonial')),
+            esc_url(admin_url('edit.php?post_type=' . $post_type)),
             esc_html__('Gérer', 'wp-seed-content-kit')
         ),
         sprintf(
             '<a href="%s">%s</a>',
-            esc_url(admin_url('post-new.php?post_type=seed_testimonial')),
+            esc_url(admin_url('post-new.php?post_type=' . $post_type)),
             esc_html__('Ajouter', 'wp-seed-content-kit')
         ),
     );

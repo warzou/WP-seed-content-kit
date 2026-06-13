@@ -79,6 +79,14 @@ function wp_seed_content_get_template_placeholders_by_module($module)
             'photo_alt' => __('Texte alternatif de la photo', 'wp-seed-content-kit'),
         );
     }
+    if ('quotes' === $module) {
+        return array(
+            'quote' => __('Citation', 'wp-seed-content-kit'),
+            'author' => __('Auteur', 'wp-seed-content-kit'),
+            'era' => __('Époque / date affichée', 'wp-seed-content-kit'),
+            'source' => __('Source / contexte', 'wp-seed-content-kit'),
+        );
+    }
 
     return array();
 }
@@ -139,7 +147,7 @@ function wp_seed_content_render_template_module_meta_box($post)
         $shortcode_example = sprintf($shortcode_pattern, $current_slug);
     }
     $placeholders = wp_seed_content_get_template_placeholders_by_module($current);
-    $supported_modules = array('testimonials');
+    $supported_modules = array('testimonials', 'quotes');
     $placeholders_by_module = array();
     $shortcodes_by_module = array();
     foreach ($modules as $module_key => $module_shortcode) {
@@ -192,7 +200,7 @@ function wp_seed_content_render_template_module_meta_box($post)
     </select>
     <p class="description">
         <?php
-        esc_html_e('Modules fonctionnels : Témoignages. Modules préparés : Citations, Annuaire, Créations sonores.', 'wp-seed-content-kit');
+        esc_html_e('Modules fonctionnels : Témoignages, Citations. Modules préparés : Annuaire, Créations sonores.', 'wp-seed-content-kit');
         ?>
     </p>
     <p class="description">
@@ -227,7 +235,7 @@ function wp_seed_content_render_template_module_meta_box($post)
         </p>
         <p class="description">
             <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
-            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html("<div class=\"testimonial\">\n<img src=\"{{photo_url}}\" alt=\"{{photo_alt}}\">\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>"); ?></pre>
+            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html(wp_seed_content_get_template_example_by_module($current)); ?></pre>
         </p>
         <div id="wp-seed-template-module-data" data-module-meta="<?php echo esc_attr(wp_json_encode($module_data)); ?>"></div>
     <?php else : ?>
@@ -238,7 +246,7 @@ function wp_seed_content_render_template_module_meta_box($post)
         </p>
         <p class="description">
             <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
-            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html("<div class=\"testimonial\">\n<img src=\"{{photo_url}}\" alt=\"{{photo_alt}}\">\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>"); ?></pre>
+            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html(wp_seed_content_get_template_example_by_module($current)); ?></pre>
         </p>
         <div id="wp-seed-template-module-data" data-module-meta="<?php echo esc_attr(wp_json_encode($module_data)); ?>"></div>
     <?php endif; ?>
@@ -473,6 +481,17 @@ JS;
 }
 
 add_action('admin_init', 'wp_seed_content_seed_template_init_admin_columns');
+
+function wp_seed_content_get_template_example_by_module($module)
+{
+    $module = sanitize_key($module);
+
+    if ('quotes' === $module) {
+        return "<div class=\"quote-template\">\n{{quote}}\n<p>{{author}}</p>\n<p>{{source}}</p>\n<p>{{era}}</p>\n</div>";
+    }
+
+    return "<div class=\"testimonial-template\">\n<img src=\"{{photo_url}}\" alt=\"{{photo_alt}}\">\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>";
+}
 function wp_seed_content_seed_template_init_admin_columns()
 {
     add_filter('manage_seed_template_posts_columns', 'wp_seed_content_seed_template_columns');

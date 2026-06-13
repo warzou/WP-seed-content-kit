@@ -8,6 +8,7 @@ function wp_seed_content_kit_get_default_module_options()
 {
     return array(
         'testimonials' => true,
+        'quotes' => true,
     );
 }
 
@@ -22,6 +23,7 @@ function wp_seed_content_kit_get_module_options()
 
     return array(
         'testimonials' => (bool) $options['testimonials'],
+        'quotes' => (bool) $options['quotes'],
     );
 }
 
@@ -78,7 +80,7 @@ function wp_seed_content_kit_is_module_active($module)
         return true;
     }
 
-    if (in_array($module, array('quotes', 'directory', 'audio'), true)) {
+    if (in_array($module, array('directory', 'audio'), true)) {
         return false;
     }
 
@@ -110,10 +112,10 @@ function wp_seed_content_kit_get_modules()
         ),
         'quotes' => array(
             'label' => __('Citations', 'wp-seed-content-kit'),
-            'active' => false,
-            'planned' => true,
+            'active' => wp_seed_content_kit_is_module_active('quotes'),
+            'planned' => false,
             'activable' => false,
-            'shortcode' => '',
+            'shortcode' => '[seed_quotes]',
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
         ),
         'directory' => array(
