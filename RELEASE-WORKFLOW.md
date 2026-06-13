@@ -243,6 +243,46 @@ main_file_present=true
 unique_root=wp-seed-content-kit
 ```
 
+## Leçon validée : WordPress Release Packaging Safety
+
+Symptôme observé :
+
+Après mise à jour, WordPress a affiché :
+
+> Le fichier de l'extension n'existe pas.
+
+Cause racine :
+
+- ZIP GitHub Release construit avec des chemins internes au format Windows (`\`).
+
+Exemple incorrect :
+
+```text
+wp-seed-content-kit\wp-seed-content-kit.php
+```
+
+Exemple correct :
+
+```text
+wp-seed-content-kit/wp-seed-content-kit.php
+```
+
+Conséquence :
+
+- WordPress ne retrouve pas le fichier principal du plugin pendant l'activation.
+
+Checklist obligatoire avant toute release WordPress :
+
+1. Generer le ZIP.
+2. Verifier que le nombre d'entrees contenant `\` est egal a `0`.
+3. Verifier l'existence exacte de `wp-seed-content-kit/wp-seed-content-kit.php`.
+4. Publier la release.
+5. Retelecharger l'asset public GitHub.
+6. Refaire les memes verifications 2 et 3 sur l'asset public.
+7. Comparer le SHA256 local et public.
+
+Ces controles sont obligatoires avant validation finale de release.
+
 ## 5. Workflow release
 
 ### Etape 1 - Stabiliser le contenu
@@ -382,3 +422,4 @@ Quotes/Citations ne doit pas etre integre en V1.1 ou V1.2 afin de ne pas retarde
 ## Regle V2
 
 V2 est reservee aux styles avances, modules configurables plus larges, reglages admin et ACF optionnel.
+

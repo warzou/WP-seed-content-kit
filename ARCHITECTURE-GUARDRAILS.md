@@ -307,6 +307,31 @@ Le plugin ne doit jamais :
 - envoyer des donnees a un service externe en V1 ;
 - modifier en masse des contenus sans confirmation.
 
+### Release Safety - WordPress Packaging Safety
+
+Symptôme observé :
+
+- après mise a jour, WordPress peut afficher : `Le fichier de l'extension n'existe pas.`
+
+Cause racine :
+
+- ZIP GitHub Release avec chemins internes en style Windows (`\`).
+- exemple incorrect : `wp-seed-content-kit\wp-seed-content-kit.php`
+- exemple correct : `wp-seed-content-kit/wp-seed-content-kit.php`
+
+Conséquence :
+
+- WordPress ne retrouve plus le fichier principal du plugin lors de l'activation.
+
+Règle de garde :
+
+Avant validation d'une release WordPress, vérifier :
+
+1) le ZIP local contient le chemin exact `wp-seed-content-kit/wp-seed-content-kit.php` ;
+2) le nombre d'entrées contenant `\` est nul ;
+3) le ZIP public GitHub retéléchargé passe les mêmes vérifications ;
+4) le SHA256 local/public est comparé.
+
 ## 12. Roadmap guardrails
 
 ### V1
