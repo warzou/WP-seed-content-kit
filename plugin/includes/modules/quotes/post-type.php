@@ -42,27 +42,8 @@ function wp_seed_content_register_quote_post_type()
         ),
         'capability_type' => 'post',
     ));
-}
 
-function wp_seed_content_quotes_manage_columns($columns)
-{
-    $columns['seed_quote_order'] = __('Ordre', 'wp-seed-content-kit');
-    return $columns;
-}
-add_filter('manage_seed_quote_posts_columns', 'wp_seed_content_quotes_manage_columns');
-
-function wp_seed_content_quotes_render_order_column($column, $post_id)
-{
-    if ('seed_quote_order' !== $column) {
-        return;
+    if (function_exists('wp_seed_content_kit_register_manual_order_for_post_type')) {
+        wp_seed_content_kit_register_manual_order_for_post_type('seed_quote');
     }
-
-    $post = get_post($post_id);
-    if (!$post instanceof WP_Post) {
-        echo '0';
-        return;
-    }
-
-    echo (int) $post->menu_order;
 }
-add_action('manage_seed_quote_posts_custom_column', 'wp_seed_content_quotes_render_order_column', 10, 2);
