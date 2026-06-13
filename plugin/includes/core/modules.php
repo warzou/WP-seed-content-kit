@@ -30,8 +30,31 @@ function wp_seed_content_kit_get_module_options()
 function wp_seed_content_kit_get_default_module_menu_visibility()
 {
     return array(
-        'seed_testimonial' => 'plugin',
+        'seed_testimonial' => array(
+            'show_in_menu' => false,
+            'roles' => array('administrator'),
+        ),
+        'seed_quote' => array(
+            'show_in_menu' => false,
+            'roles' => array('administrator'),
+        ),
     );
+}
+
+function wp_seed_content_kit_get_user_roles()
+{
+    if (!function_exists('wp_roles')) {
+        return array();
+    }
+
+    $roles = wp_roles()->roles;
+    if (!is_array($roles)) {
+        return array();
+    }
+
+    ksort($roles);
+
+    return array_keys($roles);
 }
 
 function wp_seed_content_kit_get_module_menu_visibility()
@@ -41,34 +64,72 @@ function wp_seed_content_kit_get_module_menu_visibility()
         $stored = array();
     }
 
-    $visibility = wp_parse_args($stored, wp_seed_content_kit_get_default_module_menu_visibility());
-    $allowed = array('plugin', 'root');
+    $defaults = wp_seed_content_kit_get_default_module_menu_visibility();
+    $all_roles = wp_seed_content_kit_get_user_roles();
 
-    foreach ($visibility as $post_type => $value) {
-        if (!in_array($value, $allowed, true)) {
-            $visibility[$post_type] = 'plugin';
+    $visibility = array();
+
+    foreach ($defaults as $post_type => $default_visibility) {
+        $current = isset($stored[$post_type]) ? $stored[$post_type] : $default_visibility;
+        $show_in_menu = false;
+        $roles = array();
+
+        if (is_array($current)) {
+            if (isset($current['show_in_menu'])) {
+                $show_in_menu = wp_seed_content_bool_attr($current['show_in_menu'], false);
+            }
+            if (isset($current['roles']) && is_array($current['roles'])) {
+                foreach ((array) $current['roles'] as $role) {
+                    $role = sanitize_key((string) $role);
+                    if (in_array($role, $all_roles, true)) {
+                        $roles[] = $role;
+                    }
+                }
+            }
+        } elseif ('root' === sanitize_text_field((string) $current)) {
+            $show_in_menu = true;
+            $roles = array('administrator');
         }
+
+        if (empty($roles)) {
+            $roles = (array) $default_visibility['roles'];
+        }
+
+        $visibility[$post_type] = array(
+            'show_in_menu' => (bool) $show_in_menu,
+            'roles' => array_values(array_unique(array_map('sanitize_key', $roles))),
+        );
     }
 
-    return array(
-        'seed_testimonial' => $visibility['seed_testimonial'],
-    );
+    return $visibility;
 }
 
-function wp_seed_content_kit_get_module_menu_location($post_type)
+function wp_seed_content_kit_get_module_menu_visibility_for_post_type($post_type)
 {
     $post_type = sanitize_key($post_type);
     $visibility = wp_seed_content_kit_get_module_menu_visibility();
 
-    return isset($visibility[$post_type]) ? $visibility[$post_type] : 'plugin';
+    if (!isset($visibility[$post_type])) {
+        return array(
+            'show_in_menu' => false,
+            'roles' => array(),
+        );
+    }
+
+    return $visibility[$post_type];
+}
+
+function wp_seed_content_kit_get_module_menu_location($post_type)
+{
+    $config = wp_seed_content_kit_get_module_menu_visibility_for_post_type($post_type);
+    if (!empty($config['show_in_menu'])) {
+        return 'root';
+    }
+    return 'plugin';
 }
 
 function wp_seed_content_kit_get_post_type_menu_parent($post_type)
 {
-    if ('root' === wp_seed_content_kit_get_module_menu_location($post_type)) {
-        return true;
-    }
-
     return false;
 }
 
@@ -108,6 +169,9 @@ function wp_seed_content_kit_get_modules()
             'planned' => false,
             'activable' => true,
             'shortcode' => '[seed_testimonials]',
+            'post_type' => 'seed_testimonial',
+            'menu_icon' => 'dashicons-format-quote',
+            'menu_supported' => true,
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
         ),
         'quotes' => array(
@@ -116,6 +180,9 @@ function wp_seed_content_kit_get_modules()
             'planned' => false,
             'activable' => false,
             'shortcode' => '[seed_quotes]',
+            'post_type' => 'seed_quote',
+            'menu_icon' => 'dashicons-editor-quote',
+            'menu_supported' => true,
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
         ),
         'directory' => array(
@@ -124,6 +191,8 @@ function wp_seed_content_kit_get_modules()
             'planned' => true,
             'activable' => false,
             'shortcode' => '',
+            'menu_icon' => 'dashicons-admin-users',
+            'menu_supported' => false,
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
         ),
         'audio' => array(
@@ -132,6 +201,8 @@ function wp_seed_content_kit_get_modules()
             'planned' => true,
             'activable' => false,
             'shortcode' => '',
+            'menu_icon' => 'dashicons-media-audio',
+            'menu_supported' => false,
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
         ),
     );

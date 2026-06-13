@@ -26,34 +26,14 @@ function wp_seed_content_kit_register_modules_page()
         1
     );
 
-    if (wp_seed_content_kit_is_module_active('testimonials') && 'plugin' === wp_seed_content_kit_get_module_menu_location('seed_testimonial')) {
-        add_submenu_page(
-            'wp-seed-content-kit',
-            __('Témoignages', 'wp-seed-content-kit'),
-            __('Témoignages', 'wp-seed-content-kit'),
-            'edit_posts',
-            'edit.php?post_type=seed_testimonial',
-            null,
-            2
-        );
-    } elseif (!wp_seed_content_kit_is_module_active('testimonials')) {
+    if (!wp_seed_content_kit_is_module_active('testimonials')) {
         wp_seed_content_kit_register_placeholder_submenu(
             __('Témoignages', 'wp-seed-content-kit'),
             'wp-seed-content-kit-testimonials'
         );
     }
 
-    if (wp_seed_content_kit_is_module_active('quotes') && 'plugin' === wp_seed_content_kit_get_module_menu_location('seed_quote')) {
-        add_submenu_page(
-            'wp-seed-content-kit',
-            __('Citations', 'wp-seed-content-kit'),
-            __('Citations', 'wp-seed-content-kit'),
-            'edit_posts',
-            'edit.php?post_type=seed_quote',
-            null,
-            3
-        );
-    } elseif (!wp_seed_content_kit_is_module_active('quotes')) {
+    if (!wp_seed_content_kit_is_module_active('quotes')) {
         wp_seed_content_kit_register_placeholder_submenu(
             __('Citations', 'wp-seed-content-kit'),
             'wp-seed-content-kit-quotes'
@@ -94,6 +74,26 @@ function wp_seed_content_kit_register_placeholder_submenu($label, $slug)
     );
 }
 
+function wp_seed_content_kit_get_available_roles_for_menu_visibility()
+{
+    if (!function_exists('wp_roles')) {
+        return array();
+    }
+
+    $roles = wp_roles()->roles;
+    if (!is_array($roles)) {
+        return array();
+    }
+
+    $items = array();
+    foreach ($roles as $slug => $role) {
+        $items[sanitize_key((string) $slug)] = isset($role['name']) ? translate_user_role($role['name']) : sanitize_text_field((string) $slug);
+    }
+    asort($items);
+
+    return $items;
+}
+
 function wp_seed_content_kit_add_plugin_action_links($links)
 {
     if (!current_user_can('manage_options')) {
@@ -131,28 +131,34 @@ function wp_seed_content_kit_handle_modules_form()
         'quotes' => true,
     );
 
-    $menu_visibility = array(
-        'seed_testimonial' => 'plugin',
-        'seed_quote' => 'plugin',
-    );
-    if (
-        isset($_POST['wp_seed_content_kit_module_menu_visibility'])
-        && is_array($_POST['wp_seed_content_kit_module_menu_visibility'])
-    ) {
-        $posted_menu_visibility = wp_unslash($_POST['wp_seed_content_kit_module_menu_visibility']);
-        if (
-            isset($posted_menu_visibility['seed_testimonial'])
-            && 'root' === sanitize_key($posted_menu_visibility['seed_testimonial'])
-        ) {
-            $menu_visibility['seed_testimonial'] = 'root';
+    $menu_visibility = wp_seed_content_kit_get_module_menu_visibility();
+    $submitted = isset($_POST['wp_seed_content_kit_module_menu_visibility']) && is_array($_POST['wp_seed_content_kit_module_menu_visibility']) ? wp_unslash($_POST['wp_seed_content_kit_module_menu_visibility']) : array();
+    $all_roles = wp_seed_content_kit_get_user_roles();
+
+    foreach ($menu_visibility as $post_type => $visibility) {
+        $visibility['show_in_menu'] = false;
+        $visibility['roles'] = array('administrator');
+
+        if (isset($submitted[$post_type]) && is_array($submitted[$post_type])) {
+            if (!empty($submitted[$post_type]['show_in_menu'])) {
+                $visibility['show_in_menu'] = wp_seed_content_bool_attr($submitted[$post_type]['show_in_menu'], false);
+            }
+
+            if (isset($submitted[$post_type]['roles']) && is_array($submitted[$post_type]['roles'])) {
+                $roles = array();
+                foreach ((array) $submitted[$post_type]['roles'] as $role) {
+                    $role = sanitize_key((string) $role);
+                    if (in_array($role, $all_roles, true)) {
+                        $roles[] = $role;
+                    }
+                }
+                if (!empty($roles)) {
+                    $visibility['roles'] = array_values(array_unique($roles));
+                }
+            }
         }
 
-        if (
-            isset($posted_menu_visibility['seed_quote'])
-            && 'root' === sanitize_key($posted_menu_visibility['seed_quote'])
-        ) {
-            $menu_visibility['seed_quote'] = 'root';
-        }
+        $menu_visibility[$post_type] = $visibility;
     }
 
     update_option('wp_seed_content_kit_modules', $next);
@@ -254,16 +260,38 @@ function wp_seed_content_kit_render_module_toggle($module_key, $module)
 
 function wp_seed_content_kit_render_module_menu_visibility_toggle($module_key, $module)
 {
-    if ('testimonials' !== $module_key || empty($module['active'])) {
+    if (empty($module['active']) || empty($module['menu_supported']) || empty($module['post_type'])) {
         echo esc_html__('Non disponible', 'wp-seed-content-kit');
         return;
     }
 
+    $post_type = sanitize_key($module['post_type']);
+    $visibility = wp_seed_content_kit_get_module_menu_visibility_for_post_type($post_type);
+    $selected_roles = isset($visibility['roles']) && is_array($visibility['roles']) ? $visibility['roles'] : array();
+    $available_roles = wp_seed_content_kit_get_available_roles_for_menu_visibility();
+    $name_base = esc_attr($post_type);
+
     printf(
-        '<label><input type="checkbox" name="wp_seed_content_kit_module_menu_visibility[seed_testimonial]" value="root" %s /> %s</label>',
-        checked('root' === wp_seed_content_kit_get_module_menu_location('seed_testimonial'), true, false),
+        '<label><input type="checkbox" name="wp_seed_content_kit_module_menu_visibility[%1$s][show_in_menu]" value="1" %2$s /> %3$s</label><br/>',
+        $name_base,
+        checked(!empty($visibility['show_in_menu']), true, false),
         esc_html__('Afficher dans le menu WordPress principal', 'wp-seed-content-kit')
     );
+
+    if (empty($available_roles)) {
+        return;
+    }
+
+    echo '<small>' . esc_html__('Rôles autorisés :', 'wp-seed-content-kit') . '</small><br />';
+    foreach ($available_roles as $role_key => $role_label) {
+        printf(
+            '<label style="margin-right:8px;display:inline-block;"><input type="checkbox" name="wp_seed_content_kit_module_menu_visibility[%1$s][roles][]" value="%2$s" %3$s /> %4$s</label>',
+            $name_base,
+            esc_attr($role_key),
+            checked(in_array($role_key, $selected_roles, true), true, false),
+            esc_html($role_label)
+        );
+    }
 }
 
 function wp_seed_content_kit_render_module_quick_links($module_key, $module)
