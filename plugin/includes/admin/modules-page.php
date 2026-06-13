@@ -433,6 +433,22 @@ function wp_seed_content_kit_render_templates_tab()
             __('Exemple : %s', 'wp-seed-content-kit'),
             '<code>[seed_testimonials template="accueil"]</code>'
         )); ?></p>
+        <p><?php esc_html_e('Module → Identifiant → Shortcode d’usage', 'wp-seed-content-kit'); ?></p>
+        <p><?php esc_html_e('Modules disponibles :', 'wp-seed-content-kit'); ?></p>
+        <ul>
+            <li><?php esc_html_e('Témoignages : placeholders {{photo}}, {{name}}, {{text}}', 'wp-seed-content-kit'); ?></li>
+            <li><?php esc_html_e('Citations : prévu', 'wp-seed-content-kit'); ?></li>
+            <li><?php esc_html_e('Annuaire : prévu', 'wp-seed-content-kit'); ?></li>
+            <li><?php esc_html_e('Créations sonores : prévu', 'wp-seed-content-kit'); ?></li>
+        </ul>
+        <p>
+            <strong><?php esc_html_e('Exemple de template', 'wp-seed-content-kit'); ?></strong><br />
+            <code><?php echo esc_html('<div class="testimonial">'); ?></code><br />
+            <code><?php echo esc_html('{{photo}}'); ?></code><br />
+            <code><?php echo esc_html('<h3>{{name}}</h3>'); ?></code><br />
+            <code><?php echo esc_html('<p>{{text}}</p>'); ?></code><br />
+            <code><?php echo esc_html('</div>'); ?></code>
+        </p>
     </section>
 
     <section class="wp-seed-content-kit-template-dashboard">
@@ -461,7 +477,7 @@ function wp_seed_content_kit_render_templates_tab()
             <tr>
                 <th><?php echo esc_html__('Identifiant', 'wp-seed-content-kit'); ?></th>
                 <th><?php echo esc_html__('Module', 'wp-seed-content-kit'); ?></th>
-                <th><?php echo esc_html__('Utilisation', 'wp-seed-content-kit'); ?></th>
+                <th><?php echo esc_html__('Shortcode d’usage', 'wp-seed-content-kit'); ?></th>
                 <th><?php echo esc_html__('Actions', 'wp-seed-content-kit'); ?></th>
             </tr>
         </thead>
@@ -477,11 +493,7 @@ function wp_seed_content_kit_render_templates_tab()
                 if ('' === $shortcode) {
                     $shortcode = '';
                     $copy_button = '';
-                    $shortcode_usage = sprintf(
-                        /* translators: %s: template slug */
-                        esc_html__('Choisissez un module dans le template pour générer l’usage : %s', 'wp-seed-content-kit'),
-                        '[seed_<module> template="' . esc_html($template->post_name) . '"]'
-                    );
+                    $shortcode_usage = esc_html__('Aucun module défini. Définissez le module dans l’édition du template.', 'wp-seed-content-kit');
                 } else {
                     $copy_button = sprintf(
                         '<button type="button" class="button button-small wp-seed-content-kit-copy-template" data-shortcode="%s">%s</button>',

@@ -67,6 +67,20 @@ function wp_seed_content_get_template_module_name($module)
     return $labels[$module] ?? __('Module non défini', 'wp-seed-content-kit');
 }
 
+function wp_seed_content_get_template_placeholders_by_module($module)
+{
+    $module = sanitize_key($module);
+    if ('testimonials' === $module) {
+        return array(
+            'photo' => __('Photo du témoignage', 'wp-seed-content-kit'),
+            'name' => __('Nom ou initiales', 'wp-seed-content-kit'),
+            'text' => __('Texte du témoignage', 'wp-seed-content-kit'),
+        );
+    }
+
+    return array();
+}
+
 function wp_seed_content_get_template_module($post_id)
 {
     $module = get_post_meta($post_id, '_wp_seed_content_template_module', true);
@@ -116,6 +130,13 @@ function wp_seed_content_render_template_module_meta_box($post)
 
     $current = wp_seed_content_get_template_module($post->ID);
     $modules = wp_seed_content_get_template_modules();
+    $current_slug = sanitize_title((string) get_post_field('post_name', $post->ID, 'raw'));
+    $shortcode_pattern = wp_seed_content_get_template_shortcode_from_module($current);
+    $shortcode_example = '';
+    if ('' !== $shortcode_pattern && '' !== $current_slug) {
+        $shortcode_example = sprintf($shortcode_pattern, $current_slug);
+    }
+    $placeholders = wp_seed_content_get_template_placeholders_by_module($current);
     $supported_modules = array('testimonials');
     ?>
     <p><strong><?php esc_html_e('Module du template', 'wp-seed-content-kit'); ?></strong></p>
@@ -169,15 +190,35 @@ function wp_seed_content_render_template_module_meta_box($post)
         ?>
     </p>
     <p class="description">
-        <?php
-        esc_html_e('Nomenclature conseillée : testimonial-home, testimonial-list, quote-home, directory-card.', 'wp-seed-content-kit');
-        ?>
+        <strong><?php esc_html_e('Identifiant', 'wp-seed-content-kit'); ?> :</strong>
+        <code><?php echo esc_html($current_slug); ?></code>
     </p>
-
-    <?php if ('testimonials' === $current) : ?>
+    <p class="description">
+        <?php esc_html_e('Pour modifier l’identifiant, éditez le permalien (slug) dans l’écran du template.', 'wp-seed-content-kit'); ?>
+    </p>
+    <p class="description">
+        <?php esc_html_e('Nomenclature conseillée : testimonial-home, testimonial-list, quote-home, directory-card.', 'wp-seed-content-kit'); ?>
+    </p>
+    <?php if ('' !== $shortcode_example) : ?>
         <p class="description">
-            <strong><?php esc_html_e('Placeholders disponibles :', 'wp-seed-content-kit'); ?></strong><br />
-            <code>{{photo}}</code>, <code>{{name}}</code>, <code>{{text}}</code>
+            <strong><?php esc_html_e('Shortcode d’usage', 'wp-seed-content-kit'); ?> :</strong><br />
+            <code><?php echo esc_html($shortcode_example); ?></code>
+        </p>
+    <?php endif; ?>
+    <?php if (!empty($placeholders)) : ?>
+        <p class="description">
+            <strong><?php esc_html_e('Placeholders disponibles', 'wp-seed-content-kit'); ?></strong><br />
+            <?php foreach ($placeholders as $token => $label) : ?>
+                <code><?php echo esc_html('{{' . $token . '}}'); ?></code> — <?php echo esc_html($label); ?><br />
+            <?php endforeach; ?>
+        </p>
+        <p class="description">
+            <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
+            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html("<div class=\"testimonial\">\n{{photo}}\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>"); ?></pre>
+        </p>
+    <?php else : ?>
+        <p class="description">
+            <?php esc_html_e('Aucun placeholder spécifique n’est encore défini pour ce module.', 'wp-seed-content-kit'); ?>
         </p>
     <?php endif; ?>
 <?php
@@ -218,7 +259,7 @@ function wp_seed_content_seed_template_columns($columns)
 {
     $columns['wp_seed_content_template_module'] = __('Module', 'wp-seed-content-kit');
     $columns['wp_seed_content_template_slug'] = __('Identifiant', 'wp-seed-content-kit');
-    $columns['wp_seed_content_template_usage'] = __('Utilisation', 'wp-seed-content-kit');
+    $columns['wp_seed_content_template_usage'] = __('Shortcode d’usage', 'wp-seed-content-kit');
     return $columns;
 }
 
@@ -242,7 +283,7 @@ function wp_seed_content_seed_template_column_content($column, $post_id)
     if ('wp_seed_content_template_usage' === $column) {
         $shortcode = wp_seed_content_template_shortcode_for_post($post_id);
         if ('' === $shortcode) {
-            esc_html_e('Sélectionnez un module dans le template', 'wp-seed-content-kit');
+            esc_html_e('Définissez le module pour générer le shortcode d’usage', 'wp-seed-content-kit');
             return;
         }
 
