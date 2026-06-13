@@ -139,11 +139,11 @@ function wp_seed_content_render_template_module_meta_box($post)
     $placeholders = wp_seed_content_get_template_placeholders_by_module($current);
     $supported_modules = array('testimonials');
     ?>
-    <p><strong><?php esc_html_e('Module du template', 'wp-seed-content-kit'); ?></strong></p>
+    <p><strong><?php esc_html_e('Utilisation du template', 'wp-seed-content-kit'); ?></strong></p>
     <input type="hidden" name="wp_seed_content_template_meta_nonce" value="<?php echo esc_attr(wp_create_nonce('wp_seed_content_template_meta')); ?>" />
     <p>
         <label for="wp-seed-template-module">
-            <strong><?php esc_html_e('Module affiché par le shortcode', 'wp-seed-content-kit'); ?></strong>
+            <strong><?php esc_html_e('Module du template', 'wp-seed-content-kit'); ?></strong>
         </label>
     </p>
     <p class="description">
@@ -179,32 +179,32 @@ function wp_seed_content_render_template_module_meta_box($post)
         ?>
     </p>
     <p class="description">
+        <strong><?php esc_html_e('Identifiant du template', 'wp-seed-content-kit'); ?> :</strong>
+        <code><?php echo esc_html($current_slug); ?></code>
+    </p>
+    <p class="description">
         <?php
         echo wp_kses_post(
             sprintf(
                 /* translators: %s: shortcode attribute name */
-                __('L’identifiant du template est utilisé dans le shortcode : %s.', 'wp-seed-content-kit'),
-                '<code>template="' . esc_html__('identifiant', 'wp-seed-content-kit') . '"</code>'
+                __('Le shortcode attendu est : %s', 'wp-seed-content-kit'),
+                '<code>' . esc_html__('template="identifiant"', 'wp-seed-content-kit') . '</code>'
             )
         );
         ?>
     </p>
-    <p class="description">
-        <strong><?php esc_html_e('Identifiant', 'wp-seed-content-kit'); ?> :</strong>
-        <code><?php echo esc_html($current_slug); ?></code>
-    </p>
-    <p class="description">
-        <?php esc_html_e('Pour modifier l’identifiant, éditez le permalien (slug) dans l’écran du template.', 'wp-seed-content-kit'); ?>
-    </p>
-    <p class="description">
-        <?php esc_html_e('Nomenclature conseillée : testimonial-home, testimonial-list, quote-home, directory-card.', 'wp-seed-content-kit'); ?>
-    </p>
     <?php if ('' !== $shortcode_example) : ?>
         <p class="description">
-            <strong><?php esc_html_e('Shortcode d’usage', 'wp-seed-content-kit'); ?> :</strong><br />
-            <code><?php echo esc_html($shortcode_example); ?></code>
+            <strong><?php esc_html_e('Shortcode', 'wp-seed-content-kit'); ?> :</strong><br />
+            <code class="wp-seed-template-shortcode"><?php echo esc_html($shortcode_example); ?></code>
+            <button type="button" class="button button-small wp-seed-content-kit-copy-template" data-shortcode="<?php echo esc_attr($shortcode_example); ?>">
+                <?php esc_html_e('Copier le shortcode', 'wp-seed-content-kit'); ?>
+            </button>
         </p>
     <?php endif; ?>
+    <p class="description">
+        <?php esc_html_e('Pour modifier l’identifiant, utilisez le permalien “Identifiant” de l’écran du template.', 'wp-seed-content-kit'); ?>
+    </p>
     <?php if (!empty($placeholders)) : ?>
         <p class="description">
             <strong><?php esc_html_e('Placeholders disponibles', 'wp-seed-content-kit'); ?></strong><br />
@@ -246,7 +246,15 @@ function wp_seed_content_save_template_module($post_id, $post, $update)
         return;
     }
 
-    $module = isset($_POST['wp_seed_content_template_module']) ? sanitize_key(wp_unslash($_POST['wp_seed_content_template_module'])) : '';
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    if (!isset($_POST['wp_seed_content_template_module'])) {
+        return;
+    }
+
+    $module = sanitize_key(wp_unslash($_POST['wp_seed_content_template_module']));
     $modules = array_keys(wp_seed_content_get_template_modules());
     if (!in_array($module, $modules, true)) {
         $module = '';
@@ -259,7 +267,6 @@ function wp_seed_content_seed_template_columns($columns)
 {
     $columns['wp_seed_content_template_module'] = __('Module', 'wp-seed-content-kit');
     $columns['wp_seed_content_template_slug'] = __('Identifiant', 'wp-seed-content-kit');
-    $columns['wp_seed_content_template_usage'] = __('Shortcode d’usage', 'wp-seed-content-kit');
     return $columns;
 }
 
@@ -280,23 +287,6 @@ function wp_seed_content_seed_template_column_content($column, $post_id)
         return;
     }
 
-    if ('wp_seed_content_template_usage' === $column) {
-        $shortcode = wp_seed_content_template_shortcode_for_post($post_id);
-        if ('' === $shortcode) {
-            esc_html_e('Définissez le module pour générer le shortcode d’usage', 'wp-seed-content-kit');
-            return;
-        }
-
-        $button_text = esc_html__('Copier le shortcode', 'wp-seed-content-kit');
-        $copy_class = esc_attr('wp-seed-content-kit-copy-template');
-        $shortcode_attr = esc_attr($shortcode);
-        $shortcode_display = esc_html($shortcode);
-        echo '<div class="wp-seed-template-usage-wrap">';
-        echo '<code class="wp-seed-template-shortcode">' . $shortcode_display . '</code> ';
-        echo '<button type="button" class="' . $copy_class . '" data-shortcode="' . $shortcode_attr . '">' . $button_text . '</button>';
-        echo '</div>';
-        return;
-    }
 }
 
 function wp_seed_content_seed_template_list_help($which)
@@ -352,7 +342,7 @@ function wp_seed_content_seed_template_init_admin_columns()
     add_action('add_meta_boxes', function () {
         add_meta_box(
             'wp-seed-content-kit-template-module',
-            __('Module', 'wp-seed-content-kit'),
+            __('Utilisation du template', 'wp-seed-content-kit'),
             'wp_seed_content_render_template_module_meta_box',
             'seed_template',
             'side',
