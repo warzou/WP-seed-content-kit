@@ -6,8 +6,13 @@ if (!defined('ABSPATH')) {
 
 function wp_seed_content_kit_register_module_menus()
 {
+    if (current_user_can('manage_options')) {
+        return;
+    }
+
     $modules = wp_seed_content_kit_get_modules();
     $user = wp_get_current_user();
+    $position = 58.01;
 
     if (empty($user->roles)) {
         return;
@@ -51,8 +56,10 @@ function wp_seed_content_kit_register_module_menus()
             $slug,
             'wp_seed_content_kit_render_module_redirect_page',
             isset($module['menu_icon']) ? $module['menu_icon'] : 'dashicons-admin-post',
-            59
+            $position
         );
+
+        $position += 0.01;
     }
 }
 add_action('admin_menu', 'wp_seed_content_kit_register_module_menus', 30);

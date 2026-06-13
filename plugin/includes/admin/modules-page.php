@@ -12,7 +12,7 @@ function wp_seed_content_kit_register_modules_page()
         'manage_options',
         'wp-seed-content-kit',
         'wp_seed_content_kit_render_modules_page',
-        'dashicons-screenoptions',
+        wp_seed_content_kit_get_admin_menu_icon('parent'),
         58
     );
 
