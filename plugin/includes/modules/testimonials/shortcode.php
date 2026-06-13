@@ -11,12 +11,18 @@ function wp_seed_content_testimonials_shortcode($atts)
         'columns' => 3,
         'featured' => 'all',
         'context' => '',
+        'orderby' => 'date',
+        'order' => 'DESC',
         'template' => '',
     ), $atts, 'seed_testimonials');
 
     $limit = max(1, min(24, absint($atts['limit'])));
     $columns = wp_seed_content_clamp_columns($atts['columns']);
     $template = sanitize_title($atts['template']);
+    $orderby = sanitize_key($atts['orderby']);
+    $orderby = in_array($orderby, array('date', 'menu_order'), true) ? $orderby : 'date';
+    $order = strtolower(sanitize_key($atts['order']));
+    $order = in_array($order, array('asc', 'desc'), true) ? strtoupper($order) : 'DESC';
     $meta_query = array();
 
     if ('true' === strtolower((string) $atts['featured'])) {
@@ -47,8 +53,8 @@ function wp_seed_content_testimonials_shortcode($atts)
         'post_type' => 'seed_testimonial',
         'post_status' => 'publish',
         'posts_per_page' => $limit,
-        'orderby' => 'date',
-        'order' => 'DESC',
+        'orderby' => $orderby,
+        'order' => $order,
         'ignore_sticky_posts' => true,
         'no_found_rows' => true,
     );

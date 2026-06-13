@@ -40,7 +40,7 @@ function wp_seed_content_register_testimonial_post_type()
         'show_in_rest' => true,
         'menu_position' => 20,
         'menu_icon' => 'dashicons-format-quote',
-        'supports' => array('title', 'thumbnail', 'revisions'),
+        'supports' => array('title', 'thumbnail', 'revisions', 'page-attributes'),
         'has_archive' => true,
         'rewrite' => array(
             'slug' => 'testimonials',
@@ -49,3 +49,26 @@ function wp_seed_content_register_testimonial_post_type()
         'capability_type' => 'post',
     ));
 }
+
+function wp_seed_content_testimonials_manage_columns($columns)
+{
+    $columns['seed_testimonial_order'] = __('Ordre', 'wp-seed-content-kit');
+    return $columns;
+}
+add_filter('manage_seed_testimonial_posts_columns', 'wp_seed_content_testimonials_manage_columns');
+
+function wp_seed_content_testimonials_render_order_column($column, $post_id)
+{
+    if ('seed_testimonial_order' !== $column) {
+        return;
+    }
+
+    $post = get_post($post_id);
+    if (!$post instanceof WP_Post) {
+        echo '0';
+        return;
+    }
+
+    echo (int) $post->menu_order;
+}
+add_action('manage_seed_testimonial_posts_custom_column', 'wp_seed_content_testimonials_render_order_column', 10, 2);

@@ -42,7 +42,7 @@ function wp_seed_content_quotes_shortcode($atts)
     if ('' === $orderby_raw = $orderby) {
         $orderby = $orderby_default;
     }
-    $orderby = in_array($orderby, array('random', 'author', 'date'), true) ? $orderby : $orderby_default;
+    $orderby = in_array($orderby, array('random', 'author', 'date', 'menu_order'), true) ? $orderby : $orderby_default;
 
     $template = sanitize_title($atts['template']);
     $query_orderby = 'date';
@@ -60,6 +60,8 @@ function wp_seed_content_quotes_shortcode($atts)
     if ('author' === $orderby) {
         $query_orderby = 'meta_value';
         $meta_key = '_seed_quote_author';
+    } elseif ('menu_order' === $orderby) {
+        $query_orderby = 'menu_order';
     } elseif ('random' === $orderby) {
         $query_orderby = 'rand';
         $order = 'DESC';

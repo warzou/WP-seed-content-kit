@@ -239,6 +239,9 @@ function wp_seed_content_kit_render_testimonials_generator($show_heading = true)
         <h2><?php echo esc_html__('Générateur Témoignages', 'wp-seed-content-kit'); ?></h2>
     <?php endif; ?>
     <p><?php echo esc_html__('Générez un shortcode [seed_testimonials] pour vos pages.', 'wp-seed-content-kit'); ?></p>
+    <p class="description">
+        <?php echo esc_html__('order=ASC affiche les plus petits order values en premier avec orderby="menu_order" (ordre manuel).', 'wp-seed-content-kit'); ?>
+    </p>
     <div id="wp-seed-content-kit-testimonials-generator">
         <table class="form-table" role="presentation">
             <tbody>
@@ -262,6 +265,31 @@ function wp_seed_content_kit_render_testimonials_generator($show_heading = true)
                             <input id="seed-testimonials-generator-featured" type="checkbox" data-seed-testimonials-attr="featured" value="true" />
                             <?php echo esc_html__('Ne prendre que les éléments mis en avant', 'wp-seed-content-kit'); ?>
                         </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-testimonials-generator-orderby"><?php echo esc_html__('Trier par', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <select id="seed-testimonials-generator-orderby" data-seed-testimonials-attr="orderby" data-seed-testimonials-default="date">
+                            <option value="date"><?php echo esc_html__('Date', 'wp-seed-content-kit'); ?></option>
+                            <option value="menu_order"><?php echo esc_html__('Ordre manuel', 'wp-seed-content-kit'); ?></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="seed-testimonials-generator-order"><?php echo esc_html__('Ordre', 'wp-seed-content-kit'); ?></label>
+                    </th>
+                    <td>
+                        <select id="seed-testimonials-generator-order" data-seed-testimonials-attr="order" data-seed-testimonials-default="DESC">
+                            <option value="DESC"><?php echo esc_html__('Décroissant', 'wp-seed-content-kit'); ?></option>
+                            <option value="ASC"><?php echo esc_html__('Croissant', 'wp-seed-content-kit'); ?></option>
+                        </select>
+                        <p class="description">
+                            <?php echo esc_html__('Avec orderby="menu_order", ASC place les plus petits order values en premier.', 'wp-seed-content-kit'); ?>
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -380,7 +408,7 @@ function wp_seed_content_kit_render_quotes_generator($show_heading = true)
     <?php endif; ?>
     <p><?php echo esc_html__('Générez un shortcode [seed_quotes] pour vos pages.', 'wp-seed-content-kit'); ?></p>
     <p class="description">
-        <?php echo esc_html__('Règle : limit=0 pour afficher toutes les citations. orderby peut être random, author ou date.', 'wp-seed-content-kit'); ?>
+        <?php echo esc_html__('Règle : limit=0 pour afficher toutes les citations. orderby peut être random, author, date ou menu_order.', 'wp-seed-content-kit'); ?>
     </p>
     <div id="wp-seed-content-kit-quotes-generator">
         <table class="form-table" role="presentation">
@@ -416,6 +444,7 @@ function wp_seed_content_kit_render_quotes_generator($show_heading = true)
                             <option value="random"><?php echo esc_html__('Aléatoire', 'wp-seed-content-kit'); ?></option>
                             <option value="author"><?php echo esc_html__('Auteur', 'wp-seed-content-kit'); ?></option>
                             <option value="date"><?php echo esc_html__('Date WordPress', 'wp-seed-content-kit'); ?></option>
+                            <option value="menu_order"><?php echo esc_html__('Ordre manuel', 'wp-seed-content-kit'); ?></option>
                         </select>
                     </td>
                 </tr>
@@ -428,6 +457,9 @@ function wp_seed_content_kit_render_quotes_generator($show_heading = true)
                             <option value="DESC"><?php echo esc_html__('Décroissant', 'wp-seed-content-kit'); ?></option>
                             <option value="ASC"><?php echo esc_html__('Croissant', 'wp-seed-content-kit'); ?></option>
                         </select>
+                        <p class="description">
+                            <?php echo esc_html__('Avec orderby="menu_order", ASC place les plus petits order values en premier.', 'wp-seed-content-kit'); ?>
+                        </p>
                         <p class="description">
                             <?php echo esc_html__('Ignoré quand orderby="random".', 'wp-seed-content-kit'); ?>
                         </p>
