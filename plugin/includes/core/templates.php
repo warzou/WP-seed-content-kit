@@ -138,6 +138,21 @@ function wp_seed_content_render_template_module_meta_box($post)
     }
     $placeholders = wp_seed_content_get_template_placeholders_by_module($current);
     $supported_modules = array('testimonials');
+    $placeholders_by_module = array();
+    $shortcodes_by_module = array();
+    foreach ($modules as $module_key => $module_shortcode) {
+        $placeholders_by_module[$module_key] = wp_seed_content_get_template_placeholders_by_module($module_key);
+        $shortcodes_by_module[$module_key] = wp_seed_content_get_template_shortcode_from_module($module_key);
+    }
+
+    $module_data = array();
+    foreach ($placeholders_by_module as $module_key => $module_placeholders) {
+        $module_data[$module_key] = array(
+            'placeholders' => array_keys((array) $module_placeholders),
+            'labels' => $module_placeholders,
+            'shortcode' => $shortcodes_by_module[$module_key] ?? '',
+        );
+    }
     ?>
     <p><strong><?php esc_html_e('Utilisation du template', 'wp-seed-content-kit'); ?></strong></p>
     <input type="hidden" name="wp_seed_content_template_meta_nonce" value="<?php echo esc_attr(wp_create_nonce('wp_seed_content_template_meta')); ?>" />
@@ -182,44 +197,48 @@ function wp_seed_content_render_template_module_meta_box($post)
         <strong><?php esc_html_e('Identifiant du template', 'wp-seed-content-kit'); ?> :</strong>
         <code><?php echo esc_html($current_slug); ?></code>
     </p>
-    <p class="description">
-        <?php
-        echo wp_kses_post(
-            sprintf(
-                /* translators: %s: shortcode attribute name */
-                __('Le shortcode attendu est : %s', 'wp-seed-content-kit'),
-                '<code>' . esc_html__('template="identifiant"', 'wp-seed-content-kit') . '</code>'
-            )
-        );
-        ?>
+    <p class="description" id="wp-seed-template-shortcode-block">
+        <strong><?php esc_html_e('Shortcode', 'wp-seed-content-kit'); ?> :</strong><br />
+        <code id="wp-seed-template-shortcode" class="wp-seed-template-shortcode" data-slug="<?php echo esc_attr($current_slug); ?>" <?php echo '' === $shortcode_example ? 'style="display:none;"' : ''; ?>><?php echo esc_html($shortcode_example); ?></code>
+        <button type="button" class="button button-small wp-seed-content-kit-copy-template" data-shortcode="<?php echo esc_attr($shortcode_example); ?>" <?php echo '' === $shortcode_example ? 'style="display:none;"' : ''; ?>>
+            <?php esc_html_e('Copier le shortcode', 'wp-seed-content-kit'); ?>
+        </button>
+        <span id="wp-seed-template-shortcode-empty" class="description" <?php echo '' !== $shortcode_example ? 'style="display:none;"' : ''; ?>>
+            <?php esc_html_e('Choisissez un module et un identifiant pour générer le shortcode.', 'wp-seed-content-kit'); ?>
+        </span>
     </p>
-    <?php if ('' !== $shortcode_example) : ?>
-        <p class="description">
-            <strong><?php esc_html_e('Shortcode', 'wp-seed-content-kit'); ?> :</strong><br />
-            <code class="wp-seed-template-shortcode"><?php echo esc_html($shortcode_example); ?></code>
-            <button type="button" class="button button-small wp-seed-content-kit-copy-template" data-shortcode="<?php echo esc_attr($shortcode_example); ?>">
-                <?php esc_html_e('Copier le shortcode', 'wp-seed-content-kit'); ?>
-            </button>
-        </p>
-    <?php endif; ?>
-    <p class="description">
-        <?php esc_html_e('Pour modifier l’identifiant, utilisez le permalien “Identifiant” de l’écran du template.', 'wp-seed-content-kit'); ?>
-    </p>
+
     <?php if (!empty($placeholders)) : ?>
         <p class="description">
             <strong><?php esc_html_e('Placeholders disponibles', 'wp-seed-content-kit'); ?></strong><br />
-            <?php foreach ($placeholders as $token => $label) : ?>
-                <code><?php echo esc_html('{{' . $token . '}}'); ?></code> — <?php echo esc_html($label); ?><br />
-            <?php endforeach; ?>
+            <span id="wp-seed-template-placeholders">
+                <?php foreach ($placeholders as $token => $label) : ?>
+                    <span class="wp-seed-template-placeholder-row" style="display:block; margin-bottom:6px;">
+                        <code><?php echo esc_html('{{' . $token . '}}'); ?></code>
+                        — <?php echo esc_html($label); ?>
+                        <button type="button" class="button button-small wp-seed-content-kit-copy-template-placeholder" data-token="<?php echo esc_attr($token); ?>">
+                            <?php esc_html_e('Copier', 'wp-seed-content-kit'); ?>
+                        </button>
+                    </span>
+                <?php endforeach; ?>
+            </span>
         </p>
         <p class="description">
             <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
             <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html("<div class=\"testimonial\">\n{{photo}}\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>"); ?></pre>
         </p>
+        <div id="wp-seed-template-module-data" data-module-meta="<?php echo esc_attr(wp_json_encode($module_data)); ?>"></div>
     <?php else : ?>
         <p class="description">
-            <?php esc_html_e('Aucun placeholder spécifique n’est encore défini pour ce module.', 'wp-seed-content-kit'); ?>
+            <span id="wp-seed-template-placeholders">
+                <?php esc_html_e('Aucun placeholder spécifique n’est encore défini pour ce module.', 'wp-seed-content-kit'); ?>
+            </span>
         </p>
+        <p class="description">
+            <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
+            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html("<div class=\"testimonial\">\n{{photo}}\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>"); ?></pre>
+        </p>
+        <div id="wp-seed-template-module-data" data-module-meta="<?php echo esc_attr(wp_json_encode($module_data)); ?>"></div>
     <?php endif; ?>
 <?php
 }
@@ -325,10 +344,128 @@ function wp_seed_content_enqueue_template_admin_scripts($hook)
         return;
     }
 
-    if ('edit' === $screen->base) {
+    if ('edit' === $screen->base || 'post' === $screen->base || 'post-new' === $screen->base) {
+        $script = <<<'JS'
+jQuery(function($){
+    function seedCopyToClipboard(value) {
+        if (!value) {
+            return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(value);
+            return;
+        }
+
+        var temp = document.createElement('textarea');
+        temp.value = value;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+    }
+
+    $(document).on('click', '.wp-seed-content-kit-copy-template', function (event) {
+        event.preventDefault();
+        var shortcode = $(this).data('shortcode');
+        if (shortcode) {
+            seedCopyToClipboard(shortcode);
+        }
+    });
+
+    $(document).on('click', '.wp-seed-content-kit-copy-template-placeholder', function (event) {
+        event.preventDefault();
+        var token = $(this).data('token');
+        if (token) {
+            seedCopyToClipboard('{{' + token + '}}');
+        }
+    });
+
+    var $moduleSelect = $('#wp-seed-template-module');
+    if (!$moduleSelect.length) {
+        return;
+    }
+
+    var moduleDataRaw = $('#wp-seed-template-module-data').attr('data-module-meta');
+    if (!moduleDataRaw) {
+        return;
+    }
+
+    var moduleData = {};
+    try {
+        moduleData = JSON.parse(moduleDataRaw);
+    } catch (error) {
+        moduleData = {};
+    }
+
+    var $shortcodeBlock = $('#wp-seed-template-shortcode-block');
+    var $shortcode = $('#wp-seed-template-shortcode');
+    var $shortcodeEmpty = $('#wp-seed-template-shortcode-empty');
+    var $placeholders = $('#wp-seed-template-placeholders');
+    var slug = $shortcode.data('slug') || '';
+
+    function updateTemplateMetaUI(module) {
+        var normalized = (module || '').toString();
+        var data = moduleData[normalized] || null;
+
+        if (!normalized || !data || !data.shortcode) {
+            if ($shortcode.length) {
+                $shortcode.text('').hide();
+                $shortcodeBlock.find('.wp-seed-content-kit-copy-template').hide();
+            }
+
+            if ($shortcodeEmpty.length) {
+                $shortcodeEmpty.show();
+            }
+
+            if ($placeholders.length) {
+                $placeholders.html('Aucun placeholder disponible pour ce module.');
+            }
+            return;
+        }
+
+        var generated = data.shortcode.replace('%s', slug);
+        if ($shortcode.length) {
+            $shortcode.text(generated).attr('data-shortcode', generated).show();
+            $shortcodeBlock.find('.wp-seed-content-kit-copy-template').attr('data-shortcode', generated).show();
+        }
+
+        if ($shortcodeEmpty.length) {
+            $shortcodeEmpty.hide();
+        }
+
+        if (!$placeholders.length) {
+            return;
+        }
+
+        var placeholders = data.placeholders || [];
+        if (!placeholders.length) {
+            $placeholders.html('Aucun placeholder spécifique n’est encore défini pour ce module.');
+            return;
+        }
+
+        var rows = '';
+        placeholders.forEach(function(token) {
+            var label = data.labels && data.labels[token] ? data.labels[token] : token;
+            rows += '<span class="wp-seed-template-placeholder-row" style="display:block; margin-bottom:6px;">';
+            rows += '<code>{{' + token + '}}</code> - ' + label;
+            rows += ' <button type="button" class="button button-small wp-seed-content-kit-copy-template-placeholder" data-token="' + token + '">Copier</button>';
+            rows += '</span>';
+        });
+        $placeholders.html(rows);
+    }
+
+    $moduleSelect.on('change', function () {
+        updateTemplateMetaUI($(this).val());
+    });
+
+    updateTemplateMetaUI($moduleSelect.val());
+});
+JS;
+
         wp_add_inline_script(
             'jquery',
-            "jQuery(function($){\n                $('.wp-seed-content-kit-copy-template').on('click', function(event){\n                    event.preventDefault();\n                    var shortcode = $(this).data('shortcode');\n                    if (!shortcode) {\n                        return;\n                    }\n                    if (navigator.clipboard && navigator.clipboard.writeText) {\n                        navigator.clipboard.writeText(shortcode);\n                        return;\n                    }\n                    var temp = document.createElement('textarea');\n                    temp.value = shortcode;\n                    document.body.appendChild(temp);\n                    temp.select();\n                    document.execCommand('copy');\n                    document.body.removeChild(temp);\n                });\n            });"
+            $script
         );
     }
 }
