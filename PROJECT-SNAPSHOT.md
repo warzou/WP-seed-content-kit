@@ -126,6 +126,11 @@ Le projet est sur la bonne voie si :
 
 ## 10. Prochaine etape V2 (templates)
 
+- Etat des versions récentes :
+  - `v0.2.4` : release UX admin Templates réelle (dashboard + aide + actions + vue récentes, sans changement moteur).
+  - `v0.2.5` : release de maintenance (bump de version uniquement), sans changement fonctionnel.
+  - `v0.2.6` : prochaine évolution produit (UX Templates dashboard consolidée).
+
 - Le V2 prévoit un pont template : `shortcode -> données -> placeholders -> post_content`.
 - Un CPT `seed_template` sera ajouté en premier pour stocker des templates réutilisables.
 - Premier pilote V2 : le module Témoignages.
