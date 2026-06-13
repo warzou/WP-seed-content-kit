@@ -73,8 +73,10 @@ function wp_seed_content_get_template_placeholders_by_module($module)
     if ('testimonials' === $module) {
         return array(
             'photo' => __('Photo du témoignage', 'wp-seed-content-kit'),
+            'photo_url' => __('URL de la photo', 'wp-seed-content-kit'),
             'name' => __('Nom ou initiales', 'wp-seed-content-kit'),
             'text' => __('Texte du témoignage', 'wp-seed-content-kit'),
+            'photo_alt' => __('Texte alternatif de la photo', 'wp-seed-content-kit'),
         );
     }
 
@@ -225,7 +227,7 @@ function wp_seed_content_render_template_module_meta_box($post)
         </p>
         <p class="description">
             <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
-            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html("<div class=\"testimonial\">\n{{photo}}\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>"); ?></pre>
+            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html("<div class=\"testimonial\">\n<img src=\"{{photo_url}}\" alt=\"{{photo_alt}}\">\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>"); ?></pre>
         </p>
         <div id="wp-seed-template-module-data" data-module-meta="<?php echo esc_attr(wp_json_encode($module_data)); ?>"></div>
     <?php else : ?>
@@ -236,7 +238,7 @@ function wp_seed_content_render_template_module_meta_box($post)
         </p>
         <p class="description">
             <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
-            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html("<div class=\"testimonial\">\n{{photo}}\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>"); ?></pre>
+            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html("<div class=\"testimonial\">\n<img src=\"{{photo_url}}\" alt=\"{{photo_alt}}\">\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>"); ?></pre>
         </p>
         <div id="wp-seed-template-module-data" data-module-meta="<?php echo esc_attr(wp_json_encode($module_data)); ?>"></div>
     <?php endif; ?>

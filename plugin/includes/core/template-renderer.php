@@ -45,7 +45,7 @@ function wp_seed_content_prepare_template_replacements($placeholders)
     $replacements = array();
     foreach ($placeholders as $key => $placeholder) {
         $key = sanitize_key($key);
-        if (!in_array($key, array('photo', 'name', 'text'), true)) {
+        if (!in_array($key, array('photo', 'photo_url', 'name', 'text', 'photo_alt'), true)) {
             continue;
         }
 
