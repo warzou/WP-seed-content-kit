@@ -26,7 +26,7 @@ function wp_seed_content_register_template_post_type()
         'labels' => $labels,
         'public' => false,
         'show_ui' => true,
-        'show_in_menu' => 'wp-seed-content-kit',
+        'show_in_menu' => false,
         'show_in_rest' => true,
         'supports' => array('title', 'editor', 'revisions'),
         'capability_type' => 'post',

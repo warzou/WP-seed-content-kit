@@ -18,8 +18,8 @@ function wp_seed_content_kit_register_modules_page()
 
     add_submenu_page(
         'wp-seed-content-kit',
-        __('Configuration / Générateurs', 'wp-seed-content-kit'),
-        __('Configuration / Générateurs', 'wp-seed-content-kit'),
+        __('Configuration', 'wp-seed-content-kit'),
+        __('Configuration', 'wp-seed-content-kit'),
         'manage_options',
         'wp-seed-content-kit',
         'wp_seed_content_kit_render_modules_page',
@@ -276,7 +276,7 @@ function wp_seed_content_kit_get_current_admin_tab()
 {
     $tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'configuration';
 
-    if (!in_array($tab, array('configuration', 'generators'), true)) {
+    if (!in_array($tab, array('configuration', 'generators', 'templates'), true)) {
         return 'configuration';
     }
 
@@ -288,6 +288,7 @@ function wp_seed_content_kit_render_admin_tabs($current_tab)
     $tabs = array(
         'configuration' => __('Configuration générale', 'wp-seed-content-kit'),
         'generators' => __('Générateurs de shortcodes', 'wp-seed-content-kit'),
+        'templates' => __('Templates', 'wp-seed-content-kit'),
     );
 
     echo '<nav class="nav-tab-wrapper" aria-label="' . esc_attr__('Navigation WP Seed Content Kit', 'wp-seed-content-kit') . '">';
@@ -368,10 +369,185 @@ function wp_seed_content_kit_render_modules_page()
 
         <?php if ('generators' === $current_tab) : ?>
             <?php wp_seed_content_kit_render_generators_tab(); ?>
+        <?php elseif ('templates' === $current_tab) : ?>
+            <?php wp_seed_content_kit_render_templates_tab(); ?>
         <?php else : ?>
             <?php wp_seed_content_kit_render_configuration_tab(); ?>
         <?php endif; ?>
     </div>
+    <?php
+}
+
+function wp_seed_content_kit_render_templates_tab()
+{
+    if (!post_type_exists('seed_template')) {
+        echo '<p>' . esc_html__('Le type de contenu Templates n’est pas disponible pour le moment.', 'wp-seed-content-kit') . '</p>';
+        return;
+    }
+
+    $templates = get_posts(array(
+        'post_type' => 'seed_template',
+        'post_status' => array('publish', 'draft'),
+        'posts_per_page' => -1,
+        'orderby' => 'modified',
+        'order' => 'DESC',
+    ));
+
+    $total_templates = count($templates);
+    $module_counts = array(
+        'testimonials' => 0,
+        'quotes' => 0,
+        'directory' => 0,
+        'audio' => 0,
+        '' => 0,
+    );
+    foreach ($templates as $template) {
+        $module = wp_seed_content_get_template_module($template->ID);
+        if (!array_key_exists($module, $module_counts)) {
+            $module = '';
+        }
+        $module_counts[$module]++;
+    }
+
+    $recent_templates = array_slice($templates, 0, 5);
+    ?>
+    <section class="wp-seed-content-kit-template-dashboard">
+        <h2><?php esc_html_e('Résumé du module Template', 'wp-seed-content-kit'); ?></h2>
+        <ul>
+            <li><?php echo esc_html(sprintf(__('Nombre de templates : %d', 'wp-seed-content-kit'), $total_templates)); ?></li>
+            <li><?php echo esc_html__('Templates par module :', 'wp-seed-content-kit'); ?></li>
+        </ul>
+        <ul style="margin-left: 1.5em;">
+            <li><?php echo esc_html(sprintf(__('Témoignages : %d', 'wp-seed-content-kit'), $module_counts['testimonials'])); ?></li>
+            <li><?php echo esc_html(sprintf(__('Citations : %d', 'wp-seed-content-kit'), $module_counts['quotes'])); ?></li>
+            <li><?php echo esc_html(sprintf(__('Annuaire : %d', 'wp-seed-content-kit'), $module_counts['directory'])); ?></li>
+            <li><?php echo esc_html(sprintf(__('Créations sonores : %d', 'wp-seed-content-kit'), $module_counts['audio'])); ?></li>
+            <li><?php echo esc_html(sprintf(__('Module non défini : %d', 'wp-seed-content-kit'), $module_counts[''])); ?></li>
+        </ul>
+    </section>
+
+    <section class="wp-seed-content-kit-template-dashboard">
+        <h2><?php esc_html_e('Aide rapide', 'wp-seed-content-kit'); ?></h2>
+        <p><?php esc_html_e('L’identifiant est utilisé dans les shortcodes : template="identifiant".', 'wp-seed-content-kit'); ?></p>
+        <p><?php echo wp_kses_post(sprintf(
+            __('Exemple : %s', 'wp-seed-content-kit'),
+            '<code>[seed_testimonials template="accueil"]</code>'
+        )); ?></p>
+    </section>
+
+    <section class="wp-seed-content-kit-template-dashboard">
+        <h2><?php esc_html_e('Actions', 'wp-seed-content-kit'); ?></h2>
+        <p>
+            <a class="button button-primary" href="<?php echo esc_url(admin_url('post-new.php?post_type=seed_template')); ?>">
+                <?php echo esc_html__('Créer un template', 'wp-seed-content-kit'); ?>
+            </a>
+            <a class="button" href="<?php echo esc_url(admin_url('edit.php?post_type=seed_template')); ?>">
+                <?php echo esc_html__('Ouvrir la gestion complète', 'wp-seed-content-kit'); ?>
+            </a>
+        </p>
+        <p><?php esc_html_e('Besoin d’un contrôle détaillé (filtre, édition avancée, etc.) ? Utilisez la gestion complète WordPress.', 'wp-seed-content-kit'); ?></p>
+    </section>
+
+    <h2><?php esc_html_e('Templates récents', 'wp-seed-content-kit'); ?></h2>
+    <p><?php esc_html_e('Les derniers templates modifiés avec leur shortcode d’usage.', 'wp-seed-content-kit'); ?></p>
+
+    <?php if (empty($recent_templates)) : ?>
+        <p><?php esc_html_e('Aucun template pour le moment.', 'wp-seed-content-kit'); ?></p>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <table class="widefat striped wp-seed-content-kit-template-table">
+        <thead>
+            <tr>
+                <th><?php echo esc_html__('Identifiant', 'wp-seed-content-kit'); ?></th>
+                <th><?php echo esc_html__('Module', 'wp-seed-content-kit'); ?></th>
+                <th><?php echo esc_html__('Utilisation', 'wp-seed-content-kit'); ?></th>
+                <th><?php echo esc_html__('Actions', 'wp-seed-content-kit'); ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($recent_templates as $template) : ?>
+                <?php
+                $module = wp_seed_content_get_template_module($template->ID);
+                $module_name = wp_seed_content_get_template_module_name($module);
+                if ('' === $module_name) {
+                    $module_name = esc_html__('Module non défini', 'wp-seed-content-kit');
+                }
+                $shortcode = wp_seed_content_template_shortcode_for_post($template->ID);
+                if ('' === $shortcode) {
+                    $shortcode = '';
+                    $copy_button = '';
+                    $shortcode_usage = sprintf(
+                        /* translators: %s: template slug */
+                        esc_html__('Choisissez un module dans le template pour générer l’usage : %s', 'wp-seed-content-kit'),
+                        '[seed_<module> template="' . esc_html($template->post_name) . '"]'
+                    );
+                } else {
+                    $copy_button = sprintf(
+                        '<button type="button" class="button button-small wp-seed-content-kit-copy-template" data-shortcode="%s">%s</button>',
+                        esc_attr($shortcode),
+                        esc_html__('Copier le shortcode', 'wp-seed-content-kit')
+                    );
+                    $shortcode_usage = $shortcode;
+                }
+                ?>
+                <tr>
+                    <td>
+                        <strong><?php echo esc_html($template->post_name); ?></strong><br />
+                        <small><?php echo esc_html__('Nom du template', 'wp-seed-content-kit'); ?></small><br />
+                        <small>
+                            <a href="<?php echo esc_url(admin_url('post.php?post=' . (int) $template->ID . '&action=edit')); ?>">
+                                <?php echo esc_html__('Modifier le template', 'wp-seed-content-kit'); ?>
+                            </a>
+                        </small>
+                    </td>
+                    <td><?php echo esc_html($module_name); ?></td>
+                    <td>
+                        <?php if ('' === $shortcode) : ?>
+                            <code><?php echo esc_html($shortcode_usage); ?></code>
+                        <?php else : ?>
+                            <code><?php echo esc_html($shortcode_usage); ?></code>
+                        <?php endif; ?>
+                        <?php echo wp_kses_post($copy_button); ?>
+                    </td>
+                    <td>
+                        <a href="<?php echo esc_url(admin_url('post.php?post=' . (int) $template->ID . '&action=edit')); ?>">
+                            <?php echo esc_html__('Modifier', 'wp-seed-content-kit'); ?>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <script>
+        (function () {
+            var buttons = document.querySelectorAll('.wp-seed-content-kit-copy-template');
+            if (!buttons.length) {
+                return;
+            }
+
+            buttons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var shortcode = button.getAttribute('data-shortcode');
+                    if (!shortcode) {
+                        return;
+                    }
+
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(shortcode);
+                    } else {
+                        var temporary = document.createElement('textarea');
+                        temporary.value = shortcode;
+                        document.body.appendChild(temporary);
+                        temporary.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(temporary);
+                    }
+                });
+            });
+        }());
+    </script>
     <?php
 }
 
