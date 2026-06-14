@@ -58,13 +58,30 @@ function wp_seed_content_kit_register_manual_order_for_post_type($post_type)
             wp_seed_content_kit_manual_order_handle_move($post_type);
         }
     );
+
+    add_action(
+        'pre_get_posts',
+        function ($query) use ($post_type) {
+            wp_seed_content_kit_manual_order_apply_default_admin_order($query, $post_type);
+        }
+    );
 }
 
 function wp_seed_content_kit_manual_order_add_columns($columns, $post_type)
 {
-    $columns[$post_type . '_position'] = __('Position', 'wp-seed-content-kit');
-    $columns[$post_type . '_order_actions'] = __('Actions', 'wp-seed-content-kit');
-    return $columns;
+    $position_key = $post_type . '_position';
+    $actions_key = $post_type . '_order_actions';
+
+    $ordered = array();
+    foreach ($columns as $key => $label) {
+        if ('title' === $key) {
+            $ordered[$position_key] = __('Position', 'wp-seed-content-kit');
+            $ordered[$actions_key] = __('Actions', 'wp-seed-content-kit');
+        }
+        $ordered[$key] = $label;
+    }
+
+    return $ordered;
 }
 
 function wp_seed_content_kit_manual_order_render_columns($column, $post_id, $post_type)
@@ -318,6 +335,36 @@ function wp_seed_content_kit_manual_order_handle_move($post_type)
         'menu_order' => $current_order,
     ));
 
-    wp_safe_redirect(admin_url('edit.php?post_type=' . rawurlencode($post_type)));
+    wp_safe_redirect(
+        add_query_arg(
+            array(
+                'post_type' => $post_type,
+                'orderby' => 'menu_order',
+                'order' => 'ASC',
+            ),
+            admin_url('edit.php')
+        )
+    );
     exit;
+}
+
+function wp_seed_content_kit_manual_order_apply_default_admin_order($query, $post_type)
+{
+    if (!$query instanceof WP_Query || !$query->is_admin || !$query->is_main_query()) {
+        return;
+    }
+
+    if ((string) $query->get('post_type') !== (string) $post_type) {
+        return;
+    }
+
+    if ($query->get('orderby')) {
+        return;
+    }
+
+    $query->set('orderby', array(
+        'menu_order' => 'ASC',
+        'ID' => 'ASC',
+    ));
+    $query->set('order', 'ASC');
 }
