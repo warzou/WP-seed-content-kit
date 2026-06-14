@@ -12,7 +12,7 @@ function wp_seed_content_get_template_by_slug($slug)
     }
 
     $template = get_page_by_path($slug, OBJECT, 'seed_template');
-    if (!$template || 'publish' !== $template->post_status || '' === trim($template->post_content)) {
+    if (!$template || 'publish' !== $template->post_status) {
         return null;
     }
 
@@ -31,9 +31,53 @@ function wp_seed_content_render_template_by_slug($slug, $placeholders, $fallback
         return $fallback_html;
     }
 
+    $template_source = function_exists('wp_seed_content_get_template_layout_source') ? wp_seed_content_get_template_layout_source($template->ID) : 'native';
+    if ('divi_layout' === $template_source) {
+        $layout_html = wp_seed_content_render_template_using_divi_layout($template->ID, $replacements);
+        if ('' !== trim((string) $layout_html)) {
+            return $layout_html;
+        }
+    }
+
     $content = strtr($template->post_content, $replacements);
 
     return apply_filters('the_content', $content);
+}
+
+function wp_seed_content_render_template_using_divi_layout($template_id, array $replacements = array())
+{
+    $template_id = (int) $template_id;
+    if (!$template_id || empty($replacements)) {
+        return '';
+    }
+
+    $layout_id = function_exists('wp_seed_content_get_template_divi_layout_id')
+        ? wp_seed_content_get_template_divi_layout_id($template_id)
+        : 0;
+
+    if ($layout_id <= 0) {
+        return '';
+    }
+
+    $layout = get_post($layout_id);
+    if (
+        !$layout
+        || 'et_pb_layout' !== $layout->post_type
+        || 'publish' !== $layout->post_status
+        || '' === trim((string) $layout->post_content)
+    ) {
+        return '';
+    }
+
+    $content = strtr((string) $layout->post_content, $replacements);
+    $rendered = function_exists('do_blocks') ? do_blocks($content) : $content;
+    $rendered = do_shortcode($rendered);
+
+    if ('' === trim(wp_strip_all_tags((string) $rendered))) {
+        return '';
+    }
+
+    return $rendered;
 }
 
 function wp_seed_content_prepare_template_replacements($placeholders)

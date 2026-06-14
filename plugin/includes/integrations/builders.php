@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Page builder compatibility guidance for WP Seed templates.
  */
