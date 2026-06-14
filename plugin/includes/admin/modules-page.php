@@ -26,29 +26,10 @@ function wp_seed_content_kit_register_modules_page()
         1
     );
 
-    if (!wp_seed_content_kit_is_module_active('testimonials')) {
-        wp_seed_content_kit_register_placeholder_submenu(
-            __('Témoignages', 'wp-seed-content-kit'),
-            'wp-seed-content-kit-testimonials'
-        );
+    $modules = wp_seed_content_kit_get_modules();
+    foreach ($modules as $module_key => $module) {
+        wp_seed_content_kit_register_module_submenu($module_key, $module);
     }
-
-    if (!wp_seed_content_kit_is_module_active('quotes')) {
-        wp_seed_content_kit_register_placeholder_submenu(
-            __('Citations', 'wp-seed-content-kit'),
-            'wp-seed-content-kit-quotes'
-        );
-    }
-
-    wp_seed_content_kit_register_placeholder_submenu(
-        __('Annuaire', 'wp-seed-content-kit'),
-        'wp-seed-content-kit-directory'
-    );
-
-    wp_seed_content_kit_register_placeholder_submenu(
-        __('Créations sonores', 'wp-seed-content-kit'),
-        'wp-seed-content-kit-audio'
-    );
 
     add_submenu_page(
         'wp-seed-content-kit',
@@ -62,15 +43,17 @@ function wp_seed_content_kit_register_modules_page()
 add_action('admin_menu', 'wp_seed_content_kit_register_modules_page');
 add_action('admin_post_wp_seed_content_kit_save_modules', 'wp_seed_content_kit_handle_modules_form');
 
-function wp_seed_content_kit_register_placeholder_submenu($label, $slug)
+function wp_seed_content_kit_register_module_submenu($module_key, $module)
 {
+    $slug = 'wp-seed-content-kit-' . sanitize_key((string) $module_key);
+
     add_submenu_page(
         'wp-seed-content-kit',
-        $label,
-        $label,
+        $module['label'],
+        $module['label'],
         'manage_options',
         $slug,
-        'wp_seed_content_kit_render_placeholder_page'
+        'wp_seed_content_kit_render_module_admin_submenu_page'
     );
 }
 
@@ -395,7 +378,6 @@ function wp_seed_content_kit_render_configuration_tab()
                 <tr>
                     <th scope="col"><?php echo esc_html__('Module', 'wp-seed-content-kit'); ?></th>
                     <th scope="col"><?php echo esc_html__('Statut', 'wp-seed-content-kit'); ?></th>
-                    <th scope="col"><?php echo esc_html__('Activable', 'wp-seed-content-kit'); ?></th>
                     <th scope="col"><?php echo esc_html__('Menu WordPress', 'wp-seed-content-kit'); ?></th>
                     <th scope="col"><?php echo esc_html__('Shortcode', 'wp-seed-content-kit'); ?></th>
                     <th scope="col"><?php echo esc_html__('Liens rapides', 'wp-seed-content-kit'); ?></th>
@@ -406,7 +388,6 @@ function wp_seed_content_kit_render_configuration_tab()
                     <tr>
                         <th scope="row"><?php echo esc_html($module['label']); ?></th>
                         <td><?php wp_seed_content_kit_render_module_status_badge($module); ?></td>
-                        <td><?php wp_seed_content_kit_render_module_toggle($module_key, $module); ?></td>
                         <td><?php wp_seed_content_kit_render_module_menu_visibility_toggle($module_key, $module); ?></td>
                         <td><?php wp_seed_content_kit_render_shortcode_field($module_key, $module); ?></td>
                         <td><?php wp_seed_content_kit_render_module_quick_links($module_key, $module); ?></td>
@@ -541,24 +522,37 @@ function wp_seed_content_kit_render_templates_tab()
     <?php
 }
 
-function wp_seed_content_kit_render_placeholder_page()
+function wp_seed_content_kit_render_module_admin_submenu_page()
 {
     if (!current_user_can('manage_options')) {
         wp_die(esc_html__('Vous n’avez pas l’autorisation de gérer WP Seed Content Kit.', 'wp-seed-content-kit'));
     }
 
-    $pages = array(
-        'wp-seed-content-kit-testimonials' => __('Témoignages', 'wp-seed-content-kit'),
-        'wp-seed-content-kit-quotes' => __('Citations', 'wp-seed-content-kit'),
-        'wp-seed-content-kit-directory' => __('Annuaire', 'wp-seed-content-kit'),
-        'wp-seed-content-kit-audio' => __('Créations sonores', 'wp-seed-content-kit'),
-    );
     $page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
-    $title = isset($pages[$page]) ? $pages[$page] : __('Module prévu', 'wp-seed-content-kit');
+    $page = str_replace('wp-seed-content-kit-', '', $page);
+
+    $modules = wp_seed_content_kit_get_modules();
+    if (!isset($modules[$page])) {
+        wp_seed_content_kit_render_modules_page();
+        return;
+    }
+
+    $module = $modules[$page];
+    $title = $module['label'];
+    if (!empty($module['menu_supported']) && !empty($module['active']) && !empty($module['post_type'])) {
+        wp_safe_redirect(admin_url('edit.php?post_type=' . $module['post_type']));
+        exit;
+    }
+
+    if (!empty($module['planned'])) {
+        $description = __('Prévu pour une prochaine version.', 'wp-seed-content-kit');
+    } else {
+        $description = __('Module non disponible pour le moment.', 'wp-seed-content-kit');
+    }
     ?>
     <div class="wrap">
         <h1><?php echo esc_html($title); ?></h1>
-        <p><?php echo esc_html__('Prévu pour une prochaine version.', 'wp-seed-content-kit'); ?></p>
+        <p><?php echo esc_html($description); ?></p>
     </div>
     <?php
 }

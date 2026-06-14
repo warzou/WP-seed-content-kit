@@ -6,15 +6,12 @@ if (!defined('ABSPATH')) {
 
 function wp_seed_content_kit_register_module_menus()
 {
-    if (current_user_can('manage_options')) {
-        return;
-    }
-
     $modules = wp_seed_content_kit_get_modules();
     $user = wp_get_current_user();
+    $is_admin_user = current_user_can('manage_options');
     $position = 58.01;
 
-    if (empty($user->roles)) {
+    if (!$is_admin_user && empty($user->roles)) {
         return;
     }
 
@@ -39,7 +36,7 @@ function wp_seed_content_kit_register_module_menus()
             $roles = array('administrator');
         }
 
-        if (empty(array_intersect($user->roles, array_map('sanitize_key', $roles)))) {
+        if (!$is_admin_user && empty(array_intersect($user->roles, array_map('sanitize_key', $roles)))) {
             continue;
         }
 
