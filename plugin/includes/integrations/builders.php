@@ -276,7 +276,7 @@ function wp_seed_content_render_builder_compatibility_meta_box($post)
         />
     </p>
     <p class="description">
-        <?php esc_html_e('Utilisez ce post type dans les modules Texte, Code ou HTML.', 'wp-seed-content-kit'); ?>
+        <?php esc_html_e('Activez cet identifiant technique dans les réglages du constructeur.', 'wp-seed-content-kit'); ?>
     </p>
     <?php
 }

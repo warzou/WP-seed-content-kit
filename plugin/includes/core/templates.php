@@ -187,39 +187,80 @@ function wp_seed_content_template_shortcode_for_post($post_id)
     return sprintf($pattern, $slug);
 }
 
-function wp_seed_content_render_template_module_meta_box($post)
+function wp_seed_content_get_template_supported_modules()
+{
+    return array('testimonials', 'quotes');
+}
+
+function wp_seed_content_get_template_module_data()
+{
+    $module_data = array();
+    foreach (wp_seed_content_get_template_modules() as $module_key => $module_shortcode) {
+        if (!is_string($module_key)) {
+            continue;
+        }
+
+        $placeholders = wp_seed_content_get_template_placeholders_by_module($module_key);
+        $module_data[$module_key] = array(
+            'placeholders' => array_keys((array) $placeholders),
+            'labels' => $placeholders,
+            'shortcode' => wp_seed_content_get_template_shortcode_from_module($module_key),
+            'example' => wp_seed_content_get_template_example_by_module($module_key),
+        );
+    }
+
+    return $module_data;
+}
+
+function wp_seed_content_get_template_usage_context($post)
 {
     if (!$post || 'seed_template' !== $post->post_type) {
+        return array();
+    }
+
+    $module = wp_seed_content_get_template_module($post->ID);
+    $slug = sanitize_title((string) get_post_field('post_name', $post->ID, 'raw'));
+    $shortcode = wp_seed_content_template_shortcode_for_post($post->ID);
+    $placeholders = wp_seed_content_get_template_placeholders_by_module($module);
+    $source = wp_seed_content_get_template_layout_source($post->ID);
+    $divi_layout_id = wp_seed_content_get_template_divi_layout_id($post->ID);
+    $divi_library_available = post_type_exists('et_pb_layout');
+    $divi_layouts = wp_seed_content_get_seed_template_divi_layouts();
+
+    return array(
+        'post_id' => (int) $post->ID,
+        'module' => $module,
+        'modules' => wp_seed_content_get_template_modules(),
+        'supported_modules' => wp_seed_content_get_template_supported_modules(),
+        'module_data' => wp_seed_content_get_template_module_data(),
+        'slug' => $slug,
+        'shortcode' => $shortcode,
+        'placeholders' => $placeholders,
+        'example' => wp_seed_content_get_template_example_by_module($module),
+        'source' => $source,
+        'divi_layout_id' => $divi_layout_id,
+        'divi_library_available' => $divi_library_available,
+        'divi_layouts' => $divi_layouts,
+    );
+}
+
+function wp_seed_content_render_template_module_meta_box($post)
+{
+    $context = wp_seed_content_get_template_usage_context($post);
+    if (empty($context)) {
         return;
     }
 
-    $current = wp_seed_content_get_template_module($post->ID);
-    $modules = wp_seed_content_get_template_modules();
-    $current_slug = sanitize_title((string) get_post_field('post_name', $post->ID, 'raw'));
-    $shortcode_pattern = wp_seed_content_get_template_shortcode_from_module($current);
-    $shortcode_example = '';
-    if ('' !== $shortcode_pattern && '' !== $current_slug) {
-        $shortcode_example = sprintf($shortcode_pattern, $current_slug);
-    }
-    $placeholders = wp_seed_content_get_template_placeholders_by_module($current);
-    $supported_modules = array('testimonials', 'quotes');
-    $placeholders_by_module = array();
-    $shortcodes_by_module = array();
-    foreach ($modules as $module_key => $module_shortcode) {
-        $placeholders_by_module[$module_key] = wp_seed_content_get_template_placeholders_by_module($module_key);
-        $shortcodes_by_module[$module_key] = wp_seed_content_get_template_shortcode_from_module($module_key);
-    }
-
-    $module_data = array();
-    foreach ($placeholders_by_module as $module_key => $module_placeholders) {
-        $module_data[$module_key] = array(
-            'placeholders' => array_keys((array) $module_placeholders),
-            'labels' => $module_placeholders,
-            'shortcode' => $shortcodes_by_module[$module_key] ?? '',
-        );
-    }
+    $current = $context['module'];
+    $modules = $context['modules'];
+    $current_slug = $context['slug'];
+    $supported_modules = $context['supported_modules'];
+    $template_source = $context['source'];
+    $template_divi_layout_id = $context['divi_layout_id'];
+    $divi_layouts = $context['divi_layouts'];
+    $divi_library_available = $context['divi_library_available'];
     ?>
-    <p><strong><?php esc_html_e('Utilisation du template', 'wp-seed-content-kit'); ?></strong></p>
+    <p><strong><?php esc_html_e('Réglages du template', 'wp-seed-content-kit'); ?></strong></p>
     <input type="hidden" name="wp_seed_content_template_meta_nonce" value="<?php echo esc_attr(wp_create_nonce('wp_seed_content_template_meta')); ?>" />
     <p>
         <label for="wp-seed-template-module">
@@ -258,23 +299,22 @@ function wp_seed_content_render_template_module_meta_box($post)
         esc_html_e('Modules fonctionnels : Témoignages, Citations. Modules préparés : Annuaire, Créations sonores.', 'wp-seed-content-kit');
         ?>
     </p>
+
     <p><strong><?php esc_html_e('Source du rendu', 'wp-seed-content-kit'); ?></strong></p>
-    <?php
-    $template_source = wp_seed_content_get_template_layout_source($post->ID);
-    $template_divi_layout_id = wp_seed_content_get_template_divi_layout_id($post->ID);
-    $divi_layouts = wp_seed_content_get_seed_template_divi_layouts();
-    $divi_library_available = post_type_exists('et_pb_layout');
-    ?>
     <p>
         <label>
             <input type="radio" name="wp_seed_content_template_source" value="native" <?php checked('native', $template_source); ?> />
             <?php esc_html_e('Contenu de ce template', 'wp-seed-content-kit'); ?>
         </label>
         <br />
+        <span class="description"><?php esc_html_e('Utilise le contenu saisi dans cet éditeur WordPress.', 'wp-seed-content-kit'); ?></span>
+        <br />
         <label>
             <input type="radio" name="wp_seed_content_template_source" value="divi_layout" <?php checked('divi_layout', $template_source); ?> />
             <?php esc_html_e('Layout Divi Library', 'wp-seed-content-kit'); ?>
         </label>
+        <br />
+        <span class="description"><?php esc_html_e('Utilise un layout créé dans Divi Library. Ajoutez les balises WP Seed dans un module Texte ou Code Divi.', 'wp-seed-content-kit'); ?></span>
     </p>
     <?php if (!$divi_library_available) : ?>
         <p class="description">
@@ -294,10 +334,11 @@ function wp_seed_content_render_template_module_meta_box($post)
                     </option>
                 <?php endforeach; ?>
             </select>
-            <span class="description"><?php esc_html_e('Utilisez les balises WP Seed dans un module Texte ou Code Divi.', 'wp-seed-content-kit'); ?></span><br />
-            <span class="description"><?php esc_html_e('Exemples : {{quote}}, {{author}}, {{photo}}, {{name}}, {{text}}', 'wp-seed-content-kit'); ?></span>
+            <?php wp_seed_content_render_template_divi_actions($template_divi_layout_id); ?>
         <?php else : ?>
+            <input type="hidden" name="wp_seed_content_template_divi_layout_id" value="<?php echo esc_attr((string) $template_divi_layout_id); ?>" />
             <span class="description"><?php esc_html_e('Aucun layout Divi publié disponible.', 'wp-seed-content-kit'); ?></span>
+            <?php wp_seed_content_render_template_divi_actions($template_divi_layout_id); ?>
         <?php endif; ?>
     </p>
     <p>
@@ -313,53 +354,116 @@ function wp_seed_content_render_template_module_meta_box($post)
         />
     </p>
     <p class="description">
-        <?php esc_html_e('Utilisé dans :', 'wp-seed-content-kit'); ?>
+        <?php esc_html_e('Utilisé dans le shortcode :', 'wp-seed-content-kit'); ?>
         <code>template="<?php echo esc_html('' !== $current_slug ? $current_slug : 'identifiant'); ?>"</code>
     </p>
-    <p class="description" id="wp-seed-template-shortcode-block">
-        <strong><?php esc_html_e('Shortcode', 'wp-seed-content-kit'); ?> :</strong><br />
-        <code id="wp-seed-template-shortcode" class="wp-seed-template-shortcode" data-slug="<?php echo esc_attr($current_slug); ?>" <?php echo '' === $shortcode_example ? 'style="display:none;"' : ''; ?>><?php echo esc_html($shortcode_example); ?></code>
-        <button type="button" class="button button-small wp-seed-content-kit-copy-template" data-shortcode="<?php echo esc_attr($shortcode_example); ?>" <?php echo '' === $shortcode_example ? 'style="display:none;"' : ''; ?>>
-            <?php esc_html_e('Copier le shortcode', 'wp-seed-content-kit'); ?>
-        </button>
-        <span id="wp-seed-template-shortcode-empty" class="description" <?php echo '' !== $shortcode_example ? 'style="display:none;"' : ''; ?>>
-            <?php esc_html_e('Choisissez un module et un identifiant pour générer le shortcode.', 'wp-seed-content-kit'); ?>
-        </span>
-    </p>
-
-    <?php if (!empty($placeholders)) : ?>
-        <p class="description">
-            <strong><?php esc_html_e('Placeholders disponibles', 'wp-seed-content-kit'); ?></strong><br />
-            <span id="wp-seed-template-placeholders">
-                <?php foreach ($placeholders as $token => $label) : ?>
-                    <span class="wp-seed-template-placeholder-row" style="display:block; margin-bottom:6px;">
-                        <code><?php echo esc_html('{{' . $token . '}}'); ?></code>
-                        — <?php echo esc_html($label); ?>
-                        <button type="button" class="button button-small wp-seed-content-kit-copy-template-placeholder" data-token="<?php echo esc_attr($token); ?>">
-                            <?php esc_html_e('Copier', 'wp-seed-content-kit'); ?>
-                        </button>
-                    </span>
-                <?php endforeach; ?>
-            </span>
-        </p>
-        <p class="description">
-            <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
-            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html(wp_seed_content_get_template_example_by_module($current)); ?></pre>
-        </p>
-        <div id="wp-seed-template-module-data" data-module-meta="<?php echo esc_attr(wp_json_encode($module_data)); ?>"></div>
-    <?php else : ?>
-        <p class="description">
-            <span id="wp-seed-template-placeholders">
-                <?php esc_html_e('Aucun placeholder spécifique n’est encore défini pour ce module.', 'wp-seed-content-kit'); ?>
-            </span>
-        </p>
-        <p class="description">
-            <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
-            <pre style="white-space: pre-wrap; margin: 0;"><?php echo esc_html(wp_seed_content_get_template_example_by_module($current)); ?></pre>
-        </p>
-        <div id="wp-seed-template-module-data" data-module-meta="<?php echo esc_attr(wp_json_encode($module_data)); ?>"></div>
-    <?php endif; ?>
 <?php
+}
+
+function wp_seed_content_render_template_divi_actions($layout_id)
+{
+    if (!post_type_exists('et_pb_layout')) {
+        return;
+    }
+
+    $layout_id = absint($layout_id);
+    ?>
+    <p class="description">
+        <?php esc_html_e('Créez un layout dans Divi Library, ajoutez les balises WP Seed, puis sélectionnez-le ici.', 'wp-seed-content-kit'); ?>
+    </p>
+    <p>
+        <a class="button button-small" href="<?php echo esc_url(admin_url('post-new.php?post_type=et_pb_layout')); ?>">
+            <?php esc_html_e('Créer un layout Divi', 'wp-seed-content-kit'); ?>
+        </a>
+        <a class="button button-small" href="<?php echo esc_url(admin_url('edit.php?post_type=et_pb_layout')); ?>">
+            <?php esc_html_e('Gérer les layouts Divi', 'wp-seed-content-kit'); ?>
+        </a>
+        <?php if ($layout_id > 0) : ?>
+            <a class="button button-small" href="<?php echo esc_url(admin_url('post.php?post=' . $layout_id . '&action=edit')); ?>">
+                <?php esc_html_e('Ouvrir le layout sélectionné', 'wp-seed-content-kit'); ?>
+            </a>
+        <?php endif; ?>
+    </p>
+    <?php
+}
+
+function wp_seed_content_render_template_usage_meta_box($post)
+{
+    $context = wp_seed_content_get_template_usage_context($post);
+    if (empty($context)) {
+        return;
+    }
+
+    $module_data_json = wp_json_encode($context['module_data']);
+    ?>
+    <div
+        class="wp-seed-template-usage"
+        data-wp-seed-template-usage
+        data-module-meta="<?php echo esc_attr($module_data_json); ?>"
+        data-template-slug="<?php echo esc_attr($context['slug']); ?>"
+    >
+        <p>
+            <?php esc_html_e('Le shortcode choisit les contenus à afficher. Ce template choisit leur mise en forme.', 'wp-seed-content-kit'); ?>
+        </p>
+        <p>
+            <strong><?php esc_html_e('Shortcode', 'wp-seed-content-kit'); ?></strong><br />
+            <code data-wp-seed-template-shortcode <?php echo '' === $context['shortcode'] ? 'style="display:none;"' : ''; ?>><?php echo esc_html($context['shortcode']); ?></code>
+            <button
+                type="button"
+                class="button button-small"
+                data-wp-seed-copy-value="<?php echo esc_attr($context['shortcode']); ?>"
+                data-wp-seed-template-copy-shortcode
+                <?php echo '' === $context['shortcode'] ? 'style="display:none;"' : ''; ?>
+            >
+                <?php esc_html_e('Copier le shortcode', 'wp-seed-content-kit'); ?>
+            </button>
+            <span data-wp-seed-template-shortcode-empty class="description" <?php echo '' !== $context['shortcode'] ? 'style="display:none;"' : ''; ?>>
+                <?php esc_html_e('Choisissez un module et un identifiant pour générer le shortcode.', 'wp-seed-content-kit'); ?>
+            </span>
+        </p>
+        <p>
+            <strong><?php esc_html_e('Identifiant', 'wp-seed-content-kit'); ?></strong><br />
+            <code><?php echo esc_html('' !== $context['slug'] ? $context['slug'] : 'identifiant'); ?></code>
+        </p>
+        <p>
+            <strong><?php esc_html_e('Balises disponibles', 'wp-seed-content-kit'); ?></strong><br />
+            <span data-wp-seed-template-placeholders>
+                <?php wp_seed_content_render_template_placeholder_rows($context['placeholders']); ?>
+            </span>
+        </p>
+        <p>
+            <strong><?php esc_html_e('Exemple', 'wp-seed-content-kit'); ?></strong><br />
+            <pre data-wp-seed-template-example style="white-space: pre-wrap; margin: 0;"><?php echo esc_html($context['example']); ?></pre>
+        </p>
+        <p class="description">
+            <?php esc_html_e('Source actuelle :', 'wp-seed-content-kit'); ?>
+            <span data-wp-seed-template-source-label>
+                <?php echo esc_html('divi_layout' === $context['source'] ? __('Layout Divi Library', 'wp-seed-content-kit') : __('Contenu de ce template', 'wp-seed-content-kit')); ?>
+            </span>
+        </p>
+    </div>
+    <?php
+}
+
+function wp_seed_content_render_template_placeholder_rows($placeholders)
+{
+    if (empty($placeholders)) {
+        esc_html_e('Aucune balise spécifique n’est encore définie pour ce module.', 'wp-seed-content-kit');
+        return;
+    }
+
+    foreach ($placeholders as $token => $label) :
+        $placeholder = '{{' . $token . '}}';
+        ?>
+        <span class="wp-seed-template-placeholder-row" style="display:block; margin-bottom:6px;">
+            <code><?php echo esc_html($placeholder); ?></code>
+            — <?php echo esc_html($label); ?>
+            <button type="button" class="button button-small" data-wp-seed-copy-value="<?php echo esc_attr($placeholder); ?>">
+                <?php esc_html_e('Copier', 'wp-seed-content-kit'); ?>
+            </button>
+        </span>
+        <?php
+    endforeach;
 }
 
 function wp_seed_content_save_template_module($post_id, $post, $update)
@@ -604,19 +708,15 @@ jQuery(function($){
         document.body.removeChild(temp);
     }
 
-    $(document).on('click', '.wp-seed-content-kit-copy-template', function (event) {
-        event.preventDefault();
-        var shortcode = $(this).data('shortcode');
-        if (shortcode) {
-            seedCopyToClipboard(shortcode);
-        }
-    });
+    function seedEscapeHtml(value) {
+        return $('<div>').text(value || '').html();
+    }
 
-    $(document).on('click', '.wp-seed-content-kit-copy-template-placeholder', function (event) {
+    $(document).on('click', '[data-wp-seed-copy-value]', function (event) {
         event.preventDefault();
-        var token = $(this).data('token');
-        if (token) {
-            seedCopyToClipboard('{{' + token + '}}');
+        var value = $(this).attr('data-wp-seed-copy-value') || '';
+        if (value) {
+            seedCopyToClipboard(value);
         }
     });
 
@@ -679,7 +779,8 @@ jQuery(function($){
         return;
     }
 
-    var moduleDataRaw = $('#wp-seed-template-module-data').attr('data-module-meta');
+    var $usage = $('[data-wp-seed-template-usage]').first();
+    var moduleDataRaw = $usage.attr('data-module-meta');
     if (!moduleDataRaw) {
         return;
     }
@@ -691,11 +792,13 @@ jQuery(function($){
         moduleData = {};
     }
 
-    var $shortcodeBlock = $('#wp-seed-template-shortcode-block');
-    var $shortcode = $('#wp-seed-template-shortcode');
-    var $shortcodeEmpty = $('#wp-seed-template-shortcode-empty');
-    var $placeholders = $('#wp-seed-template-placeholders');
-    var slug = $shortcode.data('slug') || '';
+    var $shortcode = $usage.find('[data-wp-seed-template-shortcode]');
+    var $copyShortcode = $usage.find('[data-wp-seed-template-copy-shortcode]');
+    var $shortcodeEmpty = $usage.find('[data-wp-seed-template-shortcode-empty]');
+    var $placeholders = $usage.find('[data-wp-seed-template-placeholders]');
+    var $example = $usage.find('[data-wp-seed-template-example]');
+    var $sourceLabel = $usage.find('[data-wp-seed-template-source-label]');
+    var slug = $usage.attr('data-template-slug') || '';
 
     function updateTemplateMetaUI(module) {
         var normalized = (module || '').toString();
@@ -704,7 +807,7 @@ jQuery(function($){
         if (!normalized || !data || !data.shortcode) {
             if ($shortcode.length) {
                 $shortcode.text('').hide();
-                $shortcodeBlock.find('.wp-seed-content-kit-copy-template').hide();
+                $copyShortcode.attr('data-wp-seed-copy-value', '').hide();
             }
 
             if ($shortcodeEmpty.length) {
@@ -712,15 +815,19 @@ jQuery(function($){
             }
 
             if ($placeholders.length) {
-                $placeholders.html('Aucun placeholder disponible pour ce module.');
+                $placeholders.html('Aucune balise disponible pour ce module.');
+            }
+
+            if ($example.length) {
+                $example.text('');
             }
             return;
         }
 
         var generated = data.shortcode.replace('%s', slug);
         if ($shortcode.length) {
-            $shortcode.text(generated).attr('data-shortcode', generated).show();
-            $shortcodeBlock.find('.wp-seed-content-kit-copy-template').attr('data-shortcode', generated).show();
+            $shortcode.text(generated).show();
+            $copyShortcode.attr('data-wp-seed-copy-value', generated).show();
         }
 
         if ($shortcodeEmpty.length) {
@@ -733,26 +840,46 @@ jQuery(function($){
 
         var placeholders = data.placeholders || [];
         if (!placeholders.length) {
-            $placeholders.html('Aucun placeholder spécifique n’est encore défini pour ce module.');
+            $placeholders.html('Aucune balise spécifique n’est encore définie pour ce module.');
+            if ($example.length) {
+                $example.text(data.example || '');
+            }
             return;
         }
 
         var rows = '';
         placeholders.forEach(function(token) {
             var label = data.labels && data.labels[token] ? data.labels[token] : token;
+            var placeholder = '{{' + token + '}}';
             rows += '<span class="wp-seed-template-placeholder-row" style="display:block; margin-bottom:6px;">';
-            rows += '<code>{{' + token + '}}</code> - ' + label;
-            rows += ' <button type="button" class="button button-small wp-seed-content-kit-copy-template-placeholder" data-token="' + token + '">Copier</button>';
+            rows += '<code>' + seedEscapeHtml(placeholder) + '</code> - ' + seedEscapeHtml(label);
+            rows += ' <button type="button" class="button button-small" data-wp-seed-copy-value="' + seedEscapeHtml(placeholder) + '">Copier</button>';
             rows += '</span>';
         });
         $placeholders.html(rows);
+
+        if ($example.length) {
+            $example.text(data.example || '');
+        }
+    }
+
+    function updateTemplateSourceLabel() {
+        if (!$sourceLabel.length) {
+            return;
+        }
+
+        var source = $('input[name="wp_seed_content_template_source"]:checked').val() || 'native';
+        $sourceLabel.text('divi_layout' === source ? 'Layout Divi Library' : 'Contenu de ce template');
     }
 
     $moduleSelect.on('change', function () {
         updateTemplateMetaUI($(this).val());
     });
 
+    $('input[name="wp_seed_content_template_source"]').on('change', updateTemplateSourceLabel);
+
     updateTemplateMetaUI($moduleSelect.val());
+    updateTemplateSourceLabel();
 });
 JS;
 
@@ -783,11 +910,20 @@ function wp_seed_content_seed_template_init_admin_columns()
     add_action('add_meta_boxes', function () {
         add_meta_box(
             'wp-seed-content-kit-template-module',
-            __('Utilisation du template', 'wp-seed-content-kit'),
+            __('Réglages du template', 'wp-seed-content-kit'),
             'wp_seed_content_render_template_module_meta_box',
             'seed_template',
             'side',
             'default'
+        );
+
+        add_meta_box(
+            'wp-seed-content-kit-template-usage',
+            __('Comment utiliser ce template', 'wp-seed-content-kit'),
+            'wp_seed_content_render_template_usage_meta_box',
+            'seed_template',
+            'normal',
+            'high'
         );
     });
 
