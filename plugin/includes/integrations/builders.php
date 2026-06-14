@@ -175,6 +175,7 @@ function wp_seed_content_render_builder_compatibility_meta_box($post)
     $elementor = wp_seed_content_get_builder_activation_status('elementor');
     $divi_settings_url = admin_url('admin.php?page=et_divi_options');
     $elementor_settings_url = admin_url('admin.php?page=elementor');
+    $builder_hint = __('WP Seed rend le type de contenu seed_template disponible pour Divi quand Divi le permet. Activez-le ensuite dans les options Divi.', 'wp-seed-content-kit');
     ?>
     <p>
         <strong><?php esc_html_e('Constructeur de page', 'wp-seed-content-kit'); ?></strong>
@@ -200,6 +201,7 @@ function wp_seed_content_render_builder_compatibility_meta_box($post)
     <?php if ($divi['detected']) : ?>
     <p>
         <strong><?php esc_html_e('Divi', 'wp-seed-content-kit'); ?></strong><br />
+        <span class="description"><?php echo esc_html($builder_hint); ?></span><br />
         <?php if ('enabled' === $divi['status']) : ?>
             <?php esc_html_e('seed_template : OK.', 'wp-seed-content-kit'); ?>
         <?php elseif ('needs_activation' === $divi['status']) : ?>
@@ -268,3 +270,17 @@ function wp_seed_content_register_builder_compatibility_meta_box()
     );
 }
 add_action('add_meta_boxes_seed_template', 'wp_seed_content_register_builder_compatibility_meta_box');
+
+function wp_seed_content_divi_builder_post_types($post_types = array())
+{
+    if (!is_array($post_types)) {
+        $post_types = array();
+    }
+
+    $post_types[] = 'seed_template';
+    $post_types = array_values(array_unique($post_types));
+
+    return $post_types;
+}
+
+add_filter('et_builder_post_types', 'wp_seed_content_divi_builder_post_types');
