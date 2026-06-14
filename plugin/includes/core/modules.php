@@ -142,9 +142,9 @@ function wp_seed_content_kit_get_post_type_menu_parent($post_type)
 function wp_seed_content_kit_get_admin_menu_icon($type)
 {
     $icons = array(
-        'parent' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="12" y="3" width="5" height="5" rx="1"/><rect x="3" y="12" width="5" height="5" rx="1"/><rect x="12" y="12" width="5" height="5" rx="1"/></svg>',
-        'testimonials' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="12" y="3" width="5" height="5" rx="1"/><path d="M4 12h12a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H8l-4 2v-2a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2z"/></svg>',
-        'quotes' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="12" y="3" width="5" height="5" rx="1"/><path d="M4 13c0-3 2-5 5-6v3c-1 0-2 1-2 2h2v5H4v-4zm8 0c0-3 2-5 5-6v3c-1 0-2 1-2 2h2v5h-5v-4z"/></svg>',
+        'parent' => 'dashicons-screenoptions',
+        'testimonials' => 'dashicons-testimonial',
+        'quotes' => 'dashicons-format-quote',
     );
 
     $type = sanitize_key($type);
@@ -152,7 +152,7 @@ function wp_seed_content_kit_get_admin_menu_icon($type)
         $type = 'parent';
     }
 
-    return 'data:image/svg+xml;base64,' . base64_encode($icons[$type]);
+    return $icons[$type];
 }
 
 function wp_seed_content_kit_is_module_active($module)
