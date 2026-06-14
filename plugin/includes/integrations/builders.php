@@ -34,15 +34,37 @@ function wp_seed_content_is_seed_template_enabled_in_builder_option($option_valu
         return null;
     }
 
+    $normalize_value = static function($value) {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (int) $value > 0;
+        }
+
+        if (is_string($value)) {
+            $trimmed = strtolower(trim($value));
+            if ('on' === $trimmed || '1' === $trimmed || 'true' === $trimmed || 'yes' === $trimmed) {
+                return true;
+            }
+            if ('off' === $trimmed || '0' === $trimmed || 'false' === $trimmed || 'no' === $trimmed) {
+                return false;
+            }
+        }
+
+        return (bool) $value;
+    };
+
     if (array_key_exists('seed_template', $option_values)) {
-        return (bool) $option_values['seed_template'];
+        return $normalize_value($option_values['seed_template']);
     }
 
     if (array_key_exists('post_types', $option_values) && is_array($option_values['post_types'])) {
         $post_types = $option_values['post_types'];
 
         if (array_key_exists('seed_template', $post_types)) {
-            return (bool) $post_types['seed_template'];
+            return $normalize_value($post_types['seed_template']);
         }
 
         if (in_array('seed_template', $post_types, true)) {
@@ -175,7 +197,7 @@ function wp_seed_content_render_builder_compatibility_meta_box($post)
     $elementor = wp_seed_content_get_builder_activation_status('elementor');
     $divi_settings_url = admin_url('admin.php?page=et_divi_options');
     $elementor_settings_url = admin_url('admin.php?page=elementor');
-    $builder_hint = __('WP Seed rend le type de contenu seed_template disponible pour Divi quand Divi le permet. Activez-le ensuite dans les options Divi.', 'wp-seed-content-kit');
+    $builder_hint = __('WP Seed rend seed_template disponible dans Divi.', 'wp-seed-content-kit');
     ?>
     <p>
         <strong><?php esc_html_e('Constructeur de page', 'wp-seed-content-kit'); ?></strong>
@@ -202,12 +224,13 @@ function wp_seed_content_render_builder_compatibility_meta_box($post)
     <p>
         <strong><?php esc_html_e('Divi', 'wp-seed-content-kit'); ?></strong><br />
         <span class="description"><?php echo esc_html($builder_hint); ?></span><br />
+        <span class="description"><?php esc_html_e('Activez-le ensuite dans :', 'wp-seed-content-kit'); ?></span><br />
+        <a href="<?php echo esc_url($divi_settings_url); ?>" target="_blank" rel="noopener noreferrer">
+            <?php esc_html_e('Divi → Theme Options → Builder → Post Type Integration', 'wp-seed-content-kit'); ?>
+        </a><br />
         <?php if ('enabled' === $divi['status']) : ?>
             <?php esc_html_e('seed_template : OK.', 'wp-seed-content-kit'); ?>
         <?php elseif ('needs_activation' === $divi['status']) : ?>
-            <a href="<?php echo esc_url($divi_settings_url); ?>" target="_blank" rel="noopener noreferrer">
-                <?php esc_html_e('Divi → Theme Options → Builder → Post Type Integration', 'wp-seed-content-kit'); ?>
-            </a><br />
             <?php esc_html_e('Activez seed_template.', 'wp-seed-content-kit'); ?>
         <?php else : ?>
             <?php esc_html_e('Impossible de vérifier automatiquement.', 'wp-seed-content-kit'); ?><br />
@@ -284,3 +307,34 @@ function wp_seed_content_divi_builder_post_types($post_types = array())
 }
 
 add_filter('et_builder_post_types', 'wp_seed_content_divi_builder_post_types');
+
+function wp_seed_content_divi_builder_third_party_post_types($post_types = array())
+{
+    if (!is_array($post_types)) {
+        $post_types = array();
+    }
+
+    $post_types[] = 'seed_template';
+    $post_types = array_values(array_unique($post_types));
+
+    return $post_types;
+}
+
+add_filter('et_builder_third_party_post_types', 'wp_seed_content_divi_builder_third_party_post_types');
+
+function wp_seed_content_divi_builder_post_type_options($options = array())
+{
+    if (!is_array($options)) {
+        return array('seed_template' => 'off');
+    }
+
+    if (array_key_exists('seed_template', $options)) {
+        return $options;
+    }
+
+    $options['seed_template'] = 'off';
+
+    return $options;
+}
+
+add_filter('et_builder_enabled_builder_post_type_options', 'wp_seed_content_divi_builder_post_type_options');
