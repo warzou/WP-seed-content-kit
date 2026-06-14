@@ -203,9 +203,21 @@ function wp_seed_content_render_template_module_meta_box($post)
         esc_html_e('Modules fonctionnels : Témoignages, Citations. Modules préparés : Annuaire, Créations sonores.', 'wp-seed-content-kit');
         ?>
     </p>
+    <p>
+        <label for="wp-seed-template-identifier">
+            <strong><?php esc_html_e('Identifiant du template', 'wp-seed-content-kit'); ?></strong>
+        </label>
+        <input
+            type="text"
+            id="wp-seed-template-identifier"
+            name="wp_seed_content_template_identifier"
+            value="<?php echo esc_attr($current_slug); ?>"
+            class="widefat"
+        />
+    </p>
     <p class="description">
-        <strong><?php esc_html_e('Identifiant du template', 'wp-seed-content-kit'); ?> :</strong>
-        <code><?php echo esc_html($current_slug); ?></code>
+        <?php esc_html_e('Utilisé dans :', 'wp-seed-content-kit'); ?>
+        <code>template="<?php echo esc_html('' !== $current_slug ? $current_slug : 'identifiant'); ?>"</code>
     </p>
     <p class="description" id="wp-seed-template-shortcode-block">
         <strong><?php esc_html_e('Shortcode', 'wp-seed-content-kit'); ?> :</strong><br />
@@ -283,6 +295,10 @@ function wp_seed_content_save_template_module($post_id, $post, $update)
         return;
     }
 
+    if (isset($_POST['wp_seed_content_template_identifier'])) {
+        wp_seed_content_update_template_identifier($post_id, wp_unslash($_POST['wp_seed_content_template_identifier']));
+    }
+
     $module = sanitize_key(wp_unslash($_POST['wp_seed_content_template_module']));
     $modules = array_keys(wp_seed_content_get_template_modules());
     if (!in_array($module, $modules, true)) {
@@ -290,6 +306,30 @@ function wp_seed_content_save_template_module($post_id, $post, $update)
     }
 
     update_post_meta($post_id, '_wp_seed_content_template_module', $module);
+}
+
+function wp_seed_content_update_template_identifier($post_id, $raw_identifier)
+{
+    $new_slug = sanitize_title($raw_identifier);
+    if ('' === $new_slug) {
+        return;
+    }
+
+    $post = get_post($post_id);
+    if (!$post || 'seed_template' !== $post->post_type) {
+        return;
+    }
+
+    if (sanitize_title((string) $post->post_name) === $new_slug) {
+        return;
+    }
+
+    wp_update_post(
+        array(
+            'ID' => $post_id,
+            'post_name' => $new_slug,
+        )
+    );
 }
 
 function wp_seed_content_render_template_identifier_quick_edit($column_name, $post_type = '', $has_taxonomy = '')
@@ -364,26 +404,7 @@ function wp_seed_content_save_template_identifier_quick_edit($post_id, $post, $u
         return;
     }
 
-    $new_slug = sanitize_title(wp_unslash($_POST['wp_seed_content_template_slug']));
-    if ('' === $new_slug) {
-        return;
-    }
-
-    $post = get_post($post_id);
-    if (!$post) {
-        return;
-    }
-
-    if (sanitize_title((string) $post->post_name) === $new_slug) {
-        return;
-    }
-
-    wp_update_post(
-        array(
-            'ID' => $post_id,
-            'post_name' => $new_slug,
-        )
-    );
+    wp_seed_content_update_template_identifier($post_id, wp_unslash($_POST['wp_seed_content_template_slug']));
 }
 
 function wp_seed_content_seed_template_columns($columns)
@@ -490,6 +511,60 @@ jQuery(function($){
         }
     });
 
+    function seedEnsureTemplateQuickEditField($inlineRow) {
+        if ($inlineRow.find('input[name="wp_seed_content_template_slug"]').length) {
+            return;
+        }
+
+        var field = ''
+            + '<fieldset class="inline-edit-col-right wp-seed-template-quick-edit-identifier">'
+            + '<div class="inline-edit-col">'
+            + '<label>'
+            + '<span class="title">Identifiant</span>'
+            + '<span class="input-text-wrap">'
+            + '<input type="text" name="wp_seed_content_template_slug" value="" />'
+            + '</span>'
+            + '</label>'
+            + '<p class="inline-edit-tags">Utilisé dans : <code>template="accueil"</code></p>'
+            + '</div>'
+            + '</fieldset>';
+
+        var $rightColumn = $inlineRow.find('.inline-edit-col-right').last();
+        if ($rightColumn.length) {
+            $rightColumn.after(field);
+            return;
+        }
+
+        $inlineRow.find('.inline-edit-wrapper').append(field);
+    }
+
+    function seedUpdateTemplateQuickEditSlug() {
+        $(document).off('click.wpSeedTemplateQuickEdit', '.editinline');
+        $(document).on('click.wpSeedTemplateQuickEdit', '.editinline', function () {
+            var $button = $(this);
+
+            window.setTimeout(function () {
+                var rowId = $button.closest('tr').attr('id') || '';
+                var match = rowId.match(/post-(\d+)/);
+                if (!match || !match[1]) {
+                    return;
+                }
+
+                var postId = match[1];
+                var slug = $('#seed-template-inline-slug-' + postId).text() || '';
+                var $inlineRow = $('#edit-' + postId);
+                if (!$inlineRow.length) {
+                    return;
+                }
+
+                seedEnsureTemplateQuickEditField($inlineRow);
+                $inlineRow.find('input[name="wp_seed_content_template_slug"]').val(slug);
+            }, 0);
+        });
+    }
+
+    seedUpdateTemplateQuickEditSlug();
+
     var $moduleSelect = $('#wp-seed-template-module');
     if (!$moduleSelect.length) {
         return;
@@ -569,27 +644,6 @@ jQuery(function($){
     });
 
     updateTemplateMetaUI($moduleSelect.val());
-
-    function seedUpdateTemplateQuickEditSlug() {
-        $(document).off('click', '.editinline');
-        $(document).on('click', '.editinline', function () {
-            var rowId = $(this).closest('tr').attr('id') || '';
-            var match = rowId.match(/post-(\d+)/);
-            if (!match || !match[1]) {
-                return;
-            }
-
-            var postId = match[1];
-            var slug = $('#seed-template-inline-slug-' + postId).text() || '';
-            var $inlineRow = $('#edit-' + postId);
-            if (!$inlineRow.length) {
-                return;
-            }
-            $inlineRow.find('input[name="wp_seed_content_template_slug"]').val(slug);
-        });
-    }
-
-    seedUpdateTemplateQuickEditSlug();
 });
 JS;
 
