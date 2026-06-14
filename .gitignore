@@ -36,6 +36,8 @@ dist/
 
 # Dependencies
 /vendor/
+vendor-private/
+private-vendor/
 plugin/vendor/
 !plugin/vendor/
 plugin/vendor/*
