@@ -26,9 +26,14 @@ function wp_seed_content_kit_register_modules_page()
         1
     );
 
+    remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_testimonial');
+    remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_quote');
+
+    $position = 2;
     $modules = wp_seed_content_kit_get_modules();
     foreach ($modules as $module_key => $module) {
-        wp_seed_content_kit_register_module_submenu($module_key, $module);
+        wp_seed_content_kit_register_module_submenu($module_key, $module, $position);
+        $position++;
     }
 
     add_submenu_page(
@@ -37,13 +42,14 @@ function wp_seed_content_kit_register_modules_page()
         __('Aide / Documentation', 'wp-seed-content-kit'),
         'manage_options',
         'wp-seed-content-kit-help',
-        'wp_seed_content_kit_render_help_page'
+        'wp_seed_content_kit_render_help_page',
+        $position
     );
 }
-add_action('admin_menu', 'wp_seed_content_kit_register_modules_page');
+add_action('admin_menu', 'wp_seed_content_kit_register_modules_page', 30);
 add_action('admin_post_wp_seed_content_kit_save_modules', 'wp_seed_content_kit_handle_modules_form');
 
-function wp_seed_content_kit_register_module_submenu($module_key, $module)
+function wp_seed_content_kit_register_module_submenu($module_key, $module, $position)
 {
     $slug = 'wp-seed-content-kit-' . sanitize_key((string) $module_key);
 
@@ -53,7 +59,8 @@ function wp_seed_content_kit_register_module_submenu($module_key, $module)
         $module['label'],
         'manage_options',
         $slug,
-        'wp_seed_content_kit_render_module_admin_submenu_page'
+        'wp_seed_content_kit_render_module_admin_submenu_page',
+        $position
     );
 }
 
