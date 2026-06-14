@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Seed Content Kit
  * Description: Modular editorial content and reusable displays for WordPress.
- * Version: 0.2.20
+ * Version: 0.2.21
  * Author: WP Seed Content Kit
  * Text Domain: wp-seed-content-kit
  */
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_SEED_CONTENT_KIT_VERSION', '0.2.20');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.2.21');
 define('WP_SEED_CONTENT_KIT_FILE', __FILE__);
 define('WP_SEED_CONTENT_KIT_DIR', plugin_dir_path(__FILE__));
 define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
@@ -30,6 +30,7 @@ require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/cards/shortcode.php';
 if (is_admin()) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/admin/modules-page.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/admin/generators-page.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/yoast.php';
 }
 
 if (wp_seed_content_kit_is_module_active('testimonials')) {
