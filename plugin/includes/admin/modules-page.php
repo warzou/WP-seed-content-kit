@@ -440,6 +440,130 @@ function wp_seed_content_kit_render_modules_page()
     <?php
 }
 
+function wp_seed_content_kit_get_builder_status_label($status)
+{
+    switch ($status) {
+        case 'enabled':
+            return __('seed_template activé.', 'wp-seed-content-kit');
+        case 'needs_activation':
+            return __('seed_template à activer.', 'wp-seed-content-kit');
+        case 'unknown':
+            return __('Impossible de vérifier automatiquement', 'wp-seed-content-kit');
+        case 'not_configurable':
+            return __('Compatible par défaut', 'wp-seed-content-kit');
+        case 'not_detected':
+        default:
+            return __('Non détecté', 'wp-seed-content-kit');
+    }
+}
+
+function wp_seed_content_kit_render_builder_compatibility_row($label, $detected_label, $status, $settings_url = '', $settings_label = '')
+{
+    $detected = !empty($status['detected']);
+    $status_value = isset($status['status']) ? (string) $status['status'] : 'not_detected';
+    ?>
+    <tr>
+        <th scope="row"><?php echo esc_html($label); ?></th>
+        <td>
+            <?php echo esc_html($detected ? sprintf(__('%s détecté', 'wp-seed-content-kit'), $detected_label) : sprintf(__('%s non détecté', 'wp-seed-content-kit'), $detected_label)); ?><br />
+            <span class="description"><?php echo esc_html(wp_seed_content_kit_get_builder_status_label($status_value)); ?></span>
+        </td>
+        <td>
+            <?php esc_html_e('Activer le type de contenu :', 'wp-seed-content-kit'); ?>
+            <code>seed_template</code>
+        </td>
+        <td>
+            <?php if ($detected && '' !== $settings_url && '' !== $settings_label) : ?>
+                <a class="button button-small" href="<?php echo esc_url($settings_url); ?>" target="_blank" rel="noopener noreferrer">
+                    <?php echo esc_html($settings_label); ?>
+                </a>
+            <?php else : ?>
+                &mdash;
+            <?php endif; ?>
+        </td>
+    </tr>
+    <?php
+}
+
+function wp_seed_content_kit_render_template_builder_compatibility()
+{
+    if (!function_exists('wp_seed_content_get_builder_activation_status')) {
+        return;
+    }
+
+    $divi = wp_seed_content_get_builder_activation_status('divi');
+    $elementor = wp_seed_content_get_builder_activation_status('elementor');
+    ?>
+    <section class="wp-seed-content-kit-template-dashboard">
+        <h2><?php esc_html_e('Constructeurs compatibles', 'wp-seed-content-kit'); ?></h2>
+        <p>
+            <?php esc_html_e('Pour Divi ou Elementor, activez le type de contenu technique seed_template dans les réglages du constructeur.', 'wp-seed-content-kit'); ?>
+            <button type="button" class="button button-small" data-wp-seed-copy-value="seed_template">
+                <?php esc_html_e('Copier seed_template', 'wp-seed-content-kit'); ?>
+            </button>
+        </p>
+
+        <table class="widefat striped">
+            <thead>
+                <tr>
+                    <th scope="col"><?php esc_html_e('Constructeur', 'wp-seed-content-kit'); ?></th>
+                    <th scope="col"><?php esc_html_e('État', 'wp-seed-content-kit'); ?></th>
+                    <th scope="col"><?php esc_html_e('Type de contenu', 'wp-seed-content-kit'); ?></th>
+                    <th scope="col"><?php esc_html_e('Réglages', 'wp-seed-content-kit'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Gutenberg / Spectra', 'wp-seed-content-kit'); ?></th>
+                    <td>
+                        <?php esc_html_e('Compatible par défaut.', 'wp-seed-content-kit'); ?><br />
+                        <span class="description"><?php esc_html_e('Aucun réglage nécessaire.', 'wp-seed-content-kit'); ?></span>
+                    </td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
+                </tr>
+                <?php wp_seed_content_kit_render_builder_compatibility_row(
+                    __('Divi', 'wp-seed-content-kit'),
+                    __('Divi', 'wp-seed-content-kit'),
+                    $divi,
+                    admin_url('admin.php?page=et_divi_options'),
+                    __('Divi → Theme Options → Builder → Post Type Integration', 'wp-seed-content-kit')
+                ); ?>
+                <?php wp_seed_content_kit_render_builder_compatibility_row(
+                    __('Elementor', 'wp-seed-content-kit'),
+                    __('Elementor', 'wp-seed-content-kit'),
+                    $elementor,
+                    admin_url('admin.php?page=elementor'),
+                    __('Elementor → Réglages → Général → Types de publication', 'wp-seed-content-kit')
+                ); ?>
+            </tbody>
+        </table>
+
+        <script>
+            (function () {
+                var buttons = document.querySelectorAll('[data-wp-seed-copy-value]');
+                buttons.forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        var value = button.getAttribute('data-wp-seed-copy-value') || '';
+                        if (navigator.clipboard && value) {
+                            navigator.clipboard.writeText(value);
+                            return;
+                        }
+
+                        var input = document.createElement('input');
+                        input.value = value;
+                        document.body.appendChild(input);
+                        input.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(input);
+                    });
+                });
+            }());
+        </script>
+    </section>
+    <?php
+}
+
 function wp_seed_content_kit_render_templates_tab()
 {
     if (!post_type_exists('seed_template')) {
@@ -480,6 +604,8 @@ function wp_seed_content_kit_render_templates_tab()
         </ol>
         <p><?php esc_html_e('Exemple de module : Témoignages.', 'wp-seed-content-kit'); ?></p>
     </section>
+
+    <?php wp_seed_content_kit_render_template_builder_compatibility(); ?>
 
     <h2><?php esc_html_e('Templates récents', 'wp-seed-content-kit'); ?></h2>
     <p><?php esc_html_e('Les derniers templates modifiés.', 'wp-seed-content-kit'); ?></p>
