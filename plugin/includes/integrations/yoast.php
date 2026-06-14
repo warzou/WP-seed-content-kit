@@ -83,14 +83,42 @@ function wp_seed_content_kit_filter_yoast_columns(array $columns)
         'wpseo-score',
         'wpseo-score-readability',
         'wpseo-score-linkdex',
+        'wpseo-links-internal',
+        'wpseo-links-external',
+        'wpseo-post-is-broken',
+        'wpseo-focus-keyword',
+        'wpseo-focus-keyphrase',
+        'wpseo-focus-keyphrases',
         'wpseo-title',
         'wpseo-metadesc',
         'wpseo-focuskw',
+        'wpseo-title-copied',
+        'wpseo-metadesc-copied',
+        'wpseo-google-plus',
+        'wpseo-facebook-title',
+        'wpseo-facebook-description',
+        'wpseo-twitter-title',
+        'wpseo-twitter-description',
+        'wpseo-meta-robots',
+        'wpseo-canonical',
+        'wpseo-breadcrumb-title',
     );
 
     foreach ($yoast_columns as $column_key) {
         if (isset($columns[$column_key])) {
             unset($columns[$column_key]);
+        }
+    }
+
+    foreach (array_keys($columns) as $column_key) {
+        if (0 === strpos($column_key, 'wpseo-')
+            || 0 === strpos($column_key, 'wpseo_')
+            || 0 === strpos($column_key, 'yoast')
+            || false !== strpos($column_key, 'wpseo')
+            || false !== strpos($column_key, 'yoast')) {
+            if (isset($columns[$column_key])) {
+                unset($columns[$column_key]);
+            }
         }
     }
 
