@@ -52,6 +52,12 @@ add_action('admin_post_wp_seed_content_kit_save_modules', 'wp_seed_content_kit_h
 function wp_seed_content_kit_register_module_submenu($module_key, $module, $position)
 {
     $slug = 'wp-seed-content-kit-' . sanitize_key((string) $module_key);
+    $callback = 'wp_seed_content_kit_render_module_admin_submenu_page';
+
+    if (!empty($module['menu_supported']) && !empty($module['active']) && !empty($module['post_type'])) {
+        $slug = 'edit.php?post_type=' . sanitize_key($module['post_type']);
+        $callback = '';
+    }
 
     add_submenu_page(
         'wp-seed-content-kit',
@@ -59,7 +65,7 @@ function wp_seed_content_kit_register_module_submenu($module_key, $module, $posi
         $module['label'],
         'manage_options',
         $slug,
-        'wp_seed_content_kit_render_module_admin_submenu_page',
+        $callback,
         $position
     );
 }
@@ -535,7 +541,7 @@ function wp_seed_content_kit_render_module_admin_submenu_page()
         wp_die(esc_html__('Vous n’avez pas l’autorisation de gérer WP Seed Content Kit.', 'wp-seed-content-kit'));
     }
 
-    $page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
+    $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
     $page = str_replace('wp-seed-content-kit-', '', $page);
 
     $modules = wp_seed_content_kit_get_modules();
