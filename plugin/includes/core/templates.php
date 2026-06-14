@@ -292,6 +292,81 @@ function wp_seed_content_save_template_module($post_id, $post, $update)
     update_post_meta($post_id, '_wp_seed_content_template_module', $module);
 }
 
+function wp_seed_content_render_template_identifier_quick_edit($column_name, $post_type = '', $has_taxonomy = '')
+{
+    if ('seed_template' !== $post_type || 'wp_seed_content_template_slug' !== $column_name) {
+        return;
+    }
+
+    ?>
+    <fieldset class="inline-edit-col-right">
+        <div class="inline-edit-col">
+            <label>
+                <span class="title"><?php esc_html_e('Identifiant', 'wp-seed-content-kit'); ?></span>
+                <span class="input-text-wrap">
+                    <input type="text" name="wp_seed_content_template_slug" value="" />
+                </span>
+            </label>
+            <p class="inline-edit-tags">
+                <?php
+                echo esc_html__('Utilisé dans :', 'wp-seed-content-kit');
+                echo ' ';
+                echo '<code>template="accueil"</code>';
+                ?>
+            </p>
+        </div>
+    </fieldset>
+    <?php
+}
+
+function wp_seed_content_save_template_identifier_quick_edit($post_id, $post, $update)
+{
+    if (!isset($_POST['wp_seed_content_template_slug'])) {
+        return;
+    }
+
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    if (!isset($_POST['_inline_edit']) || !check_admin_referer('inlineeditnonce', '_inline_edit')) {
+        return;
+    }
+
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+
+    if (wp_is_post_revision($post_id)) {
+        return;
+    }
+
+    if ('seed_template' !== get_post_type($post_id)) {
+        return;
+    }
+
+    $new_slug = sanitize_title(wp_unslash($_POST['wp_seed_content_template_slug']));
+    if ('' === $new_slug) {
+        return;
+    }
+
+    $post = get_post($post_id);
+    if (!$post) {
+        return;
+    }
+
+    if (sanitize_title((string) $post->post_name) === $new_slug) {
+        return;
+    }
+
+    wp_update_post(
+        array(
+            'ID' => $post_id,
+            'post_name' => $new_slug,
+        )
+    );
+}
+
 function wp_seed_content_seed_template_columns($columns)
 {
     $columns['wp_seed_content_template_module'] = __('Module', 'wp-seed-content-kit');
@@ -312,7 +387,12 @@ function wp_seed_content_seed_template_column_content($column, $post_id)
             echo '&nbsp;';
             return;
         }
-        echo esc_html($post->post_name);
+        printf(
+            '<span id="seed-template-inline-slug-%1$d" class="screen-reader-text">%2$s</span>%3$s',
+            (int) $post_id,
+            esc_attr($post->post_name),
+            esc_html($post->post_name)
+        );
         return;
     }
 
@@ -470,6 +550,27 @@ jQuery(function($){
     });
 
     updateTemplateMetaUI($moduleSelect.val());
+
+    function seedUpdateTemplateQuickEditSlug() {
+        $(document).off('click', '.editinline');
+        $(document).on('click', '.editinline', function () {
+            var rowId = $(this).closest('tr').attr('id') || '';
+            var match = rowId.match(/post-(\d+)/);
+            if (!match || !match[1]) {
+                return;
+            }
+
+            var postId = match[1];
+            var slug = $('#seed-template-inline-slug-' + postId).text() || '';
+            var $inlineRow = $('#edit-' + postId);
+            if (!$inlineRow.length) {
+                return;
+            }
+            $inlineRow.find('input[name="wp_seed_content_template_slug"]').val(slug);
+        });
+    }
+
+    seedUpdateTemplateQuickEditSlug();
 });
 JS;
 
@@ -509,6 +610,8 @@ function wp_seed_content_seed_template_init_admin_columns()
     });
 
     add_action('save_post_seed_template', 'wp_seed_content_save_template_module', 10, 3);
+    add_action('save_post_seed_template', 'wp_seed_content_save_template_identifier_quick_edit', 20, 3);
+    add_action('quick_edit_custom_box', 'wp_seed_content_render_template_identifier_quick_edit', 10, 3);
     add_action('admin_enqueue_scripts', 'wp_seed_content_enqueue_template_admin_scripts');
     add_action('manage_seed_template_posts_extra_tablenav', 'wp_seed_content_seed_template_list_help', 10, 1);
 }
