@@ -89,6 +89,124 @@ function wp_seed_content_get_seed_template_divi_layouts()
     return $result;
 }
 
+function wp_seed_content_is_divi_available_for_template_admin()
+{
+    if (function_exists('wp_seed_content_is_divi_active')) {
+        return (bool) wp_seed_content_is_divi_active();
+    }
+
+    return post_type_exists('et_pb_layout');
+}
+
+function wp_seed_content_get_divi_layout_type_label($layout_id)
+{
+    $layout_id = absint($layout_id);
+    if ($layout_id <= 0 || !taxonomy_exists('layout_type')) {
+        return '';
+    }
+
+    $terms = wp_get_post_terms($layout_id, 'layout_type', array('fields' => 'names'));
+    if (is_wp_error($terms) || empty($terms)) {
+        return '';
+    }
+
+    return implode(', ', array_map('sanitize_text_field', (array) $terms));
+}
+
+function wp_seed_content_get_divi_layout_status_label($layout_id)
+{
+    $status = get_post_status($layout_id);
+    if (false === $status || '' === $status) {
+        return '';
+    }
+
+    if ('publish' === $status) {
+        return __('Publié', 'wp-seed-content-kit');
+    }
+
+    if ('draft' === $status) {
+        return __('Brouillon', 'wp-seed-content-kit');
+    }
+
+    $status_object = get_post_status_object($status);
+    if ($status_object && !empty($status_object->label)) {
+        return $status_object->label;
+    }
+
+    return sanitize_text_field((string) $status);
+}
+
+function wp_seed_content_render_template_divi_guidance_notice($divi_detected)
+{
+    if (!$divi_detected) {
+        return;
+    }
+    ?>
+    <div class="notice notice-info inline" style="margin: 10px 0;">
+        <p><strong><?php esc_html_e('ℹ️ Utilisation avec Divi', 'wp-seed-content-kit'); ?></strong></p>
+        <p>
+            <?php esc_html_e('Avec Divi, ce template reste le point d’entrée WP Seed.', 'wp-seed-content-kit'); ?>
+        </p>
+        <p>
+            <?php esc_html_e('La mise en page est définie dans un layout Divi Library. Créez ou ouvrez un layout Divi, ajoutez les balises WP Seed dans un module Texte ou Code, puis sélectionnez ce layout ici.', 'wp-seed-content-kit'); ?>
+        </p>
+    </div>
+    <?php
+}
+
+function wp_seed_content_render_selected_divi_layout_summary($layout_id)
+{
+    $layout_id = absint($layout_id);
+    $layout = $layout_id > 0 ? get_post($layout_id) : null;
+
+    if (!$layout || 'et_pb_layout' !== $layout->post_type) {
+        ?>
+        <p class="description" data-wp-seed-divi-layout-empty>
+            <strong><?php esc_html_e('Aucun layout Divi sélectionné.', 'wp-seed-content-kit'); ?></strong><br />
+            <?php esc_html_e('Créez un layout dans Divi Library puis sélectionnez-le ici.', 'wp-seed-content-kit'); ?>
+        </p>
+        <div class="wp-seed-template-divi-layout-summary" data-wp-seed-divi-layout-summary style="display:none; margin: 10px 0;">
+            <p style="margin-bottom: 4px;">
+                <strong><?php esc_html_e('Layout sélectionné :', 'wp-seed-content-kit'); ?></strong><br />
+                <span data-wp-seed-divi-layout-title></span>
+            </p>
+            <p style="margin-bottom: 4px;">
+                <strong><?php esc_html_e('Type :', 'wp-seed-content-kit'); ?></strong><br />
+                <span data-wp-seed-divi-layout-type></span>
+            </p>
+            <p style="margin-bottom: 4px;">
+                <strong><?php esc_html_e('Statut :', 'wp-seed-content-kit'); ?></strong><br />
+                <span data-wp-seed-divi-layout-status></span>
+            </p>
+        </div>
+        <?php
+        return;
+    }
+
+    $layout_type = wp_seed_content_get_divi_layout_type_label($layout_id);
+    $layout_status = wp_seed_content_get_divi_layout_status_label($layout_id);
+    ?>
+    <p class="description" data-wp-seed-divi-layout-empty style="display:none;">
+        <strong><?php esc_html_e('Aucun layout Divi sélectionné.', 'wp-seed-content-kit'); ?></strong><br />
+        <?php esc_html_e('Créez un layout dans Divi Library puis sélectionnez-le ici.', 'wp-seed-content-kit'); ?>
+    </p>
+    <div class="wp-seed-template-divi-layout-summary" data-wp-seed-divi-layout-summary style="margin: 10px 0;">
+        <p style="margin-bottom: 4px;">
+            <strong><?php esc_html_e('Layout sélectionné :', 'wp-seed-content-kit'); ?></strong><br />
+            <span data-wp-seed-divi-layout-title><?php echo esc_html(get_the_title($layout)); ?></span>
+        </p>
+        <p style="margin-bottom: 4px;">
+            <strong><?php esc_html_e('Type :', 'wp-seed-content-kit'); ?></strong><br />
+            <span data-wp-seed-divi-layout-type><?php echo esc_html('' !== $layout_type ? $layout_type : __('Non défini', 'wp-seed-content-kit')); ?></span>
+        </p>
+        <p style="margin-bottom: 4px;">
+            <strong><?php esc_html_e('Statut :', 'wp-seed-content-kit'); ?></strong><br />
+            <span data-wp-seed-divi-layout-status><?php echo esc_html('' !== $layout_status ? $layout_status : __('Non défini', 'wp-seed-content-kit')); ?></span>
+        </p>
+    </div>
+    <?php
+}
+
 function wp_seed_content_get_template_modules()
 {
     return array(
@@ -225,6 +343,7 @@ function wp_seed_content_get_template_usage_context($post)
     $source = wp_seed_content_get_template_layout_source($post->ID);
     $divi_layout_id = wp_seed_content_get_template_divi_layout_id($post->ID);
     $divi_library_available = post_type_exists('et_pb_layout');
+    $divi_detected = wp_seed_content_is_divi_available_for_template_admin();
     $divi_layouts = wp_seed_content_get_seed_template_divi_layouts();
 
     return array(
@@ -240,6 +359,7 @@ function wp_seed_content_get_template_usage_context($post)
         'source' => $source,
         'divi_layout_id' => $divi_layout_id,
         'divi_library_available' => $divi_library_available,
+        'divi_detected' => $divi_detected,
         'divi_layouts' => $divi_layouts,
     );
 }
@@ -259,6 +379,7 @@ function wp_seed_content_render_template_module_meta_box($post)
     $template_divi_layout_id = $context['divi_layout_id'];
     $divi_layouts = $context['divi_layouts'];
     $divi_library_available = $context['divi_library_available'];
+    $divi_detected = $context['divi_detected'];
     ?>
     <p><strong><?php esc_html_e('Réglages du template', 'wp-seed-content-kit'); ?></strong></p>
     <input type="hidden" name="wp_seed_content_template_meta_nonce" value="<?php echo esc_attr(wp_create_nonce('wp_seed_content_template_meta')); ?>" />
@@ -331,33 +452,50 @@ function wp_seed_content_render_template_module_meta_box($post)
             <?php esc_html_e('Layout Divi Library', 'wp-seed-content-kit'); ?>
         </label>
         <br />
-        <span class="description"><?php esc_html_e('Créez la mise en forme dans Divi Library puis utilisez les balises WP Seed dans un module Texte ou Code.', 'wp-seed-content-kit'); ?></span>
+        <span class="description"><?php esc_html_e('Utilise un layout créé dans Divi Library.', 'wp-seed-content-kit'); ?></span>
     </p>
     <?php if (!$divi_library_available) : ?>
         <p class="description">
             <?php esc_html_e('Divi Library n’est pas disponible. Le rendu utilisera le contenu de ce template si le layout est indisponible.', 'wp-seed-content-kit'); ?>
         </p>
     <?php endif; ?>
-    <p data-wp-seed-divi-layout-settings <?php echo 'divi_layout' !== $template_source ? 'style="display:none;"' : ''; ?>>
-        <label for="wp-seed-template-divi-layout-id">
-            <strong><?php esc_html_e('Sélectionner un layout Divi', 'wp-seed-content-kit'); ?></strong>
-        </label><br />
+    <div data-wp-seed-divi-layout-settings <?php echo 'divi_layout' !== $template_source ? 'style="display:none;"' : ''; ?>>
+        <?php wp_seed_content_render_template_divi_guidance_notice($divi_detected); ?>
+        <p>
+            <label for="wp-seed-template-divi-layout-id">
+                <strong><?php esc_html_e('Sélectionner un layout Divi', 'wp-seed-content-kit'); ?></strong>
+            </label><br />
+        </p>
         <?php if (!empty($divi_layouts)) : ?>
             <select id="wp-seed-template-divi-layout-id" name="wp_seed_content_template_divi_layout_id" class="widefat">
                 <option value="0"><?php esc_html_e('— Aucun —', 'wp-seed-content-kit'); ?></option>
                 <?php foreach ($divi_layouts as $layout_id => $layout_title) : ?>
-                    <option value="<?php echo esc_attr($layout_id); ?>" <?php selected((string) $template_divi_layout_id, (string) $layout_id); ?>>
+                    <?php
+                    $layout_type = wp_seed_content_get_divi_layout_type_label($layout_id);
+                    $layout_status = wp_seed_content_get_divi_layout_status_label($layout_id);
+                    ?>
+                    <option
+                        value="<?php echo esc_attr($layout_id); ?>"
+                        data-layout-title="<?php echo esc_attr($layout_title); ?>"
+                        data-layout-type="<?php echo esc_attr('' !== $layout_type ? $layout_type : __('Non défini', 'wp-seed-content-kit')); ?>"
+                        data-layout-status="<?php echo esc_attr('' !== $layout_status ? $layout_status : __('Non défini', 'wp-seed-content-kit')); ?>"
+                        <?php selected((string) $template_divi_layout_id, (string) $layout_id); ?>
+                    >
                         <?php echo esc_html($layout_title); ?> (<?php echo esc_html($layout_id); ?>)
                     </option>
                 <?php endforeach; ?>
             </select>
+            <?php wp_seed_content_render_selected_divi_layout_summary($template_divi_layout_id); ?>
             <?php wp_seed_content_render_template_divi_actions($template_divi_layout_id); ?>
         <?php else : ?>
             <input type="hidden" name="wp_seed_content_template_divi_layout_id" value="<?php echo esc_attr((string) $template_divi_layout_id); ?>" />
-            <span class="description"><?php esc_html_e('Aucun layout Divi publié disponible.', 'wp-seed-content-kit'); ?></span>
+            <p class="description">
+                <strong><?php esc_html_e('Aucun layout Divi sélectionné.', 'wp-seed-content-kit'); ?></strong><br />
+                <?php esc_html_e('Aucun layout Divi publié disponible. Créez un layout dans Divi Library puis sélectionnez-le ici.', 'wp-seed-content-kit'); ?>
+            </p>
             <?php wp_seed_content_render_template_divi_actions($template_divi_layout_id); ?>
         <?php endif; ?>
-    </p>
+    </div>
 <?php
 }
 
@@ -369,9 +507,6 @@ function wp_seed_content_render_template_divi_actions($layout_id)
 
     $layout_id = absint($layout_id);
     ?>
-    <p class="description">
-        <?php esc_html_e('Créez la mise en forme dans Divi Library puis utilisez les balises WP Seed dans un module Texte ou Code.', 'wp-seed-content-kit'); ?>
-    </p>
     <p>
         <a class="button button-small" href="<?php echo esc_url(admin_url('post-new.php?post_type=et_pb_layout')); ?>">
             <?php esc_html_e('Créer un layout Divi', 'wp-seed-content-kit'); ?>
@@ -828,6 +963,12 @@ jQuery(function($){
     var $example = $usage.find('[data-wp-seed-template-example]');
     var $sourceLabel = $usage.find('[data-wp-seed-template-source-label]');
     var $diviLayoutSettings = $('[data-wp-seed-divi-layout-settings]');
+    var $diviLayoutSelect = $('#wp-seed-template-divi-layout-id');
+    var $diviLayoutEmpty = $('[data-wp-seed-divi-layout-empty]');
+    var $diviLayoutSummary = $('[data-wp-seed-divi-layout-summary]');
+    var $diviLayoutTitle = $('[data-wp-seed-divi-layout-title]');
+    var $diviLayoutType = $('[data-wp-seed-divi-layout-type]');
+    var $diviLayoutStatus = $('[data-wp-seed-divi-layout-status]');
     var slug = $usage.attr('data-template-slug') || '';
 
     function updateTemplateMetaUI(module) {
@@ -903,14 +1044,36 @@ jQuery(function($){
         $diviLayoutSettings.toggle('divi_layout' === source);
     }
 
+    function updateDiviLayoutSummary() {
+        if (!$diviLayoutSelect.length || !$diviLayoutSummary.length || !$diviLayoutEmpty.length) {
+            return;
+        }
+
+        var $selected = $diviLayoutSelect.find('option:selected');
+        var selectedValue = $selected.val() || '0';
+        if ('0' === selectedValue) {
+            $diviLayoutSummary.hide();
+            $diviLayoutEmpty.show();
+            return;
+        }
+
+        $diviLayoutTitle.text($selected.attr('data-layout-title') || $selected.text());
+        $diviLayoutType.text($selected.attr('data-layout-type') || 'Non défini');
+        $diviLayoutStatus.text($selected.attr('data-layout-status') || 'Non défini');
+        $diviLayoutEmpty.hide();
+        $diviLayoutSummary.show();
+    }
+
     $moduleSelect.on('change', function () {
         updateTemplateMetaUI($(this).val());
     });
 
     $('input[name="wp_seed_content_template_source"]').on('change', updateTemplateSourceLabel);
+    $diviLayoutSelect.on('change', updateDiviLayoutSummary);
 
     updateTemplateMetaUI($moduleSelect.val());
     updateTemplateSourceLabel();
+    updateDiviLayoutSummary();
 });
 JS;
 
