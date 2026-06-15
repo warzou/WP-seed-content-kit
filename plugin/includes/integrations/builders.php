@@ -197,7 +197,7 @@ function wp_seed_content_render_builder_compatibility_meta_box($post)
     $elementor = wp_seed_content_get_builder_activation_status('elementor');
     $divi_settings_url = admin_url('admin.php?page=et_divi_options');
     $elementor_settings_url = admin_url('admin.php?page=elementor');
-    $builder_hint = __('WP Seed rend seed_template disponible dans Divi.', 'wp-seed-content-kit');
+    $builder_hint = __('WP Seed rend les templates disponibles dans Divi.', 'wp-seed-content-kit');
     ?>
     <p>
         <strong><?php esc_html_e('Constructeur de page', 'wp-seed-content-kit'); ?></strong>
@@ -229,12 +229,12 @@ function wp_seed_content_render_builder_compatibility_meta_box($post)
             <?php esc_html_e('Divi → Theme Options → Builder → Post Type Integration', 'wp-seed-content-kit'); ?>
         </a><br />
         <?php if ('enabled' === $divi['status']) : ?>
-            <?php esc_html_e('seed_template : OK.', 'wp-seed-content-kit'); ?>
+            <?php esc_html_e('Templates WP Seed : OK.', 'wp-seed-content-kit'); ?>
         <?php elseif ('needs_activation' === $divi['status']) : ?>
-            <?php esc_html_e('Activez seed_template.', 'wp-seed-content-kit'); ?>
+            <?php esc_html_e('Activez Templates WP Seed.', 'wp-seed-content-kit'); ?>
         <?php else : ?>
             <?php esc_html_e('Impossible de vérifier automatiquement.', 'wp-seed-content-kit'); ?><br />
-            <?php esc_html_e('Vérifiez la configuration de seed_template dans Post Type Integration.', 'wp-seed-content-kit'); ?>
+            <?php esc_html_e('Vérifiez la configuration des Templates WP Seed dans Post Type Integration.', 'wp-seed-content-kit'); ?>
         <?php endif; ?>
     </p>
     <?php endif; ?>
@@ -243,40 +243,28 @@ function wp_seed_content_render_builder_compatibility_meta_box($post)
     <p>
         <strong><?php esc_html_e('Elementor', 'wp-seed-content-kit'); ?></strong><br />
         <?php if ('enabled' === $elementor['status']) : ?>
-            <?php esc_html_e('seed_template : OK.', 'wp-seed-content-kit'); ?>
+            <?php esc_html_e('Templates WP Seed : OK.', 'wp-seed-content-kit'); ?>
         <?php elseif ('needs_activation' === $elementor['status']) : ?>
             <a href="<?php echo esc_url($elementor_settings_url); ?>" target="_blank" rel="noopener noreferrer">
                 <?php esc_html_e('Elementor → Réglages → Général → Types de publication', 'wp-seed-content-kit'); ?>
             </a><br />
-            <?php esc_html_e('Activez seed_template.', 'wp-seed-content-kit'); ?>
+            <?php esc_html_e('Activez Templates WP Seed.', 'wp-seed-content-kit'); ?>
         <?php else : ?>
             <?php esc_html_e('Impossible de vérifier automatiquement.', 'wp-seed-content-kit'); ?><br />
-            <?php esc_html_e('Vérifiez la configuration de seed_template dans Types de publication.', 'wp-seed-content-kit'); ?>
+            <?php esc_html_e('Vérifiez la configuration des Templates WP Seed dans Types de publication.', 'wp-seed-content-kit'); ?>
         <?php endif; ?>
     </p>
     <?php endif; ?>
 
     <?php if (!$divi['detected'] && !$elementor['detected']) : ?>
     <p class="description">
-        <?php esc_html_e('Si votre constructeur externe n’est pas détecté, activez seed_template dans ses réglages.', 'wp-seed-content-kit'); ?>
+        <?php esc_html_e('Si votre constructeur externe n’est pas détecté, activez Templates WP Seed dans ses réglages.', 'wp-seed-content-kit'); ?>
     </p>
     <?php endif; ?>
 
     <p>
-        <label for="wp-seed-builder-post-type">
-            <strong><?php esc_html_e('Type de contenu à utiliser', 'wp-seed-content-kit'); ?></strong>
-        </label>
-        <input
-            id="wp-seed-builder-post-type"
-            type="text"
-            class="widefat"
-            readonly
-            value="seed_template"
-            onclick="this.select();"
-        />
-    </p>
-    <p class="description">
-        <?php esc_html_e('Activez cet identifiant technique dans les réglages du constructeur.', 'wp-seed-content-kit'); ?>
+        <strong><?php esc_html_e('À activer dans le constructeur', 'wp-seed-content-kit'); ?></strong><br />
+        <?php esc_html_e('Templates WP Seed', 'wp-seed-content-kit'); ?>
     </p>
     <?php
 }
@@ -288,8 +276,8 @@ function wp_seed_content_register_builder_compatibility_meta_box()
         __('Constructeur de page', 'wp-seed-content-kit'),
         'wp_seed_content_render_builder_compatibility_meta_box',
         'seed_template',
-        'side',
-        'default'
+        'normal',
+        'low'
     );
 }
 add_action('add_meta_boxes_seed_template', 'wp_seed_content_register_builder_compatibility_meta_box');

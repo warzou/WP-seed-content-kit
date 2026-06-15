@@ -124,7 +124,7 @@ function wp_seed_content_kit_handle_modules_form()
     $previous = wp_seed_content_kit_get_module_options();
     $next = array(
         'testimonials' => in_array('testimonials', $enabled_modules, true),
-        'quotes' => true,
+        'quotes' => in_array('quotes', $enabled_modules, true),
     );
 
     $menu_visibility = wp_seed_content_kit_get_module_menu_visibility();
@@ -132,25 +132,28 @@ function wp_seed_content_kit_handle_modules_form()
     $all_roles = wp_seed_content_kit_get_user_roles();
 
     foreach ($menu_visibility as $post_type => $visibility) {
+        if (!isset($submitted[$post_type]) || !is_array($submitted[$post_type])) {
+            $menu_visibility[$post_type] = $visibility;
+            continue;
+        }
+
         $visibility['show_in_menu'] = false;
         $visibility['roles'] = array('administrator');
 
-        if (isset($submitted[$post_type]) && is_array($submitted[$post_type])) {
-            if (!empty($submitted[$post_type]['show_in_menu'])) {
-                $visibility['show_in_menu'] = wp_seed_content_bool_attr($submitted[$post_type]['show_in_menu'], false);
-            }
+        if (!empty($submitted[$post_type]['show_in_menu'])) {
+            $visibility['show_in_menu'] = wp_seed_content_bool_attr($submitted[$post_type]['show_in_menu'], false);
+        }
 
-            if (isset($submitted[$post_type]['roles']) && is_array($submitted[$post_type]['roles'])) {
-                $roles = array();
-                foreach ((array) $submitted[$post_type]['roles'] as $role) {
-                    $role = sanitize_key((string) $role);
-                    if (in_array($role, $all_roles, true)) {
-                        $roles[] = $role;
-                    }
+        if (isset($submitted[$post_type]['roles']) && is_array($submitted[$post_type]['roles'])) {
+            $roles = array();
+            foreach ((array) $submitted[$post_type]['roles'] as $role) {
+                $role = sanitize_key((string) $role);
+                if (in_array($role, $all_roles, true)) {
+                    $roles[] = $role;
                 }
-                if (!empty($roles)) {
-                    $visibility['roles'] = array_values(array_unique($roles));
-                }
+            }
+            if (!empty($roles)) {
+                $visibility['roles'] = array_values(array_unique($roles));
             }
         }
 
@@ -207,7 +210,7 @@ function wp_seed_content_kit_get_module_status_label($module)
         return __('Actif', 'wp-seed-content-kit');
     }
 
-    return __('Inactif', 'wp-seed-content-kit');
+    return __('Désactivé', 'wp-seed-content-kit');
 }
 
 function wp_seed_content_kit_render_module_status_badge($module)
@@ -227,22 +230,40 @@ function wp_seed_content_kit_render_module_status_badge($module)
 
 function wp_seed_content_kit_render_shortcode_field($module_key, $module)
 {
-    if (empty($module['active']) || empty($module['shortcode'])) {
-        echo esc_html__('Non disponible', 'wp-seed-content-kit');
+    if (empty($module['shortcode'])) {
+        echo esc_html(!empty($module['planned']) ? __('Prévu', 'wp-seed-content-kit') : __('Non disponible', 'wp-seed-content-kit'));
         return;
     }
 
     printf(
-        '<input type="text" class="regular-text code" readonly="readonly" value="%s" aria-label="%s" />',
+        '<input type="text" class="regular-text code" readonly="readonly" value="%s" aria-label="%s" %s />',
         esc_attr($module['shortcode']),
-        esc_attr(sprintf(__('Shortcode pour %s', 'wp-seed-content-kit'), $module['label']))
+        esc_attr(sprintf(__('Shortcode pour %s', 'wp-seed-content-kit'), $module['label'])),
+        empty($module['active']) ? 'disabled="disabled"' : ''
     );
+
+    if (empty($module['active'])) {
+        echo '<br /><small>' . esc_html__('Disponible après activation.', 'wp-seed-content-kit') . '</small>';
+    }
 }
 
 function wp_seed_content_kit_render_module_toggle($module_key, $module)
 {
+    if (!empty($module['planned'])) {
+        echo esc_html__('Prévu', 'wp-seed-content-kit');
+        return;
+    }
+
     if (empty($module['activable'])) {
-        echo esc_html__('Non', 'wp-seed-content-kit');
+        if (!empty($module['active'])) {
+            printf(
+                '<label><input type="checkbox" checked="checked" disabled="disabled" /> %s</label>',
+                esc_html__('Actif', 'wp-seed-content-kit')
+            );
+            return;
+        }
+
+        echo esc_html(wp_seed_content_kit_get_module_status_label($module));
         return;
     }
 
@@ -252,12 +273,16 @@ function wp_seed_content_kit_render_module_toggle($module_key, $module)
         checked(!empty($module['active']), true, false),
         esc_html__('Actif', 'wp-seed-content-kit')
     );
+
+    if (empty($module['active'])) {
+        echo '<br /><small>' . esc_html__('Disponible après activation.', 'wp-seed-content-kit') . '</small>';
+    }
 }
 
 function wp_seed_content_kit_render_module_menu_visibility_toggle($module_key, $module)
 {
-    if (empty($module['active']) || empty($module['menu_supported']) || empty($module['post_type'])) {
-        echo esc_html__('Non disponible', 'wp-seed-content-kit');
+    if (empty($module['menu_supported']) || empty($module['post_type'])) {
+        echo esc_html(!empty($module['planned']) ? __('Prévu', 'wp-seed-content-kit') : __('Non disponible', 'wp-seed-content-kit'));
         return;
     }
 
@@ -266,11 +291,20 @@ function wp_seed_content_kit_render_module_menu_visibility_toggle($module_key, $
     $selected_roles = isset($visibility['roles']) && is_array($visibility['roles']) ? $visibility['roles'] : array();
     $available_roles = wp_seed_content_kit_get_available_roles_for_menu_visibility();
     $name_base = esc_attr($post_type);
+    $disabled = empty($module['active']) ? ' disabled="disabled"' : '';
+
+    if (!empty($module['active'])) {
+        printf(
+            '<input type="hidden" name="wp_seed_content_kit_module_menu_visibility[%s][configured]" value="1" />',
+            $name_base
+        );
+    }
 
     printf(
-        '<label><input type="checkbox" name="wp_seed_content_kit_module_menu_visibility[%1$s][show_in_menu]" value="1" %2$s /> %3$s</label><br/>',
+        '<label><input type="checkbox" name="wp_seed_content_kit_module_menu_visibility[%1$s][show_in_menu]" value="1" %2$s%3$s /> %4$s</label><br/>',
         $name_base,
         checked(!empty($visibility['show_in_menu']), true, false),
+        $disabled,
         esc_html__('Afficher dans le menu WordPress principal', 'wp-seed-content-kit')
     );
 
@@ -281,19 +315,24 @@ function wp_seed_content_kit_render_module_menu_visibility_toggle($module_key, $
     echo '<small>' . esc_html__('Rôles autorisés :', 'wp-seed-content-kit') . '</small><br />';
     foreach ($available_roles as $role_key => $role_label) {
         printf(
-            '<label style="margin-right:8px;display:inline-block;"><input type="checkbox" name="wp_seed_content_kit_module_menu_visibility[%1$s][roles][]" value="%2$s" %3$s /> %4$s</label>',
+            '<label style="margin-right:8px;display:inline-block;"><input type="checkbox" name="wp_seed_content_kit_module_menu_visibility[%1$s][roles][]" value="%2$s" %3$s%4$s /> %5$s</label>',
             $name_base,
             esc_attr($role_key),
             checked(in_array($role_key, $selected_roles, true), true, false),
+            $disabled,
             esc_html($role_label)
         );
+    }
+
+    if (empty($module['active'])) {
+        echo '<br /><small>' . esc_html__('Disponible après activation.', 'wp-seed-content-kit') . '</small>';
     }
 }
 
 function wp_seed_content_kit_render_module_quick_links($module_key, $module)
 {
     if (empty($module['active'])) {
-        echo esc_html__('Prévu', 'wp-seed-content-kit');
+        echo esc_html(!empty($module['planned']) ? __('Prévu', 'wp-seed-content-kit') : __('Disponible après activation.', 'wp-seed-content-kit'));
         return;
     }
 
@@ -400,7 +439,7 @@ function wp_seed_content_kit_render_configuration_tab()
                 <?php foreach ($modules as $module_key => $module) : ?>
                     <tr>
                         <th scope="row"><?php echo esc_html($module['label']); ?></th>
-                        <td><?php wp_seed_content_kit_render_module_status_badge($module); ?></td>
+                        <td><?php wp_seed_content_kit_render_module_toggle($module_key, $module); ?></td>
                         <td><?php wp_seed_content_kit_render_module_menu_visibility_toggle($module_key, $module); ?></td>
                         <td><?php wp_seed_content_kit_render_shortcode_field($module_key, $module); ?></td>
                         <td><?php wp_seed_content_kit_render_module_quick_links($module_key, $module); ?></td>
@@ -444,9 +483,9 @@ function wp_seed_content_kit_get_builder_status_label($status)
 {
     switch ($status) {
         case 'enabled':
-            return __('seed_template activé.', 'wp-seed-content-kit');
+            return __('Templates WP Seed activés.', 'wp-seed-content-kit');
         case 'needs_activation':
-            return __('seed_template à activer.', 'wp-seed-content-kit');
+            return __('Templates WP Seed à activer.', 'wp-seed-content-kit');
         case 'unknown':
             return __('Impossible de vérifier automatiquement', 'wp-seed-content-kit');
         case 'not_configurable':
@@ -469,8 +508,8 @@ function wp_seed_content_kit_render_builder_compatibility_row($label, $detected_
             <span class="description"><?php echo esc_html(wp_seed_content_kit_get_builder_status_label($status_value)); ?></span>
         </td>
         <td>
-            <?php esc_html_e('Activer le type de contenu :', 'wp-seed-content-kit'); ?>
-            <code>seed_template</code>
+            <?php esc_html_e('Activer :', 'wp-seed-content-kit'); ?>
+            <strong><?php esc_html_e('Templates WP Seed', 'wp-seed-content-kit'); ?></strong>
         </td>
         <td>
             <?php if ($detected && '' !== $settings_url && '' !== $settings_label) : ?>
@@ -497,10 +536,7 @@ function wp_seed_content_kit_render_template_builder_compatibility()
     <section class="wp-seed-content-kit-template-dashboard">
         <h2><?php esc_html_e('Constructeurs compatibles', 'wp-seed-content-kit'); ?></h2>
         <p>
-            <?php esc_html_e('Pour Divi ou Elementor, activez le type de contenu technique seed_template dans les réglages du constructeur.', 'wp-seed-content-kit'); ?>
-            <button type="button" class="button button-small" data-wp-seed-copy-value="seed_template">
-                <?php esc_html_e('Copier seed_template', 'wp-seed-content-kit'); ?>
-            </button>
+            <?php esc_html_e('Pour Divi ou Elementor, activez Templates WP Seed dans les réglages du constructeur.', 'wp-seed-content-kit'); ?>
         </p>
 
         <table class="widefat striped">
@@ -508,7 +544,7 @@ function wp_seed_content_kit_render_template_builder_compatibility()
                 <tr>
                     <th scope="col"><?php esc_html_e('Constructeur', 'wp-seed-content-kit'); ?></th>
                     <th scope="col"><?php esc_html_e('État', 'wp-seed-content-kit'); ?></th>
-                    <th scope="col"><?php esc_html_e('Type de contenu', 'wp-seed-content-kit'); ?></th>
+                    <th scope="col"><?php esc_html_e('Élément à activer', 'wp-seed-content-kit'); ?></th>
                     <th scope="col"><?php esc_html_e('Réglages', 'wp-seed-content-kit'); ?></th>
                 </tr>
             </thead>
@@ -567,7 +603,7 @@ function wp_seed_content_kit_render_template_builder_compatibility()
 function wp_seed_content_kit_render_templates_tab()
 {
     if (!post_type_exists('seed_template')) {
-        echo '<p>' . esc_html__('Le type de contenu Templates n’est pas disponible pour le moment.', 'wp-seed-content-kit') . '</p>';
+        echo '<p>' . esc_html__('Les templates WP Seed ne sont pas disponibles pour le moment.', 'wp-seed-content-kit') . '</p>';
         return;
     }
 
@@ -688,7 +724,7 @@ function wp_seed_content_kit_render_module_admin_submenu_page()
     if (!empty($module['planned'])) {
         $description = __('Prévu pour une prochaine version.', 'wp-seed-content-kit');
     } else {
-        $description = __('Module non disponible pour le moment.', 'wp-seed-content-kit');
+        $description = __('Module désactivé. Disponible après activation dans Configuration.', 'wp-seed-content-kit');
     }
     ?>
     <div class="wrap">

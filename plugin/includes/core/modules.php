@@ -201,7 +201,7 @@ function wp_seed_content_kit_get_modules()
             'label' => __('Citations', 'wp-seed-content-kit'),
             'active' => wp_seed_content_kit_is_module_active('quotes'),
             'planned' => false,
-            'activable' => false,
+            'activable' => true,
             'seo_opt_out' => true,
             'shortcode' => '[seed_quotes]',
             'post_type' => 'seed_quote',
