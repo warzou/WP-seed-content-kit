@@ -219,6 +219,7 @@ Statut actuel :
 - contrat documentaire validé ;
 - premier socle PHP implémenté dans `includes/core/content-data.php` ;
 - chargement global immédiatement après `core/helpers.php`, indépendamment de l'activation des modules ;
+- premier consommateur migré dans `includes/modules/quotes/template-data.php` via `wp_seed_content_get_quote_data()` ;
 - aucun shortcode migré ;
 - aucun renderer migré ;
 - aucune donnée migrée.
@@ -235,11 +236,15 @@ Fonctions disponibles :
 - `wp_seed_content_get_testimonial_data()` ;
 - `wp_seed_content_get_media_data()`.
 
-L'API normalise les données métier sans produire de HTML, connaître les templates ou dépendre d'un builder. Aucun consommateur existant n'est encore migré.
+L'API normalise les données métier sans produire de HTML, connaître les templates ou dépendre d'un builder.
+
+Le premier consommateur migré est `includes/modules/quotes/template-data.php`. Les lectures directes de `_seed_quote_text`, `_seed_quote_author`, `_seed_quote_era` et `_seed_quote_source` y ont été remplacées par `wp_seed_content_get_quote_data()`.
+
+Le contrat public reste inchangé : les placeholders `{{quote}}`, `{{author}}`, `{{era}}` et `{{source}}` sont conservés dans le même ordre. `quote` reste de type `textarea` ; `author`, `era` et `source` restent de type `text`. Si l'API ne retourne aucune donnée exploitable, les quatre placeholders restent présents avec des chaînes vides.
 
 Les contenus publiés sont accessibles par défaut. Un contenu non publié exige `allow_unpublished=true`, un utilisateur authentifié et la capacité `edit_post` sur le contenu. Avec cette option explicite et cette capacité, un contenu en corbeille reste lisible dans ce premier lot ; ce comportement est connu et accepté.
 
-Les shortcodes, placeholders, renderers et templates restent inchangés. La validation runtime a été réalisée sur `emilieaucoeurdeletre.fr`.
+Les shortcodes, renderers, templates et fallbacks restent inchangés. La migration du premier consommateur a été validée en runtime sur `emilieaucoeurdeletre.fr` : les rendus sans template, avec template natif et avec Layout Divi sont strictement identiques avant et après migration par SHA256.
 
 Elle ne créera ni API générique de collections, ni abstraction inter-plugin, ni registre central WP Seed.
 
@@ -262,4 +267,4 @@ Les modules Citation et Témoignage sont normalisés parce qu'ils sont actuellem
 
 ## 12. Prochain chantier autorisé
 
-Le prochain jalon devra migrer un seul consommateur simple vers la Content Data API dans un lot séparé, sans modifier les contrats publics ni étendre le périmètre de l'API.
+Le prochain consommateur devra être migré dans un micro-lot séparé, sans modifier les contrats publics ni étendre le périmètre de l'API.
