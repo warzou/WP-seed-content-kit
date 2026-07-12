@@ -6,10 +6,11 @@ if (!defined('ABSPATH')) {
 
 function wp_seed_content_render_quote_card($post_id)
 {
-    $text = wp_seed_content_get_meta($post_id, '_seed_quote_text');
-    $author = wp_seed_content_get_meta($post_id, '_seed_quote_author');
-    $era = wp_seed_content_get_meta($post_id, '_seed_quote_era');
-    $source = wp_seed_content_get_meta($post_id, '_seed_quote_source');
+    $quote_data = wp_seed_content_get_quote_data($post_id);
+    $text = isset($quote_data['quote']) ? (string) $quote_data['quote'] : '';
+    $author = isset($quote_data['author']) ? (string) $quote_data['author'] : '';
+    $era = isset($quote_data['era']) ? (string) $quote_data['era'] : '';
+    $source = isset($quote_data['source']) ? (string) $quote_data['source'] : '';
 
     ob_start();
     ?>

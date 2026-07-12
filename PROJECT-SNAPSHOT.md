@@ -219,9 +219,10 @@ Statut actuel :
 - contrat documentaire validé ;
 - premier socle PHP implémenté dans `includes/core/content-data.php` ;
 - chargement global immédiatement après `core/helpers.php`, indépendamment de l'activation des modules ;
-- premier consommateur migré dans `includes/modules/quotes/template-data.php` via `wp_seed_content_get_quote_data()` ;
+- deux consommateurs Citations migrés via `wp_seed_content_get_quote_data()` :
+  - `includes/modules/quotes/template-data.php` ;
+  - `includes/modules/quotes/render.php` ;
 - aucun shortcode migré ;
-- aucun renderer migré ;
 - aucune donnée migrée.
 
 Le périmètre V1 couvre uniquement :
@@ -238,13 +239,15 @@ Fonctions disponibles :
 
 L'API normalise les données métier sans produire de HTML, connaître les templates ou dépendre d'un builder.
 
-Le premier consommateur migré est `includes/modules/quotes/template-data.php`. Les lectures directes de `_seed_quote_text`, `_seed_quote_author`, `_seed_quote_era` et `_seed_quote_source` y ont été remplacées par `wp_seed_content_get_quote_data()`.
+Les consommateurs migrés sont `includes/modules/quotes/template-data.php` et `includes/modules/quotes/render.php`. Les lectures directes de `_seed_quote_text`, `_seed_quote_author`, `_seed_quote_era` et `_seed_quote_source` y ont été remplacées par `wp_seed_content_get_quote_data()`.
 
 Le contrat public reste inchangé : les placeholders `{{quote}}`, `{{author}}`, `{{era}}` et `{{source}}` sont conservés dans le même ordre. `quote` reste de type `textarea` ; `author`, `era` et `source` restent de type `text`. Si l'API ne retourne aucune donnée exploitable, les quatre placeholders restent présents avec des chaînes vides.
 
 Les contenus publiés sont accessibles par défaut. Un contenu non publié exige `allow_unpublished=true`, un utilisateur authentifié et la capacité `edit_post` sur le contenu. Avec cette option explicite et cette capacité, un contenu en corbeille reste lisible dans ce premier lot ; ce comportement est connu et accepté.
 
-Les shortcodes, renderers, templates et fallbacks restent inchangés. La migration du premier consommateur a été validée en runtime sur `emilieaucoeurdeletre.fr` : les rendus sans template, avec template natif et avec Layout Divi sont strictement identiques avant et après migration par SHA256.
+Le rendu natif Citations conserve dans `render.php` toute la logique de présentation : HTML, classes CSS, échappement, `nl2br()`, conditions d'affichage et message « Citation vide. ». Les identifiants invalides, brouillons et mauvais CPT produisent désormais cette carte vide, conformément au contrat supporté.
+
+Aucun shortcode, requête, template ou CSS n'a été modifié. La validation runtime sur `emilieaucoeurdeletre.fr` confirme par SHA256 des rendus strictement identiques pour les shortcodes, collections, tris, filtres featured, templates natifs et Layouts Divi.
 
 Elle ne créera ni API générique de collections, ni abstraction inter-plugin, ni registre central WP Seed.
 
