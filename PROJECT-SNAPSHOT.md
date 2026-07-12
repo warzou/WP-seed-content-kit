@@ -281,6 +281,44 @@ Les modules Citation et Témoignage sont normalisés parce qu'ils sont actuellem
 - Cards reste hors Content Data API V1 ;
 - Plugin Update Checker et packaging inchangés.
 
-## 12. Prochain chantier autorisé
+## 12. Dynamic Data V1
 
-Le prochain jalon envisagé est la conception de la couche Dynamic Data dans un lot séparé, sans modifier les contrats publics ni étendre silencieusement le périmètre de l'API.
+Le contrat de conception est défini dans :
+
+- `docs/DYNAMIC-DATA.md`.
+
+Aucune implémentation PHP Dynamic Data n'existe encore.
+
+Le registre V1 comprendra exactement douze champs :
+
+- `quote.quote` ;
+- `quote.author` ;
+- `quote.era` ;
+- `quote.source` ;
+- `quote.featured` ;
+- `quote.display_order` ;
+- `testimonial.text` ;
+- `testimonial.name` ;
+- `testimonial.context` ;
+- `testimonial.photo` ;
+- `testimonial.featured` ;
+- `testimonial.display_order`.
+
+Le registre sera descriptif et sans callback. Le résolveur consommera uniquement la Content Data API et ne produira aucun HTML. `testimonial.photo` restera un objet média structuré. Les données WordPress natives ne seront pas dupliquées.
+
+Un ID explicite fourni sera prioritaire et autoritaire. S'il est invalide, inexistant, incompatible ou inaccessible, le résolveur retournera la valeur vide du champ sans fallback vers le contexte du provider ou le contenu WordPress courant.
+
+Dynamic Data restera séparé des collections et des boucles. Les providers Gutenberg, Divi, Spectra, Elementor et autres builders resteront des lots futurs indépendants.
+
+Le premier lot PHP sera limité à :
+
+- registre descriptif ;
+- résolveur commun ;
+- chargement global après la Content Data API et avant tout provider ;
+- tests directs du registre et du résolveur.
+
+Aucun provider ne fera partie de ce premier lot.
+
+## 13. Prochain chantier autorisé
+
+Le prochain jalon envisagé est l'implémentation du registre et du résolveur Dynamic Data V1 dans le périmètre strict défini ci-dessus, sans modifier les contrats publics ni commencer un provider builder.
