@@ -6,21 +6,20 @@ if (!defined('ABSPATH')) {
 
 function wp_seed_content_get_testimonial_template_placeholders($post_id)
 {
-    $thumbnail_id = get_post_thumbnail_id($post_id);
-    $name = wp_seed_content_get_meta($post_id, '_seed_testimonial_name');
-    $text = wp_seed_content_get_meta($post_id, '_seed_testimonial_text');
-    $photo_alt = '';
-    if ($thumbnail_id) {
-        $photo_alt = (string) get_post_meta((int) $thumbnail_id, '_wp_attachment_image_alt', true);
-    }
-    if (!is_string($photo_alt) || '' === trim($photo_alt)) {
-        $photo_alt = is_string($name) ? $name : '';
+    $testimonial_data = wp_seed_content_get_testimonial_data($post_id);
+    $name = isset($testimonial_data['name']) ? (string) $testimonial_data['name'] : '';
+    $text = isset($testimonial_data['text']) ? (string) $testimonial_data['text'] : '';
+    $photo = isset($testimonial_data['photo']) && is_array($testimonial_data['photo']) ? $testimonial_data['photo'] : null;
+    $photo_id = is_array($photo) && isset($photo['id']) ? absint($photo['id']) : 0;
+    $photo_alt = is_array($photo) && isset($photo['alt']) ? (string) $photo['alt'] : '';
+    if ('' === trim($photo_alt)) {
+        $photo_alt = $name;
     }
 
     return array(
         'photo' => array(
             'type' => 'html',
-            'value' => has_post_thumbnail($post_id)
+            'value' => $photo_id && has_post_thumbnail($post_id)
                 ? get_the_post_thumbnail($post_id, 'thumbnail', array('class' => 'seed-testimonials__photo-image', 'loading' => 'lazy'))
                 : '',
         ),
@@ -30,7 +29,7 @@ function wp_seed_content_get_testimonial_template_placeholders($post_id)
         ),
         'photo_url' => array(
             'type' => 'text',
-            'value' => $thumbnail_id ? wp_get_attachment_url((int) $thumbnail_id) : '',
+            'value' => $photo_id ? wp_get_attachment_url($photo_id) : '',
         ),
         'text' => array(
             'type' => 'textarea',

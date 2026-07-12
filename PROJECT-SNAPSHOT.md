@@ -222,6 +222,7 @@ Statut actuel :
 - deux consommateurs Citations migrés via `wp_seed_content_get_quote_data()` :
   - `includes/modules/quotes/template-data.php` ;
   - `includes/modules/quotes/render.php` ;
+- premier consommateur Témoignages migré dans `includes/modules/testimonials/template-data.php` via `wp_seed_content_get_testimonial_data()` ;
 - aucun shortcode migré ;
 - aucune donnée migrée.
 
@@ -249,6 +250,12 @@ Le rendu natif Citations conserve dans `render.php` toute la logique de présent
 
 Aucun shortcode, requête, template ou CSS n'a été modifié. La validation runtime sur `emilieaucoeurdeletre.fr` confirme par SHA256 des rendus strictement identiques pour les shortcodes, collections, tris, filtres featured, templates natifs et Layouts Divi.
 
+Les placeholders Témoignages utilisent désormais `wp_seed_content_get_testimonial_data()` dans `includes/modules/testimonials/template-data.php`. Les lectures directes de `_seed_testimonial_name`, `_seed_testimonial_text`, `_wp_attachment_image_alt` et `_thumbnail_id` ont disparu de ce consommateur.
+
+Le contrat public reste strictement inchangé, dans le même ordre et avec les mêmes types : `{{photo}}`, `{{name}}`, `{{photo_url}}`, `{{text}}` et `{{photo_alt}}`. `{{photo}}` reste généré avec `get_the_post_thumbnail()` en taille `thumbnail`, avec la classe `seed-testimonials__photo-image`, le lazy loading et les attributs WordPress natifs. `{{photo_url}}` continue d'utiliser `wp_get_attachment_url()`. `{{photo_alt}}` utilise l'alt normalisé puis retombe sur `name` ; ce fallback reste dans la couche de présentation. Si l'API échoue, les cinq placeholders restent présents avec des chaînes vides.
+
+Aucun renderer, shortcode, requête, filtre ou CSS n'a été modifié. `_seed_testimonial_date` reste intact dans le renderer natif historique. La validation runtime sur `emilieaucoeurdeletre.fr` confirme par SHA256 un shortcode sans template et un template natif strictement identiques, ainsi qu'une balise image WordPress inchangée. Aucun scénario runtime Layout Divi Témoignages dédié n'est encore disponible.
+
 Elle ne créera ni API générique de collections, ni abstraction inter-plugin, ni registre central WP Seed.
 
 Les modules Citation et Témoignage sont normalisés parce qu'ils sont actuellement intégrés à Content Kit. Cette décision ne fixe pas leur propriété métier à long terme.
@@ -270,4 +277,4 @@ Les modules Citation et Témoignage sont normalisés parce qu'ils sont actuellem
 
 ## 12. Prochain chantier autorisé
 
-Le prochain consommateur devra être migré dans un micro-lot séparé, sans modifier les contrats publics ni étendre le périmètre de l'API.
+Le prochain consommateur devra être migré dans un micro-lot séparé, sans modifier les contrats publics ni étendre le périmètre de l'API. Le renderer natif Témoignages ne devra pas être migré sans audit spécifique de `_seed_testimonial_date` et `context`.
