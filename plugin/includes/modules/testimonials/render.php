@@ -6,15 +6,20 @@ if (!defined('ABSPATH')) {
 
 function wp_seed_content_render_testimonial_card($post_id)
 {
-    $name = wp_seed_content_get_meta($post_id, '_seed_testimonial_name');
-    $text = wp_seed_content_get_meta($post_id, '_seed_testimonial_text');
-    $context = wp_seed_content_get_meta($post_id, '_seed_testimonial_context');
-    $date = wp_seed_content_format_date(wp_seed_content_get_meta($post_id, '_seed_testimonial_date'));
+    $data = wp_seed_content_get_testimonial_data($post_id);
+    $name = isset($data['name']) ? (string) $data['name'] : '';
+    $text = isset($data['text']) ? (string) $data['text'] : '';
+    $context = isset($data['context']) ? (string) $data['context'] : '';
+    $photo = isset($data['photo']) && is_array($data['photo']) ? $data['photo'] : null;
+    $photo_id = is_array($photo) && isset($photo['id']) ? absint($photo['id']) : 0;
+
+    // Preserve the historical date until existing data can be retired safely.
+    $date = !empty($data) ? wp_seed_content_format_date(wp_seed_content_get_meta($post_id, '_seed_testimonial_date')) : '';
 
     ob_start();
     ?>
     <article class="seed-card seed-card--testimonial">
-        <?php if (has_post_thumbnail($post_id)) : ?>
+        <?php if ($photo_id && has_post_thumbnail($post_id)) : ?>
             <div class="seed-testimonials__photo">
                 <?php echo get_the_post_thumbnail($post_id, 'thumbnail', array('class' => 'seed-testimonials__photo-image', 'loading' => 'lazy')); ?>
             </div>

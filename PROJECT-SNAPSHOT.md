@@ -222,7 +222,9 @@ Statut actuel :
 - deux consommateurs Citations migrés via `wp_seed_content_get_quote_data()` :
   - `includes/modules/quotes/template-data.php` ;
   - `includes/modules/quotes/render.php` ;
-- premier consommateur Témoignages migré dans `includes/modules/testimonials/template-data.php` via `wp_seed_content_get_testimonial_data()` ;
+- deux consommateurs Témoignages migrés via `wp_seed_content_get_testimonial_data()` :
+  - `includes/modules/testimonials/template-data.php` ;
+  - `includes/modules/testimonials/render.php` ;
 - aucun shortcode migré ;
 - aucune donnée migrée.
 
@@ -254,7 +256,11 @@ Les placeholders Témoignages utilisent désormais `wp_seed_content_get_testimon
 
 Le contrat public reste strictement inchangé, dans le même ordre et avec les mêmes types : `{{photo}}`, `{{name}}`, `{{photo_url}}`, `{{text}}` et `{{photo_alt}}`. `{{photo}}` reste généré avec `get_the_post_thumbnail()` en taille `thumbnail`, avec la classe `seed-testimonials__photo-image`, le lazy loading et les attributs WordPress natifs. `{{photo_url}}` continue d'utiliser `wp_get_attachment_url()`. `{{photo_alt}}` utilise l'alt normalisé puis retombe sur `name` ; ce fallback reste dans la couche de présentation. Si l'API échoue, les cinq placeholders restent présents avec des chaînes vides.
 
-Aucun renderer, shortcode, requête, filtre ou CSS n'a été modifié. `_seed_testimonial_date` reste intact dans le renderer natif historique. La validation runtime sur `emilieaucoeurdeletre.fr` confirme par SHA256 un shortcode sans template et un template natif strictement identiques, ainsi qu'une balise image WordPress inchangée. Aucun scénario runtime Layout Divi Témoignages dédié n'est encore disponible.
+Le rendu natif Témoignages utilise désormais `wp_seed_content_get_testimonial_data()` dans `includes/modules/testimonials/render.php`. Les lectures directes stables de `_seed_testimonial_name`, `_seed_testimonial_text` et `_seed_testimonial_context` ont disparu. La photo repose sur `photo.id`, tandis que son HTML reste généré par `get_the_post_thumbnail()`.
+
+`_seed_testimonial_date` reste une compatibilité historique transitoire lue uniquement lorsque l'API a résolu un Témoignage valide. `wp_seed_content_format_date()` et toute la présentation restent dans `render.php` : HTML, classes, photo, échappement, footer et ordre nom, contexte, date.
+
+Aucun shortcode, requête, filtre, template ou CSS n'a été modifié. La validation runtime sur `emilieaucoeurdeletre.fr` confirme par SHA256 des collections, filtres, ordres manuels et templates natifs strictement identiques. Les quatre consommateurs unitaires principaux utilisent désormais la Content Data API : `quotes/template-data.php`, `quotes/render.php`, `testimonials/template-data.php` et `testimonials/render.php`. Aucun scénario runtime Layout Divi Témoignages dédié n'est encore disponible.
 
 Elle ne créera ni API générique de collections, ni abstraction inter-plugin, ni registre central WP Seed.
 
@@ -277,4 +283,4 @@ Les modules Citation et Témoignage sont normalisés parce qu'ils sont actuellem
 
 ## 12. Prochain chantier autorisé
 
-Le prochain consommateur devra être migré dans un micro-lot séparé, sans modifier les contrats publics ni étendre le périmètre de l'API. Le renderer natif Témoignages ne devra pas être migré sans audit spécifique de `_seed_testimonial_date` et `context`.
+Le prochain jalon envisagé est la conception de la couche Dynamic Data dans un lot séparé, sans modifier les contrats publics ni étendre silencieusement le périmètre de l'API.
