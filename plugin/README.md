@@ -1,67 +1,84 @@
 # WP Seed Content Kit
 
-WP Seed Content Kit is a small editorial framework plugin for WordPress.
+WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
-It provides reusable structured content and shortcode-based displays without requiring a specific theme, builder, ACF, Composer, npm, or any external service.
+Il fonctionne sans thème imposé, sans ACF obligatoire et sans dépendance à un constructeur de page particulier.
 
-## V1 scope
+## Fonctionnalités actuelles
 
-V1 includes only:
+### Témoignages
 
-- testimonials as structured content;
-- cards for native WordPress posts;
-- shortcode integration;
-- scoped CSS with the `seed-` prefix.
+- contenus structurés ;
+- nom ou initiales ;
+- texte ;
+- photo ;
+- mise en avant ;
+- ordre manuel ;
+- templates réutilisables.
 
-V1 does not include:
+### Citations
 
-- ACF integration;
-- Quotes;
-- Stage or event modules;
-- admin settings;
-- Gutenberg custom blocks;
-- Divi custom modules;
-- imports or migrations.
+- citation ;
+- auteur facultatif ;
+- époque ou date affichée facultative ;
+- source ou contexte facultatif ;
+- mise en avant ;
+- ordre manuel ;
+- templates réutilisables.
 
-## Requirements
+### Cards
 
-- WordPress.
-- A theme capable of rendering normal shortcodes.
-- PHP compatible with the target WordPress installation.
+Cards affiche les articles WordPress natifs sous forme de cartes. Il ne crée pas de type de contenu supplémentaire.
 
-No external dependency is required.
+### Templates WP Seed
 
-ACF is not required.
+Les templates permettent de mettre en forme les Témoignages et les Citations avec :
 
-## Available shortcodes
+- le contenu du template dans l'éditeur WordPress ;
+- Gutenberg ou Spectra ;
+- un layout Divi Library sélectionné comme source du rendu.
+
+Le plugin ne fournit pas de module Divi personnalisé. Avec Divi, la mise en forme est créée dans Divi Library puis sélectionnée depuis le template WP Seed.
+
+## Shortcodes publics
 
 ```text
 [seed_cards]
-```
-
-Displays native WordPress posts as cards.
-
-```text
-[seed_cards category="inspirations" limit="3" columns="3"]
-```
-
-Displays up to 3 native WordPress posts from the `inspirations` category in 3 columns.
-
-```text
 [seed_testimonials]
+[seed_quotes]
 ```
 
-Displays published testimonials that have publication consent enabled.
+Exemples avec templates :
 
-## ZIP installation
+```text
+[seed_testimonials template="accueil"]
+[seed_quotes template="citations-accueil"]
+```
 
-The ZIP should contain a single root folder:
+Le détail des attributs et placeholders se trouve dans `docs/USAGE.md`.
+
+## Compatibilité
+
+WP Seed Content Kit est conçu pour fonctionner avec :
+
+- WordPress et les thèmes classiques ;
+- Gutenberg ;
+- Spectra ;
+- Astra ;
+- Divi Library ;
+- les zones acceptant les shortcodes WordPress.
+
+ACF, Composer, npm et les services externes ne sont pas requis pour utiliser le plugin.
+
+## Installation ZIP
+
+Le ZIP doit contenir un seul dossier racine :
 
 ```text
 wp-seed-content-kit/
 ```
 
-Minimum expected structure:
+Structure minimale attendue :
 
 ```text
 wp-seed-content-kit/
@@ -72,26 +89,33 @@ wp-seed-content-kit/
 - docs/
 ```
 
-Install from WordPress admin:
+Installation :
 
-1. Go to Plugins > Add New.
-2. Upload the ZIP.
-3. Activate WP Seed Content Kit.
-4. Test shortcodes on a draft page first.
+1. ouvrir Extensions > Ajouter une extension dans WordPress ;
+2. téléverser le ZIP ;
+3. activer WP Seed Content Kit ;
+4. vérifier les modules actifs ;
+5. tester les shortcodes sur une page de brouillon.
 
-## Uninstall and rollback
+## Mises à jour
 
-For a simple rollback:
+Les versions stables sont distribuées par GitHub Releases et détectées dans l'administration WordPress par le mécanisme de mise à jour embarqué.
 
-1. Remove shortcodes from test pages if needed.
-2. Deactivate the plugin.
-3. Confirm existing pages and posts remain accessible.
+L'asset de release attendu est `wp-seed-content-kit.zip`.
 
-The plugin must not modify native posts or pages automatically.
+## Limites actuelles
 
-Before any production test, create a database and file backup.
+Le plugin ne fournit pas :
+
+- de module Divi personnalisé ;
+- de widget Elementor ;
+- de bloc Gutenberg personnalisé ;
+- d'intégration ACF obligatoire ;
+- d'import ou de migration automatique ;
+- de modules fonctionnels Annuaire ou Créations sonores.
 
 ## Documentation
 
 - `docs/USAGE.md`
 - `docs/TESTING.md`
+- `docs/UPDATES.md`

@@ -1,141 +1,260 @@
-﻿# PROJECT SNAPSHOT - WP-seed-content-kit
+# Project Snapshot - WP Seed Content Kit
 
-Date : 11 juin 2026
-Statut : projet initialise
-Nature : framework editorial WordPress reutilisable
+Date : 12 juillet 2026
+Statut : version stable publiée, chantier documentaire Content Data API V1
+Version stable : 0.2.33
+Commit stable : c64e1f2
+Tag stable : v0.2.33
 
-## 1. Identite
+Ce document est la mémoire de reprise du dépôt WP Seed Content Kit. Le dépôt Git et le code committé priment en cas de contradiction technique.
 
-Nom :
+## 1. Mission actuelle
 
-```text
-WP-seed-content-kit
-```
+WP Seed Content Kit fournit des contenus éditoriaux structurés et des présentations réutilisables dans WordPress.
 
-Objectif :
+Il combine actuellement :
 
-```text
-Fournir un socle modulaire pour contenus structures et affichages reutilisables dans WordPress.
-```
+- des modules de contenus structurés ;
+- des shortcodes universels ;
+- des templates réutilisables ;
+- un moteur de placeholders ;
+- un rendu natif ;
+- une source de rendu Divi Library ;
+- une administration compatible avec les usages WordPress courants.
 
-## 2. Sites connus
+Le plugin ne doit pas devenir un builder, un thème ou le registre central de l'écosystème WP Seed.
 
-Site laboratoire :
+## 2. Référence d'écosystème
 
-```text
-https://avecguillaume.fr
-```
+La charte canonique commune se trouve dans le dépôt racine `wp-seed` :
 
-Premier site pilote production :
+- `ECOSYSTEM-ARCHITECTURE.md`
 
-```text
-https://therapsycorporel.fr
-```
+Principes applicables à Content Kit :
 
-## 3. Contraintes majeures
+- chaque plugin métier reste autonome ;
+- Content Kit ne devient pas une dépendance obligatoire ;
+- Content Kit ne devient pas le propriétaire central des métiers WP Seed ;
+- les intégrations entre plugins restent optionnelles et explicites ;
+- la présentation reste séparée des données métier.
 
-- ACF optionnel.
-- Divi 4 compatible.
-- Divi 5 compatible.
-- Astra compatible.
-- Spectra compatible.
-- Gutenberg compatible.
-- Shortcodes universels.
-- CSS prefixe.
-- Aucun theme impose.
-- Plugin installable par ZIP.
-- Pas de dependance externe obligatoire.
+Le présent snapshot reste autosuffisant pour reprendre Content Kit. Il ne copie pas intégralement les chartes d'écosystème.
 
-## 4. Coeur du projet
+## 3. État fonctionnel stable
 
-Le coeur du projet est double :
+### Modules fonctionnels
 
-```text
-contenus structures + affichages reutilisables
-```
+Témoignages :
 
-Les CPT sont des modules.
+- CPT `seed_testimonial` ;
+- module activable, actif par défaut ;
+- nom ou initiales ;
+- texte ;
+- photo via l'image mise en avant WordPress ;
+- mise en avant ;
+- ordre manuel ;
+- rendu fallback ;
+- templates et placeholders.
 
-Les affichages sont une couche independante.
+Citations :
 
-## 5. Arborescence initiale
+- CPT `seed_quote` ;
+- module activable, actif par défaut ;
+- citation ;
+- auteur facultatif ;
+- époque ou date affichée libre ;
+- source ou contexte ;
+- mise en avant ;
+- ordre manuel ;
+- rendu fallback ;
+- templates et placeholders.
 
-```text
-WP-seed-content-kit/
-├── docs/
-├── plugin/
-├── examples/
-├── screenshots/
-├── VISION.md
-├── PROJECT-SNAPSHOT.md
-├── AI-CONTEXT.md
-└── ARCHITECTURE-GUARDRAILS.md
-```
+Cards :
 
-## 6. Roles des dossiers
+- rendu d'articles WordPress natifs ;
+- aucun CPT métier propre ;
+- hors du périmètre Content Data API V1.
 
-### docs/
+### Modules prévus
 
-Documentation longue, guides, decisions d'architecture, notes de version.
+Les modules suivants restent annoncés mais non fonctionnels :
 
-### plugin/
+- Annuaire ;
+- Créations sonores.
 
-Futur code du plugin WordPress installable par ZIP.
+Ils ne possèdent pas encore de contrat métier stable.
 
-Aucun code n'est migre a l'initialisation documentaire.
+## 4. Templates WP Seed
 
-### examples/
+Le CPT `seed_template` est fonctionnel.
 
-Exemples de shortcodes, configurations, presets, contenus de demonstration.
+Il est :
 
-### screenshots/
+- non public ;
+- non consultable comme page publique ;
+- disponible dans l'administration ;
+- compatible avec l'éditeur WordPress grâce à `show_in_rest` ;
+- identifié par son `post_name`, présenté à l'utilisateur comme Identifiant.
 
-Captures d'ecran de reference : admin, rendu front, compatibilite builders.
+Un template choisit une source du rendu :
 
-## 7. Direction V1
+- Contenu de ce template ;
+- Layout Divi Library.
 
-V1 doit rester simple :
+Le rendu natif utilise le contenu du template.
 
-- modules petits ;
-- shortcodes universels ;
-- CSS scoped ;
-- pas de dependance obligatoire ;
-- ACF optionnel plus tard ;
-- compatibilite builders avant integration profonde.
+Le rendu Divi Library :
 
-## 8. Risques principaux
+- référence un contenu `et_pb_layout` publié ;
+- remplace les placeholders WP Seed ;
+- rend les blocs Divi ;
+- conserve le contenu natif du template comme fallback.
 
-- creer trop de CPT trop tot ;
-- coupler les affichages a un seul site ;
-- imposer ACF ;
-- imposer un theme ;
-- ajouter du CSS global ;
-- casser Divi/Spectra/Gutenberg ;
-- transformer le plugin en theme de fait.
+L'édition directe de `seed_template` avec Divi a été supprimée. Le workflow Divi validé est :
 
-## 9. Definition de succes
+Template WP Seed -> Layout Divi Library -> rendu par shortcode
 
-Le projet est sur la bonne voie si :
+L'UX Templates comprend notamment :
 
-- le meme plugin peut etre installe sur plusieurs sites ;
-- les contenus restent simples a administrer ;
-- les affichages peuvent etre inseres par shortcode ;
-- le CSS reste confine ;
-- ACF ameliore l'experience sans etre obligatoire ;
-- les modules CPT peuvent etre actives selon le besoin reel.
+- réglages du module, de l'identifiant et de la source du rendu ;
+- sélection et accès aux layouts Divi ;
+- métabox basse « Comment utiliser ce template » ;
+- shortcode copiable ;
+- placeholders copiables ;
+- exemple de template ;
+- cockpit Templates avec contenus récents et aide constructeur.
 
-## 10. Prochaine etape V2 (templates)
+## 5. Shortcodes publics
 
-- Etat des versions récentes :
-  - `v0.2.4` : release UX admin Templates réelle (dashboard + aide + actions + vue récentes, sans changement moteur).
-  - `v0.2.5` : release de maintenance (bump de version uniquement), sans changement fonctionnel.
-  - `v0.2.6` : prochaine évolution produit (UX Templates dashboard consolidée).
+Les shortcodes publics actuels sont :
 
-- Le V2 prévoit un pont template : `shortcode -> données -> placeholders -> post_content`.
-- Un CPT `seed_template` sera ajouté en premier pour stocker des templates réutilisables.
-- Premier pilote V2 : le module Témoignages.
-- Roadmap technique proposée :
-  - v0.2.0 : `seed_template` minimal + UI Templates ;
-  - v0.2.1 : moteur d’item-template Témoignages ;
-  - v0.2.2 : support `template="slug"` au shortcode ;
-  - v0.2.x : wrappers collections plus tard.
+- `[seed_cards]` ;
+- `[seed_testimonials]` ;
+- `[seed_quotes]`.
+
+Les attributs publics existants, notamment `template`, `featured`, `limit`, `orderby`, `order`, `columns` et `context` selon le module, doivent rester compatibles.
+
+Les shortcodes restent responsables :
+
+- des requêtes ;
+- des filtres ;
+- des limites ;
+- des tris ;
+- du choix des contenus ;
+- du template demandé.
+
+## 6. Placeholders actuels
+
+Témoignages :
+
+- `{{photo}}` ;
+- `{{photo_url}}` ;
+- `{{photo_alt}}` ;
+- `{{name}}` ;
+- `{{text}}`.
+
+Citations :
+
+- `{{quote}}` ;
+- `{{author}}` ;
+- `{{era}}` ;
+- `{{source}}`.
+
+Les placeholders restent une couche de présentation. Ils ne constituent pas le stockage métier.
+
+## 7. Builders
+
+Compatibilités actuelles :
+
+- Gutenberg : édition native des templates ;
+- Spectra : compatibilité via Gutenberg ;
+- Divi : layouts Divi Library comme source de rendu ;
+- Elementor : aide de compatibilité dans l'administration, sans intégration de rendu dédiée.
+
+Content Kit ne fournit ni module Divi personnalisé, ni widget Elementor, ni bloc Gutenberg propriétaire.
+
+## 8. Administration
+
+L'administration comprend :
+
+- activation des modules fonctionnels ;
+- visibilité optionnelle des modules dans le menu WordPress ;
+- rôles autorisés ;
+- générateurs de shortcodes ;
+- gestion des templates ;
+- ordre manuel basé sur le champ WordPress natif `menu_order` ;
+- opt-out de l'interface Yoast pour les contenus structurés concernés.
+
+La configuration générale reste réservée aux administrateurs.
+
+## 9. Distribution et mises à jour
+
+Le canal stable repose sur :
+
+- tags Git `vMAJOR.MINOR.PATCH` ;
+- GitHub Releases publiques ;
+- asset canonique `wp-seed-content-kit.zip` ;
+- racine ZIP `wp-seed-content-kit/` ;
+- chemins ZIP POSIX ;
+- Plugin Update Checker 5.7 embarqué ;
+- sélection explicite de l'asset `wp-seed-content-kit.zip`.
+
+Les contrôles de release obligatoires incluent :
+
+- absence de chemins ZIP avec antislash ;
+- présence du fichier principal ;
+- extraction réelle ;
+- vérification du SHA256 local et public.
+
+Ne jamais modifier Plugin Update Checker, le nom de l'asset ou le workflow de release dans un lot sans rapport.
+
+## 10. Content Data API V1
+
+La conception métier est documentée dans :
+
+- `docs/CONTENT-DATA-API.md`
+
+Statut actuel :
+
+- contrat documentaire en cours de validation ;
+- aucune implémentation PHP ;
+- aucun shortcode migré ;
+- aucun renderer migré ;
+- aucune donnée migrée.
+
+Le périmètre V1 couvre uniquement :
+
+- Citation ;
+- Témoignage ;
+- objet média minimal.
+
+La future API devra normaliser les données métier sans produire de HTML, connaître les templates ou dépendre d'un builder.
+
+Elle ne créera ni API générique de collections, ni abstraction inter-plugin, ni registre central WP Seed.
+
+Les modules Citation et Témoignage sont normalisés parce qu'ils sont actuellement intégrés à Content Kit. Cette décision ne fixe pas leur propriété métier à long terme.
+
+## 11. Compatibilités à protéger
+
+- shortcodes publics inchangés ;
+- placeholders existants inchangés ;
+- comportement fallback inchangé ;
+- templates existants inchangés ;
+- `context` de `[seed_testimonials]` conservé ;
+- lecture historique de `_seed_testimonial_date` conservée tant que les données existantes ne sont pas vérifiées ;
+- aucune suppression automatique d'ancienne méta ;
+- aucune migration globale ;
+- visibilité publique des CPT inchangée dans le chantier API ;
+- `seed_template` reste non public ;
+- Cards reste hors Content Data API V1 ;
+- Plugin Update Checker et packaging inchangés.
+
+## 12. Prochain chantier autorisé
+
+Le prochain chantier est documentaire :
+
+- finaliser et committer le contrat Content Data API V1 ;
+- maintenir ce snapshot ;
+- corriger les informations utilisateur devenues obsolètes dans README et USAGE.
+
+L'implémentation PHP devra faire l'objet d'un audit et de petits lots séparés après validation documentaire.

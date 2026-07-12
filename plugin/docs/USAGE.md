@@ -1,123 +1,191 @@
 # Usage - WP Seed Content Kit
 
-## Purpose
+WP Seed Content Kit fournit des contenus éditoriaux structurés, des shortcodes et des templates réutilisables dans WordPress.
 
-WP Seed Content Kit V1 provides two shortcode-driven display tools:
+Il fonctionne avec l'éditeur WordPress, Gutenberg, Spectra, Astra, Divi et les emplacements acceptant les shortcodes WordPress. ACF n'est pas requis.
 
-- `[seed_cards]` for native WordPress posts;
-- `[seed_testimonials]` for structured testimonials.
+## Shortcodes disponibles
 
-The plugin is designed to work with WordPress shortcodes in Gutenberg, Spectra, Divi, Astra, and classic shortcode contexts.
+Les shortcodes publics sont :
 
-No ACF field group is required.
+- `[seed_cards]` ;
+- `[seed_testimonials]` ;
+- `[seed_quotes]`.
 
-No external dependency is required.
+## Cards
 
-## Shortcode: seed_cards
+`[seed_cards]` affiche des articles WordPress natifs sous forme de cartes.
 
-Basic usage:
+Exemples :
 
 ```text
 [seed_cards]
-```
-
-Example with a category:
-
-```text
 [seed_cards category="inspirations" limit="3" columns="3"]
+[seed_cards tag="actualites" orderby="title" order="ASC"]
+[seed_cards show_image="false" show_excerpt="false"]
+[seed_cards button_label="Lire la suite"]
 ```
 
-Supported attributes:
+Attributs disponibles :
 
-```text
-limit
-columns
-category
-show_image
-show_excerpt
-show_button
-button_label
-```
+- `limit` ;
+- `columns` ;
+- `category` ;
+- `tag` ;
+- `orderby` : `date` ou `title` ;
+- `order` : `ASC` ou `DESC` ;
+- `show_image` ;
+- `show_category` ;
+- `show_date` ;
+- `show_title` ;
+- `show_excerpt` ;
+- `show_button` ;
+- `button_label`.
 
-Examples:
+Cards n'ajoute pas de type de contenu métier. Il utilise les articles WordPress publiés.
 
-```text
-[seed_cards limit="6" columns="3"]
-[seed_cards category="inspirations" limit="3" columns="3"]
-[seed_cards show_image="false"]
-[seed_cards show_excerpt="false"]
-[seed_cards show_button="false"]
-[seed_cards button_label="Read more"]
-```
+## Témoignages
 
-Notes:
+`[seed_testimonials]` affiche les témoignages publiés.
 
-- `category` expects a WordPress category slug.
-- If `category` is empty, recent published posts are displayed.
-- If the category is missing, an empty state is displayed.
-- The shortcode displays native WordPress posts only.
-
-## Shortcode: seed_testimonials
-
-Basic usage:
-
-```text
-[seed_testimonials]
-```
-
-Supported attributes:
-
-```text
-limit
-columns
-featured
-context
-```
-
-Examples:
+Exemples :
 
 ```text
 [seed_testimonials]
 [seed_testimonials limit="3" columns="3"]
 [seed_testimonials featured="true"]
-[seed_testimonials featured="false"]
+[seed_testimonials orderby="menu_order" order="ASC"]
+[seed_testimonials template="accueil"]
 [seed_testimonials context="workshop"]
 ```
 
-Notes:
+Attributs disponibles :
 
-- Only published testimonials are queried.
-- Only testimonials with publication consent enabled are displayed.
-- `featured` accepts `all`, `true`, or `false`.
-- `context` filters testimonials by exact context value.
+- `limit` ;
+- `columns` ;
+- `featured` : `all`, `true` ou `false` ;
+- `context` ;
+- `orderby` : `date` ou `menu_order` ;
+- `order` : `ASC` ou `DESC` ;
+- `template`.
 
-## Testimonials admin fields
+Champs d'édition actuels :
 
-The testimonial module provides native fields:
+- titre WordPress ;
+- nom ou initiales ;
+- témoignage ;
+- photo ;
+- mis en avant ;
+- ordre d'affichage WordPress.
 
-- name or initials;
-- text;
-- context;
-- date;
-- publication consent;
-- featured.
+Le consentement de publication et la date historique ne sont plus des champs d'édition actifs.
 
-ACF is not required.
+L'attribut public `context` reste pris en charge pour les données historiques ou importées qui possèdent encore une valeur de contexte. Aucun champ de contexte n'est actuellement affiché dans l'éditeur.
 
-## Styling
+## Citations
 
-The public CSS uses the `seed-` prefix.
+`[seed_quotes]` affiche par défaut une citation publiée dans un ordre aléatoire.
 
-The plugin does not apply a CSS reset and should not style global elements like `body`, headings, images, or links without scoped classes.
+Exemples :
 
-## What V1 does not do
+```text
+[seed_quotes]
+[seed_quotes limit="3"]
+[seed_quotes limit="0"]
+[seed_quotes featured="true" limit="1" orderby="random"]
+[seed_quotes orderby="author" order="ASC"]
+[seed_quotes orderby="menu_order" order="ASC" limit="0"]
+[seed_quotes template="citations-accueil"]
+```
 
-V1 does not provide:
+Attributs disponibles :
 
-- Quotes module;
-- Stage module;
-- ACF integration;
-- admin settings;
-- custom Gutenberg blocks;
-- custom Divi modules;
-- import or migration tools.
+- `limit` : absent pour le comportement par défaut, `0` pour toutes les citations, valeur positive pour une limite maximale ;
+- `featured` : `true` pour limiter aux citations mises en avant ;
+- `template` ;
+- `orderby` : `random`, `author`, `date` ou `menu_order` ;
+- `order` : `ASC` ou `DESC`, sans effet sur l'ordre aléatoire.
+
+Champs d'édition actuels :
+
+- citation ;
+- auteur facultatif ;
+- époque ou date affichée facultative ;
+- source ou contexte facultatif ;
+- mis en avant ;
+- ordre d'affichage WordPress.
+
+Le titre WordPress est généré à partir de la citation et sert à l'identification dans l'administration.
+
+## Templates WP Seed
+
+Les templates permettent de choisir la mise en forme de chaque élément affiché par un shortcode.
+
+Un template possède :
+
+- un module associé : Témoignages ou Citations ;
+- un identifiant utilisé par l'attribut `template` ;
+- une source du rendu ;
+- un contenu et des placeholders.
+
+Exemples :
+
+```text
+[seed_testimonials template="accueil"]
+[seed_quotes template="citations-accueil"]
+```
+
+### Contenu de ce template
+
+Cette source utilise le contenu enregistré dans le template avec l'éditeur WordPress. Elle est compatible avec Gutenberg et Spectra.
+
+### Layout Divi Library
+
+Lorsque Divi est disponible, un template peut sélectionner un layout Divi Library publié comme source du rendu.
+
+Le workflow est :
+
+1. créer un layout dans Divi Library ;
+2. ajouter les placeholders WP Seed dans un module Texte ou Code ;
+3. sélectionner ce layout dans les réglages du template ;
+4. utiliser le shortcode généré dans une page.
+
+Le template WP Seed reste le point d'entrée. L'édition directe du CPT Template avec Divi n'est pas le workflow pris en charge.
+
+Si le layout est absent, invalide ou non publié, le contenu du template reste le fallback.
+
+## Placeholders
+
+### Témoignages
+
+- `{{photo}}` : balise image complète ;
+- `{{photo_url}}` : URL de la photo ;
+- `{{photo_alt}}` : texte alternatif de la photo ;
+- `{{name}}` : nom ou initiales ;
+- `{{text}}` : texte du témoignage.
+
+### Citations
+
+- `{{quote}}` : citation ;
+- `{{author}}` : auteur ;
+- `{{era}}` : époque ou date affichée ;
+- `{{source}}` : source ou contexte.
+
+Les placeholders doivent être utilisés dans le contenu du template ou dans un module Texte ou Code du layout Divi.
+
+## Styles
+
+Le CSS public utilise le préfixe `seed-`.
+
+Le plugin ne réinitialise pas les styles globaux du site et n'impose ni thème ni constructeur de page.
+
+## Limites actuelles
+
+WP Seed Content Kit ne fournit pas :
+
+- de module Divi personnalisé ;
+- de widget Elementor ;
+- de bloc Gutenberg personnalisé ;
+- d'intégration ACF obligatoire ;
+- d'outil d'import ou de migration ;
+- de modules fonctionnels Annuaire ou Créations sonores.
