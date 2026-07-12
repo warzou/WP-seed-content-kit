@@ -216,8 +216,9 @@ La conception métier est documentée dans :
 
 Statut actuel :
 
-- contrat documentaire en cours de validation ;
-- aucune implémentation PHP ;
+- contrat documentaire validé ;
+- premier socle PHP implémenté dans `includes/core/content-data.php` ;
+- chargement global immédiatement après `core/helpers.php`, indépendamment de l'activation des modules ;
 - aucun shortcode migré ;
 - aucun renderer migré ;
 - aucune donnée migrée.
@@ -228,7 +229,17 @@ Le périmètre V1 couvre uniquement :
 - Témoignage ;
 - objet média minimal.
 
-La future API devra normaliser les données métier sans produire de HTML, connaître les templates ou dépendre d'un builder.
+Fonctions disponibles :
+
+- `wp_seed_content_get_quote_data()` ;
+- `wp_seed_content_get_testimonial_data()` ;
+- `wp_seed_content_get_media_data()`.
+
+L'API normalise les données métier sans produire de HTML, connaître les templates ou dépendre d'un builder. Aucun consommateur existant n'est encore migré.
+
+Les contenus publiés sont accessibles par défaut. Un contenu non publié exige `allow_unpublished=true`, un utilisateur authentifié et la capacité `edit_post` sur le contenu. Avec cette option explicite et cette capacité, un contenu en corbeille reste lisible dans ce premier lot ; ce comportement est connu et accepté.
+
+Les shortcodes, placeholders, renderers et templates restent inchangés. La validation runtime a été réalisée sur `emilieaucoeurdeletre.fr`.
 
 Elle ne créera ni API générique de collections, ni abstraction inter-plugin, ni registre central WP Seed.
 
@@ -251,10 +262,4 @@ Les modules Citation et Témoignage sont normalisés parce qu'ils sont actuellem
 
 ## 12. Prochain chantier autorisé
 
-Le prochain chantier est documentaire :
-
-- finaliser et committer le contrat Content Data API V1 ;
-- maintenir ce snapshot ;
-- corriger les informations utilisateur devenues obsolètes dans README et USAGE.
-
-L'implémentation PHP devra faire l'objet d'un audit et de petits lots séparés après validation documentaire.
+Le prochain jalon devra migrer un seul consommateur simple vers la Content Data API dans un lot séparé, sans modifier les contrats publics ni étendre le périmètre de l'API.
