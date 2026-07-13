@@ -19,6 +19,10 @@ define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/helpers.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/content-data.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/dynamic-data.php';
+$wp_seed_content_gutenberg_block_bindings_file = WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/gutenberg/block-bindings.php';
+if (file_exists($wp_seed_content_gutenberg_block_bindings_file)) {
+    require_once $wp_seed_content_gutenberg_block_bindings_file;
+}
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/modules.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/assets.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/manual-order.php';

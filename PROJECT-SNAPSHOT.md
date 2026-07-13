@@ -318,7 +318,7 @@ Le résolveur consomme uniquement la Content Data API : il ne lit aucune méta d
 
 Les IDs explicites et courants fournis dans le contexte sont prioritaires et autoritaires. S'ils sont invalides, inexistants, incompatibles ou inaccessibles, le résolveur retourne la valeur vide typée du champ sans fallback vers un autre contexte. `allow_unpublished` n'est accepté que pour la valeur booléenne stricte `true` ; la Content Data API reste propriétaire du contrôle d'accès.
 
-Dynamic Data reste séparé des collections et des boucles. Aucun provider n'est encore implémenté et aucun consommateur existant n'a été migré.
+Dynamic Data reste séparé des collections et des boucles. Le provider serveur Gutenberg Block Bindings est son premier provider ; aucun autre provider ni consommateur existant n'a été migré vers Dynamic Data.
 
 La validation runtime du socle a été réalisée sur `emilieaucoeurdeletre.fr` :
 
@@ -332,16 +332,15 @@ Le contrat de conception est défini dans :
 
 - `docs/GUTENBERG-BLOCK-BINDINGS.md`.
 
-Aucun provider Gutenberg n'est encore implémenté. L'identifiant public prévu est `wp-seed-content-kit/dynamic-data`.
+Le provider serveur PHP V1 est implémenté dans :
 
-Le développement est séparé en deux lots :
+- `plugin/includes/integrations/gutenberg/block-bindings.php`.
 
-1. provider serveur PHP pour WordPress 6.5+ ;
-2. intégration éditeur JavaScript pour WordPress 6.9+.
+Il est chargé globalement après `core/dynamic-data.php` et avant `core/modules.php`, sur toutes les requêtes. Si `register_block_bindings_source()` est absente, l'enregistrement est silencieusement ignoré.
 
-Le provider serveur seul ne constitue pas une fonctionnalité utilisateur terminée.
+La source publique est `wp-seed-content-kit/dynamic-data`. Elle est enregistrée sur `init` à la priorité 10 par `wp_seed_content_register_gutenberg_block_bindings_source()` et résolue par `wp_seed_content_get_gutenberg_binding_value()`. Elle utilise les contextes `postId` et `postType`.
 
-Le provider texte V1 exposera uniquement sept champs, annoncés comme `string` côté Gutenberg :
+Le provider texte V1 expose uniquement sept champs, annoncés comme `string` côté Gutenberg :
 
 - `quote.quote` ;
 - `quote.author` ;
@@ -351,14 +350,23 @@ Le provider texte V1 exposera uniquement sept champs, annoncés comme `string` c
 - `testimonial.name` ;
 - `testimonial.context`.
 
-Les cibles V1 seront `core/paragraph.content` et `core/heading.content`. Les arguments serveur seront `field_id`, obligatoire, et `post_id`, facultatif. Un `post_id` explicite sera autoritaire et ne retombera jamais sur le contexte courant après un échec.
+Les cibles V1 sont `core/paragraph.content` et `core/heading.content`. Les arguments serveur sont `field_id`, obligatoire, et `post_id`, facultatif et autoritaire. Un `post_id` explicite ne retombe jamais sur le contexte courant après un échec.
 
-L'interface native V1 ne permettra pas la saisie libre de `post_id`. Le parcours utilisateur prioritaire sera la Query Loop avec les contextes `postId` et `postType`. La Query Loop restera propriétaire de la requête, du tri, des filtres et de l'itération.
+Un binding mal formé, un bloc ou attribut interdit, un champ hors allowlist ou un `WP_Error` produit `null`. Une chaîne retournée normalement par le résolveur est conservée exactement, y compris `''`. Le provider ne produit aucun HTML, ne transforme pas le texte, ne lit aucune méta directement et n'active jamais `allow_unpublished`.
 
-Un binding mal formé ou un `WP_Error` produira `null`. Une valeur retournée normalement par le résolveur sera conservée telle quelle, y compris la chaîne vide.
+La validation statique et runtime sous WordPress 7.0.1 confirme :
 
-`testimonial.photo`, les champs `featured` et `display_order` restent reportés. Spectra, Divi et Elementor restent hors de ce provider. Les Templates WP Seed et les Block Bindings restent deux workflows complémentaires.
+- source enregistrée une seule fois ;
+- Query Loops Citations et Témoignages réussies, avec contextes distincts par élément ;
+- `null` conserve le contenu statique et `''` le remplace par une valeur vide ;
+- textes multilignes, Unicode et HTML historique validés ;
+- provider disponible avec les modules désactivés ;
+- brouillons non exposés ;
+- aucune régression des shortcodes ni des templates ;
+- aucun warning ou fatal WP Seed.
+
+Le provider reste un socle interne sans interface éditeur terminée. WordPress 6.5 n'a pas été testé en runtime ; sa compatibilité repose sur l'API officielle et la revue statique. Aucun JavaScript éditeur n'est encore implémenté. `testimonial.photo`, les champs `featured` et `display_order`, Spectra, Divi et Elementor restent hors de ce provider. Les Templates WP Seed et les Block Bindings restent deux workflows complémentaires.
 
 ## 14. Prochain chantier autorisé
 
-Le prochain jalon envisagé est un audit d'implémentation du provider serveur PHP Gutenberg Block Bindings uniquement. Aucun provider n'est commencé dans le présent lot.
+Le prochain jalon envisagé est l'audit et le plan du lot JavaScript éditeur pour WordPress 6.9+. Il n'est pas commencé dans le présent lot.
