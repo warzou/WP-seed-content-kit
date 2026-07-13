@@ -287,9 +287,13 @@ Le contrat de conception est défini dans :
 
 - `docs/DYNAMIC-DATA.md`.
 
-Aucune implémentation PHP Dynamic Data n'existe encore.
+Le socle PHP Dynamic Data V1 est implémenté dans :
 
-Le registre V1 comprendra exactement douze champs :
+- `plugin/includes/core/dynamic-data.php`.
+
+Il est chargé globalement après `core/content-data.php` et avant `core/modules.php`, indépendamment des modules actifs et des builders.
+
+Le registre V1 comprend exactement douze champs :
 
 - `quote.quote` ;
 - `quote.author` ;
@@ -304,21 +308,24 @@ Le registre V1 comprendra exactement douze champs :
 - `testimonial.featured` ;
 - `testimonial.display_order`.
 
-Le registre sera descriptif et sans callback. Le résolveur consommera uniquement la Content Data API et ne produira aucun HTML. `testimonial.photo` restera un objet média structuré. Les données WordPress natives ne seront pas dupliquées.
+Le registre est descriptif et sans callback. Il expose les trois fonctions publiques suivantes :
 
-Un ID explicite fourni sera prioritaire et autoritaire. S'il est invalide, inexistant, incompatible ou inaccessible, le résolveur retournera la valeur vide du champ sans fallback vers le contexte du provider ou le contenu WordPress courant.
+- `wp_seed_content_get_dynamic_data_fields()` ;
+- `wp_seed_content_get_dynamic_data_field()` ;
+- `wp_seed_content_resolve_dynamic_data()`.
 
-Dynamic Data restera séparé des collections et des boucles. Les providers Gutenberg, Divi, Spectra, Elementor et autres builders resteront des lots futurs indépendants.
+Le résolveur consomme uniquement la Content Data API : il ne lit aucune méta directement, ne produit aucun HTML et ne traite ni collection ni boucle. Un champ inconnu retourne une `WP_Error`. `testimonial.photo` retourne un objet média structuré ou `null`. Les données WordPress natives ne sont pas dupliquées.
 
-Le premier lot PHP sera limité à :
+Les IDs explicites et courants fournis dans le contexte sont prioritaires et autoritaires. S'ils sont invalides, inexistants, incompatibles ou inaccessibles, le résolveur retourne la valeur vide typée du champ sans fallback vers un autre contexte. `allow_unpublished` n'est accepté que pour la valeur booléenne stricte `true` ; la Content Data API reste propriétaire du contrôle d'accès.
 
-- registre descriptif ;
-- résolveur commun ;
-- chargement global après la Content Data API et avant tout provider ;
-- tests directs du registre et du résolveur.
+Dynamic Data reste séparé des collections et des boucles. Aucun provider n'est encore implémenté et aucun consommateur existant n'a été migré.
 
-Aucun provider ne fera partie de ce premier lot.
+La validation runtime du socle a été réalisée sur `emilieaucoeurdeletre.fr` :
+
+- 83 tests sur 83 réussis ;
+- validation réussie avec les modules désactivés ;
+- aucune régression des shortcodes ni des templates existants.
 
 ## 13. Prochain chantier autorisé
 
-Le prochain jalon envisagé est l'implémentation du registre et du résolveur Dynamic Data V1 dans le périmètre strict défini ci-dessus, sans modifier les contrats publics ni commencer un provider builder.
+Le prochain jalon envisagé est un audit séparé du premier provider Dynamic Data, probablement Gutenberg Block Bindings. Aucun provider n'est commencé dans le présent lot.
