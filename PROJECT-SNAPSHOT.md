@@ -1,7 +1,7 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 12 juillet 2026
-Statut : version stable publiée, chantier documentaire Content Data API V1
+Date : 13 juillet 2026
+Statut : version stable publiée ; provider Gutenberg serveur validé ; intégration éditeur native différée
 Version stable : 0.2.33
 Commit stable : c64e1f2
 Tag stable : v0.2.33
@@ -365,8 +365,16 @@ La validation statique et runtime sous WordPress 7.0.1 confirme :
 - aucune régression des shortcodes ni des templates ;
 - aucun warning ou fatal WP Seed.
 
-Le provider reste un socle interne sans interface éditeur terminée. WordPress 6.5 n'a pas été testé en runtime ; sa compatibilité repose sur l'API officielle et la revue statique. Aucun JavaScript éditeur n'est encore implémenté. `testimonial.photo`, les champs `featured` et `display_order`, Spectra, Divi et Elementor restent hors de ce provider. Les Templates WP Seed et les Block Bindings restent deux workflows complémentaires.
+Le provider reste un socle interne sans interface éditeur terminée. WordPress 6.5 n'a pas été testé en runtime ; sa compatibilité repose sur l'API officielle et la revue statique. Aucun JavaScript éditeur n'est implémenté. `testimonial.photo`, les champs `featured` et `display_order`, Spectra, Divi et Elementor restent hors de ce provider. Les Templates WP Seed et les Block Bindings restent deux workflows complémentaires.
 
-## 14. Prochain chantier autorisé
+L'audit de l'intégration éditeur a confirmé les capacités publiques de `registerBlockBindingsSource`, `getFieldsList` et `getValues` disponibles à partir de WordPress 6.9, ainsi que les contextes `postId` et `postType` d'une Query Loop. Il a aussi confirmé que le filtrage natif observé reste global par type d'attribut : aucune API publique identifiée ne permet de limiter précisément les champs WP Seed à la source, au bloc et à l'attribut autorisés.
 
-Le prochain jalon envisagé est l'audit et le plan du lot JavaScript éditeur pour WordPress 6.9+. Il n'est pas commencé dans le présent lot.
+Le verdict initial de l'audit était `NEEDS HUMAN DECISION`. La décision humaine est de différer le JavaScript éditeur natif avec l'API publique actuelle. Aucune inscription éditeur par `getFieldsList` ou `getValues`, aucun endpoint REST et aucun JavaScript éditeur ne sont implémentés. Aucun contournement fondé sur une API interne et aucune modification des filtres globaux de WordPress ne sont retenus. Le provider serveur reste officiel, actif, validé sous WordPress 7.0.1, utilisable avec un markup contrôlé et au rendu frontend d'une Query Loop. Il constitue toujours la fondation publique du contrat Gutenberg Block Bindings.
+
+Un futur réaudit éditeur ne sera engagé que si WordPress fournit un filtrage public suffisamment précis, une solution native officiellement supportée, ou si un besoin produit important justifie l'étude séparée d'une interface WP Seed dédiée.
+
+## 14. Prochain travail recommandé
+
+Le prochain travail recommandé est l'audit d'un provider builder distinct consommant Dynamic Data, notamment la piste Divi Dynamic Content.
+
+Cette piste n'est ni décidée ni implémentée. Elle devra faire l'objet de son propre audit, de son propre contrat et d'une validation séparée avant tout code. Aucun provider supplémentaire n'est commencé dans le présent lot documentaire.

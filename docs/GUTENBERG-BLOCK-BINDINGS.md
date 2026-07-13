@@ -1,10 +1,10 @@
 # Provider Gutenberg Block Bindings V1
 
-Statut : contrat de conception candidat avant implémentation
+Statut : provider serveur implémenté et validé ; intégration éditeur native différée après audit
 
-Ce document définit le contrat canonique du futur provider Gutenberg Block Bindings V1 de WP Seed Content Kit.
+Ce document définit le contrat canonique du provider Gutenberg Block Bindings V1 de WP Seed Content Kit et consigne la décision relative à son intégration dans l'éditeur.
 
-Il fixe le périmètre fonctionnel, les identifiants persistés, les règles de contexte et la séparation des responsabilités avant toute implémentation PHP ou JavaScript. Il ne modifie ni le contrat Dynamic Data V1, ni la Content Data API V1, ni les contrats publics existants.
+Il fixe le périmètre fonctionnel, les identifiants persistés, les règles de contexte et la séparation des responsabilités. Le provider serveur PHP est implémenté. Aucune intégration JavaScript éditeur n'est implémentée. Ce contrat ne modifie ni le contrat Dynamic Data V1, ni la Content Data API V1, ni les contrats publics existants.
 
 ## 1. Objectif
 
@@ -83,7 +83,7 @@ Il constitue donc un contrat public dès que des bindings l'utilisent. La V1 ne 
 
 ### 4.1 Provider serveur
 
-Le provider serveur est possible à partir de WordPress 6.5 grâce à `register_block_bindings_source()`.
+Le provider serveur s'appuie sur `register_block_bindings_source()`, disponible à partir de WordPress 6.5.
 
 À ce niveau :
 
@@ -94,23 +94,28 @@ Le provider serveur est possible à partir de WordPress 6.5 grâce à `register_
 
 Un provider serveur compatible WordPress 6.5 ne constitue pas, à lui seul, une fonctionnalité utilisateur terminée. Sans intégration éditeur, la création du binding reste technique.
 
-### 4.2 Expérience éditeur complète
+### 4.2 Intégration éditeur native différée
 
-L'expérience éditeur complète cible WordPress 6.9 ou supérieur.
+L'intégration éditeur native a été auditée avec les API publiques disponibles à partir de WordPress 6.9, puis observée sous WordPress 7.0.1. Elle n'est pas implémentée.
 
-Elle reposera sur une inscription JavaScript de la même source avec :
+Les capacités confirmées sont :
 
-- `getFieldsList` pour proposer les champs dans l'interface native ;
-- `getValues` pour fournir l'aperçu dans le canvas ;
-- les mêmes identifiants et arguments que le provider serveur.
+- `registerBlockBindingsSource` pour inscrire la source côté éditeur ;
+- `getFieldsList` pour exposer les sept champs texte et persister `field_id` ;
+- `getValues` pour fournir des valeurs synchrones au canvas ;
+- les contextes `postId` et `postType` d'une Query Loop pour distinguer chaque élément.
 
-Cette intégration appartient à un lot séparé. Aucune interface propriétaire ne doit être créée si l'interface native de WordPress répond au besoin.
+L'argument serveur facultatif `post_id` reste hors du parcours natif. Un aperçu complet via `getValues` demanderait en outre un transport et un cache de données, mais ce point n'est pas le blocage principal.
 
-## 5. Découpage en deux lots
+Le blocage principal est l'absence d'une API publique permettant de limiter exactement les champs d'une source à une combinaison source, bloc et attribut. Le filtrage natif observé est global par type d'attribut. Les champs WP Seed pourraient donc être proposés sur d'autres attributs de type `string`, alors que le provider serveur n'accepte que `core/paragraph.content` et `core/heading.content`.
+
+Cette divergence entre les choix proposés dans l'éditeur et les bindings réellement acceptés au rendu n'est pas retenue. L'intégration JavaScript native est différée.
+
+## 5. Découpage et état des lots
 
 ### 5.1 Lot 1 — Provider serveur interne
 
-Le premier lot futur est limité à :
+Le provider serveur implémenté reste limité à :
 
 - une source PHP ;
 - un callback serveur ;
@@ -122,18 +127,17 @@ Le premier lot futur est limité à :
 - aucun JavaScript ;
 - aucune promotion comme fonctionnalité utilisateur finalisée.
 
-### 5.2 Lot 2 — Intégration éditeur
+### 5.2 Lot 2 — Intégration éditeur différée
 
-Le second lot futur couvrira :
+L'inscription JavaScript de la source n'est pas implémentée.
 
-- l'inscription JavaScript de la même source ;
-- la liste native des sept champs ;
-- l'aperçu dans l'éditeur ;
-- le filtrage des blocs et attributs compatibles ;
-- une validation UX sous WordPress 6.9 et 7.0 ;
-- aucune interface propriétaire si l'interface native suffit.
+Sa reprise n'est autorisée que si au moins une condition est remplie :
 
-Les deux lots restent indépendants, testables et réversibles.
+- une API publique WordPress permet de filtrer les champs par source, bloc et attribut ;
+- une solution native officiellement supportée permet de masquer les champs sur les blocs et attributs interdits ;
+- un besoin produit suffisamment important justifie une interface WP Seed dédiée après un audit UX séparé.
+
+Le provider serveur reste fonctionnel, public et testable indépendamment de cette décision.
 
 ## 6. Champs exposés en V1
 
@@ -173,15 +177,15 @@ Le premier périmètre est strictement limité à :
 
 | Champ WP Seed | Type Dynamic Data | Type éditeur Block Bindings | Blocs autorisés | Attribut | Valeur vide | Retours à la ligne | Frontend | Éditeur |
 |---|---|---|---|---|---|---|---|---|
-| `quote.quote` | `textarea` | `string` | Paragraphe, Titre | `content` | `''` | Texte brut à valider | Lot serveur, WordPress 6.5+ | Lot éditeur futur, WordPress 6.9+ |
-| `quote.author` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Lot serveur, WordPress 6.5+ | Lot éditeur futur, WordPress 6.9+ |
-| `quote.era` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Lot serveur, WordPress 6.5+ | Lot éditeur futur, WordPress 6.9+ |
-| `quote.source` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Lot serveur, WordPress 6.5+ | Lot éditeur futur, WordPress 6.9+ |
-| `testimonial.text` | `textarea` | `string` | Paragraphe, Titre | `content` | `''` | Texte brut à valider | Lot serveur, WordPress 6.5+ | Lot éditeur futur, WordPress 6.9+ |
-| `testimonial.name` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Lot serveur, WordPress 6.5+ | Lot éditeur futur, WordPress 6.9+ |
-| `testimonial.context` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Lot serveur, WordPress 6.5+ | Lot éditeur futur, WordPress 6.9+ |
+| `quote.quote` | `textarea` | `string` | Paragraphe, Titre | `content` | `''` | Texte brut à valider | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
+| `quote.author` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
+| `quote.era` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
+| `quote.source` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
+| `testimonial.text` | `textarea` | `string` | Paragraphe, Titre | `content` | `''` | Texte brut à valider | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
+| `testimonial.name` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
+| `testimonial.context` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
 
-Les types `text` et `textarea` restent les types internes du registre Dynamic Data. Ils décrivent notamment le caractère potentiellement multiligne d'une valeur. L'API éditeur Block Bindings reçoit cependant un champ de type `string` pour chacun des sept identifiants. Cette adaptation de type ne produit ni `nl2br()`, ni HTML, ni formatage propre au provider.
+Les types `text` et `textarea` restent les types internes du registre Dynamic Data. Ils décrivent notamment le caractère potentiellement multiligne d'une valeur. Dans le contrat d'un éventuel lot éditeur, chacun des sept identifiants serait déclaré comme un champ de type `string`. Cette adaptation de type ne produirait ni `nl2br()`, ni HTML, ni formatage propre au provider.
 
 Le provider ne doit pas étendre silencieusement cette matrice à d'autres blocs ou attributs.
 
@@ -284,7 +288,7 @@ Ils ne prennent actuellement pas en charge l'éditeur de contenu WordPress. Le p
 - ne crée pas un nouvel écran d'édition ;
 - ne transforme pas leurs écrans actuels en éditeurs de blocs.
 
-Cette limite réduit l'usage direct des bindings dans leurs propres écrans. Le parcours utilisateur natif prioritaire reste une Query Loop dans une page contenant un bloc compatible. Un `post_id` explicite relève du contrat serveur et des usages manuels, programmatiques ou de test documentés plus loin ; il n'est pas un champ de saisie de l'interface native V1.
+Cette limite réduit l'usage direct des bindings dans leurs propres écrans. Le scénario de rendu principal validé reste une Query Loop dans une page contenant un bloc compatible et un markup de binding contrôlé. Un `post_id` explicite relève du contrat serveur et des usages manuels, programmatiques ou de test documentés plus loin ; il n'est pas exposé par une interface éditeur WP Seed.
 
 ## 12. Valeurs vides et erreurs
 
@@ -331,13 +335,13 @@ Sous WordPress 7.0.1 observé :
 - `null` conserve le contenu statique enregistré dans le bloc ;
 - `''` remplace ce contenu par une valeur vide.
 
-Cette observation ne constitue pas une promesse définitive pour toutes les versions WordPress. Le lot serveur devra valider ce comportement sur les versions réellement supportées.
+Cette observation ne constitue pas une promesse définitive pour toutes les versions WordPress. Elle a été confirmée pendant la validation runtime du provider serveur sous WordPress 7.0.1 et devra être réévaluée pour toute nouvelle version ciblée.
 
 ## 13. Retours à la ligne
 
 `quote.quote` et `testimonial.text` sont des champs `textarea`.
 
-Ce type reste interne au registre Dynamic Data. Dans `getFieldsList`, Gutenberg reçoit ces deux champs comme des `string`, au même titre que les cinq champs internes de type `text`.
+Ce type reste interne au registre Dynamic Data. Le contrat d'un éventuel lot éditeur les déclarerait comme des `string`, au même titre que les cinq champs internes de type `text`.
 
 Pour ces champs :
 
@@ -387,7 +391,7 @@ Workflow historique :
 
 Template WP Seed → placeholders → Gutenberg, Spectra ou Layout Divi Library → shortcode WP Seed
 
-Workflow futur :
+Workflow Block Bindings :
 
 Bloc Core → binding Gutenberg WP Seed → contenu courant ou Query Loop → rendu dynamique
 
@@ -402,9 +406,9 @@ Un `seed_template` ne fournit pas naturellement un contexte `seed_quote` ou `see
 
 Le provider ne modifie aucune logique de template et ne change aucun shortcode public.
 
-## 17. Contrat du futur lot serveur
+## 17. Contrat du provider serveur
 
-Le futur lot serveur devra rester limité à :
+Le provider serveur reste limité à :
 
 - l'enregistrement PHP de la source ;
 - un callback serveur ;
@@ -426,36 +430,59 @@ Ce lot ne contient :
 - aucun booléen ou nombre ;
 - aucune intégration Spectra.
 
-## 18. Contrat du futur lot éditeur
+## 18. Décision sur l'intégration éditeur
 
-Le futur lot éditeur devra rester distinct du provider serveur.
+### 18.1 Capacités publiques confirmées
 
-Il couvrira :
+L'audit confirme que les API publiques de WordPress disponibles à partir de la version 6.9 permettent :
 
-- un asset JavaScript chargé uniquement dans l'éditeur concerné ;
-- l'inscription de `wp-seed-content-kit/dynamic-data` côté éditeur ;
-- `getFieldsList` ;
-- `getValues` ;
-- les labels des sept champs, tous déclarés comme des champs de type `string` ;
-- le filtrage des blocs et attributs définis par la matrice V1 ;
-- l'aperçu dans le canvas ;
-- une validation utilisateur sous WordPress 6.9 et 7.0.
+- d'inscrire la source avec `registerBlockBindingsSource` ;
+- de lister les sept champs texte avec `getFieldsList` ;
+- de persister `field_id` dans les arguments du binding ;
+- de fournir des valeurs synchrones au canvas avec `getValues` ;
+- d'utiliser les contextes `postId` et `postType` d'une Query Loop.
 
-Il ne crée aucun panneau propriétaire si l'interface native de WordPress suffit.
+Le parcours natif ne fournit pas de saisie générique de `post_id`. Cet argument reste un contrat serveur pour le markup manuel, les usages programmatiques, les tests contrôlés et de futures intégrations spécialisées.
 
-L'interface native ciblée peut découvrir la source, lister les champs avec `getFieldsList`, permettre le choix d'un champ prédéfini, persister ses arguments associés, notamment `field_id`, puis demander les valeurs d'aperçu avec `getValues`. Ces valeurs d'aperçu conservent le résultat normal du résolveur, y compris `''`.
+Un aperçu complet avec `getValues` demanderait un transport et un cache adaptés. Cette question reste différée avec le lot éditeur, mais elle n'est pas la cause principale de la décision.
 
-Le parcours utilisateur natif V1 est :
+### 18.2 Blocage principal
 
-Query Loop → contexte `postId` et `postType` → choix d'un champ WP Seed → rendu dynamique
+Le filtrage natif observé est global par type d'attribut. Aucune API publique confirmée ne permet de restreindre précisément les champs d'une source à la combinaison suivante :
 
-Ce parcours ne nécessite aucune saisie manuelle de `post_id`. Dans le périmètre WordPress 6.9 et 7.0 ciblé, l'interface native ne fournit pas de champ générique permettant de saisir librement un `post_id` arbitraire.
+- source `wp-seed-content-kit/dynamic-data` ;
+- bloc `core/paragraph` ou `core/heading` ;
+- attribut `content`.
 
-L'argument `post_id` reste autorisé par le contrat serveur pour du markup écrit manuellement, du contenu généré programmatiquement, des tests contrôlés et de futures intégrations spécialisées. Il n'est pas présenté comme saisissable dans l'interface native Gutenberg V1.
+Les sept champs WP Seed, tous déclarés comme `string`, pourraient donc être proposés sur d'autres attributs compatibles de blocs Core, notamment des boutons, images, éléments de navigation, dates ou autres blocs possédant un attribut texte bindable. Le provider serveur rejetterait pourtant ces bindings hors matrice.
 
-Toute interface spécifique de sélection ou de saisie explicite d'un contenu WP Seed est reportée. La V1 ne promet ni panneau propriétaire, ni composant de sélection, ni bloc propriétaire, ni autre interface personnalisée.
+L'éditeur proposerait alors des choix qui ne produiraient pas de rendu dynamique. Cette incohérence est incompatible avec le contrat V1.
 
-Le mécanisme de transport des valeurs vers l'aperçu éditeur devra être audité et documenté avant l'implémentation de ce lot. Il ne doit pas provoquer de lecture directe des métadonnées par le JavaScript.
+Aucun contournement fondé sur une API interne ou non documentée n'est retenu. Les filtres globaux de WordPress ne doivent pas être modifiés, car ils affecteraient aussi les autres sources de bindings, Pattern Overrides, les fonctionnalités Core et les extensions tierces.
+
+### 18.3 Décision figée
+
+L'intégration JavaScript native est différée. Elle n'est ni implémentée ni annoncée comme une fonctionnalité éditeur complète.
+
+Le provider serveur n'est pas abandonné. Il reste :
+
+- actif dans le code ;
+- validé en runtime sous WordPress 7.0.1 ;
+- utilisable avec un markup contrôlé, manuel ou généré programmatiquement ;
+- utilisable au rendu frontend dans une Query Loop ;
+- la fondation publique du contrat Gutenberg Block Bindings.
+
+Une reprise de l'intégration éditeur exige l'une des conditions définies en section 5.2 et un nouvel audit des API WordPress alors disponibles.
+
+### 18.4 Architectures différées
+
+Les architectures suivantes ont été étudiées mais ne sont pas retenues dans le lot actuel :
+
+- `getFieldsList` avec un `getValues` neutre : n'empêche pas la sélection de champs sur des cibles que le serveur refuse et laisse un aperçu statique trompeur ;
+- endpoint REST unitaire ou batch : peut alimenter un aperçu, mais ne résout pas le filtrage des cibles et introduit prématurément un transport public ;
+- préchargement du contenu courant : ne couvre pas correctement les contextes multiples d'une Query Loop ;
+- panneau ou bloc propriétaire WP Seed : contourne l'interface native, augmente la maintenance et demande un audit UX séparé ;
+- support forcé de `core/button`, `core/image` ou d'autres blocs : dépasse le contrat V1 et requiert des mappings de données distincts.
 
 ## 19. Hors périmètre
 
@@ -486,7 +513,7 @@ Sont explicitement exclus de la V1 :
 
 Risque : l'identifiant de source est enregistré dans le contenu WordPress et devient difficile à renommer.
 
-Garde-fou : documenter un identifiant unique, sans alias V1, avant toute implémentation.
+Garde-fou : maintenir l'identifiant public documenté et unique, sans alias V1.
 
 ### 20.2 Provider serveur trop technique
 
@@ -494,17 +521,17 @@ Risque : le rendu fonctionne, mais l'utilisateur ne peut pas créer facilement l
 
 Garde-fou : considérer le lot serveur comme un socle interne et ne pas le promouvoir comme fonctionnalité terminée.
 
-### 20.3 Dépendance de l'UX à WordPress 6.9
+### 20.3 Dépendance de l'UX aux API WordPress
 
-Risque : l'interface complète n'est pas disponible sur toutes les versions pouvant exécuter le provider serveur.
+Risque : les capacités de l'interface native et leur granularité varient indépendamment de l'API serveur.
 
-Garde-fou : séparer clairement la compatibilité serveur 6.5 de l'expérience éditeur 6.9+ sans modifier prématurément la version minimale globale du plugin.
+Garde-fou : conserver le provider serveur indépendant et ne reprendre l'intégration éditeur qu'après un nouvel audit des API publiques disponibles, sans modifier prématurément la version minimale globale du plugin.
 
 ### 20.4 Différence entre `null` et `''`
 
 Risque : un binding mal formé ou un `WP_Error` retourne `null`, tandis qu'une résolution normale vide retourne `''`. Ces deux résultats peuvent traiter différemment le contenu statique du bloc.
 
-Garde-fou : conserver exactement la valeur normale du résolveur et tester le HTML avant/après sur toutes les versions WordPress ciblées. L'observation WordPress 7.0.1 doit être reconfirmée pendant le lot serveur.
+Garde-fou : conserver exactement la valeur normale du résolveur et tester le HTML avant/après sur toute nouvelle version WordPress ciblée. L'observation a été confirmée pendant la validation runtime sous WordPress 7.0.1.
 
 ### 20.5 Texte multiligne
 
@@ -534,7 +561,7 @@ Garde-fou : reporter `testimonial.photo` dans un lot média dédié.
 
 Risque : le rendu serveur est correct alors que l'aperçu du canvas est absent ou différent.
 
-Garde-fou : traiter `getValues` et la validation éditeur dans un lot autonome.
+Garde-fou : conserver l'intégration éditeur différée tant qu'un aperçu fiable et un filtrage cohérent avec le provider serveur ne peuvent pas être garantis.
 
 ### 20.10 Query Loop mal configurée
 
@@ -552,31 +579,44 @@ Garde-fou : conserver les deux workflows, leurs responsabilités et leurs contra
 
 Risque : laisser croire que l'utilisateur peut saisir un `post_id` arbitraire dans l'interface native Gutenberg V1.
 
-Garde-fou : présenter la Query Loop comme parcours natif principal et réserver `post_id` au contrat serveur, au markup manuel, aux usages programmatiques, aux tests contrôlés et aux futures intégrations spécialisées.
+Garde-fou : documenter la Query Loop comme scénario de rendu principal du provider serveur et réserver `post_id` au markup manuel, aux usages programmatiques, aux tests contrôlés et aux futures intégrations spécialisées. Aucune saisie native de cet argument n'est annoncée.
 
-## 21. Validations requises avant implémentation
+### 20.13 Filtrage natif insuffisant
 
-Le présent contrat doit être validé avant tout code provider.
+Risque : l'interface native propose les champs WP Seed sur des blocs ou attributs que le provider serveur rejette, parce que le filtrage public disponible est global par type d'attribut.
 
-Le futur lot serveur devra ensuite vérifier au minimum :
+Garde-fou : différer l'intégration éditeur, ne pas utiliser d'API interne et ne pas modifier les filtres globaux de WordPress. La cause est une limite de filtrage de l'API publique observée, pas une impossibilité générale de Gutenberg.
 
-- l'enregistrement défensif sous WordPress 6.5+ ;
-- l'absence d'erreur sous une version sans Block Bindings ;
-- les sept champs autorisés ;
-- le rejet des autres champs du registre ;
-- les deux blocs et leur unique attribut autorisé ;
-- le contexte courant d'une Query Loop ;
-- la priorité et l'autorité de `post_id` ;
-- l'absence de fallback après un ID explicite invalide ;
-- le retour `null` pour un binding mal formé ;
-- les chaînes vides retournées normalement par le résolveur, sans conversion vers `null` ;
-- la conservation de `''` après un ID explicite invalide, incompatible ou inaccessible ;
-- la conversion de `WP_Error` vers `null` ;
-- le comportement du contenu statique lorsque la source retourne `null` ou `''` ;
-- le rendu HTML et visuel des champs multilignes ;
+## 21. Validations acquises et conditions de reprise
+
+### 21.1 Provider serveur validé
+
+Le provider serveur a été validé statiquement et en runtime sous WordPress 7.0.1. Les validations acquises couvrent notamment :
+
+- l'enregistrement unique et défensif de la source ;
+- les sept champs texte autorisés ;
+- `core/paragraph.content` et `core/heading.content` ;
+- les contextes distincts d'une Query Loop ;
+- l'autorité de `post_id` et l'absence de fallback après un ID explicite invalide ;
+- la différence entre `null` et `''` ;
+- les textes multilignes, Unicode et le HTML historique ;
+- les modules désactivés et les brouillons non exposés ;
 - l'absence de régression des templates, placeholders et shortcodes.
 
-Le futur lot éditeur devra être validé séparément sous WordPress 6.9 et 7.0. Il vérifiera notamment que les sept champs sont annoncés comme `string`, que le choix natif persiste correctement `field_id`, que `getValues` respecte le résolveur commun et qu'aucune saisie libre de `post_id` n'est promise par l'interface native.
+### 21.2 Checklist d'un futur réaudit éditeur
+
+Avant toute reprise, un nouvel audit devra :
+
+- vérifier les évolutions de l'API publique WordPress alors disponible ;
+- rechercher un filtrage exact par source, bloc et attribut ;
+- réévaluer `getFieldsList` et `getValues` ;
+- vérifier si l'interface native prend en charge les arguments tels que `post_id` ;
+- auditer Spectra séparément, sans déduire sa compatibilité de Gutenberg ;
+- réévaluer le besoin d'un transport REST batch pour le canvas ;
+- tester le canvas d'une Query Loop avec plusieurs contextes ;
+- confirmer la parité entre les choix proposés dans l'éditeur et le provider serveur.
+
+Aucune version future de WordPress n'est présumée résoudre ces points.
 
 ## 22. Invariants publics
 
@@ -596,11 +636,15 @@ La source `wp-seed-content-kit/dynamic-data`, les arguments `field_id` et `post_
 
 ## 23. Règle de lecture
 
-Ce document définit le contrat du provider Gutenberg Block Bindings V1 avant son implémentation.
+Ce document définit le contrat du provider Gutenberg Block Bindings V1 implémenté côté serveur et consigne la décision de différer son intégration JavaScript native dans l'éditeur.
 
-Il autorise la préparation ultérieure de deux lots séparés :
+Il autorise la conservation, la maintenance et les tests du provider serveur existant. Il n'autorise pas, sans nouveau lot validé :
 
-1. provider serveur interne ;
-2. intégration éditeur native.
+- l'ajout d'un JavaScript éditeur ;
+- la création d'un endpoint REST pour le canvas ;
+- l'utilisation d'API Gutenberg internes ou non documentées ;
+- la modification des filtres globaux de Block Bindings ;
+- la création d'un panneau ou d'un bloc propriétaire WP Seed ;
+- l'extension silencieuse à d'autres blocs, attributs ou constructeurs.
 
-Il n'autorise pas leur implémentation dans le présent lot documentaire.
+Toute reprise suit les conditions de la section 5.2 et la checklist de la section 21.2.
