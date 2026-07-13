@@ -326,6 +326,39 @@ La validation runtime du socle a été réalisée sur `emilieaucoeurdeletre.fr` 
 - validation réussie avec les modules désactivés ;
 - aucune régression des shortcodes ni des templates existants.
 
-## 13. Prochain chantier autorisé
+## 13. Gutenberg Block Bindings V1
 
-Le prochain jalon envisagé est un audit séparé du premier provider Dynamic Data, probablement Gutenberg Block Bindings. Aucun provider n'est commencé dans le présent lot.
+Le contrat de conception est défini dans :
+
+- `docs/GUTENBERG-BLOCK-BINDINGS.md`.
+
+Aucun provider Gutenberg n'est encore implémenté. L'identifiant public prévu est `wp-seed-content-kit/dynamic-data`.
+
+Le développement est séparé en deux lots :
+
+1. provider serveur PHP pour WordPress 6.5+ ;
+2. intégration éditeur JavaScript pour WordPress 6.9+.
+
+Le provider serveur seul ne constitue pas une fonctionnalité utilisateur terminée.
+
+Le provider texte V1 exposera uniquement sept champs, annoncés comme `string` côté Gutenberg :
+
+- `quote.quote` ;
+- `quote.author` ;
+- `quote.era` ;
+- `quote.source` ;
+- `testimonial.text` ;
+- `testimonial.name` ;
+- `testimonial.context`.
+
+Les cibles V1 seront `core/paragraph.content` et `core/heading.content`. Les arguments serveur seront `field_id`, obligatoire, et `post_id`, facultatif. Un `post_id` explicite sera autoritaire et ne retombera jamais sur le contexte courant après un échec.
+
+L'interface native V1 ne permettra pas la saisie libre de `post_id`. Le parcours utilisateur prioritaire sera la Query Loop avec les contextes `postId` et `postType`. La Query Loop restera propriétaire de la requête, du tri, des filtres et de l'itération.
+
+Un binding mal formé ou un `WP_Error` produira `null`. Une valeur retournée normalement par le résolveur sera conservée telle quelle, y compris la chaîne vide.
+
+`testimonial.photo`, les champs `featured` et `display_order` restent reportés. Spectra, Divi et Elementor restent hors de ce provider. Les Templates WP Seed et les Block Bindings restent deux workflows complémentaires.
+
+## 14. Prochain chantier autorisé
+
+Le prochain jalon envisagé est un audit d'implémentation du provider serveur PHP Gutenberg Block Bindings uniquement. Aucun provider n'est commencé dans le présent lot.
