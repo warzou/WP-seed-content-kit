@@ -375,23 +375,25 @@ Un futur réaudit éditeur ne sera engagé que si WordPress fournit un filtrage 
 
 ## 14. Prochain travail recommandé
 
-Le premier spike expérimental Divi 5 Dynamic Content est implémenté avec l'architecture class-based fournie par Divi 5.
+Le provider expérimental Divi 5 Dynamic Content expose désormais les quatre champs texte Citation avec l'architecture class-based fournie par Divi 5.
 
-- source unique : `wp_seed_content_quote_quote` ;
-- classe : `WP_Seed_Content_Divi_Dynamic_Content_Quote_Text` ;
+- sources : `wp_seed_content_quote_quote`, `wp_seed_content_quote_author`, `wp_seed_content_quote_era` et `wp_seed_content_quote_source` ;
+- base abstraite limitée aux Citations : `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` ;
+- quatre classes concrètes distinctes pour Texte, Auteur, Époque et Source ;
 - bootstrap : `plugin/includes/integrations/divi/dynamic-content.php` ;
-- classe concrète : `plugin/includes/integrations/divi/class-dynamic-content-quote-text.php` ;
 - chargement sur `init`, priorité 10 ;
-- appel unique à `load()` ;
+- appel unique à `load()` pour chaque source ;
 - aucune inscription procédurale manuelle des filtres Divi ;
-- architecture validée côté serveur sous Divi 5.9.0 ;
+- architecture validée côté serveur et dans le Visual Builder sous Divi 5.9.0 ;
 - single `seed_quote` fonctionnel ;
 - Loop Builder serveur fonctionnel avec des valeurs distinctes ;
 - `loop_id => null` hors boucle corrigé par recours à `post_id` ;
 - `loop_id` non nul autoritaire, sans fallback en cas d'invalidité ;
-- aucune généralisation aux six autres champs réservés ;
+- quatre options REST uniques et 61 autres sources Divi préservées ;
+- sélection, application, sauvegarde et réouverture visuelles validées ;
+- frontend Theme Builder en contexte `seed_quote` validé pour les quatre valeurs ;
+- aucune généralisation aux trois champs Témoignage réservés ;
 - statut expérimental maintenu ;
-- sélection, application, sauvegarde et réouverture visuelles reportées ;
-- Theme Builder et Loop Builder visuels reportés.
+- prévisualisation directe d'un corps Theme Builder sans contexte métier et recette visuelle Loop Builder autonome reportées.
 
-Le prochain jalon est une recette visuelle manuelle, suivie d'une décision humaine avant toute généralisation.
+Le prochain jalon éventuel doit faire l'objet d'un arbitrage séparé. Les champs Témoignage ne font pas partie de ce lot.

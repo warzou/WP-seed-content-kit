@@ -1,8 +1,8 @@
 # Divi 5 Dynamic Content V1
 
-Statut : premier spike class-based expérimental implémenté et validé côté serveur sous Divi 5.9.0
+Statut : provider class-based expérimental validé pour quatre champs Citation sous Divi 5.9.0
 
-Ce document définit le contrat du provider expérimental Divi 5 Dynamic Content de WP Seed Content Kit. Il fixe son périmètre, ses identifiants persistants, sa traduction du contexte Divi et les garde-fous appliqués au premier spike.
+Ce document définit le contrat du provider expérimental Divi 5 Dynamic Content de WP Seed Content Kit. Il fixe son périmètre, ses identifiants persistants, sa traduction du contexte Divi et ses garde-fous.
 
 L'architecture retenue utilise les classes Divi 5 `DynamicContentOptionBase` et `DynamicContentOptionInterface`. Chaque option est portée par une classe concrète et enregistrée par un appel unique à `load()`. Les filtres WordPress observés dans Divi 5.6.2 et 5.9.0 restent le pipeline sous-jacent encapsulé par cette base ; WP Seed ne les inscrit pas manuellement.
 
@@ -15,11 +15,11 @@ Le provider est :
 - expérimental ;
 - limité à Divi 5 ;
 - fondé sur l'architecture class-based observée dans Divi 5.9.0 ;
-- validé côté serveur sous Divi 5.9.0 pour une première option ;
-- limité à `wp_seed_content_quote_quote` ;
+- validé côté serveur et dans le Visual Builder sous Divi 5.9.0 pour quatre options Citation ;
+- limité à `quote.quote`, `quote.author`, `quote.era` et `quote.source` ;
 - absent de la promesse produit tant qu'une décision humaine de promotion n'a pas été prise.
 
-La validation runtime confirme le chargement class-based et la résolution serveur. Elle ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif et la généralisation aux six autres champs est différée.
+La validation runtime confirme le chargement class-based, la résolution serveur, la sélection visuelle et la persistance des quatre options Citation. Elle ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif et les champs Témoignage restent différés.
 
 ## 2. Objectif et chaîne de responsabilité
 
@@ -50,7 +50,7 @@ Il ne doit jamais :
 
 ### 2.1 Architecture class-based retenue
 
-Le premier spike utilise :
+Le provider utilise :
 
 - `DynamicContentOptionBase` ;
 - `DynamicContentOptionInterface` ;
@@ -58,9 +58,9 @@ Le premier spike utilise :
 - un appel unique à `load()` ;
 - aucune inscription procédurale manuelle des filtres Divi.
 
-Le bootstrap est `plugin/includes/integrations/divi/dynamic-content.php`. La première classe concrète est `WP_Seed_Content_Divi_Dynamic_Content_Quote_Text`, dans `plugin/includes/integrations/divi/class-dynamic-content-quote-text.php`.
+Le bootstrap est `plugin/includes/integrations/divi/dynamic-content.php`. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` mutualise strictement le contrat Citation. Quatre classes concrètes distinctes exposent Texte, Auteur, Époque et Source.
 
-Cette classe expose uniquement `wp_seed_content_quote_quote`, relié à `quote.quote`. Les six autres identifiants réservés par le contrat ne sont pas implémentés.
+Les quatre identifiants Citation sont implémentés. Les trois identifiants Témoignage réservés par le contrat ne sont pas implémentés.
 
 ## 3. Versions et détection
 
@@ -182,7 +182,7 @@ Cette convention :
 
 Aucun alias préfixé pour les boucles n'est défini en V1. Un alias ne pourra être envisagé qu'après démonstration runtime qu'il est indispensable au fonctionnement ou à l'expérience utilisateur.
 
-Le contrat réserve ces sept identifiants persistants. Le premier spike en implémente exactement un : `wp_seed_content_quote_quote`. Les six autres restent non implémentés.
+Le contrat réserve ces sept identifiants persistants. Le provider implémente les quatre identifiants Citation. Les trois identifiants Témoignage restent non implémentés.
 
 ## 6. Mapping vers Dynamic Data
 
@@ -578,9 +578,16 @@ Le bootstrap du provider est :
 
 `plugin/includes/integrations/divi/dynamic-content.php`
 
-La classe concrète du premier spike est :
+La base abstraite Citation est :
 
-`plugin/includes/integrations/divi/class-dynamic-content-quote-text.php`
+`plugin/includes/integrations/divi/class-dynamic-content-quote-base.php`
+
+Les quatre classes concrètes sont :
+
+- `plugin/includes/integrations/divi/class-dynamic-content-quote-text.php` ;
+- `plugin/includes/integrations/divi/class-dynamic-content-quote-author.php` ;
+- `plugin/includes/integrations/divi/class-dynamic-content-quote-era.php` ;
+- `plugin/includes/integrations/divi/class-dynamic-content-quote-source.php`.
 
 Le bootstrap principal `plugin/wp-seed-content-kit.php` charge le provider globalement après Content Data, Dynamic Data et à proximité du provider Gutenberg. Le chargement n'est pas limité à l'administration.
 
@@ -588,22 +595,24 @@ Le contrat de chargement validé est le suivant :
 
 - enregistrement sur `init`, priorité 10 ;
 - vérification de `DynamicContentElements`, `DynamicContentOptionBase` et `DynamicContentOptionInterface` ;
-- inclusion de la classe concrète uniquement si nécessaire ;
-- acceptation d'une classe compatible déjà chargée ;
-- abandon silencieux en cas de collision incompatible ;
-- instance statique ;
-- appel unique à `load()` ;
+- inclusion de la base et des classes concrètes uniquement si nécessaire ;
+- acceptation d'une base ou d'une classe compatible déjà chargée ;
+- neutralisation du provider Citation si la base homonyme est incompatible ;
+- neutralisation de la seule source concernée si une classe concrète homonyme est incompatible ;
+- instances statiques ;
+- appel unique à `load()` pour chaque source ;
 - aucune inscription manuelle par `add_filter()`.
 
 Sans Divi ou sans les capacités requises, le provider reste inactif sans fatal et sans effet sur les autres fonctionnalités.
 
 ## 24. Validation runtime et promotion expérimentale
 
-Le premier spike a été validé côté serveur sous WordPress 7.0.1, PHP 8.4.21 et Divi 5.9.0.
+Le provider Citation a été validé sous WordPress 7.0.1, PHP 8.4.21 et Divi 5.9.0.
 
 Résultats confirmés :
 
-- une option REST WP Seed unique, sans altération des 61 sources natives Divi ;
+- quatre options REST WP Seed uniques, sans altération des 61 autres sources Divi ;
+- mapping exact vers `quote.quote`, `quote.author`, `quote.era` et `quote.source` ;
 - single `seed_quote` ;
 - page et `seed_testimonial` incompatibles ;
 - `loop_id => null` hors boucle ;
@@ -611,16 +620,19 @@ Résultats confirmés :
 - Loop Builder serveur avec deux valeurs distinctes ;
 - chaîne vide, texte multiligne et Unicode ;
 - brouillons non exposés ;
-- aucune régression des shortcodes, templates ou providers existants.
+- aucune régression des shortcodes, templates ou providers existants ;
+- présence unique des quatre options dans le sélecteur Divi ;
+- sélection, application, sauvegarde et réouverture visuelles ;
+- persistance brute unique de `wp_seed_content_quote_source` après le contrôle final ;
+- frontend Theme Builder avec les quatre valeurs Citation distinctes.
 
 Restent différés :
 
-- sélection et application visuelles de la source ;
-- sauvegarde et réouverture dans l'éditeur ;
-- Theme Builder visuel ;
-- Loop Builder visuel.
+- prévisualisation directe d'un corps Theme Builder sans contexte métier transmis par Divi ;
+- recette visuelle Loop Builder autonome ;
+- champs Témoignage.
 
-Le provider conserve donc un statut expérimental. Il ne doit pas être présenté comme une fonctionnalité produit finalisée et ne sera généralisé aux six autres champs qu'après une recette visuelle manuelle et une décision humaine.
+Le provider conserve donc un statut expérimental. Il ne doit pas être présenté comme une compatibilité Divi générale ou une fonctionnalité couvrant tous les champs WP Seed.
 
 ## 25. Hors périmètre V1
 
@@ -718,23 +730,23 @@ Le report est préférable à l'introduction d'une abstraction générale, d'un 
 
 Validé côté serveur sous Divi 5.9.0 :
 
-- chargement défensif et `load()` unique ;
-- une seule option WP Seed enregistrée ;
-- identifiant exact : `wp_seed_content_quote_quote` ;
-- label `Texte`, groupe `WP Seed — Citations`, type `text`, `custom => false`, `fields => array()` ;
-- 61 sources natives Divi préservées ;
-- six autres options non implémentées ;
+- chargement défensif et `load()` unique pour chaque source ;
+- quatre options WP Seed enregistrées une seule fois ;
+- identifiants exacts : `wp_seed_content_quote_quote`, `wp_seed_content_quote_author`, `wp_seed_content_quote_era` et `wp_seed_content_quote_source` ;
+- labels `Texte`, `Auteur`, `Époque` et `Source`, groupe `WP Seed — Citations`, type `text`, `custom => false`, `fields => array()` ;
+- 61 autres sources Divi préservées ;
+- trois options Témoignage non implémentées ;
 - aucune inscription manuelle des filtres Divi.
 
 ### 28.2 Interface Divi
 
-Reste à valider visuellement :
+Validé visuellement dans un module Texte Divi :
 
-- présence de la source dans une propriété textuelle compatible ;
-- sélection et application ;
-- suppression ou remplacement ;
-- sauvegarde puis réouverture sans altération du nom ;
-- absence dans les propriétés incompatibles.
+- présence unique des quatre sources dans une propriété textuelle compatible ;
+- sélection et application successives ;
+- sauvegarde puis réouverture sans altération de l'identifiant final ;
+- pastille `Source` conservée après réouverture ;
+- aucune duplication ou erreur visible.
 
 ### 28.3 Contextes
 
@@ -748,7 +760,7 @@ Validé côté serveur :
 - `loop_id` non nul autoritaire ;
 - Loop Builder serveur avec identifiants distincts.
 
-Restent différés : Visual Builder, Theme Builder visuel, Loop Builder visuel et Divi Library dans ces parcours Dynamic Content.
+Restent différés : prévisualisation directe d'un corps Theme Builder sans contexte métier et recette visuelle Loop Builder autonome. Le frontend Theme Builder en contexte `seed_quote` est validé.
 
 ### 28.4 Valeurs
 
@@ -779,7 +791,7 @@ La V1 respecte les invariants suivants :
 
 - Divi 5 uniquement ;
 - statut expérimental maintenu jusqu'à décision humaine ;
-- sept identifiants persistants réservés par le contrat, dont un seul implémenté par le premier spike ;
+- sept identifiants persistants réservés par le contrat, dont les quatre identifiants Citation sont implémentés ;
 - une classe concrète par option ;
 - chargement par `DynamicContentOptionBase::load()` ;
 - aucune inscription procédurale manuelle des filtres Divi ;
@@ -796,6 +808,6 @@ La V1 respecte les invariants suivants :
 
 ## 30. Règle de lecture
 
-Ce document fixe le contrat expérimental après l'implémentation et la validation serveur du premier spike class-based. Il ne vaut ni validation visuelle, ni généralisation aux six autres champs, ni promesse produit.
+Ce document fixe le contrat expérimental après l'implémentation et la validation serveur et visuelle des quatre champs Citation. Il ne vaut ni implémentation des champs Témoignage, ni compatibilité Divi générale, ni promesse produit.
 
 En cas de contradiction entre une proposition technique future et ce contrat, la décision doit être réexaminée explicitement. Une contrainte de Divi ne doit pas modifier silencieusement le sens des données WP Seed, contourner le résolveur ou fragiliser les workflows existants.
