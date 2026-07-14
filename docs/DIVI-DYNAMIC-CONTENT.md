@@ -1,10 +1,10 @@
 # Divi 5 Dynamic Content V1
 
-Statut : contrat expérimental avant prototype et validation runtime
+Statut : premier spike class-based expérimental implémenté et validé côté serveur sous Divi 5.9.0
 
-Ce document définit le contrat du futur provider expérimental Divi 5 Dynamic Content de WP Seed Content Kit. Il fixe son périmètre, ses identifiants persistants, sa traduction du contexte Divi et ses garde-fous avant toute implémentation.
+Ce document définit le contrat du provider expérimental Divi 5 Dynamic Content de WP Seed Content Kit. Il fixe son périmètre, ses identifiants persistants, sa traduction du contexte Divi et les garde-fous appliqués au premier spike.
 
-Le provider repose sur des filtres WordPress observés dans les sources de Divi 5.6.2 et 5.9.0. Ces points d'extension ne constituent pas une API tierce officiellement documentée par Elegant Themes. Leur comportement et leur stabilité doivent donc être vérifiés en runtime avant tout commit fonctionnel.
+L'architecture retenue utilise les classes Divi 5 `DynamicContentOptionBase` et `DynamicContentOptionInterface`. Chaque option est portée par une classe concrète et enregistrée par un appel unique à `load()`. Les filtres WordPress observés dans Divi 5.6.2 et 5.9.0 restent le pipeline sous-jacent encapsulé par cette base ; WP Seed ne les inscrit pas manuellement.
 
 Ce contrat ne promet ni une compatibilité Divi générale, ni un support de Divi 4, Theme Builder ou Loop Builder. Il ne modifie pas les Templates WP Seed, les placeholders, les shortcodes ou le workflow Divi Library existant.
 
@@ -14,12 +14,12 @@ Le provider est :
 
 - expérimental ;
 - limité à Divi 5 ;
-- fondé sur des filtres réellement présents dans Divi 5.6.2 et 5.9.0 ;
-- dépendant d'un registre Dynamic Content susceptible d'évoluer ;
-- candidat à un prototype local et à une validation runtime sous Divi 5.9.0 ;
-- absent de la promesse produit tant que les étapes de promotion ne sont pas terminées.
+- fondé sur l'architecture class-based observée dans Divi 5.9.0 ;
+- validé côté serveur sous Divi 5.9.0 pour une première option ;
+- limité à `wp_seed_content_quote_quote` ;
+- absent de la promesse produit tant qu'une décision humaine de promotion n'a pas été prise.
 
-L'usage de points d'extension non officiellement documentés est une décision assumée pour ce prototype. Il n'autorise pas à figer des classes internes Divi comme dépendances publiques lorsqu'un filtre WordPress suffit.
+La validation runtime confirme le chargement class-based et la résolution serveur. Elle ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif et la généralisation aux six autres champs est différée.
 
 ## 2. Objectif et chaîne de responsabilité
 
@@ -48,6 +48,20 @@ Il ne doit jamais :
 - créer un module Divi propriétaire ;
 - remplacer les Templates WP Seed.
 
+### 2.1 Architecture class-based retenue
+
+Le premier spike utilise :
+
+- `DynamicContentOptionBase` ;
+- `DynamicContentOptionInterface` ;
+- une classe concrète par option ;
+- un appel unique à `load()` ;
+- aucune inscription procédurale manuelle des filtres Divi.
+
+Le bootstrap est `plugin/includes/integrations/divi/dynamic-content.php`. La première classe concrète est `WP_Seed_Content_Divi_Dynamic_Content_Quote_Text`, dans `plugin/includes/integrations/divi/class-dynamic-content-quote-text.php`.
+
+Cette classe expose uniquement `wp_seed_content_quote_quote`, relié à `quote.quote`. Les six autres identifiants réservés par le contrat ne sont pas implémentés.
+
 ## 3. Versions et détection
 
 ### 3.1 Divi 5
@@ -55,9 +69,10 @@ Il ne doit jamais :
 Divi 5 est le seul mécanisme ciblé par la V1.
 
 - Les filtres modernes ont été observés dans Divi 5.6.2 et 5.9.0.
-- La cible principale de validation runtime est Divi 5.9.0.
-- Le chargement futur doit rester défensif et ne pas dépendre d'une comparaison de version seule. Le moment et la méthode d'une éventuelle détection de capacités seront départagés pendant le prototype, après le chargement du thème ou du framework Divi si cette détection est nécessaire.
-- Une correspondance observée entre deux versions ne constitue pas une garantie de stabilité future.
+- L'architecture class-based a été validée en runtime sous Divi 5.9.0.
+- Le chargement est différé sur `init` à la priorité 10 et vérifie les classes et l'interface nécessaires avant toute instanciation.
+- L'absence de ces capacités laisse le provider inactif, sans comparaison de version et sans fatal.
+- Une validation sur Divi 5.9.0 ne constitue pas une garantie de stabilité future.
 
 ### 3.2 Divi 4
 
@@ -76,7 +91,7 @@ Sans Divi, le provider doit rester inactif :
 
 ## 4. API Divi 5 observée
 
-Les points d'extension suivants ont été observés dans les sources Divi 5.6.2 et 5.9.0.
+Les points d'extension suivants ont été observés dans les sources Divi 5.6.2 et 5.9.0. Dans l'implémentation retenue, ils appartiennent au pipeline sous-jacent encapsulé par `DynamicContentOptionBase::load()`. WP Seed n'enregistre directement aucun de ces filtres.
 
 ### 4.1 Enregistrement des options
 
@@ -105,7 +120,7 @@ Le prototype doit vérifier le sous-ensemble réellement requis par Divi 5.9.0. 
 
 Moment d'appel observé : lors de la préparation des options Dynamic Content, notamment pour l'éditeur et les endpoints internes Divi chargés de fournir cette liste.
 
-Statut : filtre WordPress présent et exploitable, mais non documenté comme API tierce stable par Elegant Themes.
+Statut : filtre WordPress sous-jacent observé. Son inscription est assurée par la classe de base Divi via `load()`, pas par WP Seed directement.
 
 ### 4.2 Résolution générique
 
@@ -122,7 +137,7 @@ Les arguments observés peuvent inclure le nom de l'option, ses réglages, `post
 
 Moment d'appel observé : pendant la résolution serveur utilisée par l'éditeur, le backend ou le frontend selon le contexte Divi.
 
-Statut : filtre WordPress présent, mais non officiellement documenté comme contrat public stable.
+Statut : filtre WordPress sous-jacent observé et encapsulé par la classe de base Divi ; il n’est pas inscrit manuellement par WP Seed.
 
 ### 4.3 Résolution spécifique par nom
 
@@ -132,7 +147,7 @@ Rôle : résoudre ou adapter une option précise, identifiée par son nom persis
 
 Le suffixe `{$name}` correspond au nom enregistré et stocké dans l'expression Dynamic Content. Ce filtre réduit le risque d'intercepter des options appartenant à Divi ou à un autre plugin.
 
-Son usage exact doit être comparé au filtre générique pendant le prototype. Le choix final doit privilégier l'isolation, la lisibilité et l'absence d'effet sur les sources natives Divi.
+Le premier spike ne choisit pas entre ce filtre et le filtre générique : `DynamicContentOptionBase::load()` prend en charge l'inscription nécessaire. WP Seed fournit uniquement les callbacks définis par le contrat class-based.
 
 ### 4.4 Statut de ces APIs
 
@@ -166,6 +181,8 @@ Cette convention :
 - reste identique en contexte normal et en contexte de boucle.
 
 Aucun alias préfixé pour les boucles n'est défini en V1. Un alias ne pourra être envisagé qu'après démonstration runtime qu'il est indispensable au fonctionnement ou à l'expérience utilisateur.
+
+Le contrat réserve ces sept identifiants persistants. Le premier spike en implémente exactement un : `wp_seed_content_quote_quote`. Les six autres restent non implémentés.
 
 ## 6. Mapping vers Dynamic Data
 
@@ -253,42 +270,30 @@ Les données de contexte suivantes ont été observées :
 - `context` ;
 - `request_context`.
 
-La règle V1 proposée est :
+La règle runtime validée pour le premier spike est :
 
-1. examiner `loop_id` en premier ;
-2. l'accepter uniquement s'il représente un identifiant de post WordPress positif et canonique ;
-3. vérifier que le post existe et que son type est compatible avec le champ demandé : `seed_quote` pour `quote.*`, `seed_testimonial` pour `testimonial.*` ;
-4. si `loop_id` n'est pas exploitable, examiner `post_id` selon les mêmes critères ;
-5. pour l'identifiant retenu, déterminer le type avec `get_post_type()` ; cet appel projette le contexte explicite déjà validé et ne constitue pas un fallback métier ;
-6. transmettre au résolveur `current_post_id` et, lorsque le type a été déterminé de manière fiable, `current_post_type` ;
-7. si aucun ID Divi n'est exploitable, transmettre explicitement `current_post_id` avec la valeur `0`.
+1. si la clé `loop_id` est absente, examiner `post_id` ;
+2. si `loop_id` vaut strictement `null`, examiner `post_id` ;
+3. si `loop_id` est non nul, il est autoritaire ;
+4. normaliser l'identifiant retenu et vérifier qu'il désigne un post `seed_quote` existant ;
+5. si un `loop_id` non nul est invalide ou incompatible, transmettre `current_post_id => 0` sans fallback vers `post_id` ;
+6. hors boucle, appliquer les mêmes validations à `post_id` ;
+7. transmettre au résolveur l'identifiant et, lorsqu'il est valide, le type `seed_quote`.
 
-Un identifiant canonique est ici une valeur entière positive qui désigne effectivement un post WordPress existant, sans conversion ambiguë depuis une autre sorte d'objet. Le résolveur reste responsable de la validation finale du CPT et des règles d'accès.
+`loop_object` est volontairement ignoré par le premier spike. Il ne sert ni de source d'identifiant, ni de confirmation, ni de fallback.
 
-`loop_object` n'est pas une source générale d'identifiant ou de type métier. Il peut représenter un `WP_Post`, un `WP_User`, un `WP_Term`, un tableau ou une autre structure. Le provider ne peut l'utiliser comme confirmation supplémentaire que s'il s'agit clairement d'un `WP_Post` correspondant à l'identifiant déjà retenu. La présence d'un `WP_User`, d'un `WP_Term`, d'un objet inconnu ou d'un tableau ne prouve aucun contexte valide et ne permet jamais de dériver un post type métier.
-
-La priorité `loop_id`, puis `post_id`, doit être confirmée dans le Visual Builder, le frontend et les boucles avant d'être considérée comme stable. Elle ne dispense jamais des validations ci-dessus.
+Cette règle a été confirmée côté serveur sous Divi 5.9.0 : contexte hors boucle avec `loop_id => null`, single Citation, contextes incompatibles, `loop_id` non nul autoritaire et Loop Builder serveur avec des identifiants distincts. Les parcours visuels restent à valider.
 
 Lorsqu'un ID valide est disponible, le contexte transmis prend la forme conceptuelle suivante :
 
 ```php
 array(
     'current_post_id'   => $resolved_post_id,
-    'current_post_type' => $resolved_post_type,
+    'current_post_type' => 'seed_quote',
 );
 ```
 
-Si un ID valide est disponible mais que son type ne peut pas être déterminé de manière fiable, le contexte transmis est :
-
-```php
-array(
-    'current_post_id' => $resolved_post_id,
-);
-```
-
-La clé `current_post_type` peut donc être omise uniquement dans ce cas.
-
-Lorsqu'aucun ID Divi valide n'est disponible, le provider doit transmettre explicitement :
+Lorsqu'aucun ID Divi valide n'est disponible, le provider transmet explicitement :
 
 ```php
 array(
@@ -567,48 +572,55 @@ Garde-fous :
 
 Une optimisation ne doit pas déplacer la logique métier dans le provider ni contourner le résolveur commun.
 
-## 23. Chargement futur
+## 23. Chargement class-based
 
-Le fichier futur probable est :
+Le bootstrap du provider est :
 
 `plugin/includes/integrations/divi/dynamic-content.php`
 
-Son chargement défensif serait effectué depuis :
+La classe concrète du premier spike est :
 
-`plugin/wp-seed-content-kit.php`
+`plugin/includes/integrations/divi/class-dynamic-content-quote-text.php`
 
-Le contrat de chargement est le suivant :
+Le bootstrap principal `plugin/wp-seed-content-kit.php` charge le provider globalement après Content Data, Dynamic Data et à proximité du provider Gutenberg. Le chargement n'est pas limité à l'administration.
 
-- le fichier peut être inclus sans Divi actif ;
-- l'absence de Divi ne provoque aucun fatal et aucun effet ;
-- le chargement n'est pas limité à l'administration WordPress ;
-- le provider reste disponible dans le Visual Builder et sur le frontend ;
-- aucun appel direct à une API Divi n'est exécuté au chargement du fichier ;
-- aucune classe interne Divi fragile n'est requise comme précondition immédiate.
+Le contrat de chargement validé est le suivant :
 
-WordPress charge les plugins avant le fichier `functions.php` du thème. Une détection immédiate de classes ou fonctions Divi peut donc produire un faux négatif. Le prototype doit départager deux stratégies sans en figer une à ce stade :
+- enregistrement sur `init`, priorité 10 ;
+- vérification de `DynamicContentElements`, `DynamicContentOptionBase` et `DynamicContentOptionInterface` ;
+- inclusion de la classe concrète uniquement si nécessaire ;
+- acceptation d'une classe compatible déjà chargée ;
+- abandon silencieux en cas de collision incompatible ;
+- instance statique ;
+- appel unique à `load()` ;
+- aucune inscription manuelle par `add_filter()`.
 
-1. **Filtres WordPress enregistrés globalement** : charger le fichier défensivement et poser les filtres avec `add_filter()` sans exiger que Divi soit déjà chargé. Si Divi ne les applique jamais, ils restent sans effet.
-2. **Enregistrement différé** : utiliser un hook réellement disponible après le chargement du thème ou du framework Divi, puis vérifier les capacités nécessaires sans dépendre d'une classe interne fragile.
+Sans Divi ou sans les capacités requises, le provider reste inactif sans fatal et sans effet sur les autres fonctionnalités.
 
-Cette organisation reste à confirmer pendant le prototype et sa mise en œuvre ne fait pas partie du présent lot documentaire.
+## 24. Validation runtime et promotion expérimentale
 
-## 24. Promotion expérimentale
+Le premier spike a été validé côté serveur sous WordPress 7.0.1, PHP 8.4.21 et Divi 5.9.0.
 
-La trajectoire avant toute promotion produit est :
+Résultats confirmés :
 
-1. validation du présent contrat documentaire ;
-2. création d'un prototype local isolé ;
-3. revue complète du code ;
-4. installation d'un patch runtime temporaire sous Divi 5.9.0 ;
-5. validation du Visual Builder ;
-6. validation du frontend ;
-7. tests Theme Builder et Loop Builder sans promesse préalable ;
-8. vérification de la sauvegarde, du rechargement et de la persistance des identifiants ;
-9. décision humaine de promotion, de maintien expérimental ou d'abandon ;
-10. commit fonctionnel uniquement après validation.
+- une option REST WP Seed unique, sans altération des 61 sources natives Divi ;
+- single `seed_quote` ;
+- page et `seed_testimonial` incompatibles ;
+- `loop_id => null` hors boucle ;
+- `loop_id` non nul autoritaire, sans fallback vers `post_id` s'il est invalide ;
+- Loop Builder serveur avec deux valeurs distinctes ;
+- chaîne vide, texte multiligne et Unicode ;
+- brouillons non exposés ;
+- aucune régression des shortcodes, templates ou providers existants.
 
-Avant la fin de cette trajectoire, le provider ne doit pas être présenté comme une fonctionnalité utilisateur disponible ou stable.
+Restent différés :
+
+- sélection et application visuelles de la source ;
+- sauvegarde et réouverture dans l'éditeur ;
+- Theme Builder visuel ;
+- Loop Builder visuel.
+
+Le provider conserve donc un statut expérimental. Il ne doit pas être présenté comme une fonctionnalité produit finalisée et ne sera généralisé aux six autres champs qu'après une recette visuelle manuelle et une décision humaine.
 
 ## 25. Hors périmètre V1
 
@@ -662,7 +674,7 @@ Le contenu choisi pour l'aperçu peut différer du contenu réellement rendu sur
 
 ### 26.7 Contexte de boucle incertain
 
-La priorité et la fiabilité de `loop_id` et `post_id` doivent être confirmées selon les critères stricts du contrat. `loop_object` ne peut confirmer le contexte que s'il s'agit d'un `WP_Post` correspondant à l'ID retenu. Un besoin d'alias propre aux boucles entraînerait le report du support Loop Builder, sans invalider automatiquement le provider page/single.
+La priorité de `loop_id` non nul et le recours à `post_id` lorsque `loop_id` est absent ou strictement nul sont confirmés côté serveur. `loop_object` est ignoré. Les parcours visuels Loop Builder restent différés et peuvent encore révéler une incompatibilité sans remettre en cause les contextes serveur déjà validés.
 
 ### 26.8 HTML historique
 
@@ -700,67 +712,66 @@ Un échec propre à Theme Builder reporte uniquement le support Theme Builder si
 
 Le report est préférable à l'introduction d'une abstraction générale, d'un endpoint ou d'un module propriétaire uniquement pour contourner ces limites.
 
-## 28. Matrice de validation future
+## 28. Matrice de validation
 
 ### 28.1 Chargement et enregistrement
 
-- Divi absent : aucun effet et aucun fatal.
-- Divi 4 : aucun effet fonctionnel du provider Divi 5.
-- Divi 5.9.0 : sept options enregistrées une seule fois.
-- Noms persistants : exactement les sept identifiants du contrat.
-- Groupes et labels : affichage traduit et cohérent.
-- Type : les sept options déclarées en `text`.
-- Propriétés `id`, `label`, `type`, `custom`, `group` et `fields` : présence réellement nécessaire confirmée sans les considérer comme une API garantie.
+Validé côté serveur sous Divi 5.9.0 :
+
+- chargement défensif et `load()` unique ;
+- une seule option WP Seed enregistrée ;
+- identifiant exact : `wp_seed_content_quote_quote` ;
+- label `Texte`, groupe `WP Seed — Citations`, type `text`, `custom => false`, `fields => array()` ;
+- 61 sources natives Divi préservées ;
+- six autres options non implémentées ;
+- aucune inscription manuelle des filtres Divi.
 
 ### 28.2 Interface Divi
 
-- Source WP Seed visible dans une propriété textuelle compatible.
-- Source absente d'une propriété image.
-- Sélection, suppression et remplacement d'une source.
-- Sauvegarde puis rechargement sans altération du nom.
-- Aucun champ média, booléen ou numérique exposé.
+Reste à valider visuellement :
+
+- présence de la source dans une propriété textuelle compatible ;
+- sélection et application ;
+- suppression ou remplacement ;
+- sauvegarde puis réouverture sans altération du nom ;
+- absence dans les propriétés incompatibles.
 
 ### 28.3 Contextes
 
-- Page normale.
-- Single Citation publié.
-- Single Témoignage publié.
-- Absence de contexte compatible.
-- Absence d'ID Divi valide avec `current_post_id` forcé à `0` et aucun fallback ambiant.
-- Mauvais CPT.
-- Visual Builder.
-- Frontend.
-- Theme Builder avec et sans aperçu.
-- Loop Builder avec identifiant distinct par élément.
-- Divi Library utilisée directement.
-- Divi Library rendue par un Template WP Seed.
+Validé côté serveur :
+
+- single Citation publié ;
+- page incompatible ;
+- Témoignage incompatible ;
+- absence de contexte valide avec `current_post_id` forcé à `0` ;
+- `loop_id => null` avec recours à `post_id` ;
+- `loop_id` non nul autoritaire ;
+- Loop Builder serveur avec identifiants distincts.
+
+Restent différés : Visual Builder, Theme Builder visuel, Loop Builder visuel et Divi Library dans ces parcours Dynamic Content.
 
 ### 28.4 Valeurs
 
-- Texte simple.
-- Chaîne vide.
-- Multiligne LF et CRLF.
-- Unicode, accents, guillemets, apostrophes et emoji.
-- HTML historique.
-- HTML déjà encodé et entités HTML.
-- Double encodage.
-- Texte ressemblant à une balise.
-- Balise autorisée.
-- Comparaison du rendu HTML entre Visual Builder et frontend.
-- Contenu dangereux soumis au pipeline final Divi.
-- Champ inconnu.
-- Contexte invalide.
-- Contenu brouillon ou inaccessible.
-- Erreur WP Seed non affichée.
+Validé :
+
+- texte simple ;
+- chaîne vide ;
+- multiligne ;
+- Unicode ;
+- brouillon non exposé ;
+- erreur WP Seed non affichée.
+
+Le rendu visuel du HTML historique et les différences éventuelles entre éditeur et frontend restent à évaluer.
 
 ### 28.5 Non-régression
 
-- Shortcodes WP Seed inchangés.
-- Templates et placeholders inchangés.
-- Layouts Divi Library existants inchangés.
-- Provider serveur Gutenberg inchangé.
-- Frontend sans source dynamique inchangé.
-- Aucun effet sur un site sans Divi.
+Validé :
+
+- shortcodes WP Seed inchangés ;
+- templates et placeholders inchangés ;
+- provider serveur Gutenberg inchangé ;
+- sources Dynamic Content natives Divi préservées ;
+- aucun warning ou fatal WP Seed.
 
 ## 29. Invariants du contrat
 
@@ -768,21 +779,23 @@ La V1 respecte les invariants suivants :
 
 - Divi 5 uniquement ;
 - statut expérimental maintenu jusqu'à décision humaine ;
-- exactement sept identifiants persistants ;
-- allowlist locale fermée ;
+- sept identifiants persistants réservés par le contrat, dont un seul implémenté par le premier spike ;
+- une classe concrète par option ;
+- chargement par `DynamicContentOptionBase::load()` ;
+- aucune inscription procédurale manuelle des filtres Divi ;
 - type Divi `text` uniquement ;
 - aucun identifiant de contenu explicite ;
-- contexte courant uniquement ;
+- contexte Divi explicite uniquement ;
 - résolution exclusivement par le résolveur Dynamic Data WP Seed ;
 - aucune lecture directe des métadonnées ;
 - aucun contenu non publié exposé ;
 - aucun endpoint, JavaScript ou module Divi WP Seed ;
-- Theme Builder et Loop Builder testés mais non promis ;
+- Theme Builder et Loop Builder visuels reportés et non promis ;
 - média, booléens et nombres reportés ;
 - Templates WP Seed, placeholders, shortcodes et Divi Library conservés.
 
 ## 30. Règle de lecture
 
-Ce document fixe le contrat du prototype expérimental avant son implémentation.
+Ce document fixe le contrat expérimental après l'implémentation et la validation serveur du premier spike class-based. Il ne vaut ni validation visuelle, ni généralisation aux six autres champs, ni promesse produit.
 
 En cas de contradiction entre une proposition technique future et ce contrat, la décision doit être réexaminée explicitement. Une contrainte de Divi ne doit pas modifier silencieusement le sens des données WP Seed, contourner le résolveur ou fragiliser les workflows existants.

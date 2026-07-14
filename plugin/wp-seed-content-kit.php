@@ -23,6 +23,10 @@ $wp_seed_content_gutenberg_block_bindings_file = WP_SEED_CONTENT_KIT_DIR . 'incl
 if (file_exists($wp_seed_content_gutenberg_block_bindings_file)) {
     require_once $wp_seed_content_gutenberg_block_bindings_file;
 }
+$wp_seed_content_divi_dynamic_content_file = WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/dynamic-content.php';
+if (file_exists($wp_seed_content_divi_dynamic_content_file)) {
+    require_once $wp_seed_content_divi_dynamic_content_file;
+}
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/modules.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/assets.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/manual-order.php';

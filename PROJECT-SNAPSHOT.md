@@ -375,6 +375,23 @@ Un futur réaudit éditeur ne sera engagé que si WordPress fournit un filtrage 
 
 ## 14. Prochain travail recommandé
 
-Le prochain travail recommandé est l'audit d'un provider builder distinct consommant Dynamic Data, notamment la piste Divi Dynamic Content.
+Le premier spike expérimental Divi 5 Dynamic Content est implémenté avec l'architecture class-based fournie par Divi 5.
 
-Cette piste n'est ni décidée ni implémentée. Elle devra faire l'objet de son propre audit, de son propre contrat et d'une validation séparée avant tout code. Aucun provider supplémentaire n'est commencé dans le présent lot documentaire.
+- source unique : `wp_seed_content_quote_quote` ;
+- classe : `WP_Seed_Content_Divi_Dynamic_Content_Quote_Text` ;
+- bootstrap : `plugin/includes/integrations/divi/dynamic-content.php` ;
+- classe concrète : `plugin/includes/integrations/divi/class-dynamic-content-quote-text.php` ;
+- chargement sur `init`, priorité 10 ;
+- appel unique à `load()` ;
+- aucune inscription procédurale manuelle des filtres Divi ;
+- architecture validée côté serveur sous Divi 5.9.0 ;
+- single `seed_quote` fonctionnel ;
+- Loop Builder serveur fonctionnel avec des valeurs distinctes ;
+- `loop_id => null` hors boucle corrigé par recours à `post_id` ;
+- `loop_id` non nul autoritaire, sans fallback en cas d'invalidité ;
+- aucune généralisation aux six autres champs réservés ;
+- statut expérimental maintenu ;
+- sélection, application, sauvegarde et réouverture visuelles reportées ;
+- Theme Builder et Loop Builder visuels reportés.
+
+Le prochain jalon est une recette visuelle manuelle, suivie d'une décision humaine avant toute généralisation.
