@@ -1,6 +1,6 @@
 # Divi 5 Dynamic Content V1
 
-Statut : provider class-based expérimental validé pour quatre champs Citation sous Divi 5.9.0
+Statut : provider class-based expérimental validé pour sept champs texte Citation et Témoignage sous Divi 5.9.0
 
 Ce document définit le contrat du provider expérimental Divi 5 Dynamic Content de WP Seed Content Kit. Il fixe son périmètre, ses identifiants persistants, sa traduction du contexte Divi et ses garde-fous.
 
@@ -15,11 +15,11 @@ Le provider est :
 - expérimental ;
 - limité à Divi 5 ;
 - fondé sur l'architecture class-based observée dans Divi 5.9.0 ;
-- validé côté serveur et dans le Visual Builder sous Divi 5.9.0 pour quatre options Citation ;
-- limité à `quote.quote`, `quote.author`, `quote.era` et `quote.source` ;
+- validé côté serveur et dans le Visual Builder sous Divi 5.9.0 pour quatre options Citation et trois options Témoignage ;
+- limité à `quote.quote`, `quote.author`, `quote.era`, `quote.source`, `testimonial.text`, `testimonial.name` et `testimonial.context` ;
 - absent de la promesse produit tant qu'une décision humaine de promotion n'a pas été prise.
 
-La validation runtime confirme le chargement class-based, la résolution serveur, la sélection visuelle et la persistance des quatre options Citation. Elle ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif et les champs Témoignage restent différés.
+La validation runtime confirme le chargement class-based, la résolution serveur, la sélection visuelle et la persistance des sept options. Elle ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif et le champ média Témoignage reste différé.
 
 ## 2. Objectif et chaîne de responsabilité
 
@@ -58,9 +58,9 @@ Le provider utilise :
 - un appel unique à `load()` ;
 - aucune inscription procédurale manuelle des filtres Divi.
 
-Le bootstrap est `plugin/includes/integrations/divi/dynamic-content.php`. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` mutualise strictement le contrat Citation. Quatre classes concrètes distinctes exposent Texte, Auteur, Époque et Source.
+Le bootstrap est `plugin/includes/integrations/divi/dynamic-content.php`. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` mutualise strictement le contrat Citation. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base` mutualise séparément le contrat Témoignage. Quatre classes concrètes distinctes exposent Texte, Auteur, Époque et Source pour les Citations ; trois autres exposent Texte, Nom et Contexte pour les Témoignages.
 
-Les quatre identifiants Citation sont implémentés. Les trois identifiants Témoignage réservés par le contrat ne sont pas implémentés.
+Les sept identifiants réservés par le contrat sont implémentés. Les deux familles conservent des bases, des listes fermées et des chargeurs indépendants afin qu'une collision compatible ou incompatible dans une famille ne neutralise pas l'autre.
 
 ## 3. Versions et détection
 
@@ -182,7 +182,7 @@ Cette convention :
 
 Aucun alias préfixé pour les boucles n'est défini en V1. Un alias ne pourra être envisagé qu'après démonstration runtime qu'il est indispensable au fonctionnement ou à l'expérience utilisateur.
 
-Le contrat réserve ces sept identifiants persistants. Le provider implémente les quatre identifiants Citation. Les trois identifiants Témoignage restent non implémentés.
+Le contrat réserve et le provider implémente ces sept identifiants persistants.
 
 ## 6. Mapping vers Dynamic Data
 
@@ -275,10 +275,10 @@ La règle runtime validée pour le premier spike est :
 1. si la clé `loop_id` est absente, examiner `post_id` ;
 2. si `loop_id` vaut strictement `null`, examiner `post_id` ;
 3. si `loop_id` est non nul, il est autoritaire ;
-4. normaliser l'identifiant retenu et vérifier qu'il désigne un post `seed_quote` existant ;
+4. normaliser l'identifiant retenu et vérifier qu'il désigne un post du CPT attendu par la famille de l'option : `seed_quote` ou `seed_testimonial` ;
 5. si un `loop_id` non nul est invalide ou incompatible, transmettre `current_post_id => 0` sans fallback vers `post_id` ;
 6. hors boucle, appliquer les mêmes validations à `post_id` ;
-7. transmettre au résolveur l'identifiant et, lorsqu'il est valide, le type `seed_quote`.
+7. transmettre au résolveur l'identifiant et, lorsqu'il est valide, le type attendu par la famille de l'option.
 
 `loop_object` est volontairement ignoré par le premier spike. Il ne sert ni de source d'identifiant, ni de confirmation, ni de fallback.
 
@@ -289,7 +289,7 @@ Lorsqu'un ID valide est disponible, le contexte transmis prend la forme conceptu
 ```php
 array(
     'current_post_id'   => $resolved_post_id,
-    'current_post_type' => 'seed_quote',
+    'current_post_type' => $expected_post_type,
 );
 ```
 
@@ -589,6 +589,16 @@ Les quatre classes concrètes sont :
 - `plugin/includes/integrations/divi/class-dynamic-content-quote-era.php` ;
 - `plugin/includes/integrations/divi/class-dynamic-content-quote-source.php`.
 
+La base abstraite Témoignage est :
+
+`plugin/includes/integrations/divi/class-dynamic-content-testimonial-base.php`
+
+Les trois classes concrètes sont :
+
+- `plugin/includes/integrations/divi/class-dynamic-content-testimonial-text.php` ;
+- `plugin/includes/integrations/divi/class-dynamic-content-testimonial-name.php` ;
+- `plugin/includes/integrations/divi/class-dynamic-content-testimonial-context.php`.
+
 Le bootstrap principal `plugin/wp-seed-content-kit.php` charge le provider globalement après Content Data, Dynamic Data et à proximité du provider Gutenberg. Le chargement n'est pas limité à l'administration.
 
 Le contrat de chargement validé est le suivant :
@@ -597,7 +607,7 @@ Le contrat de chargement validé est le suivant :
 - vérification de `DynamicContentElements`, `DynamicContentOptionBase` et `DynamicContentOptionInterface` ;
 - inclusion de la base et des classes concrètes uniquement si nécessaire ;
 - acceptation d'une base ou d'une classe compatible déjà chargée ;
-- neutralisation du provider Citation si la base homonyme est incompatible ;
+- neutralisation de la famille Citation ou Témoignage si sa base homonyme est incompatible, sans neutraliser l'autre famille ;
 - neutralisation de la seule source concernée si une classe concrète homonyme est incompatible ;
 - instances statiques ;
 - appel unique à `load()` pour chaque source ;
@@ -607,30 +617,31 @@ Sans Divi ou sans les capacités requises, le provider reste inactif sans fatal 
 
 ## 24. Validation runtime et promotion expérimentale
 
-Le provider Citation a été validé sous WordPress 7.0.1, PHP 8.4.21 et Divi 5.9.0.
+Les providers Citation et Témoignage ont été validés sous WordPress 7.0.1, PHP 8.4.21 et Divi 5.9.0.
 
 Résultats confirmés :
 
-- quatre options REST WP Seed uniques, sans altération des 61 autres sources Divi ;
-- mapping exact vers `quote.quote`, `quote.author`, `quote.era` et `quote.source` ;
-- single `seed_quote` ;
-- page et `seed_testimonial` incompatibles ;
+- sept options REST WP Seed uniques, sans altération des 61 autres sources Divi ;
+- mapping exact vers les quatre champs texte Citation et les trois champs texte Témoignage ;
+- single `seed_quote` et single `seed_testimonial` ;
+- page et CPT métier incompatible ;
 - `loop_id => null` hors boucle ;
 - `loop_id` non nul autoritaire, sans fallback vers `post_id` s'il est invalide ;
-- Loop Builder serveur avec deux valeurs distinctes ;
-- chaîne vide, texte multiligne et Unicode ;
+- contextes de boucle serveur avec deux valeurs Témoignage distinctes ;
+- chaîne vide, texte multiligne, Unicode et HTML historique ;
 - brouillons non exposés ;
 - aucune régression des shortcodes, templates ou providers existants ;
-- présence unique des quatre options dans le sélecteur Divi ;
+- présence unique des sept options dans le registre Divi ;
 - sélection, application, sauvegarde et réouverture visuelles ;
-- persistance brute unique de `wp_seed_content_quote_source` après le contrôle final ;
-- frontend Theme Builder avec les quatre valeurs Citation distinctes.
+- persistance brute unique des trois identifiants Témoignage dans trois modules Texte après le contrôle final ;
+- frontend avec les trois valeurs Témoignage distinctes ;
+- provider Citation et ses quatre classes inchangés.
 
 Restent différés :
 
 - prévisualisation directe d'un corps Theme Builder sans contexte métier transmis par Divi ;
 - recette visuelle Loop Builder autonome ;
-- champs Témoignage.
+- média Témoignage.
 
 Le provider conserve donc un statut expérimental. Il ne doit pas être présenté comme une compatibilité Divi générale ou une fonctionnalité couvrant tous les champs WP Seed.
 
@@ -731,21 +742,22 @@ Le report est préférable à l'introduction d'une abstraction générale, d'un 
 Validé côté serveur sous Divi 5.9.0 :
 
 - chargement défensif et `load()` unique pour chaque source ;
-- quatre options WP Seed enregistrées une seule fois ;
-- identifiants exacts : `wp_seed_content_quote_quote`, `wp_seed_content_quote_author`, `wp_seed_content_quote_era` et `wp_seed_content_quote_source` ;
-- labels `Texte`, `Auteur`, `Époque` et `Source`, groupe `WP Seed — Citations`, type `text`, `custom => false`, `fields => array()` ;
+- sept options WP Seed enregistrées une seule fois ;
+- identifiants exacts : `wp_seed_content_quote_quote`, `wp_seed_content_quote_author`, `wp_seed_content_quote_era`, `wp_seed_content_quote_source`, `wp_seed_content_testimonial_text`, `wp_seed_content_testimonial_name` et `wp_seed_content_testimonial_context` ;
+- labels `Texte`, `Auteur`, `Époque` et `Source` dans le groupe `WP Seed — Citations` ; labels `Texte`, `Nom` et `Contexte` dans le groupe `WP Seed — Témoignages` ; type `text`, `custom => false`, `fields => array()` ;
 - 61 autres sources Divi préservées ;
-- trois options Témoignage non implémentées ;
 - aucune inscription manuelle des filtres Divi.
 
 ### 28.2 Interface Divi
 
-Validé visuellement dans un module Texte Divi :
+Validé visuellement dans des modules Texte Divi :
 
-- présence unique des quatre sources dans une propriété textuelle compatible ;
+- présence unique des quatre sources Citation et des trois sources Témoignage dans une propriété textuelle compatible ;
 - sélection et application successives ;
 - sauvegarde puis réouverture sans altération de l'identifiant final ;
 - pastille `Source` conservée après réouverture ;
+- pastilles `Texte` et `Contexte` Témoignage reconnues dans l'éditeur ;
+- persistance brute unique de `Texte`, `Nom` et `Contexte` dans le brouillon de recette ;
 - aucune duplication ou erreur visible.
 
 ### 28.3 Contextes
@@ -753,8 +765,9 @@ Validé visuellement dans un module Texte Divi :
 Validé côté serveur :
 
 - single Citation publié ;
+- single Témoignage publié ;
 - page incompatible ;
-- Témoignage incompatible ;
+- CPT métier incompatible ;
 - absence de contexte valide avec `current_post_id` forcé à `0` ;
 - `loop_id => null` avec recours à `post_id` ;
 - `loop_id` non nul autoritaire ;
@@ -770,10 +783,11 @@ Validé :
 - chaîne vide ;
 - multiligne ;
 - Unicode ;
+- HTML historique ;
 - brouillon non exposé ;
 - erreur WP Seed non affichée.
 
-Le rendu visuel du HTML historique et les différences éventuelles entre éditeur et frontend restent à évaluer.
+Le frontend Témoignage a conservé le multiligne, Unicode et le HTML historique dans le pipeline Divi. Les différences éventuelles avec d'autres propriétés ou modules Divi restent à évaluer.
 
 ### 28.5 Non-régression
 
@@ -791,7 +805,7 @@ La V1 respecte les invariants suivants :
 
 - Divi 5 uniquement ;
 - statut expérimental maintenu jusqu'à décision humaine ;
-- sept identifiants persistants réservés par le contrat, dont les quatre identifiants Citation sont implémentés ;
+- sept identifiants persistants réservés et implémentés par le contrat ;
 - une classe concrète par option ;
 - chargement par `DynamicContentOptionBase::load()` ;
 - aucune inscription procédurale manuelle des filtres Divi ;
@@ -808,6 +822,6 @@ La V1 respecte les invariants suivants :
 
 ## 30. Règle de lecture
 
-Ce document fixe le contrat expérimental après l'implémentation et la validation serveur et visuelle des quatre champs Citation. Il ne vaut ni implémentation des champs Témoignage, ni compatibilité Divi générale, ni promesse produit.
+Ce document fixe le contrat expérimental après l'implémentation et la validation serveur et visuelle des quatre champs Citation et des trois champs texte Témoignage. Il ne vaut ni prise en charge du média Témoignage, ni compatibilité Divi générale, ni promesse produit.
 
 En cas de contradiction entre une proposition technique future et ce contrat, la décision doit être réexaminée explicitement. Une contrainte de Divi ne doit pas modifier silencieusement le sens des données WP Seed, contourner le résolveur ou fragiliser les workflows existants.
