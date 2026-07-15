@@ -1,10 +1,13 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 13 juillet 2026
-Statut : version stable publiée ; provider Gutenberg serveur validé ; intégration éditeur native différée
-Version stable : 0.2.33
+Date : 15 juillet 2026
+Statut : release candidate 0.3.0 préparée ; recette du ZIP exact encore à exécuter ; aucun tag ni release avant validation
+Version candidate : 0.3.0
+Version stable publiée : 0.2.33
 Commit stable : c64e1f2
 Tag stable : v0.2.33
+WordPress minimum candidat : 6.5
+PHP minimum candidat : 7.0
 
 Ce document est la mémoire de reprise du dépôt WP Seed Content Kit. Le dépôt Git et le code committé priment en cas de contradiction technique.
 
@@ -208,6 +211,8 @@ Les contrôles de release obligatoires incluent :
 
 Ne jamais modifier Plugin Update Checker, le nom de l'asset ou le workflow de release dans un lot sans rapport.
 
+Pour le release candidate 0.3.0, aucun tag ni aucune GitHub Release ne doit être créé avant l'installation et la recette réussies du ZIP construit depuis le commit candidat exact.
+
 ## 10. Content Data API V1
 
 La conception métier est documentée dans :
@@ -373,7 +378,7 @@ Le verdict initial de l'audit était `NEEDS HUMAN DECISION`. La décision humain
 
 Un futur réaudit éditeur ne sera engagé que si WordPress fournit un filtrage public suffisamment précis, une solution native officiellement supportée, ou si un besoin produit important justifie l'étude séparée d'une interface WP Seed dédiée.
 
-## 14. Prochain travail recommandé
+## 14. Périmètre du release candidate 0.3.0
 
 Le provider expérimental Divi 5 Dynamic Content expose désormais les quatre champs texte Citation, les trois champs texte Témoignage et la photo du Témoignage avec l'architecture class-based fournie par Divi 5.
 
@@ -406,4 +411,6 @@ Le provider expérimental Divi 5 Dynamic Content expose désormais les quatre ch
 - statut expérimental maintenu ;
 - prévisualisation directe d'un corps Theme Builder sans contexte métier et recette visuelle Loop Builder autonome reportées.
 
-Le prochain jalon éventuel doit faire l'objet d'un arbitrage séparé. Aucun champ média dérivé, booléen ou numérique ne fait partie de ce lot.
+Le provider Gutenberg serveur fait partie du candidat ; son interface éditeur native reste différée. Le provider Divi 5 est inclus avec un statut expérimental et les limites visuelles documentées ci-dessus. Les shortcodes, Templates WP Seed, placeholders et layouts Divi Library restent inchangés.
+
+La prochaine étape est la recette complète du ZIP exact sur le site de validation, suivie d'un rollback. Aucun tag ni aucune release ne doit précéder cette validation. Tout jalon fonctionnel ultérieur doit faire l'objet d'un arbitrage séparé. Aucun champ média dérivé, booléen ou numérique ne fait partie de ce lot.

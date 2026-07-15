@@ -1,130 +1,91 @@
-# Testing - WP Seed Content Kit
+# Recette de test - WP Seed Content Kit 0.3.0
 
-## Goal
+Ce document définit la recette minimale à exécuter sur le ZIP exact avant tout tag ou toute release 0.3.0.
 
-This document defines the minimum manual test path before using the V1 ZIP on a WordPress site.
+## Préconditions
 
-Do not deploy directly to production before validating locally or on the laboratory site.
+- WordPress 6.5 ou version ultérieure ;
+- PHP 7.0 ou version ultérieure ;
+- sauvegarde du plugin installé et des données avant le test ;
+- ZIP contenant une seule racine `wp-seed-content-kit/` ;
+- contenus temporaires préfixés `SEED TEST -` ;
+- accès aux logs PHP et à un rollback immédiat.
 
-## Preconditions
+ACF, Composer, npm et les services externes ne sont pas requis.
 
-- WordPress is available.
-- A backup exists before any non-local test.
-- The plugin ZIP contains only the plugin folder and required files.
-- No ACF plugin is required.
-- No Composer install is required.
-- No npm install is required.
-- No external service is required.
+## Installation et rollback
 
-## ZIP install test
+1. Relever la version installée et sauvegarder le dossier du plugin.
+2. Installer le ZIP candidat exact depuis l'administration WordPress.
+3. Activer le plugin et vérifier la version 0.3.0.
+4. Vérifier l'administration et une page publique en HTTP 200.
+5. Contrôler l'absence de fatal, warning ou sortie inattendue dans les logs.
+6. Après la recette, réinstaller la sauvegarde et confirmer le retour à la version précédente.
 
-1. Build or prepare the ZIP with one root folder:
+## Non-régression
 
-```text
-wp-seed-content-kit/
-```
-
-2. Install it from WordPress admin.
-3. Activate the plugin.
-4. Confirm there is no fatal error.
-5. Confirm the plugin can be deactivated.
-6. Reactivate the plugin for shortcode tests.
-
-## Testimonials tests
-
-1. Create a new testimonial.
-2. Fill in name or initials.
-3. Fill in testimonial text.
-4. Fill in context.
-5. Fill in date.
-6. Publish without publication consent.
-7. Add this shortcode to a draft page:
-
-```text
-[seed_testimonials]
-```
-
-8. Confirm the testimonial is not displayed.
-9. Enable publication consent.
-10. Confirm the testimonial is displayed.
-11. Enable featured.
-12. Test:
-
-```text
-[seed_testimonials featured="true"]
-[seed_testimonials featured="false"]
-[seed_testimonials limit="1" columns="1"]
-[seed_testimonials limit="3" columns="3"]
-```
-
-## Cards tests
-
-1. Confirm native WordPress posts exist.
-2. Add this shortcode to a draft page:
+Tester au minimum :
 
 ```text
 [seed_cards]
+[seed_quotes]
+[seed_quotes template="citations-accueil"]
+[seed_testimonials]
+[seed_testimonials template="test"]
 ```
 
-3. Confirm cards are displayed.
-4. Test:
+Vérifier les filtres, limites, tris, contenus mis en avant, ordres manuels, placeholders et layouts Divi Library existants. Activer puis désactiver Citations et Témoignages ; confirmer que les CPT, menus et shortcodes suivent l'état du module sans casser Configuration générale.
 
-```text
-[seed_cards category="inspirations" limit="3" columns="3"]
-[seed_cards show_image="false"]
-[seed_cards show_excerpt="false"]
-[seed_cards show_button="false"]
-```
+## Content Data et Dynamic Data
 
-5. Test a missing category slug.
-6. Confirm an empty state is displayed without public PHP errors.
+- confirmer les contrats Citation, Témoignage et média ;
+- confirmer les 12 champs du registre dans leur ordre documenté ;
+- tester les IDs explicites et les contextes courants ;
+- tester un ID invalide, un mauvais CPT et un contexte absent ;
+- vérifier les valeurs vides typées : chaîne, booléen, entier ou `null` ;
+- vérifier qu'un brouillon n'est pas exposé sans permission explicite ;
+- vérifier qu'aucun resolver ne produit de HTML ou ne lit directement les métas.
 
-## Responsive tests
+## Gutenberg Block Bindings
 
-Check at minimum:
+- confirmer l'enregistrement unique de `wp-seed-content-kit/dynamic-data` ;
+- tester `core/paragraph.content` et `core/heading.content` ;
+- tester une Query Loop Citations avec plusieurs éléments ;
+- tester une Query Loop Témoignages avec plusieurs éléments ;
+- confirmer que chaque élément reçoit son propre contexte ;
+- vérifier qu'un binding invalide retourne `null` et qu'une valeur métier vide retourne `''` ;
+- confirmer qu'aucun sélecteur WP Seed natif n'est annoncé dans l'éditeur.
 
-- mobile around 375 px;
-- tablet around 768 px;
-- desktop around 1280 px.
+## Divi 5 Dynamic Content expérimental
 
-Confirm:
+Confirmer la présence unique des huit options :
 
-- cards do not overflow;
-- text remains readable;
-- images keep a stable ratio;
-- grids collapse cleanly.
+- Citations : Texte, Auteur, Époque, Source ;
+- Témoignages : Texte, Nom, Contexte, Photo.
 
-## Builder and theme checks
+Tester :
 
-Test the shortcodes where available:
+- un single `seed_quote` et un single `seed_testimonial` ;
+- une boucle contenant au moins deux éléments distincts ;
+- une page ordinaire incompatible ;
+- un `loop_id` non nul valide puis invalide ;
+- un brouillon et un contenu privé ;
+- la sélection, la sauvegarde et la réouverture d'un module ;
+- la persistance brute unique de chaque identifiant.
 
-- Gutenberg shortcode block;
-- Spectra shortcode context;
-- Divi Code or Text module;
-- Astra-based page.
+Pour Photo, vérifier l'URL, l'ID média reconstruit, les dimensions, `srcset`, `sizes` et l'absence de chaîne `Array` ou de variable brute. Consigner séparément l'aperçu du Visual Builder et le texte alternatif, qui ne sont pas garantis dans tous les modules ou contextes.
 
-Confirm:
+## Frontend et responsive
 
-- no theme layout breaks;
-- no builder block is modified;
-- neighboring sections are not affected;
-- CSS remains scoped to `seed-` classes.
+Vérifier mobile, tablette et bureau. Confirmer que les pages restent lisibles, que les grilles ne débordent pas, que les images conservent leurs proportions et que le CSS reste limité aux classes `seed-`.
 
-## Rollback test
+## Nettoyage obligatoire
 
-1. Remove shortcodes from draft test pages if needed.
-2. Deactivate the plugin.
-3. Confirm existing pages remain accessible.
-4. Confirm existing posts remain accessible.
-5. Confirm WordPress admin remains accessible.
+1. Lister puis supprimer tous les contenus `SEED TEST -` créés pour la recette.
+2. Supprimer les scripts, harnais, sauvegardes temporaires et caches de test.
+3. Restaurer le plugin sauvegardé si la release n'est pas encore publiée.
+4. Vérifier qu'aucune fixture, page, métadonnée ou archive temporaire ne reste sur le site.
 
-## Release blockers
+## Bloquants de release
 
-Do not release the ZIP if:
-
-- PHP syntax has not been validated;
-- the plugin cannot activate;
-- shortcodes show public PHP errors;
-- existing pages or posts are modified unexpectedly;
-- ACF or another external dependency becomes required;
-- a site-specific category or module is hardcoded.
+Ne pas publier si le ZIP ne s'extrait pas correctement, si l'activation échoue, si une régression shortcode/template apparaît, si un brouillon est exposé, si un contexte incompatible utilise une valeur arbitraire, si un fatal ou warning WP Seed est présent, ou si le rollback n'est pas validé.

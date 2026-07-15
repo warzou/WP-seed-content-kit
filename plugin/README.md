@@ -40,6 +40,24 @@ Les templates permettent de mettre en forme les Témoignages et les Citations av
 
 Le plugin ne fournit pas de module Divi personnalisé. Avec Divi, la mise en forme est créée dans Divi Library puis sélectionnée depuis le template WP Seed.
 
+### Content Data API
+
+La Content Data API fournit une représentation normalisée des Citations, des Témoignages et de leur média. Elle centralise la lecture des données sans produire de HTML et sans dépendre d'un constructeur de page.
+
+### Dynamic Data
+
+Dynamic Data expose 12 champs normalisés à des intégrations de présentation. Le résolveur utilise un contenu explicite ou le contexte WordPress courant, applique les permissions de lecture et retourne des valeurs vides typées lorsque le contexte n'est pas compatible.
+
+### Gutenberg Block Bindings
+
+Un provider serveur permet de lier sept champs texte WP Seed à l'attribut `content` des blocs Paragraphe et Titre Core. L'interface éditeur native WP Seed n'est pas finalisée : aucun sélecteur dédié n'est annoncé dans Gutenberg.
+
+### Divi 5 Dynamic Content expérimental
+
+Sous Divi 5, le sélecteur Dynamic Content expose quatre champs Citation (Texte, Auteur, Époque, Source) et quatre champs Témoignage (Texte, Nom, Contexte, Photo).
+
+Ces sources dépendent du contenu courant ou du contexte d'une boucle. Elles complètent les Templates WP Seed et les layouts Divi Library ; elles ne les remplacent pas.
+
 ## Shortcodes publics
 
 ```text
@@ -61,12 +79,16 @@ Le détail des attributs et placeholders se trouve dans `docs/USAGE.md`.
 
 WP Seed Content Kit est conçu pour fonctionner avec :
 
-- WordPress et les thèmes classiques ;
+- WordPress 6.5 ou version ultérieure ;
+- PHP 7.0 ou version ultérieure ;
+- les thèmes classiques ;
 - Gutenberg ;
 - Spectra ;
 - Astra ;
 - Divi Library ;
 - les zones acceptant les shortcodes WordPress.
+
+Le plugin reste fonctionnel sans Divi. Le provider Dynamic Content nécessite Divi 5 ; il n'est pas chargé sous Divi 4.
 
 ACF, Composer, npm et les services externes ne sont pas requis pour utiliser le plugin.
 
@@ -110,9 +132,12 @@ Le plugin ne fournit pas :
 - de module Divi personnalisé ;
 - de widget Elementor ;
 - de bloc Gutenberg personnalisé ;
+- de sélecteur WP Seed finalisé dans l'éditeur Gutenberg ;
 - d'intégration ACF obligatoire ;
 - d'import ou de migration automatique ;
 - de modules fonctionnels Annuaire ou Créations sonores.
+
+Le provider Divi 5 Dynamic Content reste expérimental. L'aperçu de certaines images ou boucles peut être incomplet dans le Visual Builder, et le texte alternatif d'une photo n'est pas garanti dans tous les modules. Le rendu frontend a été validé sous Divi 5.9.0.
 
 ## Documentation
 

@@ -173,6 +173,52 @@ Si le layout est absent, invalide ou non publié, le contenu du template reste l
 
 Les placeholders doivent être utilisés dans le contenu du template ou dans un module Texte ou Code du layout Divi.
 
+## Dynamic Data
+
+Dynamic Data fournit des champs normalisés aux intégrations Gutenberg et Divi. La valeur dépend toujours d'un contenu WP Seed explicite ou du contexte WordPress courant. Un contenu d'un mauvais type, absent, non publié ou inaccessible produit une valeur vide ; aucune Citation ni aucun Témoignage arbitraire n'est recherché en fallback.
+
+Les Templates WP Seed restent un workflow complémentaire. Ils continuent d'utiliser leurs placeholders officiels, y compris dans les modules Texte ou Code d'un layout Divi Library.
+
+## Gutenberg Block Bindings
+
+Le provider serveur Gutenberg expose les champs texte suivants :
+
+- `quote.quote` ;
+- `quote.author` ;
+- `quote.era` ;
+- `quote.source` ;
+- `testimonial.text` ;
+- `testimonial.name` ;
+- `testimonial.context`.
+
+Il prend en charge uniquement l'attribut `content` des blocs Core Paragraphe et Titre. Une Query Loop fournit le contexte de chaque contenu au rendu serveur.
+
+L'interface éditeur native WP Seed reste différée. Aucun sélecteur WP Seed finalisé n'est actuellement fourni dans Gutenberg ; les bindings doivent être créés par un markup contrôlé ou une intégration technique.
+
+## Divi 5 Dynamic Content expérimental
+
+Dans le sélecteur Dynamic Content de Divi 5, les sources sont regroupées ainsi :
+
+WP Seed — Citations :
+
+- Texte ;
+- Auteur ;
+- Époque ;
+- Source.
+
+WP Seed — Témoignages :
+
+- Texte ;
+- Nom ;
+- Contexte ;
+- Photo.
+
+Aucun shortcode ni identifiant fixe n'est nécessaire. Les valeurs utilisent le contenu courant ou l'élément courant d'une boucle. Une page ordinaire, un mauvais type de contenu ou une boucle incompatible produit une valeur vide sans fallback arbitraire.
+
+Photo est prioritairement compatible avec la propriété source du module Image. Divi peut reconstruire l'ID média, les dimensions, `srcset` et `sizes` à partir d'une URL locale. L'aperçu du Visual Builder peut rester vide et le texte alternatif n'est pas garanti dans tous les modules ou contextes de boucle.
+
+Ce provider cible Divi 5. Divi 4 n'est pas pris en charge. Les layouts Divi Library avec placeholders restent officiellement pris en charge et complémentaires de Dynamic Content.
+
 ## Styles
 
 Le CSS public utilise le préfixe `seed-`.
@@ -186,6 +232,7 @@ WP Seed Content Kit ne fournit pas :
 - de module Divi personnalisé ;
 - de widget Elementor ;
 - de bloc Gutenberg personnalisé ;
+- de sélecteur WP Seed finalisé dans l'éditeur Gutenberg ;
 - d'intégration ACF obligatoire ;
 - d'outil d'import ou de migration ;
 - de modules fonctionnels Annuaire ou Créations sonores.
