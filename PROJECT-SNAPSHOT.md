@@ -375,14 +375,14 @@ Un futur réaudit éditeur ne sera engagé que si WordPress fournit un filtrage 
 
 ## 14. Prochain travail recommandé
 
-Le provider expérimental Divi 5 Dynamic Content expose désormais les quatre champs texte Citation et les trois champs texte Témoignage avec l'architecture class-based fournie par Divi 5.
+Le provider expérimental Divi 5 Dynamic Content expose désormais les quatre champs texte Citation, les trois champs texte Témoignage et la photo du Témoignage avec l'architecture class-based fournie par Divi 5.
 
 - sources Citation : `wp_seed_content_quote_quote`, `wp_seed_content_quote_author`, `wp_seed_content_quote_era` et `wp_seed_content_quote_source` ;
 - base abstraite limitée aux Citations : `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` ;
 - quatre classes concrètes distinctes pour Texte, Auteur, Époque et Source ;
-- sources Témoignage : `wp_seed_content_testimonial_text`, `wp_seed_content_testimonial_name` et `wp_seed_content_testimonial_context` ;
+- sources Témoignage : `wp_seed_content_testimonial_text`, `wp_seed_content_testimonial_name`, `wp_seed_content_testimonial_context` et `wp_seed_content_testimonial_photo` ;
 - base abstraite limitée aux Témoignages : `WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base` ;
-- trois classes concrètes distinctes pour Texte, Nom et Contexte ;
+- trois classes texte concrètes pour Texte, Nom et Contexte, plus une classe Photo indépendante projetant uniquement `testimonial.photo.url` ;
 - bootstrap : `plugin/includes/integrations/divi/dynamic-content.php` ;
 - chargeurs Citation et Témoignage indépendants, chacun fondé sur une liste fermée ;
 - chargement sur `init`, priorité 10 ;
@@ -393,14 +393,17 @@ Le provider expérimental Divi 5 Dynamic Content expose désormais les quatre ch
 - contextes de boucle serveur fonctionnels avec des valeurs distinctes ;
 - `loop_id => null` hors boucle corrigé par recours à `post_id` ;
 - `loop_id` non nul autoritaire, sans fallback en cas d'invalidité ;
-- sept options REST uniques et 61 autres sources Divi préservées ;
+- huit options REST uniques et 61 autres sources Divi préservées ;
 - sélection, application, sauvegarde et réouverture visuelles validées ;
 - frontend Theme Builder en contexte `seed_quote` validé pour les quatre valeurs ;
 - frontend `seed_testimonial` validé pour Texte, Nom et Contexte, y compris chaîne vide, multiligne, Unicode et HTML historique ;
-- persistance brute unique des trois identifiants Témoignage et reconnaissance visuelle des pastilles dans les modules Texte ;
+- persistance brute unique des quatre identifiants Témoignage et reconnaissance visuelle des pastilles dans les modules Texte et Image ;
+- source Photo de type `image`, sans source dérivée, tableau média ou HTML transmis à Divi ;
+- reconstruction par Divi des IDs média, dimensions, `srcset` et `sizes` pour les pièces jointes locales testées ; alt retrouvé sur le single mais non garanti dans la boucle ;
+- rendu frontend Photo validé en single et en boucle, sans variable brute ni chaîne `Array` ;
+- aperçu Image du Visual Builder encore vide malgré la sélection et la persistance correctes de la source Photo ;
 - provider Citation, Gutenberg, shortcodes, templates et placeholders non régressés ;
-- média `testimonial.photo` toujours reporté ;
 - statut expérimental maintenu ;
 - prévisualisation directe d'un corps Theme Builder sans contexte métier et recette visuelle Loop Builder autonome reportées.
 
-Le prochain jalon éventuel doit faire l'objet d'un arbitrage séparé. Le média Témoignage ne fait pas partie de ce lot.
+Le prochain jalon éventuel doit faire l'objet d'un arbitrage séparé. Aucun champ média dérivé, booléen ou numérique ne fait partie de ce lot.

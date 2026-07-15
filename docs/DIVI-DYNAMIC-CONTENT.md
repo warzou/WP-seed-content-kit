@@ -1,6 +1,6 @@
 # Divi 5 Dynamic Content V1
 
-Statut : provider class-based expérimental validé pour sept champs texte Citation et Témoignage sous Divi 5.9.0
+Statut : provider class-based expérimental validé pour sept champs texte et une photo sous Divi 5.9.0
 
 Ce document définit le contrat du provider expérimental Divi 5 Dynamic Content de WP Seed Content Kit. Il fixe son périmètre, ses identifiants persistants, sa traduction du contexte Divi et ses garde-fous.
 
@@ -15,11 +15,11 @@ Le provider est :
 - expérimental ;
 - limité à Divi 5 ;
 - fondé sur l'architecture class-based observée dans Divi 5.9.0 ;
-- validé côté serveur et dans le Visual Builder sous Divi 5.9.0 pour quatre options Citation et trois options Témoignage ;
-- limité à `quote.quote`, `quote.author`, `quote.era`, `quote.source`, `testimonial.text`, `testimonial.name` et `testimonial.context` ;
+- validé côté serveur et dans le Visual Builder sous Divi 5.9.0 pour quatre options Citation et quatre options Témoignage ;
+- limité à `quote.quote`, `quote.author`, `quote.era`, `quote.source`, `testimonial.text`, `testimonial.name`, `testimonial.context` et `testimonial.photo` ;
 - absent de la promesse produit tant qu'une décision humaine de promotion n'a pas été prise.
 
-La validation runtime confirme le chargement class-based, la résolution serveur, la sélection visuelle et la persistance des sept options. Elle ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif et le champ média Témoignage reste différé.
+La validation runtime confirme le chargement class-based, la résolution serveur et la persistance des huit options. Pour `testimonial.photo`, la sélection et la persistance sont confirmées, ainsi que le rendu frontend ; l'aperçu Image du Visual Builder reste incomplet. Cette validation ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif.
 
 ## 2. Objectif et chaîne de responsabilité
 
@@ -58,9 +58,9 @@ Le provider utilise :
 - un appel unique à `load()` ;
 - aucune inscription procédurale manuelle des filtres Divi.
 
-Le bootstrap est `plugin/includes/integrations/divi/dynamic-content.php`. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` mutualise strictement le contrat Citation. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base` mutualise séparément le contrat Témoignage. Quatre classes concrètes distinctes exposent Texte, Auteur, Époque et Source pour les Citations ; trois autres exposent Texte, Nom et Contexte pour les Témoignages.
+Le bootstrap est `plugin/includes/integrations/divi/dynamic-content.php`. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` mutualise strictement le contrat Citation. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base` mutualise séparément le contrat texte Témoignage. Quatre classes concrètes distinctes exposent Texte, Auteur, Époque et Source pour les Citations ; trois autres exposent Texte, Nom et Contexte pour les Témoignages. Une classe indépendante expose Photo avec le type Divi `image`.
 
-Les sept identifiants réservés par le contrat sont implémentés. Les deux familles conservent des bases, des listes fermées et des chargeurs indépendants afin qu'une collision compatible ou incompatible dans une famille ne neutralise pas l'autre.
+Les huit identifiants réservés par le contrat sont implémentés. Les deux familles conservent des bases, des listes fermées et des chargeurs indépendants afin qu'une collision compatible ou incompatible dans une famille ne neutralise pas l'autre. Une collision propre à la classe Photo ne neutralise pas les sept sources texte.
 
 ## 3. Versions et détection
 
@@ -111,7 +111,7 @@ La forme observée du callback correspond à un tableau d'options accompagné d'
 | --- | --- | --- | --- |
 | `id` | Observée | Identifier l'option dans le registre et l'interface | Caractère obligatoire ou facultatif à confirmer |
 | `label` | Observée | Afficher le nom utilisateur de l'option | Caractère obligatoire ou facultatif à confirmer |
-| `type` | Observée | Déclarer la nature de la valeur et limiter les propriétés compatibles | Usage `text` retenu, exigences exactes à confirmer |
+| `type` | Observée | Déclarer la nature de la valeur et limiter les propriétés compatibles | Usages `text` et `image` validés dans leur propriété respective |
 | `custom` | Observée | Signaler une option tierce ou personnalisée | Caractère obligatoire ou facultatif à confirmer |
 | `group` | Observée | Regrouper et ordonner les options dans l'interface | Forme et nécessité à confirmer |
 | `fields` | Observée | Décrire des réglages associés à l'option | Structure et caractère facultatif à confirmer |
@@ -162,7 +162,7 @@ Ces filtres sont des points d'extension WordPress observés et utilisables. Ils 
 
 Divi persiste le nom d'une option dans son expression Dynamic Content. Les identifiants suivants constituent donc un contrat durable s'ils sont effectivement utilisés dans du contenu enregistré.
 
-La V1 définit exactement sept identifiants :
+La V1 définit exactement huit identifiants :
 
 1. `wp_seed_content_quote_quote`
 2. `wp_seed_content_quote_author`
@@ -171,6 +171,7 @@ La V1 définit exactement sept identifiants :
 5. `wp_seed_content_testimonial_text`
 6. `wp_seed_content_testimonial_name`
 7. `wp_seed_content_testimonial_context`
+8. `wp_seed_content_testimonial_photo`
 
 Cette convention :
 
@@ -182,7 +183,7 @@ Cette convention :
 
 Aucun alias préfixé pour les boucles n'est défini en V1. Un alias ne pourra être envisagé qu'après démonstration runtime qu'il est indispensable au fonctionnement ou à l'expérience utilisateur.
 
-Le contrat réserve et le provider implémente ces sept identifiants persistants.
+Le contrat réserve et le provider implémente ces huit identifiants persistants.
 
 ## 6. Mapping vers Dynamic Data
 
@@ -197,6 +198,7 @@ Le provider utilise une allowlist locale exacte.
 | `wp_seed_content_testimonial_text` | `testimonial.text` |
 | `wp_seed_content_testimonial_name` | `testimonial.name` |
 | `wp_seed_content_testimonial_context` | `testimonial.context` |
+| `wp_seed_content_testimonial_photo` | `testimonial.photo` |
 
 La V1 n'expose pas automatiquement les douze champs du registre Dynamic Data. Aucun filtre public du provider ne doit permettre d'étendre silencieusement cette allowlist.
 
@@ -218,17 +220,18 @@ Labels des options Témoignage :
 
 - `Texte` ;
 - `Nom` ;
-- `Contexte`.
+- `Contexte` ;
+- `Photo`.
 
 Le domaine de traduction est `wp-seed-content-kit`.
 
-Dans la structure Divi observée, `group` sert de chaîne de regroupement et de tri apparent dans l'interface. Aucun identifiant technique de groupe distinct n'a été identifié comme donnée persistante nécessaire à ce contrat. La V1 ne doit donc figer que les noms persistants des sept options et les valeurs requises pour leur enregistrement.
+Dans la structure Divi observée, `group` sert de chaîne de regroupement et de tri apparent dans l'interface. Aucun identifiant technique de groupe distinct n'a été identifié comme donnée persistante nécessaire à ce contrat. La V1 ne doit donc figer que les noms persistants des huit options et les valeurs requises pour leur enregistrement.
 
 ## 8. Type des options et filtrage
 
-Les sept options V1 utilisent le type Divi `text`.
+Les sept options textuelles utilisent le type Divi `text`. La source Photo utilise le type Divi `image`.
 
-Ce type permet à Divi de limiter techniquement leur présentation aux propriétés compatibles avec une valeur textuelle. Une option texte ne doit notamment pas être proposée comme source d'une propriété image.
+Ces types permettent à Divi de limiter techniquement leur présentation aux propriétés compatibles. Une option texte ne doit notamment pas être proposée comme source d'une propriété image, et Photo doit être proposée dans une propriété image compatible.
 
 Ce filtrage par type est un avantage important par rapport à une interface qui afficherait des associations ensuite rejetées côté serveur. Il ne résout toutefois pas entièrement le filtrage métier :
 
@@ -247,18 +250,18 @@ Le prototype doit tester au minimum :
 
 - la propriété de contenu d'un module Texte ;
 - une propriété de titre textuelle ;
-- une propriété textuelle simple d'un autre module, si Divi 5 en propose une compatible.
+- une propriété textuelle simple d'un autre module, si Divi 5 en propose une compatible ;
+- la propriété source d'un module Image pour Photo.
 
 Ne sont pas annoncés en V1 :
 
 - les boutons ;
-- les URL ;
-- les images ;
+- les URL hors propriété image testée ;
 - les nombres ;
 - les conditions de visibilité ;
 - les Design Variables.
 
-Le provider déclare une valeur de type `text`. Divi reste responsable de déterminer les propriétés textuelles compatibles dans son interface.
+Le provider déclare sept valeurs de type `text` et une valeur de type `image`. Divi reste responsable de déterminer les propriétés compatibles dans son interface.
 
 ## 10. Contexte Divi et contenu courant
 
@@ -485,7 +488,7 @@ Le provider ne gère :
 - ni pagination ;
 - ni limite ou comptage d'éléments.
 
-Aucun alias dédié aux boucles n'est introduit avant preuve de sa nécessité. Loop Builder est une extension de périmètre testée séparément, pas une précondition absolue du provider texte page/single. Si son contexte ne peut pas être résolu avec les sept identifiants persistants, son support est reporté, aucune promesse de boucle n'est publiée et le provider page/single peut continuer s'il est fiable.
+Aucun alias dédié aux boucles n'est introduit avant preuve de sa nécessité. Loop Builder est une extension de périmètre testée séparément, pas une précondition absolue du provider texte page/single. Si son contexte ne peut pas être résolu avec les huit identifiants persistants, son support est reporté, aucune promesse de boucle n'est publiée et le provider page/single peut continuer s'il est fiable.
 
 ## 18. Divi Library et Templates WP Seed
 
@@ -512,20 +515,21 @@ La V1 ne doit :
 - ni remplacer les shortcodes ;
 - ni présenter Dynamic Content comme une migration automatique des Layouts existants.
 
-## 19. Média reporté
+## 19. Média Témoignage
 
-`testimonial.photo` est reporté hors V1.
+`testimonial.photo` est exposé comme une option Divi de type `image` sous l'identifiant persistant `wp_seed_content_testimonial_photo`.
 
-Les constats à conserver pour un lot ultérieur sont :
+Le provider :
 
-- Divi possède un type d'option image ;
-- ses propriétés image attendent principalement une URL ou une structure propre à Divi ;
-- WP Seed fournit un objet média normalisé ;
-- une projection vers l'URL de la photo serait techniquement possible ;
-- cette projection ne transmettrait pas automatiquement le texte alternatif, l'identifiant, les dimensions et le type MIME ;
-- le contrat approprié doit être étudié dans un lot média séparé.
+- résout exclusivement `testimonial.photo` par le résolveur Dynamic Data WP Seed ;
+- accepte uniquement un objet média normalisé contenant une URL non vide et, lorsqu'il est présent, un type MIME image ;
+- projette uniquement `photo.url` vers le wrapper Divi officiel ;
+- retourne une chaîne vide pour une valeur absente, inaccessible, invalide ou non image ;
+- ne transmet ni tableau média complet, ni HTML, ni identifiant, ni alt, ni dimensions, ni type MIME à Divi.
 
-Aucun champ dérivé de photo n'est ajouté au registre Dynamic Data pour les besoins de ce provider.
+Dans le module Image testé, Divi reconstruit l'identifiant de pièce jointe, les dimensions, `srcset` et `sizes` à partir d'une URL locale reconnue. Cette reconstruction appartient à Divi et WordPress ; elle n'est pas garantie pour une URL externe ou un média qui ne peut plus être résolu. L'alt de la médiathèque est retrouvé sur le single testé, mais pas dans les éléments de la boucle testée : il n'est donc pas garanti universellement par cette projection URL.
+
+Aucun champ dérivé de photo n'est ajouté au registre Dynamic Data. Les sept sources texte restent inchangées.
 
 ## 20. Booléens et nombres reportés
 
@@ -593,11 +597,15 @@ La base abstraite Témoignage est :
 
 `plugin/includes/integrations/divi/class-dynamic-content-testimonial-base.php`
 
-Les trois classes concrètes sont :
+Les trois classes texte concrètes sont :
 
 - `plugin/includes/integrations/divi/class-dynamic-content-testimonial-text.php` ;
 - `plugin/includes/integrations/divi/class-dynamic-content-testimonial-name.php` ;
 - `plugin/includes/integrations/divi/class-dynamic-content-testimonial-context.php`.
+
+La source média utilise une classe indépendante de la base texte Témoignage :
+
+`plugin/includes/integrations/divi/class-dynamic-content-testimonial-photo.php`
 
 Le bootstrap principal `plugin/wp-seed-content-kit.php` charge le provider globalement après Content Data, Dynamic Data et à proximité du provider Gutenberg. Le chargement n'est pas limité à l'administration.
 
@@ -621,8 +629,8 @@ Les providers Citation et Témoignage ont été validés sous WordPress 7.0.1, P
 
 Résultats confirmés :
 
-- sept options REST WP Seed uniques, sans altération des 61 autres sources Divi ;
-- mapping exact vers les quatre champs texte Citation et les trois champs texte Témoignage ;
+- huit options REST WP Seed uniques, sans altération des 61 autres sources Divi ;
+- mapping exact vers les quatre champs texte Citation, les trois champs texte Témoignage et `testimonial.photo` ;
 - single `seed_quote` et single `seed_testimonial` ;
 - page et CPT métier incompatible ;
 - `loop_id => null` hors boucle ;
@@ -631,17 +639,20 @@ Résultats confirmés :
 - chaîne vide, texte multiligne, Unicode et HTML historique ;
 - brouillons non exposés ;
 - aucune régression des shortcodes, templates ou providers existants ;
-- présence unique des sept options dans le registre Divi ;
+- présence unique des huit options dans le registre Divi ;
 - sélection, application, sauvegarde et réouverture visuelles ;
 - persistance brute unique des trois identifiants Témoignage dans trois modules Texte après le contrôle final ;
-- frontend avec les trois valeurs Témoignage distinctes ;
+- persistance brute unique de l'identifiant Photo dans un module Image ;
+- projection de l'URL et rendu frontend Image en single et en boucle ;
+- reconstruction des IDs média, dimensions, `srcset` et `sizes` pour les pièces jointes locales testées ;
+- frontend avec les trois valeurs texte Témoignage distinctes ;
 - provider Citation et ses quatre classes inchangés.
 
 Restent différés :
 
 - prévisualisation directe d'un corps Theme Builder sans contexte métier transmis par Divi ;
 - recette visuelle Loop Builder autonome ;
-- média Témoignage.
+- aperçu dynamique de l'image dans le canvas du Visual Builder, qui reste vide malgré la source Photo persistée.
 
 Le provider conserve donc un statut expérimental. Il ne doit pas être présenté comme une compatibilité Divi générale ou une fonctionnalité couvrant tous les champs WP Seed.
 
@@ -654,7 +665,7 @@ Sont explicitement exclus :
 - endpoint REST ou AJAX WP Seed ;
 - module Divi propriétaire ;
 - identifiant de contenu explicite ;
-- média ;
+- champs média dérivés ;
 - booléens ;
 - nombres ;
 - Design Variables ;
@@ -681,11 +692,11 @@ Le registre, les structures d'arguments ou le pipeline de résolution peuvent ch
 
 ### 26.3 Identifiants persistants
 
-Une fois enregistrés dans un contenu Divi, les sept noms deviennent coûteux à renommer. Ils doivent être testés avant tout commit produit.
+Une fois enregistrés dans un contenu Divi, les huit noms deviennent coûteux à renommer. Ils doivent être testés avant tout commit produit.
 
 ### 26.4 Filtrage métier incomplet
 
-Le type `text` filtre les propriétés techniques, mais ne garantit pas que l'option corresponde au CPT courant.
+Les types `text` et `image` filtrent les propriétés techniques, mais ne garantissent pas que l'option corresponde au CPT courant.
 
 ### 26.5 Contexte incorrect dans Divi Library
 
@@ -742,9 +753,9 @@ Le report est préférable à l'introduction d'une abstraction générale, d'un 
 Validé côté serveur sous Divi 5.9.0 :
 
 - chargement défensif et `load()` unique pour chaque source ;
-- sept options WP Seed enregistrées une seule fois ;
-- identifiants exacts : `wp_seed_content_quote_quote`, `wp_seed_content_quote_author`, `wp_seed_content_quote_era`, `wp_seed_content_quote_source`, `wp_seed_content_testimonial_text`, `wp_seed_content_testimonial_name` et `wp_seed_content_testimonial_context` ;
-- labels `Texte`, `Auteur`, `Époque` et `Source` dans le groupe `WP Seed — Citations` ; labels `Texte`, `Nom` et `Contexte` dans le groupe `WP Seed — Témoignages` ; type `text`, `custom => false`, `fields => array()` ;
+- huit options WP Seed enregistrées une seule fois ;
+- identifiants exacts : `wp_seed_content_quote_quote`, `wp_seed_content_quote_author`, `wp_seed_content_quote_era`, `wp_seed_content_quote_source`, `wp_seed_content_testimonial_text`, `wp_seed_content_testimonial_name`, `wp_seed_content_testimonial_context` et `wp_seed_content_testimonial_photo` ;
+- labels `Texte`, `Auteur`, `Époque` et `Source` dans le groupe `WP Seed — Citations` ; labels `Texte`, `Nom`, `Contexte` et `Photo` dans le groupe `WP Seed — Témoignages` ; types `text` et `image`, `custom => false`, `fields => array()` ;
 - 61 autres sources Divi préservées ;
 - aucune inscription manuelle des filtres Divi.
 
@@ -759,6 +770,14 @@ Validé visuellement dans des modules Texte Divi :
 - pastilles `Texte` et `Contexte` Témoignage reconnues dans l'éditeur ;
 - persistance brute unique de `Texte`, `Nom` et `Contexte` dans le brouillon de recette ;
 - aucune duplication ou erreur visible.
+
+Validé dans un module Image Divi :
+
+- source Photo sélectionnée et pastille `Photo` conservée après sauvegarde et réouverture ;
+- identifiant persistant présent une seule fois dans le contenu du module et absent des métadonnées Divi ;
+- aperçu Image vide dans le canvas malgré la source conservée ;
+- variables de boucle internes visibles sous forme brute dans le canvas de recette, sans incidence sur le frontend ;
+- rendu frontend des images correct.
 
 ### 28.3 Contextes
 
@@ -784,6 +803,8 @@ Validé :
 - multiligne ;
 - Unicode ;
 - HTML historique ;
+- photo locale publiée ;
+- photo absente, média supprimé et média non image ;
 - brouillon non exposé ;
 - erreur WP Seed non affichée.
 
@@ -805,11 +826,11 @@ La V1 respecte les invariants suivants :
 
 - Divi 5 uniquement ;
 - statut expérimental maintenu jusqu'à décision humaine ;
-- sept identifiants persistants réservés et implémentés par le contrat ;
+- huit identifiants persistants réservés et implémentés par le contrat ;
 - une classe concrète par option ;
 - chargement par `DynamicContentOptionBase::load()` ;
 - aucune inscription procédurale manuelle des filtres Divi ;
-- type Divi `text` uniquement ;
+- types Divi `text` et `image` uniquement ;
 - aucun identifiant de contenu explicite ;
 - contexte Divi explicite uniquement ;
 - résolution exclusivement par le résolveur Dynamic Data WP Seed ;
@@ -817,11 +838,11 @@ La V1 respecte les invariants suivants :
 - aucun contenu non publié exposé ;
 - aucun endpoint, JavaScript ou module Divi WP Seed ;
 - Theme Builder et Loop Builder visuels reportés et non promis ;
-- média, booléens et nombres reportés ;
+- booléens et nombres reportés ;
 - Templates WP Seed, placeholders, shortcodes et Divi Library conservés.
 
 ## 30. Règle de lecture
 
-Ce document fixe le contrat expérimental après l'implémentation et la validation serveur et visuelle des quatre champs Citation et des trois champs texte Témoignage. Il ne vaut ni prise en charge du média Témoignage, ni compatibilité Divi générale, ni promesse produit.
+Ce document fixe le contrat expérimental après l'implémentation et la validation serveur et visuelle des quatre champs Citation, des trois champs texte Témoignage et de la source Photo. Il ne vaut ni compatibilité Divi générale, ni garantie universelle de l'aperçu ou des métadonnées média, ni promesse produit.
 
 En cas de contradiction entre une proposition technique future et ce contrat, la décision doit être réexaminée explicitement. Une contrainte de Divi ne doit pas modifier silencieusement le sens des données WP Seed, contourner le résolveur ou fragiliser les workflows existants.

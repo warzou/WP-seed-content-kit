@@ -145,14 +145,22 @@ function wp_seed_content_load_divi_dynamic_content_testimonial_fields()
         array(
             'file' => __DIR__ . '/class-dynamic-content-testimonial-text.php',
             'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Text',
+            'base' => $base_class_name,
         ),
         array(
             'file' => __DIR__ . '/class-dynamic-content-testimonial-name.php',
             'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Name',
+            'base' => $base_class_name,
         ),
         array(
             'file' => __DIR__ . '/class-dynamic-content-testimonial-context.php',
             'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Context',
+            'base' => $base_class_name,
+        ),
+        array(
+            'file' => __DIR__ . '/class-dynamic-content-testimonial-photo.php',
+            'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Photo',
+            'base' => '\ET\Builder\Packages\Module\Layout\Components\DynamicContent\DynamicContentOptionBase',
         ),
     );
 
@@ -172,7 +180,7 @@ function wp_seed_content_load_divi_dynamic_content_testimonial_fields()
 
         if (
             !class_exists($class_name, false)
-            || !is_subclass_of($class_name, $base_class_name)
+            || !is_subclass_of($class_name, $source['base'])
             || !is_subclass_of($class_name, '\ET\Builder\Packages\Module\Layout\Components\DynamicContent\DynamicContentOptionInterface')
         ) {
             continue;
