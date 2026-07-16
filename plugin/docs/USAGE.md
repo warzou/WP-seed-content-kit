@@ -12,6 +12,36 @@ Les shortcodes publics sont :
 - `[seed_testimonials]` ;
 - `[seed_quotes]`.
 
+## API PHP Collections V1
+
+Collections V1 sélectionne des contenus publiés dont `post_password` est exactement vide et retourne uniquement leurs IDs. Elle ne produit aucun HTML et ne modifie pas encore les requêtes des shortcodes publics.
+
+La collection Témoignages est disponible avec :
+
+```text
+wp_seed_content_get_testimonials($args = array())
+```
+
+Arguments canoniques et valeurs par défaut :
+
+- `ids=array()` : sélection manuelle autoritaire par tableau d'entiers positifs ;
+- `featured=all` : `all`, `only` ou `exclude` ;
+- `limit=0` : tous les résultats éligibles ;
+- `orderby=display_order` : `display_order`, `date`, `testimonial_date` ou `id` ;
+- `order=asc` : `asc` ou `desc`.
+
+Une sélection `ids` non vide conserve l'ordre fourni, retire doublons, contenus non publiés et publications protégées par mot de passe, ignore les autres filtres et ne cherche jamais de remplaçant. Un ID explicite ne contourne jamais cette protection. Le module Témoignages désactivé retourne toujours un tableau vide.
+
+La Citation quotidienne est disponible avec :
+
+```text
+wp_seed_content_get_daily_quote($args = array())
+```
+
+Elle retourne un ID de Citation publiée non protégée, stable pour la date civile et le fuseau WordPress du site, ou `0` si aucune Citation publique non protégée n'est éligible ou si le module est désactivé. Elle n'utilise ni hasard, ni transient, ni état persistant.
+
+Les shortcodes `[seed_testimonials]` et `[seed_quotes]` conservent dans ce lot leurs paramètres, valeurs par défaut et requêtes historiques.
+
 ## Cards
 
 `[seed_cards]` affiche des articles WordPress natifs sous forme de cartes.

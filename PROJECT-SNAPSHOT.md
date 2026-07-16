@@ -1,7 +1,7 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 15 juillet 2026
-Statut : version 0.3.0 publiée ; lot B Modèle Témoignage implémenté localement et en attente de revue du diff
+Date : 16 juillet 2026
+Statut : version 0.3.0 publiée ; lot B intégré sur `main` ; lot C Collections local, non committé, en cours de correction et de revue finale
 Version courante : 0.3.0
 Version stable publiée : 0.3.0
 Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
@@ -269,7 +269,7 @@ Le rendu natif Témoignages utilise désormais `wp_seed_content_get_testimonial_
 
 Aucun shortcode, requête, filtre, template ou CSS n'a été modifié. La validation runtime sur `emilieaucoeurdeletre.fr` confirme par SHA256 des collections, filtres, ordres manuels et templates natifs strictement identiques. Les quatre consommateurs unitaires principaux utilisent désormais la Content Data API : `quotes/template-data.php`, `quotes/render.php`, `testimonials/template-data.php` et `testimonials/render.php`. Aucun scénario runtime Layout Divi Témoignages dédié n'est encore disponible.
 
-Elle ne créera ni API générique de collections, ni abstraction inter-plugin, ni registre central WP Seed.
+La Content Data API ne sélectionne aucune collection et ne devient ni une abstraction inter-plugin, ni un registre central WP Seed. La sélection V1 appartient à la couche Collections séparée.
 
 Les modules Citation et Témoignage sont normalisés parce qu'ils sont actuellement intégrés à Content Kit. Cette décision ne fixe pas leur propriété métier à long terme.
 
@@ -326,7 +326,7 @@ Le résolveur consomme uniquement la Content Data API : il ne lit aucune méta d
 
 Les IDs explicites et courants fournis dans le contexte sont prioritaires et autoritaires. S'ils sont invalides, inexistants, incompatibles ou inaccessibles, le résolveur retourne la valeur vide typée du champ sans fallback vers un autre contexte. `allow_unpublished` n'est accepté que pour la valeur booléenne stricte `true` ; la Content Data API reste propriétaire du contrôle d'accès.
 
-Dynamic Data reste séparé des collections et des boucles. Le provider serveur Gutenberg Block Bindings et le provider expérimental Divi 5 consomment le résolveur commun. L'état d'activation d'un module ne bloque pas les API unitaires lorsqu'un contenu publié compatible est fourni ; la précondition « module actif » reste limitée à la future sélection de Collections.
+Dynamic Data reste séparé des collections et des boucles. Le provider serveur Gutenberg Block Bindings et le provider expérimental Divi 5 consomment le résolveur commun. L'état d'activation d'un module ne bloque pas les API unitaires lorsqu'un contenu publié compatible est fourni ; la précondition « module actif » reste limitée à la sélection par la couche Collections.
 
 La validation runtime du socle a été réalisée sur `emilieaucoeurdeletre.fr` :
 
@@ -406,7 +406,7 @@ Le provider expérimental Divi 5 Dynamic Content expose les quatre champs texte 
 - sélection, application, sauvegarde et réouverture visuelles validées pour les huit options antérieures ;
 - frontend Theme Builder en contexte `seed_quote` validé pour les quatre valeurs ;
 - frontend `seed_testimonial` validé pour Texte, Nom et Information complémentaire, y compris chaîne vide, multiligne, Unicode et HTML historique ;
-- persistance brute unique et reconnaissance visuelle validées pour les quatre options Témoignage antérieures ; la Date du témoignage reste à valider visuellement ;
+- persistance brute unique et reconnaissance visuelle validées pour les cinq options Témoignage ;
 - source Photo de type `image`, sans source dérivée, tableau média ou HTML transmis à Divi ;
 - reconstruction par Divi des IDs média, dimensions, `srcset` et `sizes` pour les pièces jointes locales testées ; alt retrouvé sur le single mais non garanti dans la boucle ;
 - rendu frontend Photo validé en single et en boucle, sans variable brute ni chaîne `Array` ;
@@ -417,4 +417,28 @@ Le provider expérimental Divi 5 Dynamic Content expose les quatre champs texte 
 
 Le provider Gutenberg serveur est inclus depuis la version 0.3.0 ; son interface éditeur native reste différée. Le provider Divi 5 conserve un statut expérimental et les limites visuelles documentées ci-dessus. Les shortcodes publics et les layouts Divi Library restent inchangés ; le lot B étend uniquement les placeholders Témoignage.
 
-Le lot B Modèle Témoignage réactive l'édition de la date civile et de l'Information complémentaire, normalise la date dans Content Data, l'expose dans Dynamic Data, Gutenberg et Divi, et ajoute les placeholders `{{context}}` et `{{date}}`. Il n'ajoute aucune API Collections, ne modifie aucun CPT et ne déclenche aucun changement de version. Tout jalon ultérieur reste soumis à une revue séparée.
+Le lot B Modèle Témoignage est intégré sur `main`. Il réactive l'édition de la date civile et de l'Information complémentaire, normalise la date dans Content Data, l'expose dans Dynamic Data, Gutenberg et Divi, et ajoute les placeholders `{{context}}` et `{{date}}`. Il n'a ajouté aucune API Collections, modifié aucun CPT ni déclenché de changement de version.
+
+## 15. Collections V1
+
+Le contrat canonique est défini dans :
+
+- `docs/COLLECTIONS.md`.
+
+Le lot C est implémenté localement et reste non committé pendant sa correction et sa revue finale dans :
+
+- `plugin/includes/core/collections.php` ;
+- `tests/collections-harness.php`.
+
+Le fichier cœur est chargé immédiatement après `core/modules.php`. Il expose :
+
+- `wp_seed_content_get_testimonials($args = array())`, qui retourne une liste ordonnée d'IDs de Témoignages publiés non protégés ;
+- `wp_seed_content_get_daily_quote($args = array())`, qui retourne l'ID quotidien déterministe d'une Citation publiée non protégée ou `0`.
+
+La collection Témoignages applique le garde du module avant toute requête, prend en charge `ids`, `featured`, `limit`, `orderby` et `order`, et stabilise tous les départages. Le mode `ids` est autoritaire et sans fallback. Les trois parcours exigent un `post_password` exactement vide. La Citation quotidienne utilise la date civile WordPress, `home_url('/')`, SHA-256, sept caractères hexadécimaux et un modulo sur les IDs triés.
+
+Content Data et Dynamic Data restent indépendants de l'activation des modules. Aucun shortcode, Template, provider, CPT ou rendu n'est migré dans ce lot. Aucun cache applicatif, transient, filtre public ou état persistant n'est ajouté.
+
+Le harnais isolé valide 95 assertions, dont l'exclusion des publications protégées dans les modes normal, `ids` et Citation quotidienne. La recette en lecture seule sous WordPress 7.0.1 et PHP 8.4.21 confirme les types de retour, les contenus publiés, les gardes sans requête, la formule quotidienne, trois fuseaux, l'identité visiteur/administrateur et des sorties de shortcodes strictement identiques avant/après. La compatibilité PHP 7.0 et WordPress 6.5 repose encore sur la syntaxe/API minimale et la revue statique, faute de runtime local correspondant.
+
+Après le commit du lot C, la prochaine étape prévue est le Lot D : adaptateurs shortcodes, Templates et builders. Ce lot reste séparé et n'est pas commencé. La release publique demeure la version 0.3.0.

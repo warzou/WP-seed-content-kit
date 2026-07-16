@@ -58,6 +58,20 @@ Vérifier les filtres, limites, tris, contenus mis en avant, ordres manuels, pla
 - désactiver chaque module fonctionnel et confirmer qu'un contenu publié explicitement compatible reste résoluble par Content Data et Dynamic Data ;
 - vérifier qu'aucun resolver ne produit de HTML ou ne lit directement les métas.
 
+## Collections V1
+
+Depuis la racine du dépôt source, exécuter le harnais direct :
+
+```text
+php tests/collections-harness.php
+```
+
+Le harnais doit valider les valeurs par défaut, les arguments mal formés, le mode `ids` autoritaire, les états publiés/brouillon/privé/protégé par mot de passe, les valeurs historiques de `_seed_featured`, les quatre tris dans les deux sens, les égalités par ID, les dates métier invalides en fin de liste, `limit` et les gardes de modules. Les modes normal et `ids` doivent exclure tout `post_password` non vide sans fallback ; `featured`, le tri et la limite ne doivent jamais le réintroduire. Content Data et Dynamic Data doivent rester résolubles indépendamment de ces gardes.
+
+Pour la Citation quotidienne, vérifier l'exclusion des Citations protégées avant le tri et le calcul, le retour `0` si elles sont les seules candidates, la liste d'IDs publics triée, la graine `home_url('/')|YYYY-MM-DD`, les sept caractères SHA-256, le modulo, l'absence de mutation et les fuseaux `Europe/Paris`, `Pacific/Kiritimati` et `America/Adak`. Un test WordPress réel peut utiliser les contenus publiés existants ; aucune fixture publiée n'est nécessaire lorsque ces contenus suffisent.
+
+Confirmer qu'un appel normal exécute une seule requête de posts, que le cache des métadonnées WordPress évite les N+1, et qu'un module désactivé retourne avant toute requête. Aucun transient, cache applicatif ou filtre public Collections ne doit être ajouté.
+
 ## Gutenberg Block Bindings
 
 - confirmer l'enregistrement unique de `wp-seed-content-kit/dynamic-data` ;

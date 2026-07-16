@@ -1,17 +1,17 @@
 # Collections V1
 
-Statut : contrat de conception candidat avant implémentation
+Statut : contrat V1 et API PHP implémentés localement dans le lot C non committé, en cours de correction et de revue finale
 
-Ce document définit le contrat canonique cible des Collections V1 de WP Seed Content Kit.
+Ce document définit le contrat canonique des Collections V1 de WP Seed Content Kit.
 
-Il fixe le modèle métier enrichi du Témoignage, la sélection ordonnée des Témoignages, la sélection quotidienne d'une Citation et la frontière avec les adaptateurs de présentation. Il ne constitue pas une documentation de fonctionnalités déjà toutes implémentées.
+Il fixe le modèle métier enrichi du Témoignage, la sélection ordonnée des Témoignages, la sélection quotidienne d'une Citation et la frontière avec les adaptateurs de présentation. Le lot C implémente uniquement l'API PHP de sélection ; les adaptations de shortcodes et de builders restent des lots séparés.
 
 En particulier :
 
-- la Content Data API fournit `testimonial.testimonial_date`, indépendamment de toute API Collections ;
+- la Content Data API fournit `testimonial.testimonial_date`, indépendamment de l'API Collections ;
 - le registre Dynamic Data comprend treize champs, dont la date ISO du témoignage ;
 - les shortcodes publics conservent leur syntaxe et leurs valeurs historiques tant qu'un lot d'adaptation distinct n'est pas validé ;
-- aucune fonction PHP de collection n'existe au moment de la rédaction de ce contrat.
+- les deux fonctions PHP Collections sont chargées globalement depuis `includes/core/collections.php`, après l'état des modules.
 
 ## 1. Objectif
 
@@ -185,21 +185,21 @@ Le changement de libellé ne demande ni alias, ni copie, ni migration de donnée
 
 ## 7. Collection Témoignages
 
-### 7.1 Fonction conceptuelle
+### 7.1 Fonction PHP
 
-La fonction métier recommandée est conceptuellement :
+La fonction PHP est :
 
 ```text
-wp_seed_content_get_testimonials( array $args = array() )
+wp_seed_content_get_testimonials($args = array())
 ```
 
-La signature PHP définitive sera vérifiée pendant le lot d'implémentation. Le contrat de sortie est :
+L'argument canonique est un tableau. La signature reste volontairement non typée afin qu'un appel mal formé soit normalisé sans `TypeError` sous PHP 7.0 ; les valeurs internes restent contrôlées strictement. Le contrat de sortie est :
 
 ```text
 array<int>
 ```
 
-Chaque élément est l'ID positif d'un `seed_testimonial` publié et accessible. La liste est ordonnée et ne contient aucun doublon.
+Chaque élément est l'ID positif d'un `seed_testimonial` publié, accessible et non protégé par mot de passe : son `post_password` est exactement vide. La liste est ordonnée et ne contient aucun doublon.
 
 ### 7.2 Arguments V1
 
@@ -257,6 +257,7 @@ La sélection manuelle suit les règles suivantes :
 - un contenu inexistant est retiré ;
 - un contenu d'un autre CPT est retiré ;
 - un brouillon, contenu privé, en attente ou dans la corbeille est retiré ;
+- une publication protégée par mot de passe est retirée, y compris lorsque son ID est fourni explicitement ;
 - aucun contenu de remplacement n'est recherché ;
 - une liste entièrement invalide retourne `array()` ;
 - `limit` tronque la liste nettoyée depuis son début ;
@@ -280,6 +281,8 @@ Le shortcode historique utilise actuellement `all`, `true` et `false`. Un futur 
 - `false` vers `exclude`.
 
 La convention canonique de l'API reste `all|only|exclude` afin d'éviter de mélanger chaînes et booléens.
+
+Si plusieurs valeurs `_seed_featured` existent exceptionnellement pour un même contenu, seule la valeur canonique renvoyée par `get_post_meta($post_id, '_seed_featured', true)` est prise en compte. Collections ne fusionne pas ces valeurs et ne crée aucune migration.
 
 Une collection `only` vide retourne `array()`. Elle ne bascule jamais vers les Témoignages récents ou non mis en avant.
 
@@ -358,26 +361,28 @@ Les erreurs techniques et le contrat exact d'exception ou de diagnostic interne 
 
 ## 14. Citation quotidienne
 
-### 14.1 Fonction conceptuelle
+### 14.1 Fonction PHP
 
-La fonction métier recommandée est conceptuellement :
+La fonction PHP est :
 
 ```text
-wp_seed_content_get_daily_quote( array $args = array() )
+wp_seed_content_get_daily_quote($args = array())
 ```
+
+L'argument est réservé à une évolution documentée et toute valeur fournie est ignorée en V1. La signature défensive accepte un appel mal formé sans changer le type de retour.
 
 Elle retourne :
 
-- un ID positif de `seed_quote` publié ;
+- un ID positif de `seed_quote` publié et non protégé par mot de passe ;
 - `0` lorsque le module Citations est désactivé ou qu'aucune Citation n'est éligible.
 
-La signature reste conceptuelle. Aucun filtre supplémentaire n'est contractuel dans les arguments V1 ; le tableau est réservé à une évolution documentée et ne constitue pas un mécanisme d'extension implicite.
+Aucun filtre supplémentaire n'est contractuel dans les arguments V1 ; le tableau réservé ne constitue pas un mécanisme d'extension implicite.
 
 ### 14.2 Algorithme déterministe
 
 La sélection V1 suit cette formule canonique :
 
-1. récupérer uniquement les IDs des Citations publiées et accessibles ;
+1. récupérer uniquement les IDs des Citations publiées, accessibles et dont `post_password` est exactement vide ;
 2. retirer tout ID invalide ou d'un autre CPT ;
 3. trier les IDs par ordre numérique ascendant ;
 4. si la liste est vide, retourner `0` ;
@@ -398,7 +403,7 @@ La sélection n'utilise pas :
 - un compteur de rotation ;
 - un état de session ou un cookie visiteur.
 
-SHA-256, la longueur de sept caractères hexadécimaux et le calcul modulo sont contractuels. La valeur intermédiaire maximale tient dans 28 bits ; la méthode produit donc le même index sur les plateformes PHP 32 et 64 bits. Le lot PHP devra couvrir cette formule exacte par des tests.
+SHA-256, la longueur de sept caractères hexadécimaux et le calcul modulo sont contractuels. La valeur intermédiaire maximale tient dans 28 bits ; la méthode produit donc le même index sur les plateformes PHP 32 et 64 bits. Le harnais du lot C couvre cette formule exacte par des tests.
 
 ### 14.3 Différence avec le shortcode historique
 
@@ -417,6 +422,8 @@ Le contrat garantit :
 - une sélection déterministe pour une date WordPress donnée et une liste éligible inchangée ;
 - aucun changement aléatoire entre deux calculs identiques ;
 - aucun mécanisme interne de purge d'un cache tiers.
+
+L'implémentation récupère les posts publiés non protégés en une requête, amorce le cache des métadonnées pour les tris et filtres concernés, puis classe les résultats en PHP. Aucun cache applicatif, transient ou état persistant n'est ajouté. Cette stratégie est adaptée au faible volume actuellement audité ; une optimisation ne sera réévaluée qu'en présence de plusieurs centaines de contenus ou d'une mesure de performance défavorable.
 
 Il ne garantit pas :
 
@@ -606,7 +613,7 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 - valider et committer le présent document ;
 - ne modifier aucun comportement runtime.
 
-### Lot B - Modèle Témoignage implémenté localement
+### Lot B - Modèle Témoignage intégré
 
 - réactiver la date ISO facultative ;
 - réintroduire l'édition de `context` sous le libellé Information complémentaire ;
@@ -615,12 +622,12 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 - valider les données historiques ;
 - ne pas introduire l'API Collections dans le même diff.
 
-### Lot C - API Collections PHP
+### Lot C - API Collections PHP implémentée localement
 
-- implémenter la sélection Témoignages ;
-- implémenter la Citation quotidienne ;
-- charger la couche sans modifier les consommateurs ;
-- ajouter les tests directs.
+- sélection Témoignages dans `plugin/includes/core/collections.php` ;
+- Citation quotidienne déterministe dans le même fichier ;
+- chargement global après `core/modules.php`, sans modifier les consommateurs ;
+- harnais direct reproductible dans `tests/collections-harness.php`.
 
 ### Lot D - Adaptation des shortcodes et Templates
 
@@ -636,7 +643,9 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 - Spectra bloc par bloc ;
 - comparaison des résultats avec le shortcode canonique.
 
-## 26. Matrice de tests future
+## 26. Matrice de tests V1
+
+Le lot C couvre automatiquement la sélection, les normalisations, les tris, les gardes de modules, les fuseaux et les types de retour. Les lignes concernant les adaptateurs restent des recettes futures.
 
 ### 26.1 Modèle Témoignage
 
@@ -659,11 +668,12 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 
 | Cas | Résultat attendu |
 | --- | --- |
-| Valeurs par défaut | Tous les publiés, `display_order ASC`, ID ASC. |
+| Valeurs par défaut | Tous les publiés non protégés, `display_order ASC`, ID ASC. |
 | `display_order=0` avec positions positives | Les valeurs `0` apparaissent en premier en ordre `asc`, puis ID ASC. |
 | `featured=only` | Uniquement les mis en avant. |
 | `featured=exclude` | Uniquement les non mis en avant. |
 | Méta historique `_seed_featured=0` | Considérée comme non mise en avant ; incluse par `exclude`, exclue par `only`. |
+| Plusieurs valeurs `_seed_featured` | Seule la valeur renvoyée avec `single=true` est évaluée ; aucune fusion ou migration. |
 | Aucun featured | Tableau vide, aucun fallback. |
 | `ids` ordonnés | Ordre fourni conservé. |
 | CSV `ids` vide dans un adaptateur shortcode | Normalisé en `ids=array()` ; le mode manuel n'est pas activé. |
@@ -671,6 +681,7 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 | ID inexistant | Ignoré. |
 | Mauvais CPT | Ignoré. |
 | Brouillon ou privé | Ignoré. |
+| Publication protégée, y compris dans `ids` | Ignorée ; aucun fallback. |
 | Tous IDs invalides | Tableau vide. |
 | Module désactivé avec `ids` non vide | Tableau vide ; `ids` ne contourne pas l'activation. |
 | `limit=0` | Tous les résultats éligibles. |
@@ -685,13 +696,14 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 
 | Cas | Résultat attendu |
 | --- | --- |
-| Plusieurs Citations | Un ID publié déterministe. |
+| Plusieurs Citations | Un ID publié non protégé déterministe. |
 | Même jour et même liste | Même ID. |
 | Même entrée sur PHP 32 et 64 bits | Même index et même ID. |
 | Jour suivant | Nouvelle sélection possible, non garantie différente. |
 | Une Citation | Même ID chaque jour. |
 | Aucune Citation | `0`. |
 | Brouillon | Jamais sélectionné. |
+| Uniquement des Citations protégées | `0`. |
 | Module désactivé | `0`. |
 | Fuseau WordPress différent | Frontière de jour fondée sur ce fuseau. |
 | Cache au-delà de minuit | Ancien HTML possible jusqu'à expiration du cache. |
@@ -795,7 +807,7 @@ L'implémentation future devra garantir :
 
 ## 29. Documentation par lot
 
-Le lot B local met déjà en cohérence :
+Le lot B intégré sur `main` met déjà en cohérence :
 
 - [docs/CONTENT-DATA-API.md](CONTENT-DATA-API.md) pour `testimonial_date` ;
 - [docs/DYNAMIC-DATA.md](DYNAMIC-DATA.md) pour le champ `testimonial.testimonial_date` ;
@@ -811,10 +823,12 @@ Les futurs lots Collections devront mettre à jour uniquement lorsque leur compo
 
 La documentation utilisateur ne doit pas annoncer une syntaxe shortcode ou une intégration builder avant son implémentation et sa validation runtime.
 
+Après le commit du lot C, la prochaine étape prévue est le Lot D : adaptation séparée des shortcodes, Templates et builders. Aucun de ces adaptateurs n'est implémenté par le lot C.
+
 ## 30. Règle de lecture
 
-Ce document fixe le contrat cible Collections V1 avant implémentation.
+Ce document fixe le contrat Collections V1. Le lot C implémente l'API PHP de sélection sans migrer les shortcodes, Templates ou providers existants.
 
-Lorsqu'il décrit une cible qui n'existe pas encore, il ne remplace pas la description du comportement courant dans Content Data, Dynamic Data ou USAGE. Les lots futurs devront mettre ces documents en cohérence au moment exact où le comportement correspondant sera implémenté.
+Lorsqu'il décrit un adaptateur ou une intégration qui n'existe pas encore, il ne remplace pas la description du comportement courant dans Content Data, Dynamic Data ou USAGE. Les lots futurs devront mettre ces documents en cohérence au moment exact où le comportement correspondant sera implémenté.
 
 En cas de contradiction entre une proposition technique et les priorités, états vides ou invariants de ce document, le contrat doit être réexaminé explicitement avant tout changement de code.

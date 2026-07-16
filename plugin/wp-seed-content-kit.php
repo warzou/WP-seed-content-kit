@@ -30,6 +30,7 @@ if (file_exists($wp_seed_content_divi_dynamic_content_file)) {
     require_once $wp_seed_content_divi_dynamic_content_file;
 }
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/modules.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/collections.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/assets.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/manual-order.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/module-menu.php';
