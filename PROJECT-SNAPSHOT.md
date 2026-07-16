@@ -1,13 +1,13 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 15 juillet 2026
-Statut : release candidate 0.3.0 préparée ; recette du ZIP exact encore à exécuter ; aucun tag ni release avant validation
-Version candidate : 0.3.0
-Version stable publiée : 0.2.33
-Commit stable : c64e1f2
-Tag stable : v0.2.33
-WordPress minimum candidat : 6.5
-PHP minimum candidat : 7.0
+Statut : version 0.3.0 publiée ; lot B Modèle Témoignage implémenté localement et en attente de revue du diff
+Version courante : 0.3.0
+Version stable publiée : 0.3.0
+Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
+Tag stable : v0.3.0
+WordPress minimum : 6.5
+PHP minimum : 7.0
 
 Ce document est la mémoire de reprise du dépôt WP Seed Content Kit. Le dépôt Git et le code committé priment en cas de contradiction technique.
 
@@ -154,7 +154,9 @@ Témoignages :
 - `{{photo_url}}` ;
 - `{{photo_alt}}` ;
 - `{{name}}` ;
-- `{{text}}`.
+- `{{text}}` ;
+- `{{context}}` ;
+- `{{date}}`.
 
 Citations :
 
@@ -211,7 +213,7 @@ Les contrôles de release obligatoires incluent :
 
 Ne jamais modifier Plugin Update Checker, le nom de l'asset ou le workflow de release dans un lot sans rapport.
 
-Pour le release candidate 0.3.0, aucun tag ni aucune GitHub Release ne doit être créé avant l'installation et la recette réussies du ZIP construit depuis le commit candidat exact.
+La release 0.3.0 a été publiée depuis le commit candidat validé. Les prochaines releases doivent conserver la même règle : recette du ZIP construit depuis le commit exact avant tout tag ou publication.
 
 ## 10. Content Data API V1
 
@@ -259,11 +261,11 @@ Aucun shortcode, requête, template ou CSS n'a été modifié. La validation run
 
 Les placeholders Témoignages utilisent désormais `wp_seed_content_get_testimonial_data()` dans `includes/modules/testimonials/template-data.php`. Les lectures directes de `_seed_testimonial_name`, `_seed_testimonial_text`, `_wp_attachment_image_alt` et `_thumbnail_id` ont disparu de ce consommateur.
 
-Le contrat public reste strictement inchangé, dans le même ordre et avec les mêmes types : `{{photo}}`, `{{name}}`, `{{photo_url}}`, `{{text}}` et `{{photo_alt}}`. `{{photo}}` reste généré avec `get_the_post_thumbnail()` en taille `thumbnail`, avec la classe `seed-testimonials__photo-image`, le lazy loading et les attributs WordPress natifs. `{{photo_url}}` continue d'utiliser `wp_get_attachment_url()`. `{{photo_alt}}` utilise l'alt normalisé puis retombe sur `name` ; ce fallback reste dans la couche de présentation. Si l'API échoue, les cinq placeholders restent présents avec des chaînes vides.
+Les cinq placeholders historiques restent dans le même ordre et avec les mêmes types : `{{photo}}`, `{{name}}`, `{{photo_url}}`, `{{text}}` et `{{photo_alt}}`. Le lot B ajoute ensuite `{{context}}` et `{{date}}`. `{{date}}` est une projection localisée de la date ISO ; `{{context}}` conserve l'identifiant historique. `{{photo}}` reste généré avec `get_the_post_thumbnail()` en taille `thumbnail`, avec la classe `seed-testimonials__photo-image`, le lazy loading et les attributs WordPress natifs.
 
 Le rendu natif Témoignages utilise désormais `wp_seed_content_get_testimonial_data()` dans `includes/modules/testimonials/render.php`. Les lectures directes stables de `_seed_testimonial_name`, `_seed_testimonial_text` et `_seed_testimonial_context` ont disparu. La photo repose sur `photo.id`, tandis que son HTML reste généré par `get_the_post_thumbnail()`.
 
-`_seed_testimonial_date` reste une compatibilité historique transitoire lue uniquement lorsque l'API a résolu un Témoignage valide. `wp_seed_content_format_date()` et toute la présentation restent dans `render.php` : HTML, classes, photo, échappement, footer et ordre nom, contexte, date.
+`_seed_testimonial_date` alimente désormais `testimonial_date` dans la Content Data API après validation calendaire stricte. Une valeur historique invalide reste intacte en base et devient `''` en lecture. À la sauvegarde, un champ absent préserve la méta, une chaîne exactement vide la supprime même si elle était invalide, une valeur non vide invalide préserve l'ancienne méta sans `trim()`, et une date valide au format exact `YYYY-MM-DD` la remplace. `wp_seed_content_format_date()` et toute la présentation restent hors de l'API : HTML, classes, photo, échappement, footer et ordre nom, contexte, date.
 
 Aucun shortcode, requête, filtre, template ou CSS n'a été modifié. La validation runtime sur `emilieaucoeurdeletre.fr` confirme par SHA256 des collections, filtres, ordres manuels et templates natifs strictement identiques. Les quatre consommateurs unitaires principaux utilisent désormais la Content Data API : `quotes/template-data.php`, `quotes/render.php`, `testimonials/template-data.php` et `testimonials/render.php`. Aucun scénario runtime Layout Divi Témoignages dédié n'est encore disponible.
 
@@ -278,7 +280,7 @@ Les modules Citation et Témoignage sont normalisés parce qu'ils sont actuellem
 - comportement fallback inchangé ;
 - templates existants inchangés ;
 - `context` de `[seed_testimonials]` conservé ;
-- lecture historique de `_seed_testimonial_date` conservée tant que les données existantes ne sont pas vérifiées ;
+- lecture historique de `_seed_testimonial_date` conservée sans migration ni réécriture automatique ;
 - aucune suppression automatique d'ancienne méta ;
 - aucune migration globale ;
 - visibilité publique des CPT inchangée dans le chantier API ;
@@ -298,7 +300,7 @@ Le socle PHP Dynamic Data V1 est implémenté dans :
 
 Il est chargé globalement après `core/content-data.php` et avant `core/modules.php`, indépendamment des modules actifs et des builders.
 
-Le registre V1 comprend exactement douze champs :
+Le registre V1 comprend exactement treize champs :
 
 - `quote.quote` ;
 - `quote.author` ;
@@ -309,6 +311,7 @@ Le registre V1 comprend exactement douze champs :
 - `testimonial.text` ;
 - `testimonial.name` ;
 - `testimonial.context` ;
+- `testimonial.testimonial_date` ;
 - `testimonial.photo` ;
 - `testimonial.featured` ;
 - `testimonial.display_order`.
@@ -323,12 +326,12 @@ Le résolveur consomme uniquement la Content Data API : il ne lit aucune méta d
 
 Les IDs explicites et courants fournis dans le contexte sont prioritaires et autoritaires. S'ils sont invalides, inexistants, incompatibles ou inaccessibles, le résolveur retourne la valeur vide typée du champ sans fallback vers un autre contexte. `allow_unpublished` n'est accepté que pour la valeur booléenne stricte `true` ; la Content Data API reste propriétaire du contrôle d'accès.
 
-Dynamic Data reste séparé des collections et des boucles. Le provider serveur Gutenberg Block Bindings est son premier provider ; aucun autre provider ni consommateur existant n'a été migré vers Dynamic Data.
+Dynamic Data reste séparé des collections et des boucles. Le provider serveur Gutenberg Block Bindings et le provider expérimental Divi 5 consomment le résolveur commun. L'état d'activation d'un module ne bloque pas les API unitaires lorsqu'un contenu publié compatible est fourni ; la précondition « module actif » reste limitée à la future sélection de Collections.
 
 La validation runtime du socle a été réalisée sur `emilieaucoeurdeletre.fr` :
 
 - 83 tests sur 83 réussis ;
-- validation réussie avec les modules désactivés ;
+- résolution unitaire Content Data et Dynamic Data maintenue avec les modules désactivés ;
 - aucune régression des shortcodes ni des templates existants.
 
 ## 13. Gutenberg Block Bindings V1
@@ -345,7 +348,7 @@ Il est chargé globalement après `core/dynamic-data.php` et avant `core/modules
 
 La source publique est `wp-seed-content-kit/dynamic-data`. Elle est enregistrée sur `init` à la priorité 10 par `wp_seed_content_register_gutenberg_block_bindings_source()` et résolue par `wp_seed_content_get_gutenberg_binding_value()`. Elle utilise les contextes `postId` et `postType`.
 
-Le provider texte V1 expose uniquement sept champs, annoncés comme `string` côté Gutenberg :
+Le provider texte V1 expose uniquement huit champs, annoncés comme `string` côté Gutenberg :
 
 - `quote.quote` ;
 - `quote.author` ;
@@ -353,7 +356,8 @@ Le provider texte V1 expose uniquement sept champs, annoncés comme `string` cô
 - `quote.source` ;
 - `testimonial.text` ;
 - `testimonial.name` ;
-- `testimonial.context`.
+- `testimonial.context` ;
+- `testimonial.testimonial_date`.
 
 Les cibles V1 sont `core/paragraph.content` et `core/heading.content`. Les arguments serveur sont `field_id`, obligatoire, et `post_id`, facultatif et autoritaire. Un `post_id` explicite ne retombe jamais sur le contexte courant après un échec.
 
@@ -365,12 +369,12 @@ La validation statique et runtime sous WordPress 7.0.1 confirme :
 - Query Loops Citations et Témoignages réussies, avec contextes distincts par élément ;
 - `null` conserve le contenu statique et `''` le remplace par une valeur vide ;
 - textes multilignes, Unicode et HTML historique validés ;
-- provider disponible avec les modules désactivés ;
+- provider disponible et contenu publié compatible résoluble avec les modules désactivés ;
 - brouillons non exposés ;
 - aucune régression des shortcodes ni des templates ;
 - aucun warning ou fatal WP Seed.
 
-Le provider reste un socle interne sans interface éditeur terminée. WordPress 6.5 n'a pas été testé en runtime ; sa compatibilité repose sur l'API officielle et la revue statique. Aucun JavaScript éditeur n'est implémenté. `testimonial.photo`, les champs `featured` et `display_order`, Spectra, Divi et Elementor restent hors de ce provider. Les Templates WP Seed et les Block Bindings restent deux workflows complémentaires.
+Le provider reste un socle interne sans interface éditeur terminée. WordPress 6.5 n'a pas été testé en runtime ; sa compatibilité repose sur l'API officielle et la revue statique. Aucun JavaScript éditeur n'est implémenté. `testimonial.photo`, les champs `featured` et `display_order`, Spectra, Divi et Elementor restent hors de ce provider. `testimonial.testimonial_date` retourne sa valeur ISO brute. Les Templates WP Seed et les Block Bindings restent deux workflows complémentaires.
 
 L'audit de l'intégration éditeur a confirmé les capacités publiques de `registerBlockBindingsSource`, `getFieldsList` et `getValues` disponibles à partir de WordPress 6.9, ainsi que les contextes `postId` et `postType` d'une Query Loop. Il a aussi confirmé que le filtrage natif observé reste global par type d'attribut : aucune API publique identifiée ne permet de limiter précisément les champs WP Seed à la source, au bloc et à l'attribut autorisés.
 
@@ -378,16 +382,16 @@ Le verdict initial de l'audit était `NEEDS HUMAN DECISION`. La décision humain
 
 Un futur réaudit éditeur ne sera engagé que si WordPress fournit un filtrage public suffisamment précis, une solution native officiellement supportée, ou si un besoin produit important justifie l'étude séparée d'une interface WP Seed dédiée.
 
-## 14. Périmètre du release candidate 0.3.0
+## 14. Périmètre Divi 5 expérimental
 
-Le provider expérimental Divi 5 Dynamic Content expose désormais les quatre champs texte Citation, les trois champs texte Témoignage et la photo du Témoignage avec l'architecture class-based fournie par Divi 5.
+Le provider expérimental Divi 5 Dynamic Content expose les quatre champs texte Citation, les quatre champs texte Témoignage et la photo du Témoignage avec l'architecture class-based fournie par Divi 5.
 
 - sources Citation : `wp_seed_content_quote_quote`, `wp_seed_content_quote_author`, `wp_seed_content_quote_era` et `wp_seed_content_quote_source` ;
 - base abstraite limitée aux Citations : `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` ;
 - quatre classes concrètes distinctes pour Texte, Auteur, Époque et Source ;
-- sources Témoignage : `wp_seed_content_testimonial_text`, `wp_seed_content_testimonial_name`, `wp_seed_content_testimonial_context` et `wp_seed_content_testimonial_photo` ;
+- sources Témoignage : `wp_seed_content_testimonial_text`, `wp_seed_content_testimonial_name`, `wp_seed_content_testimonial_context`, `wp_seed_content_testimonial_date` et `wp_seed_content_testimonial_photo` ;
 - base abstraite limitée aux Témoignages : `WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base` ;
-- trois classes texte concrètes pour Texte, Nom et Contexte, plus une classe Photo indépendante projetant uniquement `testimonial.photo.url` ;
+- quatre classes texte concrètes pour Texte, Nom, Information complémentaire et Date du témoignage, plus une classe Photo indépendante projetant uniquement `testimonial.photo.url` ;
 - bootstrap : `plugin/includes/integrations/divi/dynamic-content.php` ;
 - chargeurs Citation et Témoignage indépendants, chacun fondé sur une liste fermée ;
 - chargement sur `init`, priorité 10 ;
@@ -398,11 +402,11 @@ Le provider expérimental Divi 5 Dynamic Content expose désormais les quatre ch
 - contextes de boucle serveur fonctionnels avec des valeurs distinctes ;
 - `loop_id => null` hors boucle corrigé par recours à `post_id` ;
 - `loop_id` non nul autoritaire, sans fallback en cas d'invalidité ;
-- huit options REST uniques et 61 autres sources Divi préservées ;
-- sélection, application, sauvegarde et réouverture visuelles validées ;
+- neuf options WP Seed uniques côté serveur ;
+- sélection, application, sauvegarde et réouverture visuelles validées pour les huit options antérieures ;
 - frontend Theme Builder en contexte `seed_quote` validé pour les quatre valeurs ;
-- frontend `seed_testimonial` validé pour Texte, Nom et Contexte, y compris chaîne vide, multiligne, Unicode et HTML historique ;
-- persistance brute unique des quatre identifiants Témoignage et reconnaissance visuelle des pastilles dans les modules Texte et Image ;
+- frontend `seed_testimonial` validé pour Texte, Nom et Information complémentaire, y compris chaîne vide, multiligne, Unicode et HTML historique ;
+- persistance brute unique et reconnaissance visuelle validées pour les quatre options Témoignage antérieures ; la Date du témoignage reste à valider visuellement ;
 - source Photo de type `image`, sans source dérivée, tableau média ou HTML transmis à Divi ;
 - reconstruction par Divi des IDs média, dimensions, `srcset` et `sizes` pour les pièces jointes locales testées ; alt retrouvé sur le single mais non garanti dans la boucle ;
 - rendu frontend Photo validé en single et en boucle, sans variable brute ni chaîne `Array` ;
@@ -411,6 +415,6 @@ Le provider expérimental Divi 5 Dynamic Content expose désormais les quatre ch
 - statut expérimental maintenu ;
 - prévisualisation directe d'un corps Theme Builder sans contexte métier et recette visuelle Loop Builder autonome reportées.
 
-Le provider Gutenberg serveur fait partie du candidat ; son interface éditeur native reste différée. Le provider Divi 5 est inclus avec un statut expérimental et les limites visuelles documentées ci-dessus. Les shortcodes, Templates WP Seed, placeholders et layouts Divi Library restent inchangés.
+Le provider Gutenberg serveur est inclus depuis la version 0.3.0 ; son interface éditeur native reste différée. Le provider Divi 5 conserve un statut expérimental et les limites visuelles documentées ci-dessus. Les shortcodes publics et les layouts Divi Library restent inchangés ; le lot B étend uniquement les placeholders Témoignage.
 
-La prochaine étape est la recette complète du ZIP exact sur le site de validation, suivie d'un rollback. Aucun tag ni aucune release ne doit précéder cette validation. Tout jalon fonctionnel ultérieur doit faire l'objet d'un arbitrage séparé. Aucun champ média dérivé, booléen ou numérique ne fait partie de ce lot.
+Le lot B Modèle Témoignage réactive l'édition de la date civile et de l'Information complémentaire, normalise la date dans Content Data, l'expose dans Dynamic Data, Gutenberg et Divi, et ajoute les placeholders `{{context}}` et `{{date}}`. Il n'ajoute aucune API Collections, ne modifie aucun CPT et ne déclenche aucun changement de version. Tout jalon ultérieur reste soumis à une revue séparée.

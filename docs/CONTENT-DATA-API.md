@@ -1,10 +1,12 @@
 # Content Data API V1
 
-Statut : candidat canonique validé avant implémentation
+Statut : contrat canonique implémenté pour les modules Citation et Témoignage
 
 Ce document définit le contrat canonique de la Content Data API V1 de WP Seed Content Kit.
 
-Il décrit les données que l'API devra fournir et les responsabilités qu'elle devra respecter. Il devient canonique après validation et commit dans le dépôt. Il ne définit ni fonctions PHP, ni signatures, ni organisation technique définitive.
+Il décrit les données que l'API fournit et les responsabilités qu'elle respecte. Il constitue le contrat canonique du dépôt sans figer les signatures ni l'organisation technique au-delà de l'implémentation actuelle.
+
+L'extension `testimonial_date` relève du lot B de développement postérieur à la release publique 0.3.0.
 
 La V1 normalise uniquement les modules Citation et Témoignage actuellement intégrés à WP Seed Content Kit. Elle ne décide pas de leur propriété métier à long terme, ne crée pas une API inter-plugin et ne transforme pas Content Kit en registre central de l'écosystème WP Seed. Elle ne crée aucune dépendance entre Content Kit et les autres plugins WP Seed.
 
@@ -121,8 +123,9 @@ Les consommateurs doivent pouvoir distinguer simplement une valeur absente d'un 
 | --- | --- | --- |
 | `text` | chaîne | Valeur métier principale. Chaîne vide si absente. |
 | `name` | chaîne | Nom ou initiales. Chaîne vide si absent. |
-| `context` | chaîne | Contexte éditorial. Chaîne vide si absent. |
+| `context` | chaîne | Information complémentaire. Chaîne vide si absente. |
 | `photo` | objet média ou `null` | `null` si aucune photo n'est associée. |
+| `testimonial_date` | chaîne ISO | Date civile `YYYY-MM-DD` valide, ou chaîne vide si absente ou invalide. |
 | `featured` | booléen | `false` si le témoignage n'est pas mis en avant. |
 | `display_order` | entier | Ordre éditorial normalisé. |
 
@@ -130,11 +133,13 @@ Les consommateurs doivent pouvoir distinguer simplement une valeur absente d'un 
 
 - `text` est la valeur métier principale ;
 - `title` ne remplace jamais `text` ;
-- `name` et `context` peuvent être vides ;
-- `context` reste dans le contrat stable car il est encore public, documenté et utilisé par `[seed_testimonials]`, même s'il n'est plus exposé dans l'éditeur actuel ;
+- `name`, `context` et `testimonial_date` peuvent être vides ;
+- `context` reste dans le contrat stable, conserve son stockage historique et porte le libellé utilisateur « Information complémentaire » ;
+- `testimonial_date` est une date civile stricte, sans heure ni conversion de fuseau ; une valeur historique invalide est normalisée en `''` sans réécriture ;
 - `photo` représente la photo métier alimentée par l'image mise en avant WordPress ;
 - aucune balise image n'est produite par l'API ;
 - `{{photo}}`, `{{photo_url}}` et `{{photo_alt}}` sont des projections de présentation construites en aval à partir de `photo` ;
+- `{{context}}` et `{{date}}` sont des projections de présentation opt-in ; `{{date}}` est localisé uniquement au rendu ;
 - aucun HTML n'est généré.
 
 ## 6. Contrat média V1
@@ -182,6 +187,10 @@ Le choix technique de l'interface d'autorisation n'est pas défini dans ce docum
 ### 7.3 Type attendu
 
 La résolution doit vérifier que le contenu appartient bien au type métier demandé. Une Citation ne peut pas être retournée comme Témoignage, et inversement.
+
+### 7.4 État du module
+
+L'état d'activation du module ne bloque pas la lecture unitaire par identifiant d'un contenu publié compatible. Il contrôle les interfaces fonctionnelles du module. La précondition « module actif » appartient à la future sélection de Collections, pas au contrat unitaire de Content Data.
 
 ## 8. Responsabilités de l'API
 
@@ -247,16 +256,15 @@ Le contexte du témoignage fait partie du contrat stable V1.
 
 Son stockage historique actuel est `_seed_testimonial_context`. Cette clé est un détail interne et ne doit pas être exposée aux consommateurs. Le contrat public utilise `context`.
 
-### 11.2 Date historique du témoignage
+### 11.2 Date du témoignage
 
-La donnée stockée historiquement sous `_seed_testimonial_date` ne fait pas partie du contrat stable V1.
+La donnée stockée sous `_seed_testimonial_date` alimente le champ stable `testimonial_date`.
 
-Elle reste une compatibilité transitoire :
-
-- sa lecture historique ne doit pas être supprimée lors des premiers lots d'implémentation ;
-- son éventuelle présence sur avecguillaume.fr doit être vérifiée avant toute suppression ;
-- elle ne devient ni un nouveau champ stable, ni un placeholder V1 ;
-- aucune migration ou suppression automatique n'est autorisée.
+- le format canonique est strictement `YYYY-MM-DD` et doit représenter une date grégorienne réelle ;
+- une valeur absente ou invalide est exposée comme `''` ;
+- aucune conversion de fuseau n'est appliquée à la donnée métier ;
+- une valeur historique invalide n'est ni réécrite ni supprimée au chargement ;
+- la localisation appartient uniquement aux renderers et placeholders de présentation.
 
 ### 11.3 Consentement historique
 
@@ -270,29 +278,29 @@ La normalisation en lecture ne constitue jamais une autorisation de réécrire, 
 
 ## 12. Stratégie de migration progressive
 
-La migration vers la Content Data API doit être réalisée par petits lots, sans changer les contrats publics existants.
+La migration vers la Content Data API a été réalisée par petits lots, sans changer les contrats publics existants.
 
-Ordre conceptuel :
+Ordre suivi :
 
 1. introduire la normalisation en lecture seule ;
 2. valider les contrats Citation, Témoignage et média sur des données réelles ;
 3. faire consommer les données normalisées par les rendus fallback ;
 4. faire consommer les mêmes données par les fournisseurs de placeholders ;
 5. faire utiliser l'API par les shortcodes après leurs requêtes existantes ;
-6. seulement ensuite, envisager Dynamic Data, Block Bindings ou providers builders dans des lots séparés.
+6. traiter ensuite Dynamic Data, Block Bindings et les providers builders dans des lots séparés.
 
-Chaque étape doit conserver un comportement public identique avant de passer à la suivante.
+Chaque étape a conservé un comportement public identique avant le passage à la suivante.
 
 Les métaboxes et handlers de sauvegarde restent propriétaires de l'édition et du stockage. La Content Data API V1 est une couche de lecture et de normalisation, pas une couche d'écriture.
 
 ## 13. Invariants de compatibilité
 
-L'implémentation future doit garantir :
+L'implémentation actuelle et ses évolutions doivent garantir :
 
 - aucun changement des shortcodes publics ;
 - aucun changement des attributs de shortcodes ;
 - aucun changement des placeholders existants ;
-- maintien de `{{photo}}`, `{{photo_url}}` et `{{photo_alt}}` ;
+- maintien de `{{photo}}`, `{{photo_url}}` et `{{photo_alt}}`, avec ajout opt-in de `{{context}}` et `{{date}}` ;
 - maintien du filtre `context` de `[seed_testimonials]` ;
 - maintien de `orderby="menu_order"` au niveau du shortcode, même si le contrat métier expose `display_order` ;
 - contenus non publiés exclus par défaut ;
@@ -302,19 +310,18 @@ L'implémentation future doit garantir :
 - aucune migration globale de données ;
 - aucun changement de la visibilité publique actuelle des CPT dans le lot API ;
 - le maintien de `permalink` tant que les CPT restent publics ne consacre pas leurs pages individuelles comme fonctionnalité produit ;
-- la migration future du fallback Témoignage ne doit pas supprimer la lecture historique de `_seed_testimonial_date` avant vérification des données existantes, notamment sur avecguillaume.fr ;
+- une date historique invalide reste intacte si le champ est absent ou si une nouvelle valeur non vide est invalide ; une soumission exactement vide la supprime volontairement, et une date valide la remplace ;
 - Cards inchangé et hors de la Content Data API V1.
 
-## 14. Sujets reportés
+## 14. Sujets hors périmètre
 
-Les sujets suivants sont explicitement reportés :
+Les sujets suivants restent hors du contrat Content Data API ou sont documentés par un contrat séparé :
 
 - API de collections ;
 - contrat de données pour Cards ;
 - Annuaire ;
 - Créations sonores ;
 - variantes et tailles d'images ;
-- contrat stable pour une date de témoignage ;
 - évolution de la visibilité publique des CPT ;
 - usage produit des pages individuelles Citation et Témoignage ;
 - Dynamic Data ;
@@ -325,6 +332,6 @@ Les sujets suivants sont explicitement reportés :
 
 ## 15. Règle de lecture
 
-Ce document fixe le contrat métier V1 avant son implémentation technique.
+Ce document fixe le contrat métier V1 et décrit son implémentation actuelle.
 
 En cas de contradiction future entre une proposition d'implémentation et ce document, le contrat métier décrit ici doit être réexaminé explicitement avant toute modification. Une contrainte technique ne doit pas modifier silencieusement le sens des données.

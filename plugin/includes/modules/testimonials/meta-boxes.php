@@ -102,7 +102,14 @@ function wp_seed_content_render_testimonial_meta_box($post)
     wp_nonce_field('wp_seed_content_save_testimonial_meta', 'wp_seed_content_testimonial_nonce');
     $thumbnail_id = get_post_thumbnail_id($post->ID);
     $thumbnail = $thumbnail_id ? wp_get_attachment_image($thumbnail_id, 'thumbnail', false, array('class' => 'seed-testimonial-photo-field__image')) : '';
+    $stored_date = (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_date');
+    $testimonial_date = wp_seed_content_sanitize_iso_date($stored_date);
+    $has_invalid_stored_date = '' !== $stored_date && '' === $testimonial_date;
     ?>
+    <p>
+        <label for="wp_seed_content_testimonial_text"><strong><?php esc_html_e('Témoignage', 'wp-seed-content-kit'); ?></strong></label><br>
+        <textarea id="wp_seed_content_testimonial_text" name="_seed_testimonial_text" rows="8" class="widefat"><?php echo esc_textarea(wp_seed_content_get_meta($post->ID, '_seed_testimonial_text')); ?></textarea>
+    </p>
     <p>
         <label for="wp_seed_content_testimonial_name"><strong><?php esc_html_e('Nom ou initiales', 'wp-seed-content-kit'); ?></strong></label><br>
         <input type="text" id="wp_seed_content_testimonial_name" name="_seed_testimonial_name" value="<?php echo esc_attr(wp_seed_content_get_meta($post->ID, '_seed_testimonial_name')); ?>" class="widefat">
@@ -123,8 +130,23 @@ function wp_seed_content_render_testimonial_meta_box($post)
         </p>
     </div>
     <p>
-        <label for="wp_seed_content_testimonial_text"><strong><?php esc_html_e('Témoignage', 'wp-seed-content-kit'); ?></strong></label><br>
-        <textarea id="wp_seed_content_testimonial_text" name="_seed_testimonial_text" rows="8" class="widefat"><?php echo esc_textarea(wp_seed_content_get_meta($post->ID, '_seed_testimonial_text')); ?></textarea>
+        <label for="wp_seed_content_testimonial_date"><strong><?php esc_html_e('Date du témoignage', 'wp-seed-content-kit'); ?></strong></label><br>
+        <input type="date" id="wp_seed_content_testimonial_date" name="_seed_testimonial_date" value="<?php echo esc_attr($testimonial_date); ?>">
+    </p>
+    <p class="description">
+        <?php esc_html_e('Date à laquelle le témoignage a été donné. Elle est indépendante de la date d’ajout dans WordPress.', 'wp-seed-content-kit'); ?>
+    </p>
+    <?php if ($has_invalid_stored_date) : ?>
+        <p class="notice notice-warning inline">
+            <?php esc_html_e('La date historique enregistrée n’est pas valide. Choisissez une date valide pour la remplacer, ou laissez le champ vide puis enregistrez pour la supprimer.', 'wp-seed-content-kit'); ?>
+        </p>
+    <?php endif; ?>
+    <p>
+        <label for="wp_seed_content_testimonial_context"><strong><?php esc_html_e('Information complémentaire', 'wp-seed-content-kit'); ?></strong></label><br>
+        <input type="text" id="wp_seed_content_testimonial_context" name="_seed_testimonial_context" value="<?php echo esc_attr(wp_seed_content_get_meta($post->ID, '_seed_testimonial_context')); ?>" class="widefat">
+    </p>
+    <p class="description">
+        <?php esc_html_e('Précision facultative affichée avec le témoignage, par exemple « En 3e année du parcours » ou « Après 2 ans de suivi ».', 'wp-seed-content-kit'); ?>
     </p>
     <p>
         <label>

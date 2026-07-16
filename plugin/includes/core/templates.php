@@ -250,6 +250,8 @@ function wp_seed_content_get_template_placeholders_by_module($module)
             'name' => __('Nom ou initiales', 'wp-seed-content-kit'),
             'text' => __('Texte du témoignage', 'wp-seed-content-kit'),
             'photo_alt' => __('Texte alternatif de la photo', 'wp-seed-content-kit'),
+            'context' => __('Information complémentaire', 'wp-seed-content-kit'),
+            'date' => __('Date du témoignage', 'wp-seed-content-kit'),
         );
     }
     if ('quotes' === $module) {
@@ -1094,7 +1096,7 @@ function wp_seed_content_get_template_example_by_module($module)
         return "<div class=\"quote-template\">\n{{quote}}\n<p>{{author}}</p>\n<p>{{source}}</p>\n<p>{{era}}</p>\n</div>";
     }
 
-    return "<div class=\"testimonial-template\">\n<img src=\"{{photo_url}}\" alt=\"{{photo_alt}}\">\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n</div>";
+    return "<div class=\"testimonial-template\">\n<img src=\"{{photo_url}}\" alt=\"{{photo_alt}}\">\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n<p>{{context}}</p>\n<p>{{date}}</p>\n</div>";
 }
 function wp_seed_content_seed_template_init_admin_columns()
 {

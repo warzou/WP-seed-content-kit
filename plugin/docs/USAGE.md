@@ -75,12 +75,14 @@ Champs d'édition actuels :
 - nom ou initiales ;
 - témoignage ;
 - photo ;
+- date du témoignage ;
+- Information complémentaire ;
 - mis en avant ;
 - ordre d'affichage WordPress.
 
-Le consentement de publication et la date historique ne sont plus des champs d'édition actifs.
+La date du témoignage est facultative, indépendante de la date d'ajout dans WordPress et stockée au format civil strict `YYYY-MM-DD`. Une date impossible n'est pas enregistrée et ne remplace pas une ancienne valeur. Laisser volontairement le champ vide puis enregistrer supprime la date stockée, même si une ancienne valeur était invalide. La date reste brute dans Content Data et Dynamic Data ; seuls les rendus de présentation la localisent selon les réglages WordPress, sans changer le jour métier.
 
-L'attribut public `context` reste pris en charge pour les données historiques ou importées qui possèdent encore une valeur de contexte. Aucun champ de contexte n'est actuellement affiché dans l'éditeur.
+Le champ Information complémentaire conserve l'identifiant technique historique `context` et la méta `_seed_testimonial_context`. Le consentement de publication n'est pas réintroduit.
 
 ## Citations
 
@@ -162,7 +164,9 @@ Si le layout est absent, invalide ou non publié, le contenu du template reste l
 - `{{photo_url}}` : URL de la photo ;
 - `{{photo_alt}}` : texte alternatif de la photo ;
 - `{{name}}` : nom ou initiales ;
-- `{{text}}` : texte du témoignage.
+- `{{text}}` : texte du témoignage ;
+- `{{context}}` : Information complémentaire ;
+- `{{date}}` : date du témoignage localisée pour la présentation.
 
 ### Citations
 
@@ -189,7 +193,8 @@ Le provider serveur Gutenberg expose les champs texte suivants :
 - `quote.source` ;
 - `testimonial.text` ;
 - `testimonial.name` ;
-- `testimonial.context`.
+- `testimonial.context` ;
+- `testimonial.testimonial_date`.
 
 Il prend en charge uniquement l'attribut `content` des blocs Core Paragraphe et Titre. Une Query Loop fournit le contexte de chaque contenu au rendu serveur.
 
@@ -197,7 +202,7 @@ L'interface éditeur native WP Seed reste différée. Aucun sélecteur WP Seed f
 
 ## Divi 5 Dynamic Content expérimental
 
-Dans le sélecteur Dynamic Content de Divi 5, les sources sont regroupées ainsi :
+Le provider Dynamic Content de Divi 5 enregistre côté serveur les sources regroupées ainsi :
 
 WP Seed — Citations :
 
@@ -210,10 +215,13 @@ WP Seed — Témoignages :
 
 - Texte ;
 - Nom ;
-- Contexte ;
+- Information complémentaire ;
+- Date du témoignage ;
 - Photo.
 
 Aucun shortcode ni identifiant fixe n'est nécessaire. Les valeurs utilisent le contenu courant ou l'élément courant d'une boucle. Une page ordinaire, un mauvais type de contenu ou une boucle incompatible produit une valeur vide sans fallback arbitraire.
+
+La source Date du témoignage retourne la valeur ISO canonique. Sa sélection et sa persistance visuelles doivent être validées séparément dans Divi ; les Templates utilisent `{{date}}` pour une présentation localisée.
 
 Photo est prioritairement compatible avec la propriété source du module Image. Divi peut reconstruire l'ID média, les dimensions, `srcset` et `sizes` à partir d'une URL locale. L'aperçu du Visual Builder peut rester vide et le texte alternatif n'est pas garanti dans tous les modules ou contextes de boucle.
 

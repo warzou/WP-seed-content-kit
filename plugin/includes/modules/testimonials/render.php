@@ -13,8 +13,8 @@ function wp_seed_content_render_testimonial_card($post_id)
     $photo = isset($data['photo']) && is_array($data['photo']) ? $data['photo'] : null;
     $photo_id = is_array($photo) && isset($photo['id']) ? absint($photo['id']) : 0;
 
-    // Preserve the historical date until existing data can be retired safely.
-    $date = !empty($data) ? wp_seed_content_format_date(wp_seed_content_get_meta($post_id, '_seed_testimonial_date')) : '';
+    $testimonial_date = isset($data['testimonial_date']) ? (string) $data['testimonial_date'] : '';
+    $date = wp_seed_content_format_date($testimonial_date);
 
     ob_start();
     ?>

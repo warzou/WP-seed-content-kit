@@ -81,11 +81,20 @@ function wp_seed_content_get_dynamic_data_fields()
         ),
         'testimonial.context' => array(
             'id' => 'testimonial.context',
-            'label' => __('Contexte', 'wp-seed-content-kit'),
+            'label' => __('Information complémentaire', 'wp-seed-content-kit'),
             'module' => 'testimonials',
             'type' => 'text',
             'post_type' => 'seed_testimonial',
             'data_key' => 'context',
+            'empty_value' => '',
+        ),
+        'testimonial.testimonial_date' => array(
+            'id' => 'testimonial.testimonial_date',
+            'label' => __('Date du témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'text',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'testimonial_date',
             'empty_value' => '',
         ),
         'testimonial.photo' => array(

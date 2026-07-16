@@ -45,6 +45,7 @@ function wp_seed_content_get_gutenberg_binding_value($source_args, $block_instan
         'testimonial.text',
         'testimonial.name',
         'testimonial.context',
+        'testimonial.testimonial_date',
     );
 
     if (!is_array($source_args) || !array_key_exists('field_id', $source_args)) {

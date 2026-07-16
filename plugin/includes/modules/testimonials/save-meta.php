@@ -9,6 +9,8 @@ function wp_seed_content_testimonial_meta_definitions()
     return array(
         '_seed_testimonial_name' => array('type' => 'text'),
         '_seed_testimonial_text' => array('type' => 'textarea'),
+        '_seed_testimonial_date' => array('type' => 'date'),
+        '_seed_testimonial_context' => array('type' => 'text'),
         '_seed_featured' => array('type' => 'checkbox'),
     );
 }
@@ -37,6 +39,27 @@ function wp_seed_content_save_testimonial_meta($post_id, $post)
 
     foreach (wp_seed_content_testimonial_meta_definitions() as $key => $definition) {
         $type = isset($definition['type']) ? $definition['type'] : 'text';
+
+        if ('date' === $type) {
+            if (!array_key_exists($key, $_POST)) {
+                continue;
+            }
+
+            $raw = wp_unslash($_POST[$key]);
+
+            if (is_string($raw) && '' === $raw) {
+                delete_post_meta($post_id, $key);
+                continue;
+            }
+
+            $value = wp_seed_content_sanitize_meta_value($raw, $definition);
+            if ('' !== $value) {
+                update_post_meta($post_id, $key, $value);
+            }
+
+            continue;
+        }
+
         $raw = isset($_POST[$key]) ? wp_unslash($_POST[$key]) : '';
         $value = wp_seed_content_sanitize_meta_value($raw, $definition);
 

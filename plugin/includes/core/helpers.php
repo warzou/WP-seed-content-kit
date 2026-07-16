@@ -17,8 +17,7 @@ function wp_seed_content_sanitize_meta_value($value, $definition)
     }
 
     if ('date' === $type) {
-        $value = sanitize_text_field($value);
-        return preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) ? $value : '';
+        return wp_seed_content_sanitize_iso_date($value);
     }
 
     return sanitize_text_field($value);
@@ -36,16 +35,18 @@ function wp_seed_content_is_truthy_meta($post_id, $key)
 
 function wp_seed_content_format_date($date)
 {
-    if (!$date) {
+    $date = wp_seed_content_sanitize_iso_date($date);
+    if ('' === $date) {
         return '';
     }
 
-    $timestamp = strtotime($date);
-    if (!$timestamp) {
+    $timezone = wp_timezone();
+    $date_object = DateTimeImmutable::createFromFormat('!Y-m-d', $date, $timezone);
+    if (!$date_object) {
         return '';
     }
 
-    return wp_date(get_option('date_format'), $timestamp);
+    return wp_date(get_option('date_format'), $date_object->getTimestamp(), $timezone);
 }
 
 function wp_seed_content_clamp_columns($columns)
@@ -86,4 +87,18 @@ function wp_seed_content_get_post_excerpt($post_id)
     }
 
     return $excerpt;
+}
+
+function wp_seed_content_sanitize_iso_date($value)
+{
+    if (!is_scalar($value)) {
+        return '';
+    }
+    $value = (string) $value;
+
+    if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/D', $value, $matches)) {
+        return '';
+    }
+
+    return checkdate((int) $matches[2], (int) $matches[3], (int) $matches[1]) ? $value : '';
 }

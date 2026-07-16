@@ -125,6 +125,7 @@ function wp_seed_content_get_testimonial_data($post_id, $args = array())
         array(
             'text' => (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_text'),
             'name' => (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_name'),
+            'testimonial_date' => wp_seed_content_sanitize_iso_date(wp_seed_content_get_meta($post->ID, '_seed_testimonial_date')),
             'context' => (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_context'),
             'photo' => wp_seed_content_get_media_data($thumbnail_id),
             'featured' => wp_seed_content_is_truthy_meta($post->ID, '_seed_featured'),

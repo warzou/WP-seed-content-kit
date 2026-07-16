@@ -64,6 +64,8 @@ La règle centrale est :
 
 La Query Loop sélectionne. Le résolveur fournit. Le provider adapte. Le bloc affiche.
 
+L'état d'activation d'un module ne désenregistre pas la source et ne bloque pas un contenu publié explicitement compatible. La précondition « module actif » reste propre à la future couche Collections.
+
 ## 3. Identifiant public de la source
 
 L'identifiant stable recommandé est :
@@ -101,7 +103,7 @@ L'intégration éditeur native a été auditée avec les API publiques disponibl
 Les capacités confirmées sont :
 
 - `registerBlockBindingsSource` pour inscrire la source côté éditeur ;
-- `getFieldsList` pour exposer les sept champs texte et persister `field_id` ;
+- `getFieldsList` pour exposer les huit champs texte et persister `field_id` ;
 - `getValues` pour fournir des valeurs synchrones au canvas ;
 - les contextes `postId` et `postType` d'une Query Loop pour distinguer chaque élément.
 
@@ -119,7 +121,7 @@ Le provider serveur implémenté reste limité à :
 
 - une source PHP ;
 - un callback serveur ;
-- les sept champs texte définis par ce document ;
+- les huit champs texte définis par ce document ;
 - `core/paragraph` et `core/heading` ;
 - le contexte courant d'une Query Loop ;
 - un ID explicite facultatif ;
@@ -141,7 +143,7 @@ Le provider serveur reste fonctionnel, public et testable indépendamment de cet
 
 ## 6. Champs exposés en V1
 
-Le provider texte V1 expose exactement sept champs.
+Le provider texte V1 expose exactement huit champs.
 
 Citation :
 
@@ -154,7 +156,8 @@ Témoignage :
 
 - `testimonial.text` ;
 - `testimonial.name` ;
-- `testimonial.context`.
+- `testimonial.context` ;
+- `testimonial.testimonial_date`.
 
 Les champs suivants restent dans le registre Dynamic Data mais ne sont pas exposés par ce provider V1 :
 
@@ -184,8 +187,9 @@ Le premier périmètre est strictement limité à :
 | `testimonial.text` | `textarea` | `string` | Paragraphe, Titre | `content` | `''` | Texte brut à valider | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
 | `testimonial.name` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
 | `testimonial.context` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Sans traitement propre | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
+| `testimonial.testimonial_date` | `text` | `string` | Paragraphe, Titre | `content` | `''` | Date ISO canonique brute, sans localisation | Provider serveur, WordPress 6.5+ | Intégration éditeur différée |
 
-Les types `text` et `textarea` restent les types internes du registre Dynamic Data. Ils décrivent notamment le caractère potentiellement multiligne d'une valeur. Dans le contrat d'un éventuel lot éditeur, chacun des sept identifiants serait déclaré comme un champ de type `string`. Cette adaptation de type ne produirait ni `nl2br()`, ni HTML, ni formatage propre au provider.
+Les types `text` et `textarea` restent les types internes du registre Dynamic Data. Ils décrivent notamment le caractère potentiellement multiligne d'une valeur. Dans le contrat d'un éventuel lot éditeur, chacun des huit identifiants serait déclaré comme un champ de type `string`. Cette adaptation de type ne produirait ni `nl2br()`, ni HTML, ni formatage propre au provider.
 
 Le provider ne doit pas étendre silencieusement cette matrice à d'autres blocs ou attributs.
 
@@ -199,7 +203,7 @@ La V1 définit deux arguments publics.
 
 Il doit :
 
-- correspondre à l'un des sept champs exposés par le provider ;
+- correspondre à l'un des huit champs exposés par le provider ;
 - être contrôlé par une allowlist propre au provider ;
 - ne jamais donner un accès indirect à l'intégralité du registre Dynamic Data.
 
@@ -246,7 +250,7 @@ La priorité de résolution est :
 2. `postId` et `postType` fournis par le contexte du bloc ;
 3. le comportement interne documenté du résolveur lorsqu'aucun contexte n'est transmis.
 
-Le provider transmet ce contexte au résolveur sans reconstruire ses contrôles métier ou d'accès. Toute valeur retournée normalement est conservée telle quelle. Pour les sept champs texte V1, l'absence de contenu compatible et accessible produit donc la valeur vide typée `''`, et non `null`.
+Le provider transmet ce contexte au résolveur sans reconstruire ses contrôles métier ou d'accès. Toute valeur retournée normalement est conservée telle quelle. Pour les huit champs texte V1, l'absence de contenu compatible et accessible produit donc la valeur vide typée `''`, et non `null`.
 
 Le provider n'utilise pas :
 
@@ -298,14 +302,14 @@ Le provider retourne `null` lorsque le binding est mal formé, notamment si :
 
 - `field_id` est absent ;
 - `field_id` n'est pas textuel ;
-- le champ demandé ne fait pas partie de l'allowlist des sept champs ;
+- le champ demandé ne fait pas partie de l'allowlist des huit champs ;
 - la structure des arguments est manifestement invalide.
 
 ### 12.2 Valeur retournée normalement par le résolveur
 
 Le provider conserve la valeur telle quelle. Cette règle couvre aussi bien une chaîne non vide que la chaîne vide `''`.
 
-Pour les sept champs texte V1, le résolveur retourne `''` lorsque la valeur métier est vide ou lorsqu'aucun contenu compatible et accessible ne peut être résolu. Le provider ne tente pas de distinguer un champ réellement vide, un ID invalide, un mauvais type de contenu, un contexte incompatible ou un contenu inaccessible. Reconstruire cette distinction dupliquerait la logique métier et les contrôles d'accès du résolveur.
+Pour les huit champs texte V1, le résolveur retourne `''` lorsque la valeur métier est vide ou lorsqu'aucun contenu compatible et accessible ne peut être résolu. Le provider ne tente pas de distinguer un champ réellement vide, un ID invalide, un mauvais type de contenu, un contexte incompatible ou un contenu inaccessible. Reconstruire cette distinction dupliquerait la logique métier et les contrôles d'accès du résolveur.
 
 Le provider ne doit :
 
@@ -413,7 +417,7 @@ Le provider serveur reste limité à :
 - l'enregistrement PHP de la source ;
 - un callback serveur ;
 - l'utilisation des contextes `postId` et `postType` ;
-- l'allowlist des sept champs texte ;
+- l'allowlist des huit champs texte ;
 - la traduction de `field_id` et `post_id` ;
 - le rejet des bindings mal formés vers `null` ;
 - la conversion des `WP_Error` vers `null` ;
@@ -437,7 +441,7 @@ Ce lot ne contient :
 L'audit confirme que les API publiques de WordPress disponibles à partir de la version 6.9 permettent :
 
 - d'inscrire la source avec `registerBlockBindingsSource` ;
-- de lister les sept champs texte avec `getFieldsList` ;
+- de lister les huit champs texte avec `getFieldsList` ;
 - de persister `field_id` dans les arguments du binding ;
 - de fournir des valeurs synchrones au canvas avec `getValues` ;
 - d'utiliser les contextes `postId` et `postType` d'une Query Loop.
@@ -454,7 +458,7 @@ Le filtrage natif observé est global par type d'attribut. Aucune API publique c
 - bloc `core/paragraph` ou `core/heading` ;
 - attribut `content`.
 
-Les sept champs WP Seed, tous déclarés comme `string`, pourraient donc être proposés sur d'autres attributs compatibles de blocs Core, notamment des boutons, images, éléments de navigation, dates ou autres blocs possédant un attribut texte bindable. Le provider serveur rejetterait pourtant ces bindings hors matrice.
+Les huit champs WP Seed, tous déclarés comme `string`, pourraient donc être proposés sur d'autres attributs compatibles de blocs Core, notamment des boutons, images, éléments de navigation, dates ou autres blocs possédant un attribut texte bindable. Le provider serveur rejetterait pourtant ces bindings hors matrice.
 
 L'éditeur proposerait alors des choix qui ne produiraient pas de rendu dynamique. Cette incohérence est incompatible avec le contrat V1.
 
@@ -594,13 +598,14 @@ Garde-fou : différer l'intégration éditeur, ne pas utiliser d'API interne et 
 Le provider serveur a été validé statiquement et en runtime sous WordPress 7.0.1. Les validations acquises couvrent notamment :
 
 - l'enregistrement unique et défensif de la source ;
-- les sept champs texte autorisés ;
+- les huit champs texte autorisés ;
 - `core/paragraph.content` et `core/heading.content` ;
 - les contextes distincts d'une Query Loop ;
 - l'autorité de `post_id` et l'absence de fallback après un ID explicite invalide ;
 - la différence entre `null` et `''` ;
 - les textes multilignes, Unicode et le HTML historique ;
-- les modules désactivés et les brouillons non exposés ;
+- la résolution d'un contenu publié compatible lorsque son module est désactivé ;
+- les brouillons non exposés sans autorisation ;
 - l'absence de régression des templates, placeholders et shortcodes.
 
 ### 21.2 Checklist d'un futur réaudit éditeur
@@ -632,7 +637,7 @@ L'introduction du provider ne doit modifier :
 - aucune règle d'accès aux contenus non publiés ;
 - aucune intégration Divi Library.
 
-La source `wp-seed-content-kit/dynamic-data`, les arguments `field_id` et `post_id`, ainsi que l'allowlist des sept champs deviennent des contrats persistés dès leur première utilisation dans du contenu WordPress.
+La source `wp-seed-content-kit/dynamic-data`, les arguments `field_id` et `post_id`, ainsi que l'allowlist des huit champs deviennent des contrats persistés dès leur première utilisation dans du contenu WordPress.
 
 ## 23. Règle de lecture
 

@@ -1,10 +1,12 @@
 # Dynamic Data V1
 
-Statut : contrat de conception candidat avant implémentation
+Statut : registre et résolveur implémentés ; contrat étendu au modèle Témoignage
 
-Ce document définit la future couche interne Dynamic Data V1 de WP Seed Content Kit. Il fixe son périmètre, le vocabulaire des champs et la séparation des responsabilités avant toute implémentation technique.
+Ce document définit la couche interne Dynamic Data V1 de WP Seed Content Kit aujourd'hui implémentée. Il fixe son périmètre, le vocabulaire des champs et la séparation des responsabilités.
 
-Il ne définit ni signature PHP définitive, ni provider pour un constructeur, ni mécanisme d’extension public.
+L'extension `testimonial.testimonial_date` relève du lot B de développement postérieur à la release publique 0.3.0.
+
+Ce contrat ne crée ni mécanisme d’extension public, ni abstraction universelle de provider.
 
 ## 1. Objectif
 
@@ -63,9 +65,13 @@ Dynamic Data résout un champ pour un contenu donné. Il ne cherche pas, ne filt
 
 Une boucle peut fournir un contenu courant au résolveur, mais elle reste propriétaire de sa requête et de son itération.
 
+### 2.6 État du module
+
+Le registre et le résolveur restent chargés globalement. La désactivation d'un module ne bloque pas la résolution unitaire d'un contenu publié explicitement compatible. Elle contrôle les interfaces fonctionnelles du module et, dans le futur contrat Collections, l'éligibilité d'une sélection ; elle ne transforme pas Dynamic Data en résultat vide global.
+
 ## 3. Périmètre V1
 
-La V1 couvre exactement douze champs.
+La V1 couvre exactement treize champs.
 
 Citation :
 
@@ -81,6 +87,7 @@ Témoignage :
 - `testimonial.text` ;
 - `testimonial.name` ;
 - `testimonial.context` ;
+- `testimonial.testimonial_date` ;
 - `testimonial.photo` ;
 - `testimonial.featured` ;
 - `testimonial.display_order`.
@@ -105,10 +112,10 @@ Il ne retourne pas de message d’aide, ne produit pas de HTML et ne tente aucun
 
 | Identifiant stable | Libellé utilisateur | Module | Type de contenu compatible | Type | Clé Content Data API | Valeur vide | Contexte courant | ID explicite | Registre V1 | Exposition par les providers |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `quote.quote` | Citation | Citation | `seed_quote` | `textarea` | `quote` | Chaîne vide | Oui | Oui | Inclus | À décider par provider |
-| `quote.author` | Auteur | Citation | `seed_quote` | `text` | `author` | Chaîne vide | Oui | Oui | Inclus | À décider par provider |
-| `quote.era` | Époque / date affichée | Citation | `seed_quote` | `text` | `era` | Chaîne vide | Oui | Oui | Inclus | À décider par provider |
-| `quote.source` | Source / contexte | Citation | `seed_quote` | `text` | `source` | Chaîne vide | Oui | Oui | Inclus | À décider par provider |
+| `quote.quote` | Citation | Citation | `seed_quote` | `textarea` | `quote` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `quote.author` | Auteur | Citation | `seed_quote` | `text` | `author` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `quote.era` | Époque / date affichée | Citation | `seed_quote` | `text` | `era` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `quote.source` | Source / contexte | Citation | `seed_quote` | `text` | `source` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
 | `quote.featured` | Mise en avant | Citation | `seed_quote` | `boolean` | `featured` | `false` | Oui | Oui | Inclus | Peut être reporté |
 | `quote.display_order` | Position éditoriale | Citation | `seed_quote` | `number` | `display_order` | `0` | Oui | Oui | Inclus | Peut être reporté |
 
@@ -120,10 +127,11 @@ Il ne retourne pas de message d’aide, ne produit pas de HTML et ne tente aucun
 
 | Identifiant stable | Libellé utilisateur | Module | Type de contenu compatible | Type | Clé Content Data API | Valeur vide | Contexte courant | ID explicite | Registre V1 | Exposition par les providers |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `testimonial.text` | Témoignage | Témoignage | `seed_testimonial` | `textarea` | `text` | Chaîne vide | Oui | Oui | Inclus | À décider par provider |
-| `testimonial.name` | Nom ou initiales | Témoignage | `seed_testimonial` | `text` | `name` | Chaîne vide | Oui | Oui | Inclus | À décider par provider |
-| `testimonial.context` | Contexte | Témoignage | `seed_testimonial` | `text` | `context` | Chaîne vide | Oui | Oui | Inclus | À décider par provider |
-| `testimonial.photo` | Photo | Témoignage | `seed_testimonial` | `image` | `photo` | `null` | Oui | Oui | Inclus | À décider par provider |
+| `testimonial.text` | Témoignage | Témoignage | `seed_testimonial` | `textarea` | `text` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.name` | Nom ou initiales | Témoignage | `seed_testimonial` | `text` | `name` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.context` | Information complémentaire | Témoignage | `seed_testimonial` | `text` | `context` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.testimonial_date` | Date du témoignage | Témoignage | `seed_testimonial` | `text` | `testimonial_date` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.photo` | Photo | Témoignage | `seed_testimonial` | `image` | `photo` | `null` | Oui | Oui | Inclus | Divi |
 | `testimonial.featured` | Mise en avant | Témoignage | `seed_testimonial` | `boolean` | `featured` | `false` | Oui | Oui | Inclus | Peut être reporté |
 | `testimonial.display_order` | Position éditoriale | Témoignage | `seed_testimonial` | `number` | `display_order` | `0` | Oui | Oui | Inclus | Peut être reporté |
 
@@ -305,32 +313,32 @@ Ces projections pourront appartenir à un provider si un besoin concret le justi
 
 ## 14. Providers
 
-Les providers sont des lots ultérieurs et indépendants.
+Les providers sont des lots indépendants du registre et du résolveur. Le provider serveur Gutenberg et le provider expérimental Divi 5 sont implémentés dans leurs contrats dédiés.
 
 ### 14.1 Gutenberg
 
-Un futur provider pourra utiliser Block Bindings.
+Le provider serveur Gutenberg utilise Block Bindings.
 
 Orientations :
 
-- source serveur possible à partir de WordPress 6.5 ;
-- inscription et découverte côté éditeur à étudier à partir de WordPress 6.7 ;
+- source serveur disponible à partir de WordPress 6.5 ;
+- intégration native côté éditeur auditée puis différée avec l'API publique actuelle ;
 - blocs Core compatibles seulement dans la première version ;
 - aperçu dans l’éditeur traité séparément ;
 - aucun bloc propriétaire prévu en V1.
 
-La version minimale globale de WordPress pour Dynamic Data n’est pas définie par ce document. Le registre et le résolveur internes ne dépendront pas de Block Bindings.
+La version minimale globale de WordPress pour Dynamic Data n’est pas définie par ce document. Le registre et le résolveur internes ne dépendent pas de Block Bindings.
 
 ### 14.2 Divi 5
 
-Un futur provider Divi devra faire l’objet d’un audit séparé fondé sur les API tierces réellement stables.
+Le provider expérimental Divi 5 a fait l’objet d’un audit séparé fondé sur les API tierces observées.
 
 Deux workflows doivent pouvoir coexister :
 
 - Template WP Seed utilisant un Layout Divi Library et des placeholders ;
 - construction Divi utilisant des données dynamiques WP Seed.
 
-Le futur provider ne supprimera ni ne remplacera le workflow Layout Divi Library actuel.
+Le provider ne supprime ni ne remplace le workflow Layout Divi Library actuel.
 
 ### 14.3 Spectra
 
@@ -364,7 +372,7 @@ Sont explicitement hors périmètre de ce contrat et de son premier lot d’impl
 
 ## 16. Trajectoire d’implémentation
 
-La trajectoire prévue est :
+La trajectoire suivie est :
 
 1. contrat documentaire Dynamic Data ;
 2. registre interne descriptif ;
@@ -380,13 +388,13 @@ Les providers restent hors de ce premier lot PHP.
 
 Chaque étape doit rester indépendante, testable et réversible.
 
-Les shortcodes, templates, placeholders, renderers et intégrations builders actuels ne doivent pas changer pendant l’introduction du registre et du résolveur.
+Les shortcodes, templates, placeholders, renderers et intégrations builders existants n'ont pas changé pendant l’introduction du registre et du résolveur.
 
 ## 17. Risques et garde-fous
 
 ### 17.1 Registre trop générique
 
-Risque : transformer une liste de douze champs en framework abstrait.
+Risque : transformer une liste de treize champs en framework abstrait.
 
 Garde-fou : registre local, descriptif, sans callback ni extension publique en V1.
 
@@ -470,7 +478,7 @@ Aucune de ces couches ne doit absorber la responsabilité de la couche précéde
 
 ## 19. Invariants de compatibilité
 
-L’implémentation future devra garantir :
+L’implémentation actuelle et ses évolutions doivent garantir :
 
 - Content Data API inchangée dans le premier lot ;
 - shortcodes publics inchangés ;
@@ -485,23 +493,16 @@ L’implémentation future devra garantir :
 
 ## 20. Points reportés
 
-Les décisions suivantes sont reportées aux lots concernés :
+Les décisions suivantes restent reportées aux lots concernés :
 
-- signature PHP exacte du registre ;
-- signature PHP exacte du résolveur ;
-- résultat technique d’un champ inconnu ;
-- organisation définitive des fichiers ;
 - filtres ou contrats publics éventuels ;
-- version minimale WordPress du provider Gutenberg ;
-- interface de découverte Gutenberg ;
-- projection précise des médias par builder ;
-- champs effectivement visibles dans chaque provider ;
-- API Divi 5 retenue ;
+- interface native de découverte Gutenberg ;
+- projections média supplémentaires par builder ;
 - compatibilité de chaque bloc Spectra ;
 - Elementor et autres builders.
 
 ## 21. Règle de lecture
 
-Ce document fixe le contrat conceptuel Dynamic Data V1 avant son implémentation.
+Ce document fixe le contrat conceptuel de Dynamic Data V1 et décrit son socle implémenté.
 
 En cas de contradiction entre une future proposition technique et ce document, le contrat doit être réexaminé explicitement. Une contrainte de builder ne doit pas modifier silencieusement le sens des données métier.

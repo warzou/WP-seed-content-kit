@@ -16,7 +16,7 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Context extends WP_Seed_C
 
     public function get_label(): string
     {
-        return __('Contexte', 'wp-seed-content-kit');
+        return __('Information complémentaire', 'wp-seed-content-kit');
     }
 
     protected function get_dynamic_data_field_id(): string

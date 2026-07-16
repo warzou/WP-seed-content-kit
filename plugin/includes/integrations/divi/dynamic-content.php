@@ -158,6 +158,11 @@ function wp_seed_content_load_divi_dynamic_content_testimonial_fields()
             'base' => $base_class_name,
         ),
         array(
+            'file' => __DIR__ . '/class-dynamic-content-testimonial-date.php',
+            'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Date',
+            'base' => $base_class_name,
+        ),
+        array(
             'file' => __DIR__ . '/class-dynamic-content-testimonial-photo.php',
             'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Photo',
             'base' => '\ET\Builder\Packages\Module\Layout\Components\DynamicContent\DynamicContentOptionBase',

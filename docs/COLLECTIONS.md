@@ -8,8 +8,8 @@ Il fixe le modèle métier enrichi du Témoignage, la sélection ordonnée des T
 
 En particulier :
 
-- la Content Data API actuelle ne fournit pas encore `testimonial.testimonial_date` ;
-- le registre Dynamic Data actuel reste limité à ses douze champs ;
+- la Content Data API fournit `testimonial.testimonial_date`, indépendamment de toute API Collections ;
+- le registre Dynamic Data comprend treize champs, dont la date ISO du témoignage ;
 - les shortcodes publics conservent leur syntaxe et leurs valeurs historiques tant qu'un lot d'adaptation distinct n'est pas validé ;
 - aucune fonction PHP de collection n'existe au moment de la rédaction de ce contrat.
 
@@ -125,7 +125,7 @@ Les dates partielles, le texte libre et une précision configurable sont report�
 
 ### 5.3 Normalisation et présentation
 
-La future Content Data API enrichie devra retourner la valeur ISO brute. Elle ne retourne pas une date localisée.
+La Content Data API retourne la valeur ISO brute. Elle ne retourne pas une date localisée.
 
 Une valeur est valide uniquement si elle respecte exactement le format `YYYY-MM-DD` et représente une date réelle du calendrier grégorien. La validation doit donc contrôler à la fois la forme et la validité du jour, du mois et de l'année. Par exemple, `2026-02-31` est invalide.
 
@@ -141,13 +141,13 @@ La date peut devenir un critère explicite de tri. Elle n'est jamais substituée
 
 `_seed_testimonial_date` est une clé historique déjà lue par le renderer natif. Sa réutilisation évite une migration de clé.
 
-Avant implémentation :
+Le lot Modèle Témoignage applique les règles suivantes :
 
-- les valeurs historiques doivent être inventoriées sur les sites connus, notamment `avecguillaume.fr` ;
-- les valeurs non ISO doivent être signalées et conservées ;
-- aucune réécriture ou suppression automatique n'est autorisée.
+- les valeurs historiques restent lisibles sans migration globale ;
+- une valeur non ISO reste stockée si le champ est absent ou si une nouvelle valeur non vide est invalide ;
+- une soumission exactement vide constitue une suppression volontaire, tandis qu'aucune réécriture ou suppression automatique n'est autorisée.
 
-Le contrat Content Data API V1 actuel reste exact tant que le lot Modèle Témoignage n'a pas ajouté ce champ. Le présent document définit la cible suivante, pas un changement déjà livré.
+Le lot Modèle Témoignage ajoute ce champ au contrat Content Data API V1 sans modifier le contrat Collections ni créer de fonction de collection.
 
 ## 6. Information complémentaire
 
@@ -431,13 +431,13 @@ Il ne garantit pas :
 
 Une fois un ID sélectionné, le consommateur appelle la fonction Content Data correspondant au CPT. La couche Collections ne duplique ni `text`, ni `name`, ni `photo`, ni les autres champs normalisés.
 
-Le lot Modèle Témoignage devra enrichir le contrat Content Data avec `testimonial_date` avant qu'un consommateur puisse l'utiliser comme donnée normalisée. Cette évolution reste distincte de l'API Collections.
+Le lot Modèle Témoignage enrichit le contrat Content Data avec `testimonial_date`. Cette évolution reste distincte de l'API Collections.
 
 ### 16.2 Dynamic Data
 
 Dynamic Data continue de résoudre un champ pour un ID courant ou explicite. Il ne reçoit aucun argument de collection.
 
-Le champ `testimonial.testimonial_date` n'est pas ajouté automatiquement au registre Dynamic Data par le présent contrat. Son type, sa valeur brute et sa projection par builder devront être arbitrés dans le lot Modèle Témoignage.
+Le lot Modèle Témoignage ajoute `testimonial.testimonial_date` au registre Dynamic Data comme chaîne ISO canonique brute. Cette décision ne place aucune logique de collection dans Dynamic Data.
 
 Les providers Divi et Gutenberg ne doivent jamais lire `_seed_testimonial_date`, `_seed_featured` ou `menu_order` pour construire une collection.
 
@@ -455,7 +455,7 @@ Le flux cible est :
 
 Le présent contrat ne crée pas de collection-template, de placeholder `{{items}}` ou de nouveau moteur de rendu.
 
-Le futur placeholder de date, s'il est validé dans le lot Modèle Témoignage, sera une projection de présentation localisée. Il ne modifiera pas la valeur ISO de la Content Data API.
+Le placeholder `{{date}}` est une projection de présentation localisée. Il ne modifie pas la valeur ISO de la Content Data API.
 
 ## 18. Shortcodes futurs
 
@@ -606,12 +606,12 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 - valider et committer le présent document ;
 - ne modifier aucun comportement runtime.
 
-### Lot B - Modèle Témoignage
+### Lot B - Modèle Témoignage implémenté localement
 
 - réactiver la date ISO facultative ;
 - réintroduire l'édition de `context` sous le libellé Information complémentaire ;
 - enrichir la Content Data API ;
-- décider séparément de Dynamic Data et des placeholders ;
+- exposer la date ISO dans Dynamic Data et une date localisée dans `{{date}}` ;
 - valider les données historiques ;
 - ne pas introduire l'API Collections dans le même diff.
 
@@ -645,8 +645,10 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 | Date ISO valide | Valeur brute conservée, affichage localisé en aval. |
 | Date impossible `2026-02-31` | Rejetée par la validation calendaire stricte ; valeur API `''` sans réécriture automatique. |
 | Date absente | `''`, aucun fallback vers `post_date`. |
-| Date invalide historique | Stockage conservé sans réécriture ; valeur API `''` ; placée après les dates valides. |
-| Date partielle | Rejetée par la future édition V1. |
+| Date invalide historique laissée intacte | Stockage conservé sans réécriture ; valeur API `''` ; placée après les dates valides. |
+| Date invalide non vide soumise | Nouvelle valeur rejetée ; ancienne méta conservée. |
+| Champ soumis exactement vide | Ancienne méta valide ou invalide supprimée volontairement. |
+| Date partielle | Rejetée par l'édition actuelle. |
 | Information présente | `testimonial.context` restitue la chaîne. |
 | Information vide | `''`. |
 | Donnée historique context | Lecture maintenue sans migration. |
@@ -791,15 +793,20 @@ L'implémentation future devra garantir :
 - aucune dépendance obligatoire à un builder ;
 - Cards hors du contrat Collections V1.
 
-## 29. Documentation à mettre à jour dans les lots futurs
+## 29. Documentation par lot
 
-Après validation du présent contrat, les lots concernés devront mettre à jour uniquement lorsque leur comportement existe :
+Le lot B local met déjà en cohérence :
 
 - [docs/CONTENT-DATA-API.md](CONTENT-DATA-API.md) pour `testimonial_date` ;
-- [docs/DYNAMIC-DATA.md](DYNAMIC-DATA.md) si un champ date est retenu ;
-- [plugin/docs/USAGE.md](../plugin/docs/USAGE.md) pour les nouveaux champs et attributs effectivement livrés ;
-- [plugin/docs/TESTING.md](../plugin/docs/TESTING.md) pour la recette runtime ;
-- [PROJECT-SNAPSHOT.md](../PROJECT-SNAPSHOT.md) après chaque jalon validé ;
+- [docs/DYNAMIC-DATA.md](DYNAMIC-DATA.md) pour le champ `testimonial.testimonial_date` ;
+- [plugin/docs/USAGE.md](../plugin/docs/USAGE.md) pour les champs effectivement implémentés ;
+- [plugin/docs/TESTING.md](../plugin/docs/TESTING.md) pour la recette du code courant ;
+- [PROJECT-SNAPSHOT.md](../PROJECT-SNAPSHOT.md) pour distinguer le lot local de la release publique.
+
+Les futurs lots Collections devront mettre à jour uniquement lorsque leur comportement existe :
+
+- la documentation des nouveaux attributs de shortcode effectivement livrés ;
+- le snapshot après chaque jalon validé ;
 - le changelog de la future release.
 
 La documentation utilisateur ne doit pas annoncer une syntaxe shortcode ou une intégration builder avant son implémentation et sa validation runtime.

@@ -46,15 +46,15 @@ La Content Data API fournit une représentation normalisée des Citations, des T
 
 ### Dynamic Data
 
-Dynamic Data expose 12 champs normalisés à des intégrations de présentation. Le résolveur utilise un contenu explicite ou le contexte WordPress courant, applique les permissions de lecture et retourne des valeurs vides typées lorsque le contexte n'est pas compatible.
+Dynamic Data expose 13 champs normalisés à des intégrations de présentation. Le résolveur utilise un contenu explicite ou le contexte WordPress courant, applique les permissions de lecture et retourne des valeurs vides typées lorsque le contexte n'est pas compatible.
 
 ### Gutenberg Block Bindings
 
-Un provider serveur permet de lier sept champs texte WP Seed à l'attribut `content` des blocs Paragraphe et Titre Core. L'interface éditeur native WP Seed n'est pas finalisée : aucun sélecteur dédié n'est annoncé dans Gutenberg.
+Un provider serveur permet de lier huit champs texte WP Seed à l'attribut `content` des blocs Paragraphe et Titre Core. L'interface éditeur native WP Seed n'est pas finalisée : aucun sélecteur dédié n'est annoncé dans Gutenberg.
 
 ### Divi 5 Dynamic Content expérimental
 
-Sous Divi 5, le sélecteur Dynamic Content expose quatre champs Citation (Texte, Auteur, Époque, Source) et quatre champs Témoignage (Texte, Nom, Contexte, Photo).
+Sous Divi 5, le provider Dynamic Content enregistre quatre champs Citation (Texte, Auteur, Époque, Source) et cinq champs Témoignage côté serveur (Texte, Nom, Information complémentaire, Date du témoignage, Photo). La validation visuelle de la Date du témoignage reste distincte.
 
 Ces sources dépendent du contenu courant ou du contexte d'une boucle. Elles complètent les Templates WP Seed et les layouts Divi Library ; elles ne les remplacent pas.
 
