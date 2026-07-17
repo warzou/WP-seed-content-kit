@@ -60,7 +60,7 @@ Un provider serveur permet de lier huit champs texte WP Seed à l'attribut `cont
 
 ### Divi 5 Dynamic Content expérimental
 
-Sous Divi 5, le provider Dynamic Content enregistre quatre champs Citation (Texte, Auteur, Époque, Source) et cinq champs Témoignage côté serveur (Texte, Nom, Information complémentaire, Date du témoignage, Photo). La validation visuelle de la Date du témoignage reste distincte.
+Sous Divi 5, le provider Dynamic Content enregistre quatre champs Citation (Texte, Auteur, Époque, Source) et cinq champs Témoignage (Texte, Nom, Information complémentaire, Date du témoignage, Photo). Leur sélection et leur persistance visuelles ont été validées sous Divi 5.9.0.
 
 Ces sources dépendent du contenu courant ou du contexte d'une boucle. Elles complètent les Templates WP Seed et les layouts Divi Library ; elles ne les remplacent pas.
 

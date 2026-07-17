@@ -190,7 +190,7 @@ La résolution doit vérifier que le contenu appartient bien au type métier dem
 
 ### 7.4 État du module
 
-L'état d'activation du module ne bloque pas la lecture unitaire par identifiant d'un contenu publié compatible. Il contrôle les interfaces fonctionnelles du module. La précondition « module actif » appartient à la future sélection de Collections, pas au contrat unitaire de Content Data.
+L'état d'activation du module ne bloque pas la lecture unitaire par identifiant d'un contenu publié compatible. Il contrôle les interfaces fonctionnelles du module. La précondition « module actif » appartient à la sélection Collections V1, pas au contrat unitaire de Content Data.
 
 ## 8. Responsabilités de l'API
 

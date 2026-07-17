@@ -2,30 +2,43 @@
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 
-## [Unreleased]
+## [0.4.0] - 2026-07-17
 
 ### Added
 
-- Lot B - Modèle Témoignage : champs Date du témoignage et Information complémentaire, avec validation calendaire stricte et conservation des données historiques.
-- Lot B - Alignement de Content Data, Dynamic Data, Gutenberg Block Bindings, Divi 5 Dynamic Content et des Templates : ajout de la date et maintien de l'Information complémentaire via `testimonial.context`, `{{date}}` et `{{context}}`.
-- Lot C - API Collections V1 pour les Témoignages : sélection par IDs, filtres featured, quatre tris stables et limites normalisées.
-- Lot C - Citation quotidienne déterministe, exclusion des contenus protégés par mot de passe et harnais Collections versionné.
-- Lot D - Adaptateur CSV `ids`, tris Collections, `featured=all|only|exclude` et `limit="0"` pour `[seed_testimonials]`.
-- Lot D - Mode déterministe `[seed_quotes mode="daily"]`, compatible avec les Templates WP Seed et les layouts Divi Library.
-- Lot D - Harnais versionné des adaptateurs shortcodes, Templates et rendus builders indirects.
+- Champs Date du témoignage et Information complémentaire dans le modèle Témoignage, avec validation calendaire stricte.
+- Champ Dynamic Data `testimonial.testimonial_date`, disponible dans Gutenberg Block Bindings et Divi 5 Dynamic Content.
+- Placeholders Témoignage `{{date}}` et `{{context}}` pour les Templates natifs et les layouts Divi Library.
+- API Collections V1 avec `wp_seed_content_get_testimonials()` et `wp_seed_content_get_daily_quote()`.
+- Sélection manuelle des Témoignages par IDs, filtres `featured=all|only|exclude`, quatre tris stables et limites normalisées.
+- Tri `testimonial_date` fondé sur la date métier du Témoignage.
+- Mode déterministe `[seed_quotes mode="daily"]`, stable pour la date et le fuseau WordPress du site.
+- Nouveaux attributs Collections pour `[seed_testimonials]` : `ids`, `featured`, `orderby`, `order` et `limit="0"`.
+- Harnais versionnés Collections et Adaptateurs couvrant les APIs, shortcodes, Templates et parcours builders indirects.
 
 ### Changed
 
-- Le shortcode Témoignages sélectionne désormais ses contenus via Collections V1 tout en conservant ses valeurs par défaut historiques.
-- Les Témoignages protégés par mot de passe sont exclus de Collections, y compris avec des IDs explicites ; les Citations protégées sont exclues du mode quotidien et du chemin aléatoire historique.
-- Un Template Témoignages introuvable ou associé au mauvais module utilise explicitement le renderer natif, sans laisser de placeholder incompatible brut.
+- `[seed_testimonials]` sélectionne désormais ses contenus via Collections V1 tout en conservant ses valeurs par défaut historiques.
+- Le libellé éditorial Contexte devient Information complémentaire sans changer l'identifiant métier `testimonial.context` ni la méta existante.
+- Un Template introuvable ou associé au mauvais module revient explicitement au renderer natif.
+- La documentation décrit les contrats Collections, les nouveaux attributs shortcode et les recettes Gutenberg, Spectra et Divi.
+
+### Fixed
+
+- Les dates historiques invalides restent intactes en stockage mais ne sont plus exposées comme des dates métier valides.
+- `context="0"` conserve le comportement historique sans activer de filtre.
+- Les tris utilisent un départage stable par ID et les fallbacks de Template ne laissent aucun placeholder incompatible brut.
+
+### Security
+
+- Les contenus protégés par mot de passe sont exclus des Collections, des sélections par IDs, de la Citation quotidienne et du chemin aléatoire historique.
 
 ### Compatibility
 
 - `[seed_testimonials]` reste limité à trois éléments et trié par `date DESC` par défaut.
 - `[seed_quotes]` reste aléatoire par défaut ; `daily` est uniquement activé par un attribut explicite.
 - Le markup des renderers reste identique pour une même liste d'IDs. La sélection diffère volontairement pour les contenus protégés, les anciennes valeurs `_seed_featured=0` et les nouveaux parcours `ids`, `daily` ou `limit="0"`.
-- Aucun CPT ni numéro de version n'est modifié ; le lot B ajoute la Date du témoignage aux providers concernés et étend les Templates avec `{{date}}` et `{{context}}`.
+- Aucun CPT, shortcode public existant, provider de collection ou contrat de Template n'est supprimé.
 
 ## [0.3.0] - 2026-07-15
 

@@ -1,7 +1,7 @@
 # TEMPLATE ARCHITECTURE V2 - WP Seed Content Kit
 
 Date : 12 juin 2026
-Statut : architecture déployée ; adaptateurs Collections du lot D implémentés localement, non publiés
+Statut : architecture déployée ; adaptateurs Collections du lot D intégrés sur `main` et inclus dans le release candidate 0.4.0
 
 ## 1) Vision
 
@@ -141,7 +141,7 @@ Ils ne créent pas de dépendance nouvelle au builder.
 
 ## 10) Collections V1 et Templates
 
-Le lot D local conserve la frontière suivante :
+Le lot D intégré conserve la frontière suivante :
 
 1. `[seed_testimonials]` ou `[seed_quotes mode="daily"]` sélectionne des IDs ;
 2. Content Data normalise chaque élément ;

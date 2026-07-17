@@ -292,7 +292,7 @@ WP Seed — Témoignages :
 
 Aucun shortcode ni identifiant fixe n'est nécessaire. Les valeurs utilisent le contenu courant ou l'élément courant d'une boucle. Une page ordinaire, un mauvais type de contenu ou une boucle incompatible produit une valeur vide sans fallback arbitraire.
 
-La source Date du témoignage retourne la valeur ISO canonique. Sa sélection et sa persistance visuelles doivent être validées séparément dans Divi ; les Templates utilisent `{{date}}` pour une présentation localisée.
+La source Date du témoignage retourne la valeur ISO canonique. Sa sélection et sa persistance visuelles ont été validées sous Divi 5.9.0 ; les Templates utilisent `{{date}}` pour une présentation localisée.
 
 Photo est prioritairement compatible avec la propriété source du module Image. Divi peut reconstruire l'ID média, les dimensions, `srcset` et `sizes` à partir d'une URL locale. L'aperçu du Visual Builder peut rester vide et le texte alternatif n'est pas garanti dans tous les modules ou contextes de boucle.
 

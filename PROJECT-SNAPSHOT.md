@@ -1,9 +1,10 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 16 juillet 2026
-Statut : version 0.3.0 publiée ; lots B et C intégrés sur `main` ; lot D Adaptateurs Collections implémenté localement, non committé
-Version courante : 0.3.0
+Date : 17 juillet 2026
+Statut : release candidate 0.4.0 préparé et validé ; lots B, C et D intégrés sur `main` ; diff final en attente de revue ; release finale non publiée
+Version courante du code : 0.4.0
 Version stable publiée : 0.3.0
+Commit de base du RC : 32dac5083491223800d7bf18dccb0a24f8eeaebb
 Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
 Tag stable : v0.3.0
 WordPress minimum : 6.5
@@ -438,7 +439,7 @@ Il expose :
 
 Le harnais Collections valide 95 assertions : arguments, IDs autoritaires, états protégés, featured, quatre tris, limites, modules, formule quotidienne et fuseaux.
 
-Le lot D est implémenté localement et non committé. Il modifie uniquement les adaptateurs publics, les tests et la documentation :
+Le lot D est intégré sur `main` par le commit `32dac5083491223800d7bf18dccb0a24f8eeaebb`. Il modifie uniquement les adaptateurs publics, les tests et la documentation :
 
 - `[seed_testimonials]` sélectionne désormais ses IDs via Collections ;
 - les valeurs historiques par défaut restent trois Témoignages, `date DESC` et un plafond positif de 24 ;
@@ -463,4 +464,8 @@ La sélection diffère volontairement pour les contenus protégés par mot de pa
 
 La sélection Tous, l'état featured vide sans fallback, les IDs, le Template Témoignage natif, la Citation quotidienne, le Layout Divi Library et le pipeline `the_content` d'un bloc Shortcode Gutenberg sont validés. Le mode quotidien n'exécute aucun `RAND` et ne laisse aucun placeholder brut. Le plugin public `0.3.0` a été restauré et n'a subi aucune modification durable.
 
-Aucun cache applicatif, transient, provider, CPT ou numéro de version n'est modifié. La release publique reste `0.3.0` ; le lot D n'est pas encore publié.
+Les lots B, C et D sont intégrés et constituent le périmètre fonctionnel du release candidate `0.4.0`. La release stable publique reste `0.3.0` et aucune release finale `0.4.0` n'est encore publiée. La préparation RC ne crée aucun cache applicatif, transient, provider ou CPT supplémentaire.
+
+Le ZIP RC reproductible a été construit deux fois avec un SHA-256 identique, audité, extrait puis installé temporairement sur `emilieaucoeurdeletre.fr`. Les harnais Collections et Adaptateurs, les parcours administration, Content Data, Dynamic Data, Collections, shortcodes, Templates, Divi, Gutenberg, Spectra, frontend et Plugin Update Checker sont validés. Le site a ensuite été restauré exactement en `0.3.0`, sans fixture, transient simulé, sauvegarde ni fichier temporaire restant.
+
+Prochaine étape : revue humaine du diff de préparation RC avant commit, tag et publication de la release `0.4.0`.

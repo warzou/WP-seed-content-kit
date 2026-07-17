@@ -21,7 +21,7 @@ Le provider est :
 - limité à `quote.quote`, `quote.author`, `quote.era`, `quote.source`, `testimonial.text`, `testimonial.name`, `testimonial.context`, `testimonial.testimonial_date` et `testimonial.photo` ;
 - absent de la promesse produit tant qu'une décision humaine de promotion n'a pas été prise.
 
-La validation runtime confirme le chargement class-based et la résolution serveur des neuf options. La persistance visuelle est confirmée pour les huit options antérieures ; elle reste à confirmer pour `testimonial.testimonial_date`. Pour `testimonial.photo`, la sélection et la persistance sont confirmées, ainsi que le rendu frontend ; l'aperçu Image du Visual Builder reste incomplet. Cette validation ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif.
+La validation runtime confirme le chargement class-based et la résolution serveur des neuf options. Leur sélection et leur persistance visuelles sont confirmées. Pour `testimonial.photo`, le rendu frontend est également confirmé ; l'aperçu Image du Visual Builder reste incomplet. Cette validation ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif.
 
 ## 2. Objectif et chaîne de responsabilité
 
@@ -646,14 +646,15 @@ Résultats confirmés :
 - brouillons non exposés ;
 - aucune régression des shortcodes, templates ou providers existants ;
 - présence unique des neuf options dans le registre Divi ;
-- sélection, application, sauvegarde et réouverture visuelles validées pour les huit options antérieures ;
+- sélection, application, sauvegarde et réouverture visuelles validées pour les neuf options ;
 - persistance brute unique des trois identifiants texte Témoignage antérieurs dans trois modules Texte après le contrôle final ;
+- persistance brute unique de l'identifiant Date du témoignage dans un module Texte ;
 - persistance brute unique de l'identifiant Photo dans un module Image ;
 - projection de l'URL et rendu frontend Image en single et en boucle ;
 - reconstruction des IDs média, dimensions, `srcset` et `sizes` pour les pièces jointes locales testées ;
 - frontend avec les trois valeurs texte Témoignage antérieures distinctes ;
 - provider Citation et ses quatre classes inchangés ;
-- `testimonial.testimonial_date` validé côté serveur avec une valeur ISO canonique ou une chaîne vide ; sa sélection et sa persistance visuelles restent à confirmer.
+- `testimonial.testimonial_date` validé côté serveur avec une valeur ISO canonique ou une chaîne vide ; sa sélection, sa sauvegarde et sa persistance visuelles sont confirmées.
 
 Restent différés :
 
@@ -857,6 +858,6 @@ La V1 respecte les invariants suivants :
 
 ## 30. Règle de lecture
 
-Ce document fixe le contrat expérimental après l'implémentation et la validation serveur des quatre champs Citation, des quatre champs texte Témoignage et de la source Photo. La validation visuelle de la Date du témoignage reste à réaliser. Il ne vaut ni compatibilité Divi générale, ni garantie universelle de l'aperçu ou des métadonnées média, ni promesse produit.
+Ce document fixe le contrat expérimental après l'implémentation et la validation serveur et visuelle des quatre champs Citation, des quatre champs texte Témoignage et de la source Photo. Il ne vaut ni compatibilité Divi générale, ni garantie universelle de l'aperçu ou des métadonnées média, ni promesse produit.
 
 En cas de contradiction entre une proposition technique future et ce contrat, la décision doit être réexaminée explicitement. Une contrainte de Divi ne doit pas modifier silencieusement le sens des données WP Seed, contourner le résolveur ou fragiliser les workflows existants.

@@ -64,7 +64,7 @@ La règle centrale est :
 
 La Query Loop sélectionne. Le résolveur fournit. Le provider adapte. Le bloc affiche.
 
-L'état d'activation d'un module ne désenregistre pas la source et ne bloque pas un contenu publié explicitement compatible. La précondition « module actif » reste propre à la future couche Collections.
+L'état d'activation d'un module ne désenregistre pas la source et ne bloque pas un contenu publié explicitement compatible. La précondition « module actif » reste propre à la couche Collections V1.
 
 ## 3. Identifiant public de la source
 

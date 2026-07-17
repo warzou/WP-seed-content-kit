@@ -1,10 +1,10 @@
 # Collections V1
 
-Statut : contrat et API PHP V1 intégrés sur `main` ; adaptateurs shortcodes et Templates du lot D implémentés localement, non committés
+Statut : contrat, API PHP V1 et adaptateurs shortcodes/Templates intégrés sur `main` ; inclus dans le release candidate 0.4.0
 
 Ce document définit le contrat canonique des Collections V1 de WP Seed Content Kit.
 
-Il fixe le modèle métier enrichi du Témoignage, la sélection ordonnée des Témoignages, la sélection quotidienne d'une Citation et la frontière avec les adaptateurs de présentation. Le lot C fournit l'API PHP de sélection. Le lot D local relie cette API aux shortcodes et aux Templates sans modifier les providers ni les CPT.
+Il fixe le modèle métier enrichi du Témoignage, la sélection ordonnée des Témoignages, la sélection quotidienne d'une Citation et la frontière avec les adaptateurs de présentation. Le lot C fournit l'API PHP de sélection. Le lot D relie cette API aux shortcodes et aux Templates sans modifier les providers ni les CPT.
 
 En particulier :
 
@@ -620,9 +620,9 @@ Garde-fous :
 
 Cette décision ne bloque pas le contrat technique Collections, mais elle doit précéder une modification de la visibilité publique ou de l'interface de publication.
 
-## 25. Lots futurs séparés
+## 25. Lots séparés
 
-### Lot A - Contrat Collections
+### Lot A - Contrat Collections intégré
 
 - valider et committer le présent document ;
 - ne modifier aucun comportement runtime.
@@ -643,7 +643,7 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 - chargement global après `core/modules.php` ;
 - harnais direct reproductible dans `tests/collections-harness.php`.
 
-### Lot D - Adaptation locale des shortcodes et Templates
+### Lot D - Adaptation intégrée des shortcodes et Templates
 
 - `[seed_testimonials]` utilise Collections pour la sélection ;
 - `[seed_quotes mode="daily"]` utilise la Citation quotidienne ;
@@ -803,7 +803,7 @@ Garde-fou : deux fonctions métier, pas de repository, pas de registre de collec
 
 ## 28. Invariants de compatibilité
 
-L'implémentation future devra garantir :
+L'implémentation V1 garantit :
 
 - aucun HTML produit par la couche Collections ;
 - sortie Témoignages limitée à une liste ordonnée d'IDs ;
@@ -811,9 +811,9 @@ L'implémentation future devra garantir :
 - Content Data responsable de la normalisation ;
 - Dynamic Data sans requête de collection ;
 - aucune lecture directe des métadonnées par les providers ;
-- shortcodes historiques inchangés avant leur lot d'adaptation ;
+- valeurs par défaut et markup historiques des shortcodes conservés hors nouveaux parcours explicites ;
 - comportement aléatoire historique de `[seed_quotes]` inchangé ;
-- Templates et placeholders existants inchangés avant le lot concerné ;
+- Templates et placeholders existants conservés, avec fallback natif explicite ;
 - aucune migration automatique de méta ;
 - aucun changement des CPT dans Collections V1 ;
 - aucun contenu non publié exposé ;
@@ -829,22 +829,22 @@ Le lot B intégré sur `main` met déjà en cohérence :
 - [docs/DYNAMIC-DATA.md](DYNAMIC-DATA.md) pour le champ `testimonial.testimonial_date` ;
 - [plugin/docs/USAGE.md](../plugin/docs/USAGE.md) pour les champs effectivement implémentés ;
 - [plugin/docs/TESTING.md](../plugin/docs/TESTING.md) pour la recette du code courant ;
-- [PROJECT-SNAPSHOT.md](../PROJECT-SNAPSHOT.md) pour distinguer le lot local de la release publique.
+- [PROJECT-SNAPSHOT.md](../PROJECT-SNAPSHOT.md) pour suivre les jalons intégrés et distinguer release stable et release candidate.
 
-Les futurs lots Collections devront mettre à jour uniquement lorsque leur comportement existe :
+Chaque futur lot Collections devra mettre à jour la documentation uniquement lorsque son comportement existe :
 
 - la documentation des nouveaux attributs de shortcode effectivement livrés ;
 - le snapshot après chaque jalon validé ;
-- le changelog de la future release.
+- le changelog de la release concernée.
 
 La documentation utilisateur ne doit pas annoncer une syntaxe shortcode ou une intégration builder avant son implémentation et sa validation runtime.
 
-Le lot D local met en cohérence les shortcodes, Templates et parcours builders indirects. Il devra être revu, validé en runtime et committé séparément avant toute annonce dans une release publique.
+Le lot D intégré met en cohérence les shortcodes, Templates et parcours builders indirects. Il a été revu, validé en runtime et committé séparément avant la préparation du release candidate 0.4.0.
 
 ## 30. Règle de lecture
 
-Ce document fixe le contrat Collections V1. Le lot C fournit l'API PHP de sélection et le lot D local fournit ses adaptateurs shortcode et Template. Les providers Dynamic Data restent unitaires et ne sélectionnent aucune collection.
+Ce document fixe le contrat Collections V1. Le lot C fournit l'API PHP de sélection et le lot D fournit ses adaptateurs shortcode et Template. Les providers Dynamic Data restent unitaires et ne sélectionnent aucune collection.
 
-La documentation distingue toujours le code local non publié de la release publique `0.3.0`.
+La documentation distingue la release stable publique `0.3.0` du release candidate `0.4.0` en préparation.
 
 En cas de contradiction entre une proposition technique et les priorités, états vides ou invariants de ce document, le contrat doit être réexaminé explicitement avant tout changement de code.

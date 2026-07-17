@@ -67,7 +67,7 @@ Une boucle peut fournir un contenu courant au résolveur, mais elle reste propri
 
 ### 2.6 État du module
 
-Le registre et le résolveur restent chargés globalement. La désactivation d'un module ne bloque pas la résolution unitaire d'un contenu publié explicitement compatible. Elle contrôle les interfaces fonctionnelles du module et, dans le futur contrat Collections, l'éligibilité d'une sélection ; elle ne transforme pas Dynamic Data en résultat vide global.
+Le registre et le résolveur restent chargés globalement. La désactivation d'un module ne bloque pas la résolution unitaire d'un contenu publié explicitement compatible. Elle contrôle les interfaces fonctionnelles du module et, dans Collections V1, l'éligibilité d'une sélection ; elle ne transforme pas Dynamic Data en résultat vide global.
 
 ## 3. Périmètre V1
 
