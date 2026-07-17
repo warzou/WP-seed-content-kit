@@ -12,8 +12,9 @@ class WP_Post
     public $post_title;
     public $post_name;
     public $post_password;
+    public $post_content;
 
-    public function __construct($id, $post_type, $post_status, $menu_order, $post_date, $post_password = '')
+    public function __construct($id, $post_type, $post_status, $menu_order, $post_date, $post_password = '', $post_content = '')
     {
         $this->ID = $id;
         $this->post_type = $post_type;
@@ -23,6 +24,7 @@ class WP_Post
         $this->post_title = 'Post ' . $id;
         $this->post_name = 'post-' . $id;
         $this->post_password = (string) $post_password;
+        $this->post_content = (string) $post_content;
     }
 }
 
@@ -62,7 +64,9 @@ function absint($value)
 
 function get_the_ID()
 {
-    return 0;
+    return isset($GLOBALS['post']) && $GLOBALS['post'] instanceof WP_Post
+        ? (int) $GLOBALS['post']->ID
+        : 0;
 }
 
 function is_user_logged_in()

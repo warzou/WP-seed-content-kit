@@ -1,7 +1,7 @@
 # TEMPLATE ARCHITECTURE V2 - WP Seed Content Kit
 
 Date : 12 juin 2026
-Statut : architecture proposée (document de cadrage)
+Statut : architecture déployée ; adaptateurs Collections du lot D implémentés localement, non publiés
 
 ## 1) Vision
 
@@ -35,7 +35,7 @@ Exemple attendu :
 
 - `{{photo}}`
 - `{{name}}`
-- `{{testimonial}}`
+- `{{text}}`
 
 Chaque placeholder est typé avant rendu.
 
@@ -138,3 +138,22 @@ Les templates servent le framework éditorial.
 
 Ils ne remplacent pas la stratégie de build visuelle complète.
 Ils ne créent pas de dépendance nouvelle au builder.
+
+## 10) Collections V1 et Templates
+
+Le lot D local conserve la frontière suivante :
+
+1. `[seed_testimonials]` ou `[seed_quotes mode="daily"]` sélectionne des IDs ;
+2. Content Data normalise chaque élément ;
+3. le renderer natif ou le Template WP Seed produit le HTML ;
+4. Gutenberg, Spectra ou Divi héberge le shortcode.
+
+Exemples :
+
+```text
+[seed_testimonials ids="12,18,27" template="accueil"]
+[seed_testimonials featured="only" limit="3" template="accueil"]
+[seed_quotes mode="daily" template="citation-du-jour"]
+```
+
+Un Template continue de représenter un élément, pas la collection entière. Un Layout Divi Library peut rester sa source de rendu. Aucun bloc, module builder, placeholder `{{items}}` ou provider de collection n'est ajouté.

@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
 function wp_seed_content_testimonials_shortcode($atts)
 {
     $atts = shortcode_atts(array(
+        'ids' => '',
         'limit' => 3,
         'columns' => 3,
         'featured' => 'all',
@@ -16,56 +17,52 @@ function wp_seed_content_testimonials_shortcode($atts)
         'template' => '',
     ), $atts, 'seed_testimonials');
 
-    $limit = max(1, min(24, absint($atts['limit'])));
+    $ids_request = wp_seed_content_normalize_testimonial_shortcode_ids($atts['ids']);
+    $limit_raw = trim(sanitize_text_field((string) $atts['limit']));
+    $limit = '0' === $limit_raw ? 0 : max(1, min(24, absint($limit_raw)));
     $columns = wp_seed_content_clamp_columns($atts['columns']);
     $template = sanitize_title($atts['template']);
     $orderby = sanitize_key($atts['orderby']);
-    $orderby = in_array($orderby, array('date', 'menu_order'), true) ? $orderby : 'date';
+    $orderby = 'menu_order' === $orderby ? 'display_order' : $orderby;
+    $orderby = in_array($orderby, array('display_order', 'date', 'testimonial_date', 'id'), true) ? $orderby : 'date';
     $order = strtolower(sanitize_key($atts['order']));
-    $order = in_array($order, array('asc', 'desc'), true) ? strtoupper($order) : 'DESC';
-    $meta_query = array();
-
-    if ('true' === strtolower((string) $atts['featured'])) {
-        $meta_query[] = array(
-            'key' => '_seed_featured',
-            'value' => '1',
-            'compare' => '=',
-        );
-    } elseif ('false' === strtolower((string) $atts['featured'])) {
-        $meta_query[] = array(
-            'key' => '_seed_featured',
-            'compare' => 'NOT EXISTS',
-        );
-    }
-
+    $order = in_array($order, array('asc', 'desc'), true) ? $order : 'desc';
+    $featured = strtolower(trim(sanitize_text_field((string) $atts['featured'])));
+    $featured_aliases = array(
+        'all' => 'all',
+        'true' => 'only',
+        'only' => 'only',
+        'false' => 'exclude',
+        'exclude' => 'exclude',
+    );
+    $featured = isset($featured_aliases[$featured]) ? $featured_aliases[$featured] : 'all';
     $context = sanitize_text_field($atts['context']);
-    if ($context) {
-        $meta_query[] = array(
-            'key' => '_seed_testimonial_context',
-            'value' => $context,
-            'compare' => '=',
-        );
-    }
+    // Preserve historical shortcode truthiness: the string "0" does not enable this filter.
+    $has_context = (bool) $context;
 
     wp_seed_content_enqueue_assets();
 
-    $query_args = array(
-        'post_type' => 'seed_testimonial',
-        'post_status' => 'publish',
-        'posts_per_page' => $limit,
+    $collection_args = array(
+        'featured' => $featured,
+        'limit' => !$ids_request['active'] && $has_context ? 0 : $limit,
         'orderby' => $orderby,
         'order' => $order,
-        'ignore_sticky_posts' => true,
-        'no_found_rows' => true,
     );
 
-    if (!empty($meta_query)) {
-        $query_args['meta_query'] = $meta_query;
+    if ($ids_request['active']) {
+        $collection_args['ids'] = $ids_request['ids'];
     }
 
-    $query = new WP_Query($query_args);
+    $testimonial_ids = wp_seed_content_get_testimonials($collection_args);
 
-    if (!$query->have_posts()) {
+    if (!$ids_request['active'] && $has_context) {
+        $testimonial_ids = wp_seed_content_filter_testimonial_ids_by_context($testimonial_ids, $context);
+        if ($limit > 0) {
+            $testimonial_ids = array_slice($testimonial_ids, 0, $limit);
+        }
+    }
+
+    if (empty($testimonial_ids)) {
         return '<p class="seed-testimonials__empty">' . esc_html__('Aucun témoignage à afficher pour le moment.', 'wp-seed-content-kit') . '</p>';
     }
 
@@ -78,13 +75,18 @@ function wp_seed_content_testimonials_shortcode($atts)
     <section class="<?php echo esc_attr($section_class); ?>" data-columns="<?php echo esc_attr($columns); ?>">
         <div class="<?php echo esc_attr($collection_class); ?>">
             <?php
-            while ($query->have_posts()) {
-                $query->the_post();
-                if ($is_template_mode) {
-                    echo wp_seed_content_render_template_testimonial_item(get_the_ID(), $template); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            global $post;
+            foreach ($testimonial_ids as $testimonial_id) {
+                $post = get_post($testimonial_id);
+                if (!$post instanceof WP_Post) {
                     continue;
                 }
-                echo wp_seed_content_render_testimonial_item(get_the_ID(), $template); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                setup_postdata($post);
+                if ($is_template_mode) {
+                    echo wp_seed_content_render_template_testimonial_item($testimonial_id, $template); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    continue;
+                }
+                echo wp_seed_content_render_testimonial_item($testimonial_id, ''); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             }
             ?>
         </div>
@@ -95,6 +97,54 @@ function wp_seed_content_testimonials_shortcode($atts)
     return ob_get_clean();
 }
 add_shortcode('seed_testimonials', 'wp_seed_content_testimonials_shortcode');
+
+function wp_seed_content_normalize_testimonial_shortcode_ids($raw_ids)
+{
+    $raw_ids = is_scalar($raw_ids) ? trim((string) $raw_ids) : '';
+    if ('' === $raw_ids) {
+        return array(
+            'active' => false,
+            'ids' => array(),
+        );
+    }
+
+    $ids = array();
+    $seen = array();
+
+    foreach (explode(',', $raw_ids) as $raw_id) {
+        $raw_id = trim($raw_id);
+        if (!preg_match('/^[1-9][0-9]*$/D', $raw_id)) {
+            continue;
+        }
+
+        $id = (int) $raw_id;
+        if ($id <= 0 || (string) $id !== $raw_id || isset($seen[$id])) {
+            continue;
+        }
+
+        $seen[$id] = true;
+        $ids[] = $id;
+    }
+
+    return array(
+        'active' => true,
+        'ids' => !empty($ids) ? $ids : array(0),
+    );
+}
+
+function wp_seed_content_filter_testimonial_ids_by_context($testimonial_ids, $context)
+{
+    $filtered_ids = array();
+
+    foreach ((array) $testimonial_ids as $testimonial_id) {
+        $data = wp_seed_content_get_testimonial_data($testimonial_id);
+        if (isset($data['context']) && (string) $data['context'] === $context) {
+            $filtered_ids[] = (int) $testimonial_id;
+        }
+    }
+
+    return $filtered_ids;
+}
 
 function wp_seed_content_render_testimonial_item($post_id, $template)
 {

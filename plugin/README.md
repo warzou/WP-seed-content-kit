@@ -12,6 +12,8 @@ Il fonctionne sans thème imposé, sans ACF obligatoire et sans dépendance à u
 - nom ou initiales ;
 - texte ;
 - photo ;
+- date du témoignage ;
+- Information complémentaire ;
 - mise en avant ;
 - ordre manuel ;
 - templates réutilisables.
@@ -44,6 +46,10 @@ Le plugin ne fournit pas de module Divi personnalisé. Avec Divi, la mise en for
 
 La Content Data API fournit une représentation normalisée des Citations, des Témoignages et de leur média. Elle centralise la lecture des données sans produire de HTML et sans dépendre d'un constructeur de page.
 
+### Collections V1
+
+Collections V1 sélectionne des Témoignages publics ordonnés et une Citation quotidienne déterministe. Le shortcode Témoignages utilise cette API tout en conservant ses valeurs par défaut historiques. Le shortcode Citations garde son hasard historique et propose explicitement `mode="daily"`.
+
 ### Dynamic Data
 
 Dynamic Data expose 13 champs normalisés à des intégrations de présentation. Le résolveur utilise un contenu explicite ou le contexte WordPress courant, applique les permissions de lecture et retourne des valeurs vides typées lorsque le contexte n'est pas compatible.
@@ -66,11 +72,14 @@ Ces sources dépendent du contenu courant ou du contexte d'une boucle. Elles com
 [seed_quotes]
 ```
 
-Exemples avec templates :
+Exemples :
 
 ```text
-[seed_testimonials template="accueil"]
+[seed_testimonials limit="0" orderby="display_order" order="asc"]
+[seed_testimonials featured="only" limit="3" template="accueil"]
+[seed_testimonials ids="12,18,27" template="accueil"]
 [seed_quotes template="citations-accueil"]
+[seed_quotes mode="daily" template="citation-du-jour"]
 ```
 
 Le détail des attributs et placeholders se trouve dans `docs/USAGE.md`.

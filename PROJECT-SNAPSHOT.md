@@ -1,7 +1,7 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 16 juillet 2026
-Statut : version 0.3.0 publiée ; lot B intégré sur `main` ; lot C Collections local, non committé, en cours de correction et de revue finale
+Statut : version 0.3.0 publiée ; lots B et C intégrés sur `main` ; lot D Adaptateurs Collections implémenté localement, non committé
 Version courante : 0.3.0
 Version stable publiée : 0.3.0
 Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
@@ -139,12 +139,13 @@ Les attributs publics existants, notamment `template`, `featured`, `limit`, `ord
 
 Les shortcodes restent responsables :
 
-- des requêtes ;
-- des filtres ;
-- des limites ;
-- des tris ;
-- du choix des contenus ;
-- du template demandé.
+- de la normalisation de leurs attributs publics ;
+- de l'appel à l'API Collections lorsqu'un parcours canonique existe ;
+- de la conservation explicite des compatibilités historiques ;
+- de la transmission des IDs au renderer natif ou au Template demandé ;
+- du wrapper de collection et de l'état vide.
+
+Le hasard historique du shortcode Citations reste un parcours distinct, explicitement conservé.
 
 ## 6. Placeholders actuels
 
@@ -425,20 +426,41 @@ Le contrat canonique est défini dans :
 
 - `docs/COLLECTIONS.md`.
 
-Le lot C est implémenté localement et reste non committé pendant sa correction et sa revue finale dans :
+Le lot C est intégré sur `main` dans :
 
 - `plugin/includes/core/collections.php` ;
 - `tests/collections-harness.php`.
 
-Le fichier cœur est chargé immédiatement après `core/modules.php`. Il expose :
+Il expose :
 
 - `wp_seed_content_get_testimonials($args = array())`, qui retourne une liste ordonnée d'IDs de Témoignages publiés non protégés ;
 - `wp_seed_content_get_daily_quote($args = array())`, qui retourne l'ID quotidien déterministe d'une Citation publiée non protégée ou `0`.
 
-La collection Témoignages applique le garde du module avant toute requête, prend en charge `ids`, `featured`, `limit`, `orderby` et `order`, et stabilise tous les départages. Le mode `ids` est autoritaire et sans fallback. Les trois parcours exigent un `post_password` exactement vide. La Citation quotidienne utilise la date civile WordPress, `home_url('/')`, SHA-256, sept caractères hexadécimaux et un modulo sur les IDs triés.
+Le harnais Collections valide 95 assertions : arguments, IDs autoritaires, états protégés, featured, quatre tris, limites, modules, formule quotidienne et fuseaux.
 
-Content Data et Dynamic Data restent indépendants de l'activation des modules. Aucun shortcode, Template, provider, CPT ou rendu n'est migré dans ce lot. Aucun cache applicatif, transient, filtre public ou état persistant n'est ajouté.
+Le lot D est implémenté localement et non committé. Il modifie uniquement les adaptateurs publics, les tests et la documentation :
 
-Le harnais isolé valide 95 assertions, dont l'exclusion des publications protégées dans les modes normal, `ids` et Citation quotidienne. La recette en lecture seule sous WordPress 7.0.1 et PHP 8.4.21 confirme les types de retour, les contenus publiés, les gardes sans requête, la formule quotidienne, trois fuseaux, l'identité visiteur/administrateur et des sorties de shortcodes strictement identiques avant/après. La compatibilité PHP 7.0 et WordPress 6.5 repose encore sur la syntaxe/API minimale et la revue statique, faute de runtime local correspondant.
+- `[seed_testimonials]` sélectionne désormais ses IDs via Collections ;
+- les valeurs historiques par défaut restent trois Témoignages, `date DESC` et un plafond positif de 24 ;
+- `limit="0"` signifie explicitement tous les Témoignages éligibles ;
+- `ids` accepte une liste CSV ordonnée, dédupliquée et sans fallback ;
+- `featured=true|false` reste un alias de `only|exclude` ;
+- `menu_order` reste un alias de `display_order` ;
+- `context` reste un filtre de compatibilité via Content Data lorsqu'aucun mode `ids` n'est actif ; les valeurs absente, vide et `"0"` n'activent aucun filtre, conformément au comportement historique ;
+- `[seed_quotes]` conserve son `ORDER BY RAND()` historique ;
+- `[seed_quotes mode="daily"]` utilise `wp_seed_content_get_daily_quote()` sans hasard ;
+- les Templates natifs et Layouts Divi Library restent responsables du HTML ;
+- Gutenberg et Spectra utilisent le bloc Shortcode, sans nouveau bloc ni provider.
 
-Après le commit du lot C, la prochaine étape prévue est le Lot D : adaptateurs shortcodes, Templates et builders. Ce lot reste séparé et n'est pas commencé. La release publique demeure la version 0.3.0.
+Le harnais `tests/collections-adapters-harness.php` réexécute les 95 assertions Collections puis valide 88 assertions d'adaptation : defaults, CSV, tris, featured, context, cas limites, états vides, sécurité, Templates, Divi Library et rendu serveur Gutenberg.
+
+La recette runtime a été exécutée sur la base réelle de `emilieaucoeurdeletre.fr` avec WordPress 7.0.1 et PHP 8.4.21, dans un bootstrap isolé chargeant le plugin local sans remplacer la release installée. Pour les listes d'IDs éligibles comparées, le markup historique reste identique :
+
+- `[seed_testimonials]` : SHA-256 `f00d833a752ae5023dc7643c732b20791b3693293f9243ea46ca2e7cf9fa5bd9` ;
+- `[seed_quotes]` : SHA-256 `0eff183f54bdab0957512d55673cfa0e74a1c3beb610e1b2342537a67474aa58`.
+
+La sélection diffère volontairement pour les contenus protégés par mot de passe, les anciennes valeurs non canoniques `_seed_featured=0` et les nouveaux parcours `ids`, `daily` ou `limit="0"`. Collections utilise aussi `suppress_filters=true` pour stabiliser la sélection ; les filtres de requête tiers appliqués à l'ancien `WP_Query` Témoignages ne font pas partie du contrat V1.
+
+La sélection Tous, l'état featured vide sans fallback, les IDs, le Template Témoignage natif, la Citation quotidienne, le Layout Divi Library et le pipeline `the_content` d'un bloc Shortcode Gutenberg sont validés. Le mode quotidien n'exécute aucun `RAND` et ne laisse aucun placeholder brut. Le plugin public `0.3.0` a été restauré et n'a subi aucune modification durable.
+
+Aucun cache applicatif, transient, provider, CPT ou numéro de version n'est modifié. La release publique reste `0.3.0` ; le lot D n'est pas encore publié.

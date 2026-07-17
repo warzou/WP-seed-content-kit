@@ -14,7 +14,7 @@ Les shortcodes publics sont :
 
 ## API PHP Collections V1
 
-Collections V1 sélectionne des contenus publiés dont `post_password` est exactement vide et retourne uniquement leurs IDs. Elle ne produit aucun HTML et ne modifie pas encore les requêtes des shortcodes publics.
+Collections V1 sélectionne des contenus publiés dont `post_password` est exactement vide et retourne uniquement leurs IDs. Elle ne produit aucun HTML. Le shortcode Témoignages et le mode Citation quotidienne l'utilisent comme couche de sélection ; les renderers et Templates restent responsables du HTML.
 
 La collection Témoignages est disponible avec :
 
@@ -40,7 +40,7 @@ wp_seed_content_get_daily_quote($args = array())
 
 Elle retourne un ID de Citation publiée non protégée, stable pour la date civile et le fuseau WordPress du site, ou `0` si aucune Citation publique non protégée n'est éligible ou si le module est désactivé. Elle n'utilise ni hasard, ni transient, ni état persistant.
 
-Les shortcodes `[seed_testimonials]` et `[seed_quotes]` conservent dans ce lot leurs paramètres, valeurs par défaut et requêtes historiques.
+`[seed_testimonials]` conserve ses valeurs par défaut historiques en les traduisant vers Collections. `[seed_quotes]` conserve son mode aléatoire historique et ajoute le mode quotidien explicite `mode="daily"`.
 
 ## Cards
 
@@ -82,22 +82,32 @@ Exemples :
 
 ```text
 [seed_testimonials]
-[seed_testimonials limit="3" columns="3"]
-[seed_testimonials featured="true"]
-[seed_testimonials orderby="menu_order" order="ASC"]
+[seed_testimonials limit="0" orderby="display_order" order="asc"]
+[seed_testimonials featured="only" limit="3" orderby="date" order="desc"]
+[seed_testimonials limit="3" orderby="testimonial_date" order="desc"]
+[seed_testimonials ids="12,18,27"]
 [seed_testimonials template="accueil"]
 [seed_testimonials context="workshop"]
 ```
 
 Attributs disponibles :
 
-- `limit` ;
-- `columns` ;
-- `featured` : `all`, `true` ou `false` ;
-- `context` ;
-- `orderby` : `date` ou `menu_order` ;
-- `order` : `ASC` ou `DESC` ;
+- `ids` : liste CSV d'IDs, ordonnée et sans doublons après normalisation ;
+- `limit` : trois par défaut, `0` pour tous, plafond de 24 pour une valeur positive ;
+- `columns` : de 1 à 4 ;
+- `featured` : `all`, `only`, `exclude`, avec `true` et `false` comme alias historiques ;
+- `context` : filtre historique exact lorsqu'aucune sélection `ids` n'est active ; une valeur absente, vide ou égale à `"0"` n'active aucun filtre ;
+- `orderby` : `display_order`, `date`, `testimonial_date` ou `id` ; `menu_order` reste un alias ;
+- `order` : `asc` ou `desc` ;
 - `template`.
+
+`ids` absent ou vide conserve le mode normal. Une liste non vide entièrement invalide affiche l'état vide sans fallback. Dans une liste mixte, les jetons valides sont conservés. Le mode `ids` ignore `featured`, `orderby`, `order` et `context` ; `limit` reste appliqué après nettoyage.
+
+Pour une page « Tous les Témoignages », utiliser un tri explicite :
+
+```text
+[seed_testimonials limit="0" orderby="display_order" order="asc"]
+```
 
 Champs d'édition actuels :
 
@@ -122,21 +132,26 @@ Exemples :
 
 ```text
 [seed_quotes]
+[seed_quotes orderby="random"]
 [seed_quotes limit="3"]
 [seed_quotes limit="0"]
 [seed_quotes featured="true" limit="1" orderby="random"]
 [seed_quotes orderby="author" order="ASC"]
 [seed_quotes orderby="menu_order" order="ASC" limit="0"]
-[seed_quotes template="citations-accueil"]
+[seed_quotes mode="daily"]
+[seed_quotes mode="daily" template="citations-accueil"]
 ```
 
 Attributs disponibles :
 
+- `mode` : vide pour le comportement historique, `daily` pour la Citation quotidienne déterministe ;
 - `limit` : absent pour le comportement par défaut, `0` pour toutes les citations, valeur positive pour une limite maximale ;
 - `featured` : `true` pour limiter aux citations mises en avant ;
 - `template` ;
 - `orderby` : `random`, `author`, `date` ou `menu_order` ;
 - `order` : `ASC` ou `DESC`, sans effet sur l'ordre aléatoire.
+
+Le mode `daily` appelle Collections, rend une seule Citation et n'utilise jamais `ORDER BY RAND()`. Il ignore `limit`, `featured`, `orderby` et `order`, mais conserve `template`. La valeur reste déterministe pendant la date civile WordPress tant que la liste éligible ne change pas ; un cache de page peut prolonger l'ancien HTML au-delà de minuit.
 
 Champs d'édition actuels :
 
@@ -163,8 +178,9 @@ Un template possède :
 Exemples :
 
 ```text
-[seed_testimonials template="accueil"]
+[seed_testimonials ids="12,18,27" template="accueil"]
 [seed_quotes template="citations-accueil"]
+[seed_quotes mode="daily" template="citation-du-jour"]
 ```
 
 ### Contenu de ce template
@@ -185,6 +201,31 @@ Le workflow est :
 Le template WP Seed reste le point d'entrée. L'édition directe du CPT Template avec Divi n'est pas le workflow pris en charge.
 
 Si le layout est absent, invalide ou non publié, le contenu du template reste le fallback.
+
+Si le slug d'un Template demandé est introuvable ou appartient à un autre module, le shortcode utilise le renderer natif. Aucun placeholder incompatible brut n'est affiché et ce fallback n'est pas étendu à d'autres sélections implicites.
+
+## Intégration dans les constructeurs
+
+Le shortcode est l'adaptateur canonique de collection. Le constructeur héberge le shortcode ; il ne reproduit pas la requête WP Seed.
+
+### Divi
+
+Dans un module Code ou Texte, insérer par exemple :
+
+```text
+[seed_testimonials featured="only" limit="3" template="accueil"]
+[seed_quotes mode="daily" template="citation-du-jour"]
+```
+
+Un Template peut utiliser un Layout Divi Library pour la mise en forme de chaque élément. Aucun module Divi propriétaire ni provider de collection n'est requis.
+
+### Gutenberg
+
+Utiliser un bloc Shortcode. Le rendu serveur prend en charge les mêmes attributs. Un Pattern peut contenir ce bloc. Query Loop Core et Block Bindings restent un parcours distinct pour les requêtes simples et ne remplacent pas le contrat Collections.
+
+### Spectra
+
+Utiliser un bloc Shortcode Core dans une page ou un Container Spectra, ou un Template WP Seed composé avec des blocs Gutenberg/Spectra. Aucun provider Spectra n'est annoncé et la lecture directe des métadonnées n'est pas le contrat recommandé.
 
 ## Placeholders
 

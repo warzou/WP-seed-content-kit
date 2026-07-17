@@ -1,17 +1,19 @@
 # Collections V1
 
-Statut : contrat V1 et API PHP implémentés localement dans le lot C non committé, en cours de correction et de revue finale
+Statut : contrat et API PHP V1 intégrés sur `main` ; adaptateurs shortcodes et Templates du lot D implémentés localement, non committés
 
 Ce document définit le contrat canonique des Collections V1 de WP Seed Content Kit.
 
-Il fixe le modèle métier enrichi du Témoignage, la sélection ordonnée des Témoignages, la sélection quotidienne d'une Citation et la frontière avec les adaptateurs de présentation. Le lot C implémente uniquement l'API PHP de sélection ; les adaptations de shortcodes et de builders restent des lots séparés.
+Il fixe le modèle métier enrichi du Témoignage, la sélection ordonnée des Témoignages, la sélection quotidienne d'une Citation et la frontière avec les adaptateurs de présentation. Le lot C fournit l'API PHP de sélection. Le lot D local relie cette API aux shortcodes et aux Templates sans modifier les providers ni les CPT.
 
 En particulier :
 
 - la Content Data API fournit `testimonial.testimonial_date`, indépendamment de l'API Collections ;
 - le registre Dynamic Data comprend treize champs, dont la date ISO du témoignage ;
-- les shortcodes publics conservent leur syntaxe et leurs valeurs historiques tant qu'un lot d'adaptation distinct n'est pas validé ;
-- les deux fonctions PHP Collections sont chargées globalement depuis `includes/core/collections.php`, après l'état des modules.
+- `[seed_testimonials]` conserve ses valeurs historiques par défaut et traduit ses attributs vers Collections ;
+- `[seed_quotes]` conserve son hasard historique et ajoute le mode explicite `mode="daily"` ;
+- les deux fonctions PHP Collections sont chargées globalement depuis `includes/core/collections.php`, après l'état des modules ;
+- la release publique reste `0.3.0` tant qu'aucune nouvelle release n'est publiée.
 
 ## 1. Objectif
 
@@ -213,7 +215,7 @@ Chaque élément est l'ID positif d'un `seed_testimonial` publié, accessible et
 
 Il n'existe aucun argument `mode`.
 
-Ces valeurs par défaut servent la nouvelle API de collection. Elles diffèrent volontairement du shortcode historique `[seed_testimonials]`, qui limite actuellement à trois éléments et trie par date WordPress descendante. Le shortcode conserve son comportement tant que son lot d'adaptation n'est pas validé.
+Ces valeurs par défaut servent l'API de collection. Elles diffèrent volontairement du shortcode `[seed_testimonials]`, qui conserve une limite par défaut de trois éléments et un tri par date WordPress descendante. L'adaptateur traduit explicitement ces valeurs historiques vers Collections.
 
 ### 7.3 Normalisation des arguments
 
@@ -275,7 +277,7 @@ La V1 publique ne fournit aucun argument permettant d'inclure des contenus non p
 | `only` | Conserve uniquement `testimonial.featured=true`. |
 | `exclude` | Conserve uniquement `testimonial.featured=false`. |
 
-Le shortcode historique utilise actuellement `all`, `true` et `false`. Un futur adaptateur pourra conserver ces valeurs comme alias :
+Le shortcode accepte `all`, `true` et `false` pour compatibilité, ainsi que les valeurs canoniques. Son adaptateur applique les alias suivants, sans distinction de casse :
 
 - `true` vers `only` ;
 - `false` vers `exclude`.
@@ -295,7 +297,7 @@ Une collection `only` vide retourne `array()`. Elle ne bascule jamais vers les T
 - une valeur invalide ou négative est normalisée à `0` ;
 - une limite supérieure au nombre de résultats retourne simplement tous les résultats éligibles.
 
-La valeur `0` de cette nouvelle API ne modifie pas la limite historique du shortcode Témoignages.
+Le shortcode conserve sa limite par défaut historique de trois et son plafond de 24 pour toute limite positive. Le lot D attribue désormais un sens explicite à `limit="0"` : tous les Témoignages éligibles. Pour une même liste d'IDs, le markup produit par les renderers reste identique. La sélection peut volontairement différer pour les contenus protégés par mot de passe, les anciennes valeurs non canoniques `_seed_featured=0` et les nouveaux parcours `ids`, `daily` ou `limit="0"`. Les appels historiques ordinaires conservent leurs valeurs par défaut et leur structure HTML.
 
 ## 12. Ordre et tris stables
 
@@ -407,9 +409,15 @@ SHA-256, la longueur de sept caractères hexadécimaux et le calcul modulo sont 
 
 ### 14.3 Différence avec le shortcode historique
 
-`[seed_quotes]` sélectionne actuellement une Citation avec `ORDER BY RAND()` lorsqu'aucune limite ni ordre explicite n'est fourni.
+`[seed_quotes]` et `[seed_quotes orderby="random"]` continuent d'utiliser le chemin historique avec `ORDER BY RAND()`.
 
-Ce comportement reste inchangé. La Citation quotidienne constitue une nouvelle sélection métier et ne remplace pas silencieusement le hasard historique du shortcode.
+La Citation quotidienne utilise l'extension explicite suivante :
+
+```text
+[seed_quotes mode="daily"]
+```
+
+Elle appelle `wp_seed_content_get_daily_quote()`, rend une seule Citation avec Content Data et n'exécute jamais `ORDER BY RAND()`. Dans ce mode, `limit`, `featured`, `orderby` et `order` sont ignorés ; `template` reste pris en charge. Une valeur `mode` inconnue revient au parcours historique.
 
 ## 15. Cache et sens du mot quotidien
 
@@ -424,6 +432,8 @@ Le contrat garantit :
 - aucun mécanisme interne de purge d'un cache tiers.
 
 L'implémentation récupère les posts publiés non protégés en une requête, amorce le cache des métadonnées pour les tris et filtres concernés, puis classe les résultats en PHP. Aucun cache applicatif, transient ou état persistant n'est ajouté. Cette stratégie est adaptée au faible volume actuellement audité ; une optimisation ne sera réévaluée qu'en présence de plusieurs centaines de contenus ou d'une mesure de performance défavorable.
+
+Collections utilise `suppress_filters=true` afin de garantir une sélection canonique et stable. Certains filtres de requête tiers, notamment multilingues ou éditoriaux, qui pouvaient intervenir dans l'ancien `WP_Query` du shortcode Témoignages ne sont donc plus appliqués dans ce parcours. Collections V1 ne garantit pas la compatibilité avec ces filtres tiers. Une stratégie d'extension contrôlée pourra être étudiée ultérieurement, sans rendre ces filtres implicites dans le contrat V1.
 
 Il ne garantit pas :
 
@@ -464,40 +474,44 @@ Le présent contrat ne crée pas de collection-template, de placeholder `{{items
 
 Le placeholder `{{date}}` est une projection de présentation localisée. Il ne modifie pas la valeur ISO de la Content Data API.
 
-## 18. Shortcodes futurs
+## 18. Adaptateurs shortcodes
 
 ### 18.1 Témoignages
 
-Les extensions envisagées sont :
+Les usages publics du lot D sont :
 
 ```text
-[seed_testimonials featured="only" limit="3"]
+[seed_testimonials]
+[seed_testimonials limit="0" orderby="display_order" order="asc"]
+[seed_testimonials featured="only" limit="3" orderby="date" order="desc"]
 [seed_testimonials ids="12,18,27"]
 [seed_testimonials orderby="testimonial_date" order="desc"]
 ```
 
-Ces exemples ne sont pas encore des garanties runtime.
+L'adaptateur :
 
-Le futur adaptateur devra :
+- convertit la liste CSV `ids` en entiers positifs, préserve l'ordre et supprime les doublons ;
+- considère `ids` absent ou `ids=""` comme le mode normal ;
+- ignore les jetons invalides d'une liste mixte ;
+- transmet une demande manuelle vide à Collections lorsqu'une liste non vide ne contient aucun ID valide, afin d'interdire tout fallback ;
+- conserve `columns`, `context` et `template` ;
+- conserve `featured=true|false` comme alias de `only|exclude` ;
+- conserve `orderby=menu_order` comme alias de `display_order` ;
+- conserve la limite par défaut de trois, le plafond positif de 24 et l'ordre historique `date DESC` ;
+- interprète explicitement `limit="0"` comme tous les résultats éligibles.
 
-- convertir une liste CSV `ids` en liste ordonnée d'entiers ;
-- appeler l'API de collection ;
-- conserver `columns`, `context` et `template`, qui appartiennent au contrat historique du shortcode ;
-- conserver `featured=true|false` comme alias historique de `only|exclude` ;
-- conserver `orderby=menu_order` comme alias historique de `display_order` ;
-- conserver la limite historique par défaut de trois éléments ;
-- conserver l'ordre historique par défaut `date DESC` ;
-- ne pas interpréter `limit=0` comme tous les résultats tant qu'une décision explicite de compatibilité n'a pas été prise pour ce shortcode.
-
-La nouvelle API et le shortcode peuvent donc avoir des valeurs par défaut différentes. L'adaptateur traduit explicitement le contrat historique vers le contrat Collections.
+Une sélection manuelle `ids` est autoritaire : `featured`, `orderby`, `order` et le filtre historique `context` sont ignorés ; `limit` reste appliqué après nettoyage. Sans `ids`, `context` est conservé comme filtre de compatibilité après la sélection Collections et avant la limite, au moyen de Content Data. Comme dans le shortcode historique, une valeur absente, vide ou égale à la chaîne `"0"` n'active aucun filtre ; toute autre chaîne non vide active le filtre exact.
 
 ### 18.2 Citation quotidienne
 
-La syntaxe publique finale n'est pas figée.
+La syntaxe publique retenue est :
 
-Une future extension explicite de `[seed_quotes]` est préférée à un nouveau shortcode tant qu'elle reste claire et rétrocompatible. Le nom de l'attribut, sa valeur et son interaction avec `limit`, `featured` et `orderby` devront être documentés avant implémentation.
+```text
+[seed_quotes mode="daily"]
+[seed_quotes mode="daily" template="citation-du-jour"]
+```
 
-Le présent document ne garantit ni `[seed_random_quote]`, ni `[seed_quotes daily="true"]`, ni une autre syntaxe particulière.
+Aucun nouveau shortcode n'est créé. Le mode quotidien ignore les arguments de sélection historiques et accepte toujours `template`. Le mode historique aléatoire reste le défaut.
 
 ## 19. Divi
 
@@ -622,19 +636,21 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 - valider les données historiques ;
 - ne pas introduire l'API Collections dans le même diff.
 
-### Lot C - API Collections PHP implémentée localement
+### Lot C - API Collections PHP intégrée
 
 - sélection Témoignages dans `plugin/includes/core/collections.php` ;
 - Citation quotidienne déterministe dans le même fichier ;
-- chargement global après `core/modules.php`, sans modifier les consommateurs ;
+- chargement global après `core/modules.php` ;
 - harnais direct reproductible dans `tests/collections-harness.php`.
 
-### Lot D - Adaptation des shortcodes et Templates
+### Lot D - Adaptation locale des shortcodes et Templates
 
-- migrer les requêtes vers Collections sans régression ;
-- ajouter uniquement les nouveaux attributs documentés ;
-- conserver les valeurs historiques par défaut ;
-- valider les Templates natifs et Divi Library.
+- `[seed_testimonials]` utilise Collections pour la sélection ;
+- `[seed_quotes mode="daily"]` utilise la Citation quotidienne ;
+- le hasard historique de `[seed_quotes]` reste distinct ;
+- les Templates natifs et Divi Library restent les renderers d'éléments ;
+- le harnais `tests/collections-adapters-harness.php` couvre les contrats publics ;
+- aucun provider builder, CPT ou numéro de version n'est modifié.
 
 ### Lot E - Recettes builders
 
@@ -645,7 +661,7 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 
 ## 26. Matrice de tests V1
 
-Le lot C couvre automatiquement la sélection, les normalisations, les tris, les gardes de modules, les fuseaux et les types de retour. Les lignes concernant les adaptateurs restent des recettes futures.
+Le harnais du lot C couvre la sélection, les normalisations, les tris, les gardes de modules, les fuseaux et les types de retour. Le harnais du lot D couvre les adaptateurs, le rendu natif, les Templates, le Layout Divi Library et le rendu serveur d'un bloc Shortcode.
 
 ### 26.1 Modèle Témoignage
 
@@ -823,12 +839,12 @@ Les futurs lots Collections devront mettre à jour uniquement lorsque leur compo
 
 La documentation utilisateur ne doit pas annoncer une syntaxe shortcode ou une intégration builder avant son implémentation et sa validation runtime.
 
-Après le commit du lot C, la prochaine étape prévue est le Lot D : adaptation séparée des shortcodes, Templates et builders. Aucun de ces adaptateurs n'est implémenté par le lot C.
+Le lot D local met en cohérence les shortcodes, Templates et parcours builders indirects. Il devra être revu, validé en runtime et committé séparément avant toute annonce dans une release publique.
 
 ## 30. Règle de lecture
 
-Ce document fixe le contrat Collections V1. Le lot C implémente l'API PHP de sélection sans migrer les shortcodes, Templates ou providers existants.
+Ce document fixe le contrat Collections V1. Le lot C fournit l'API PHP de sélection et le lot D local fournit ses adaptateurs shortcode et Template. Les providers Dynamic Data restent unitaires et ne sélectionnent aucune collection.
 
-Lorsqu'il décrit un adaptateur ou une intégration qui n'existe pas encore, il ne remplace pas la description du comportement courant dans Content Data, Dynamic Data ou USAGE. Les lots futurs devront mettre ces documents en cohérence au moment exact où le comportement correspondant sera implémenté.
+La documentation distingue toujours le code local non publié de la release publique `0.3.0`.
 
 En cas de contradiction entre une proposition technique et les priorités, états vides ou invariants de ce document, le contrat doit être réexaminé explicitement avant tout changement de code.

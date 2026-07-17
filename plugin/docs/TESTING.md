@@ -72,6 +72,29 @@ Pour la Citation quotidienne, vérifier l'exclusion des Citations protégées av
 
 Confirmer qu'un appel normal exécute une seule requête de posts, que le cache des métadonnées WordPress évite les N+1, et qu'un module désactivé retourne avant toute requête. Aucun transient, cache applicatif ou filtre public Collections ne doit être ajouté.
 
+## Adaptateurs Collections
+
+Exécuter le harnais des shortcodes, renderers et Templates :
+
+```text
+php tests/collections-adapters-harness.php
+```
+
+Le harnais réexécute d'abord les assertions Collections, puis vérifie :
+
+- les valeurs historiques par défaut de `[seed_testimonials]` ;
+- `limit="0"`, les valeurs vides, invalides ou négatives, le plafond positif de 24, les tris et l'alias `menu_order` ;
+- `featured=only|exclude`, les alias `true|false` et le fallback d'une valeur invalide vers `all` ;
+- les CSV d'IDs vides, invalides, mixtes, dupliqués, protégés, brouillons et d'un mauvais CPT ;
+- le filtre historique `context`, notamment les valeurs vide et `"0"`, et l'autorité du mode `ids` ;
+- le renderer natif, les placeholders `{{context}}` et `{{date}}`, l'échappement et le fallback d'un Template introuvable ou du mauvais module ;
+- le hasard historique de `[seed_quotes]`, y compris pour une valeur `mode` inconnue ;
+- `[seed_quotes mode="daily"]`, son absence de `RAND`, sa stabilité et ses états vides ;
+- un Template natif Citation et un Layout Divi Library ;
+- le rendu serveur d'un bloc Shortcode Gutenberg, le parcours shortcode compatible Spectra et plusieurs shortcodes sans état partagé.
+
+En recette WordPress réelle, comparer avant/après le HTML de `[seed_testimonials]` et `[seed_quotes]` sans nouvel attribut. Tester ensuite Tous, featured, une sélection `ids`, la Citation quotidienne, un Template natif et un Layout Divi Library existant. Mesurer les requêtes, vérifier HTTP 200 et les logs, puis restaurer les fichiers exacts déployés temporairement. Aucune fixture publiée n'est nécessaire.
+
 ## Gutenberg Block Bindings
 
 - confirmer l'enregistrement unique de `wp-seed-content-kit/dynamic-data` ;

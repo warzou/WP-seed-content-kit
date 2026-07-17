@@ -7,12 +7,17 @@ if (!defined('ABSPATH')) {
 function wp_seed_content_quotes_shortcode($atts)
 {
     $atts = shortcode_atts(array(
+        'mode' => '',
         'limit' => '',
         'featured' => 'all',
         'template' => '',
         'orderby' => 'random',
         'order' => 'DESC',
     ), $atts, 'seed_quotes');
+
+    if ('daily' === strtolower(sanitize_key($atts['mode']))) {
+        return wp_seed_content_render_daily_quote_shortcode($atts);
+    }
 
     $limit_raw = isset($atts['limit']) ? sanitize_text_field((string) $atts['limit']) : '';
     $limit_raw = trim($limit_raw);
@@ -74,6 +79,7 @@ function wp_seed_content_quotes_shortcode($atts)
     $query_args = array(
         'post_type' => 'seed_quote',
         'post_status' => 'publish',
+        'has_password' => false,
         'posts_per_page' => $posts_per_page,
         'ignore_sticky_posts' => true,
         'no_found_rows' => true,
@@ -120,6 +126,48 @@ function wp_seed_content_quotes_shortcode($atts)
     return ob_get_clean();
 }
 add_shortcode('seed_quotes', 'wp_seed_content_quotes_shortcode');
+
+function wp_seed_content_render_daily_quote_shortcode($atts)
+{
+    $template = sanitize_title($atts['template']);
+
+    wp_seed_content_enqueue_assets();
+
+    $quote_id = wp_seed_content_get_daily_quote();
+    if ($quote_id <= 0) {
+        return '<p class="seed-quotes__empty">' . esc_html__('Aucune citation à afficher pour le moment.', 'wp-seed-content-kit') . '</p>';
+    }
+
+    $quote = get_post($quote_id);
+    if (!$quote instanceof WP_Post) {
+        return '<p class="seed-quotes__empty">' . esc_html__('Aucune citation à afficher pour le moment.', 'wp-seed-content-kit') . '</p>';
+    }
+
+    global $post;
+    $post = $quote;
+    setup_postdata($post);
+
+    $is_template_mode = '' !== $template && wp_seed_content_is_quote_template_valid($template);
+    $collection_class = $is_template_mode ? 'seed-quotes__collection seed-quotes__collection--template' : 'seed-quotes__collection';
+
+    ob_start();
+    ?>
+    <section class="seed-quotes" data-orderby="daily" data-order="DESC">
+        <div class="<?php echo esc_attr($collection_class); ?>">
+            <?php
+            if ($is_template_mode) {
+                echo wp_seed_content_render_quote_item($quote_id, $template); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            } else {
+                echo wp_seed_content_render_quote_item($quote_id); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            }
+            ?>
+        </div>
+    </section>
+    <?php
+    wp_reset_postdata();
+
+    return ob_get_clean();
+}
 
 function wp_seed_content_render_quote_item($post_id, $template = '')
 {
