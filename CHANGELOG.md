@@ -17,7 +17,9 @@ All notable changes to WP-seed-content-kit will be documented in this file.
 
 - La désactivation du module retire son CPT et son menu sans supprimer fiches, médias, métas ou capacités.
 - La réactivation retrouve les données existantes.
-- L3 ne fournit encore aucune Collection publique, aucun shortcode, renderer, CSS public, template, migration ou adaptateur Directory.
+- L4 fournit la Data API publique, les Collections, [seed_directory], son alias temporaire, la carte native responsive et les cartes par Template Content Kit.
+- Le fallback est local a chaque fiche ; les contacts masques ou invalides ne quittent jamais la couche privee.
+- Aucune recherche publique, page individuelle, archive, route REST/AJAX, migration runtime ou adaptateur inter-plugin.
 ### Compatibility
 
 - Citations, Témoignages, Templates, Collections, Gutenberg, Divi et le Template Extension Contract 1.0 restent inchangés.

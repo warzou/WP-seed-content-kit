@@ -281,8 +281,8 @@ try {
     seed_l3_wp_assert(post_type_exists('seed_quote'), 'Citations unchanged');
     seed_l3_wp_assert(post_type_exists('seed_testimonial'), 'Testimonials unchanged');
     seed_l3_wp_same('1.0', wp_seed_content_kit_get_contract_version(), 'Template Extension contract unchanged');
-    seed_l3_wp_same(false, shortcode_exists('seed_directory'), 'No Directory shortcode');
-    seed_l3_wp_same(false, shortcode_exists('wp_seed_directory'), 'No Directory compatibility alias');
+    seed_l3_wp_same(true, shortcode_exists('seed_directory'), 'L4 canonical Directory shortcode registered');
+    seed_l3_wp_same(true, shortcode_exists('wp_seed_directory'), 'L4 Directory compatibility alias registered');
     $routes = rest_get_server()->get_routes();
     $directory_routes = array_filter(array_keys($routes), function ($route) {
         return false !== strpos($route, 'seed_directory');

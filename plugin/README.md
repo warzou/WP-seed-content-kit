@@ -28,11 +28,12 @@ Il fonctionne sans thème imposé, sans ACF obligatoire et sans dépendance à u
 - ordre manuel ;
 - templates réutilisables.
 
-### Annuaire — cœur métier 0.6.0-dev
+### Annuaire - sortie publique 0.6.0-dev
 
-Le module natif Annuaire fournit désormais son CPT administratif privé, dix-neuf métas validées, quatre panneaux, les colonnes de suivi, l’autorisation explicite et une garde de publication. Les contacts privés restent séparés des seuls contacts valides et explicitement visibles.
+Le module natif Annuaire fournit son CPT administratif prive, dix-neuf metas validees, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
 
-Aucune page, archive, recherche, route REST, Data API publique, Collection, shortcode ou carte publique Annuaire n’est encore disponible. Le rendu public relève de L4.
+Seuls les contacts valides et explicitement visibles sont publics. Il existe aucune page individuelle, archive, recherche, REST/AJAX, migration runtime ou adaptateur inter-plugin.
+
 ### Cards
 
 Cards affiche les articles WordPress natifs sous forme de cartes. Il ne crée pas de type de contenu supplémentaire.
@@ -87,6 +88,7 @@ Le contrat fonctionne sans Divi, ne crée aucun endpoint et ne lit aucune donné
 [seed_cards]
 [seed_testimonials]
 [seed_quotes]
+[seed_directory]
 ```
 
 Exemples :
@@ -97,6 +99,7 @@ Exemples :
 [seed_testimonials ids="12,18,27" template="accueil"]
 [seed_quotes template="citations-accueil"]
 [seed_quotes mode="daily" template="citation-du-jour"]
+[seed_directory status="practicing" featured="all" template="annuaire-carte"]
 ```
 
 Le détail des attributs et placeholders se trouve dans `docs/USAGE.md`.

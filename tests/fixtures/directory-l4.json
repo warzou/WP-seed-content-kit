@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "entries": [
+    {"name":"Fiche fictive 01","status":"practicing","post_status":"publish","order":1,"city":"Paris","postal_code":"75001","department":"75","country":"FR","featured":true,"phone":"+33 1 00 00 00 01","phone_visible":true},
+    {"name":"Fiche fictive 02","status":"practicing","post_status":"publish","order":2,"city":"Lyon","postal_code":"69001","department":"69","country":"FR","featured":false,"email":"visible02@example.test","email_visible":true},
+    {"name":"Fiche fictive 03","status":"practicing","post_status":"publish","order":3,"city":"Marseille","postal_code":"13001","department":"13","country":"FR","featured":false,"website":"https://example.test/03","website_visible":true},
+    {"name":"Fiche fictive 04","status":"practicing","post_status":"publish","order":4,"city":"Ajaccio","postal_code":"20000","department":"2A","country":"FR","featured":true,"facebook":"https://facebook.com/seed04","facebook_visible":true},
+    {"name":"Fiche fictive 05","status":"practicing","post_status":"publish","order":5,"city":"Bastia","postal_code":"20200","department":"2B","country":"FR","featured":false,"instagram":"https://instagram.com/seed05","instagram_visible":true},
+    {"name":"Fiche fictive 06","status":"practicing","post_status":"publish","order":6,"city":"Lille","postal_code":"59000","department":"59","country":"FR","featured":false,"email":"PRIVATE-SENTINEL-06@example.test","email_visible":false},
+    {"name":"Fiche fictive 07","status":"practicing","post_status":"publish","order":7,"city":"Nantes","postal_code":"44000","department":"44","country":"FR","featured":false},
+    {"name":"Fiche fictive 08","status":"practicing","post_status":"publish","order":8,"city":"Bordeaux","postal_code":"33000","department":"33","country":"FR","featured":false},
+    {"name":"Fiche fictive 09","status":"practicing","post_status":"publish","order":9,"city":"Toulouse","postal_code":"31000","department":"31","country":"FR","featured":false},
+    {"name":"Fiche fictive 10","status":"practicing","post_status":"draft","order":10,"city":"Rennes","postal_code":"35000","department":"35","country":"FR","featured":false},
+    {"name":"Fiche fictive 11","status":"seeking_models","post_status":"publish","order":11,"city":"Rouen","postal_code":"76000","department":"76","country":"FR","featured":true,"phone":"+33 2 00 00 00 11","phone_visible":true},
+    {"name":"Fiche fictive 12","status":"seeking_models","post_status":"publish","order":12,"city":"Tours","postal_code":"37000","department":"37","country":"FR","featured":false,"email":"visible12@example.test","email_visible":true},
+    {"name":"Fiche fictive 13","status":"seeking_models","post_status":"publish","order":13,"city":"Dijon","postal_code":"21000","department":"21","country":"FR","featured":false,"website":"https://example.test/13","website_visible":true},
+    {"name":"Fiche fictive 14","status":"seeking_models","post_status":"publish","order":14,"city":"Metz","postal_code":"57000","department":"57","country":"FR","featured":false,"phone":"PRIVATE-SENTINEL-14","phone_visible":false},
+    {"name":"Fiche fictive 15","status":"seeking_models","post_status":"publish","order":15,"city":"Nice","postal_code":"06000","department":"06","country":"FR","featured":false},
+    {"name":"Fiche fictive 16","status":"seeking_models","post_status":"draft","order":16,"city":"Caen","postal_code":"14000","department":"14","country":"FR","featured":false}
+  ]
+}

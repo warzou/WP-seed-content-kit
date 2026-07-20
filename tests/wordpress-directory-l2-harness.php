@@ -144,8 +144,8 @@ try {
     seed_l2_wp_assert(post_type_exists('seed_quote'), 'Quotes remain registered');
     seed_l2_wp_assert(post_type_exists('seed_testimonial'), 'Testimonials remain registered');
     seed_l2_wp_same('1.0', wp_seed_content_kit_get_contract_version(), 'Template Extension contract unchanged');
-    seed_l2_wp_same(false, shortcode_exists('seed_directory'), 'No complete Directory shortcode in L2');
-    seed_l2_wp_same(false, shortcode_exists('wp_seed_directory'), 'No Directory compatibility alias in L2');
+    seed_l2_wp_same(true, shortcode_exists('seed_directory'), 'L4 canonical Directory shortcode registered');
+    seed_l2_wp_same(true, shortcode_exists('wp_seed_directory'), 'L4 Directory compatibility alias registered');
 } catch (Throwable $error) {
     $failures[] = $error->getMessage();
 } catch (Exception $error) {

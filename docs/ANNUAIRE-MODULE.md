@@ -1,12 +1,12 @@
 # Module Annuaire
 
-Statut : cœur métier L3 en développement dans WP Seed Content Kit 0.6.0-dev.
+Statut : sortie publique L4 en developpement dans WP Seed Content Kit 0.6.0-dev.
 
 ## Périmètre
 
 Annuaire est le module natif directory, actif par défaut et désactivable. Son CPT seed_directory reste strictement administratif : aucune archive, page individuelle, recherche publique, route REST ou entrée de sitemap.
 
-L3 ajoute les champs, l’administration et l’éligibilité. Il ne fournit pas encore de Collection publique, shortcode, renderer, CSS public, template, migration ou adaptateur avec WP Seed Directory.
+L3 fournit les champs, administration et eligibilite. L4 ajoute la Data API publique, les Collections, les shortcodes, le rendu natif et les Templates Content Kit. Il ne cree ni recherche, single, archive, migration runtime ou adaptateur avec WP Seed Directory.
 
 ## Champs
 
@@ -57,3 +57,21 @@ Les quatre capacités primitives restent :
 Seul administrator les reçoit à l’activation. Désactiver le module retire le CPT et son menu, sans supprimer posts, médias, métas ou capacités. La réactivation retrouve les données.
 
 Les révisions natives couvrent le titre et la présentation. Les métas métier restent attachées à la fiche courante ; elles ne sont pas dupliquées dans une sortie publique et toute restauration repasse par la garde d’éligibilité.
+
+## Sortie publique L4
+
+wp_seed_content_directory_get_public_data($post_id) retourne uniquement le schema ferme id, name, photo, bio, status, status_label, location, featured, display_order et contacts. Une fiche ineligible retourne false. Les contacts absents, invalides ou masques ne figurent pas dans le tableau.
+
+wp_seed_content_directory_get_entries($args) retourne des IDs eligibles. Les filtres sont status, department, country, featured, limit, orderby, order et ids. Ordre display_order : ordre manuel, nom puis ID. Aucun ID explicite ne contourne eligibilite.
+
+[seed_directory] accepte les memes attributs et template. [wp_seed_directory] est un alias temporaire deprecie, sans avertissement public. Les valeurs invalides retournent une chaine vide. Les groupes restent, dans cet ordre, En exercice puis En recherche de modeles ; un groupe vide est omis.
+
+La carte native affiche uniquement photo ou emplacement neutre, nom, statut, localisation, presentation et contacts publics. La grille CSS est 3/2/1 colonnes. Le CSS structurel est charge seulement avec des fiches rendues et le CSS de carte seulement avec une carte native.
+
+## Templates et confidentialite
+
+Le module Template directory expose exactement quinze placeholders directory.*, du nom a directory.featured. Leur contexte provient exclusivement de la Data API publique. Un Template publie personnalise une carte ; template absent, brouillon, mauvais module, resultat vide, recursion, erreur, contexte ou assets invalides declenchent un fallback natif pour cette fiche seulement.
+
+Gutenberg utilise le bloc Shortcode. Divi accepte le shortcode dans Texte ou Code et peut rendre un Layout Divi Library via un Template Content Kit. Aucun bloc ou module Divi specifique est cree.
+
+Module desactive : shortcode vide, Collection vide, aucun asset et aucune exposition ; les donnees sont conservees. L4 exclut recherche ou filtres visibles, fiche individuelle, archive, REST/AJAX, migration et cache persistant. L5/L6 traiteront les evolutions editoriales et la convergence apres revue separee.

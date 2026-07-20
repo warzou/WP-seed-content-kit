@@ -1,0 +1,81 @@
+.wp-seed-directory-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    background: #fff;
+    color: #1d2327;
+}
+
+.wp-seed-directory-card__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #f0f0f1;
+}
+
+.wp-seed-directory-card__photo,
+.wp-seed-directory-card__photo-placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.wp-seed-directory-card__photo {
+    object-fit: cover;
+}
+
+.wp-seed-directory-card__photo-placeholder::before {
+    display: block;
+    width: 100%;
+    height: 100%;
+    content: "";
+    background: #dcdcde;
+}
+
+.wp-seed-directory-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: .65rem;
+    padding: 1rem;
+}
+
+.wp-seed-directory-card__name,
+.wp-seed-directory-card__status,
+.wp-seed-directory-card__location,
+.wp-seed-directory-card__bio {
+    margin: 0;
+}
+
+.wp-seed-directory-card__name {
+    font-size: 1.25rem;
+    line-height: 1.25;
+}
+
+.wp-seed-directory-card__status {
+    font-weight: 600;
+}
+
+.wp-seed-directory-card__location {
+    color: #50575e;
+}
+
+.wp-seed-directory-card__contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    margin: auto 0 0;
+    padding: .35rem 0 0;
+    list-style: none;
+}
+
+.wp-seed-directory-card a {
+    overflow-wrap: anywhere;
+}
+
+.wp-seed-directory-card a:focus-visible {
+    outline: 2px solid #2271b1;
+    outline-offset: 3px;
+}

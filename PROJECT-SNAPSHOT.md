@@ -1,7 +1,7 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 20 juillet 2026
-Statut : cœur métier Annuaire L3 implémenté en 0.6.0-dev ; diff local non stagé en attente de revue
+Statut : sortie publique Annuaire L4 implementee en 0.6.0-dev ; diff local non stage en attente de revue
 Version courante du code : 0.6.0-dev
 Version stable publiée : 0.3.0
 Commit de base du RC : 32dac5083491223800d7bf18dccb0a24f8eeaebb
@@ -15,7 +15,7 @@ Ce document est la mémoire de reprise du dépôt WP Seed Content Kit. Le dépô
 ## 1. Mission actuelle
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés et des présentations réutilisables dans WordPress.
-### Annuaire L3
+### Annuaire L4
 
 Le module directory comprend désormais :
 
@@ -26,7 +26,7 @@ Le module directory comprend désormais :
 - prédicat canonique d’éligibilité et séparation stricte des contacts visibles ;
 - révisions natives et cycle de désactivation/réactivation non destructif.
 
-Aucune Data API publique, Collection, shortcode, renderer, CSS public, migration ou adaptateur Directory n’est inclus en L3. Ces sorties relèvent de L4. Le dépôt WP Seed Directory reste strictement séparé et inchangé.
+L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], un alias temporaire, deux groupes fixes, une carte native responsive et des cartes personnalisees par Template Content Kit. Le fallback reste local a chaque fiche et ne peut exposer un contact masque. Il ne subsiste aucune recherche publique, single, archive, REST/AJAX, migration runtime ou adaptateur inter-plugin. Le depot WP Seed Directory reste strictement separe et inchange.
 Il combine actuellement :
 
 - des modules de contenus structurés ;

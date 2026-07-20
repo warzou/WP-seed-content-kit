@@ -225,16 +225,14 @@ function wp_seed_content_kit_get_public_template_by_slug($slug)
 {
     static $templates = array();
 
-    if (isset($templates[$slug])) {
+    if (array_key_exists($slug, $templates)) {
         return $templates[$slug];
     }
 
     $template = wp_seed_content_get_template_by_slug($slug);
-    if ($template) {
-        $templates[$slug] = $template;
-    }
+    $templates[$slug] = $template ? $template : null;
 
-    return $template;
+    return $templates[$slug];
 }
 
 function wp_seed_content_kit_render_template($slug, $module, array $context = array(), array $args = array())

@@ -8,10 +8,12 @@ Il fonctionne avec l'éditeur WordPress, Gutenberg, Spectra, Astra, Divi et les 
 
 Les shortcodes publics sont :
 
-- `[seed_cards]` ;
-- `[seed_testimonials]` ;
-- `[seed_quotes]`.
-Le module Annuaire L2 ne déclare volontairement ni `[seed_directory]` ni son alias. Ces shortcodes seront introduits avec le rendu public dans un lot ultérieur.
+- [seed_cards] ;
+- [seed_testimonials] ;
+- [seed_quotes] ;
+- [seed_directory].
+
+[wp_seed_directory] reste un alias temporaire deprecie et utilise exactement le meme callback, sans avertissement public.
 
 ## API PHP Collections V1
 
@@ -43,15 +45,18 @@ Elle retourne un ID de Citation publiée non protégée, stable pour la date civ
 
 `[seed_testimonials]` conserve ses valeurs par défaut historiques en les traduisant vers Collections. `[seed_quotes]` conserve son mode aléatoire historique et ajoute le mode quotidien explicite `mode="daily"`.
 
-## Annuaire L3
+## Annuaire L4
 
-Content Kit > Annuaire ouvre le CPT privé seed_directory. Les quatre panneaux regroupent identité et présentation, situation, coordonnées avec leur visibilité, puis publication et suivi.
+[seed_directory] affiche les fiches eligibles dans deux groupes fixes. Attributs : status=all|practicing|seeking_models, department, country, featured=all|only|exclude, limit, orderby=display_order|name|date|id, order=asc|desc, ids et template.
 
-Une fiche ne peut être publiée que si son nom, son statut, son pays et l’autorisation sont valides. La photo reste facultative ; si elle existe, son fichier image, son URL et son texte alternatif doivent être valides. Le retrait de l’autorisation dans l’administration ramène la fiche en brouillon.
+Exemples : [seed_directory], [seed_directory status="practicing" department="75" featured="only"] et [seed_directory ids="12,18" template="annuaire-carte"].
 
-Chaque téléphone, e-mail, site, Facebook ou Instagram reste privé tant que « Afficher publiquement » n’est pas coché. Même coché, un contact invalide est absent des données publiques internes. La note et la date de vérification ne sont jamais des contacts publics.
+Les valeurs invalides produisent une sortie vide. Il existe aucun parametre GET, formulaire ou filtre visible. Les groupes vides sont omis. Sans fiche, le message public est stable.
 
-Le module peut être désactivé puis réactivé sans supprimer fiches, médias ou métas. L3 ne fournit pas encore de Data API publique, Collection, template, shortcode ou rendu Annuaire.
+Sans template, une carte native est rendue. Un Template publie du module Annuaire peut utiliser quinze placeholders directory.*. Un echec de template produit un fallback natif fiche par fiche ; les autres cartes restent personnalisees. Les contacts masques ou invalides sont absents de la Data API, du contexte, des placeholders et du HTML.
+
+Gutenberg utilise le bloc Shortcode. Divi utilise Texte ou Code, avec source native ou Layout Divi Library. Aucun bloc Gutenberg ou module Divi dedie est fourni. Desactiver Annuaire rend shortcodes et Collections vides, sans supprimer les donnees.
+
 ## Cards
 
 `[seed_cards]` affiche des articles WordPress natifs sous forme de cartes.

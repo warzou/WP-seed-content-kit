@@ -97,6 +97,10 @@ function add_filter($hook, $callback, $priority = 10, $accepted_args = 1)
 {
     $GLOBALS['seed_l3_hooks']['filters'][$hook][] = array($callback, $priority, $accepted_args);
 }
+function add_shortcode($tag, $callback)
+{
+    $GLOBALS['seed_l3_hooks']['shortcodes'][$tag] = $callback;
+}
 function get_post($post_id)
 {
     return isset($GLOBALS['seed_l3_posts'][$post_id]) ? $GLOBALS['seed_l3_posts'][$post_id] : null;
@@ -332,10 +336,11 @@ seed_l3_assert(false !== strpos($admin_source, "current_user_can('edit_seed_dire
 seed_l3_assert(false !== strpos($admin_source, 'Autorisation de publication obtenue'), 'Exact authorization label');
 seed_l3_assert(false !== strpos($admin_source, 'Confirme que la personne a autorisé la publication'), 'Authorization help text');
 $bootstrap_source = file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/bootstrap.php');
-seed_l3_assert(false === strpos($bootstrap_source, 'add_shortcode'), 'No Directory shortcode');
+seed_l3_assert(false !== strpos($bootstrap_source, "require_once __DIR__ . '/shortcode.php'"), 'L4 Directory shortcode loaded');
 seed_l3_assert(false === strpos($bootstrap_source, 'register_rest_route'), 'No Directory REST route');
 seed_l3_assert(false === function_exists('wp_seed_content_directory_render'), 'No complete Directory renderer');
-seed_l3_assert(false === function_exists('wp_seed_content_directory_get_entries'), 'No public Directory Collection');
+seed_l3_assert(true === function_exists('wp_seed_content_directory_get_public_data'), 'L4 public Directory Data API available');
+seed_l3_assert(true === function_exists('wp_seed_content_directory_get_entries'), 'L4 public Directory Collection available');
 
 if (!empty($GLOBALS['seed_l3_failures'])) {
     fwrite(STDERR, 'FAIL ' . count($GLOBALS['seed_l3_failures']) . ' / ' . $GLOBALS['seed_l3_assertions'] . PHP_EOL);

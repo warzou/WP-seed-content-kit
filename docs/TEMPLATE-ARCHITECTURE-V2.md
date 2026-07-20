@@ -15,7 +15,7 @@ Le plugin ne doit pas devenir un builder.
 
 Le builder (Gutenberg/Spectra/Divi) conserve la mise en page.
 Le plugin conserve la requête de contenu et la sémantique métier.
-Depuis `0.6.0-dev`, Annuaire est un module métier natif de Content Kit. L2 enregistre seulement son CPT administratif privé et son cycle de vie. Son futur shortcode et ses templates suivront les mêmes contrats de sélection, de placeholders typés et de fallback natif que Citations et Témoignages, sans utiliser le contrat tiers comme adaptateur interne.
+Depuis 0.6.0-dev, Annuaire est un module metier natif de Content Kit. L4 branche sa Collection, son shortcode et ses quinze placeholders types sur les contrats internes existants. Le wrapper et les groupes restent la responsabilite de Annuaire ; le moteur Template personnalise une carte, avec fallback natif local, sans adaptateur tiers.
 
 ## 2) Architecture recommandée V2
 
@@ -164,3 +164,9 @@ Un Template continue de représenter un élément, pas la collection entière. U
 À partir de 0.5.0-dev, un registre public fermé permet aux plugins tiers d'ajouter des modules de Template et des placeholders typés sans déplacer leurs données métier dans Content Kit. Le registre est limité à la présentation, reçoit uniquement un contexte explicite et retourne un résultat typé. Le fallback métier appartient toujours au plugin appelant.
 
 Le contrat détaillé se trouve dans `docs/TEMPLATE-EXTENSION-API.md`. Il ne change pas les parcours historiques Témoignages/Citations et n'introduit aucun provider de collection ou builder propriétaire.
+
+## Annuaire L4
+
+Le module directory accepte les sources native et divi_layout. Son contexte ferme provient exclusivement de wp_seed_content_directory_get_public_data(). Les placeholders vont de directory.name a directory.featured et couvrent les quinze valeurs publiques documentees.
+
+[seed_directory template="slug"] conserve la selection, les groupes et la grille. Le moteur public retourne un resultat type ; tout echec laisse Annuaire produire la carte native de la seule fiche concernee. Les assets Template sont charges uniquement apres succes.

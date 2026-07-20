@@ -22,14 +22,15 @@ ACF, Composer, npm et les services externes ne sont pas requis.
 5. Contrôler l'absence de fatal, warning ou sortie inattendue dans les logs.
 6. Après la recette, réinstaller la sauvegarde et confirmer le retour à la version précédente.
 
-## Annuaire L2 et L3
+## Annuaire L2 a L4
 
-Depuis la racine du dépôt, exécuter les harnais directory-l2, directory-l3, wordpress-directory-l2 et wordpress-directory-l3.
+Depuis la racine du depot, executer les harnais directory-l2, directory-l3, directory-l4, wordpress-directory-l2, wordpress-directory-l3 et wordpress-directory-l4.
 
-Le harnais autonome L3 contrôle les dix-neuf métas exactes, leur sanitation, les zéros initiaux, 2A/2B, les pays, contacts, URLs, dates et booléens, les quatre panneaux, les colonnes, les trois gardes de publication et l’absence de shortcode, Collection, renderer ou REST Annuaire.
+L4 controle la Data API publique, les Collections, les filtres et ordres, les deux shortcodes, les groupes, le HTML, les deux CSS, les quinze placeholders et tous les fallbacks. Les sentinelles privees doivent etre absentes de la Data API, du contexte, des placeholders, du HTML natif ou template et des logs.
 
-Le harnais WordPress L3 exige WP_SEED_WORDPRESS_LOAD vers un WordPress isolé. Il couvre brouillon, refus et réussite de publication, photo/alt, contacts masqués ou invalides, retrait d’autorisation, appel interne, programmation, capacités, données admin, colonnes, révisions et désactivation/réactivation. Toutes les fiches, pièces jointes, utilisateurs et fichiers fictifs sont supprimés en fin de recette.
-## Non-régression
+Le harnais WordPress L4 exige WP_SEED_WORDPRESS_LOAD vers un WordPress isole. Il charge les seize fiches fictives de tests/fixtures/directory-l4.json, teste 14 fiches eligibles, Gutenberg, Divi, theme classique, desactivation/reactivation et non-regression Citations/Temoignages. Il mesure Data API, Collection, shortcode natif, shortcode template, requetes et cache de resolution, puis supprime posts, templates, layouts et revisions.
+
+## Non-regression
 
 Tester au minimum :
 

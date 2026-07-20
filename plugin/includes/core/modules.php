@@ -223,7 +223,7 @@ function wp_seed_content_kit_get_modules()
             'planned' => false,
             'activable' => true,
             'seo_opt_out' => true,
-            'shortcode' => '',
+            'shortcode' => '[seed_directory]',
             'post_type' => 'seed_directory',
             'menu_icon' => wp_seed_content_kit_get_admin_menu_icon('directory'),
             'menu_supported' => true,

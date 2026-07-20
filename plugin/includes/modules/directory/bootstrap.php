@@ -10,6 +10,11 @@ require_once __DIR__ . '/post-type.php';
 require_once __DIR__ . '/validation.php';
 require_once __DIR__ . '/data.php';
 require_once __DIR__ . '/admin.php';
+require_once __DIR__ . '/collections.php';
+require_once __DIR__ . '/assets.php';
+require_once __DIR__ . '/templates.php';
+require_once __DIR__ . '/render.php';
+require_once __DIR__ . '/shortcode.php';
 
 function wp_seed_content_directory_filter_row_actions($actions, $post)
 {

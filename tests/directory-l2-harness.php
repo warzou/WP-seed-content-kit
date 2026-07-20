@@ -137,7 +137,7 @@ seed_l2_same(true, $modules['directory']['active'], 'Directory active');
 seed_l2_same(false, $modules['directory']['planned'], 'Directory no longer planned');
 seed_l2_same(true, $modules['directory']['activable'], 'Directory activable');
 seed_l2_same('seed_directory', $modules['directory']['post_type'], 'Directory post type in registry');
-seed_l2_same('', $modules['directory']['shortcode'], 'No complete Directory shortcode in L2');
+seed_l2_same('[seed_directory]', $modules['directory']['shortcode'], 'L4 Directory shortcode exposed in registry');
 seed_l2_same('seed_testimonial', $modules['testimonials']['post_type'], 'Testimonials registry unchanged');
 seed_l2_same('seed_quote', $modules['quotes']['post_type'], 'Quotes registry unchanged');
 seed_l2_same('1.0', wp_seed_content_kit_get_contract_version(), 'Third-party contract version unchanged');
@@ -232,9 +232,13 @@ seed_l2_same(true, wp_seed_content_kit_is_module_active('directory'), 'Directory
 seed_l2_same(42, $GLOBALS['seed_l2_saved_entry']['ID'], 'Re-enabling preserves entries');
 
 seed_l2_same(0, $GLOBALS['seed_l2_writes'], 'Activation helpers create no content');
-seed_l2_same(array(), $GLOBALS['seed_l2_shortcode_calls'], 'No public Directory shortcode in L2');
-seed_l2_same(false, function_exists('wp_seed_content_directory_get_entry_data'), 'No Directory Data API in L2');
-seed_l2_same(false, function_exists('wp_seed_content_directory_get_entries'), 'No Directory Collections in L2');
+seed_l2_same(array(
+    'seed_directory' => 'wp_seed_content_directory_shortcode',
+    'wp_seed_directory' => 'wp_seed_content_directory_shortcode',
+), $GLOBALS['seed_l2_shortcode_calls'], 'L4 registers canonical shortcode and compatibility alias');
+seed_l2_same(false, function_exists('wp_seed_content_directory_get_entry_data'), 'Legacy Directory Data API remains absent');
+seed_l2_same(true, function_exists('wp_seed_content_directory_get_public_data'), 'L4 public Directory Data API available');
+seed_l2_same(true, function_exists('wp_seed_content_directory_get_entries'), 'L4 Directory Collections available');
 seed_l2_same(false, function_exists('wp_seed_content_directory_render'), 'No Directory renderer in L2');
 
 if (!empty($GLOBALS['seed_l2_failures'])) {
