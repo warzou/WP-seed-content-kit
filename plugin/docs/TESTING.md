@@ -22,6 +22,19 @@ ACF, Composer, npm et les services externes ne sont pas requis.
 5. Contrôler l'absence de fatal, warning ou sortie inattendue dans les logs.
 6. Après la recette, réinstaller la sauvegarde et confirmer le retour à la version précédente.
 
+## Annuaire L2
+
+Depuis la racine du dépôt, exécuter :
+
+```text
+php tests/directory-l2-harness.php
+php tests/wordpress-directory-l2-harness.php
+```
+
+Le premier harnais contrôle le registre, le CPT privé, les quatorze clés de capacités mappées vers quatre primitives, le rôle administrateur, Quick/Bulk Edit, les exclusions de sitemap, le cycle non destructif et l’absence de fonctions L3/L4.
+
+Le second exige `WP_SEED_WORDPRESS_LOAD` vers le `wp-load.php` d’un WordPress isolé. Il active le plugin, crée un brouillon temporaire, contrôle le menu, les permissions, l’absence de route publique/REST/recherche, désactive puis réactive Annuaire et supprime intégralement sa fiche et son utilisateur temporaires.
+
 ## Non-régression
 
 Tester au minimum :

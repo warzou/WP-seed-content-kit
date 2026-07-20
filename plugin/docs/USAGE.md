@@ -11,6 +11,7 @@ Les shortcodes publics sont :
 - `[seed_cards]` ;
 - `[seed_testimonials]` ;
 - `[seed_quotes]`.
+Le module Annuaire L2 ne déclare volontairement ni `[seed_directory]` ni son alias. Ces shortcodes seront introduits avec le rendu public dans un lot ultérieur.
 
 ## API PHP Collections V1
 
@@ -41,6 +42,12 @@ wp_seed_content_get_daily_quote($args = array())
 Elle retourne un ID de Citation publiée non protégée, stable pour la date civile et le fuseau WordPress du site, ou `0` si aucune Citation publique non protégée n'est éligible ou si le module est désactivé. Elle n'utilise ni hasard, ni transient, ni état persistant.
 
 `[seed_testimonials]` conserve ses valeurs par défaut historiques en les traduisant vers Collections. `[seed_quotes]` conserve son mode aléatoire historique et ajoute le mode quotidien explicite `mode="daily"`.
+
+## Annuaire L2
+
+`Content Kit > Annuaire` permet d’accéder au CPT privé `seed_directory` lorsque le module est actif. Le module peut être désactivé depuis Configuration sans supprimer ses fiches ou médias, puis réactivé sans perte.
+
+L2 ne fournit pas encore les champs métier, l’autorisation de publication, la Data API, les Collections, les templates Annuaire ou le rendu public. Les fiches créées pendant cette étape doivent rester des brouillons techniques.
 
 ## Cards
 
@@ -324,4 +331,5 @@ WP Seed Content Kit ne fournit pas :
 - de sélecteur WP Seed finalisé dans l'éditeur Gutenberg ;
 - d'intégration ACF obligatoire ;
 - d'outil d'import ou de migration ;
-- de modules fonctionnels Annuaire ou Créations sonores.
+- de rendu public complet pour Annuaire ;
+- de module fonctionnel Créations sonores.

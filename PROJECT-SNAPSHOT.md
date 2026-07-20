@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 20 juillet 2026
-Statut : contrat public Template Extension 1.0 implémenté en 0.5.0-dev ; diff local non stagé en attente de revue
-Version courante du code : 0.5.0-dev
+Statut : socle natif Annuaire L2 implémenté en 0.6.0-dev ; diff local non stagé en attente de revue
+Version courante du code : 0.6.0-dev
 Version stable publiée : 0.3.0
 Commit de base du RC : 32dac5083491223800d7bf18dccb0a24f8eeaebb
 Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
@@ -15,6 +15,17 @@ Ce document est la mémoire de reprise du dépôt WP Seed Content Kit. Le dépô
 ## 1. Mission actuelle
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés et des présentations réutilisables dans WordPress.
+### Annuaire L2
+
+Le lot L2 introduit uniquement le socle natif du module `directory` :
+
+- CPT privé `seed_directory`, hors REST, recherche, archive, single et sitemap ;
+- module actif par défaut et désactivable via l’option canonique des modules ;
+- quatre capacités primitives dédiées, accordées au seul rôle `administrator` à l’activation ;
+- menu `Content Kit > Annuaire`, ordre manuel, Quick Edit et Bulk Edit neutralisés ;
+- désactivation et réactivation sans suppression de données ni de médias.
+
+Aucun champ métier complet, consentement détaillé, Data API, Collection, shortcode, renderer, CSS, migration ou adaptateur Directory n’est inclus en L2. Le dépôt WP Seed Directory reste un prototype de référence temporaire strictement séparé.
 
 Il combine actuellement :
 
@@ -79,14 +90,9 @@ Cards :
 - aucun CPT métier propre ;
 - hors du périmètre Content Data API V1.
 
-### Modules prévus
+### Module prévu
 
-Les modules suivants restent annoncés mais non fonctionnels :
-
-- Annuaire ;
-- Créations sonores.
-
-Ils ne possèdent pas encore de contrat métier stable.
+Créations sonores reste annoncé mais non fonctionnel et ne possède pas encore de contrat métier stable. Annuaire est désormais un module natif en cours d’implémentation par lots.
 
 ## 4. Templates WP Seed
 

@@ -2,6 +2,24 @@
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 
+## [0.6.0-dev] - Unreleased
+
+### Added
+
+- Socle natif du module Annuaire, activable avec les modules Citations et Témoignages.
+- CPT privé `seed_directory`, sans page individuelle, archive, recherche publique, REST ou sitemap.
+- Quatre capacités primitives Annuaire accordées uniquement au rôle `administrator` lors de l’activation.
+- Sous-menu `Content Kit > Annuaire`, ordre manuel et neutralisation de Quick Edit et Bulk Edit.
+
+### Lifecycle
+
+- La désactivation du module retire son CPT et son menu de la requête courante sans supprimer fiches, médias ou capacités.
+- La réactivation retrouve les données existantes.
+- L2 ne fournit encore aucun champ métier complet, Data API, Collection, shortcode, renderer, CSS, migration ou adaptateur Directory.
+
+### Compatibility
+
+- Citations, Témoignages, Templates, Collections, Gutenberg, Divi et le Template Extension Contract 1.0 restent inchangés.
 ## [0.5.0-dev] - Unreleased
 
 ### Added

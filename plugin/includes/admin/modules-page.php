@@ -28,6 +28,7 @@ function wp_seed_content_kit_register_modules_page()
 
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_testimonial');
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_quote');
+    remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_directory');
 
     $position = 2;
     $modules = wp_seed_content_kit_get_modules();
@@ -125,6 +126,7 @@ function wp_seed_content_kit_handle_modules_form()
     $next = array(
         'testimonials' => in_array('testimonials', $enabled_modules, true),
         'quotes' => in_array('quotes', $enabled_modules, true),
+        'directory' => in_array('directory', $enabled_modules, true),
     );
 
     $menu_visibility = wp_seed_content_kit_get_module_menu_visibility();
@@ -195,6 +197,17 @@ function wp_seed_content_kit_refresh_module_rewrite_rules($modules)
         wp_seed_content_register_quote_post_type();
     } elseif (function_exists('unregister_post_type') && post_type_exists('seed_quote')) {
         unregister_post_type('seed_quote');
+    }
+
+    if (!empty($modules['directory'])) {
+        if (!function_exists('wp_seed_content_directory_register_post_type')) {
+            require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/bootstrap.php';
+        }
+
+        wp_seed_content_directory_grant_capabilities();
+        wp_seed_content_directory_register_post_type();
+    } elseif (function_exists('unregister_post_type') && post_type_exists('seed_directory')) {
+        unregister_post_type('seed_directory');
     }
 
     flush_rewrite_rules();
@@ -336,14 +349,12 @@ function wp_seed_content_kit_render_module_quick_links($module_key, $module)
         return;
     }
 
-    if ('testimonials' === $module_key) {
-        $post_type = 'seed_testimonial';
-    } elseif ('quotes' === $module_key) {
-        $post_type = 'seed_quote';
-    } else {
+    if (empty($module['post_type'])) {
         echo esc_html__('Prévu', 'wp-seed-content-kit');
         return;
     }
+
+    $post_type = sanitize_key((string) $module['post_type']);
 
     $links = array(
         sprintf(

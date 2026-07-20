@@ -9,6 +9,7 @@ function wp_seed_content_kit_get_default_module_options()
     return array(
         'testimonials' => true,
         'quotes' => true,
+        'directory' => true,
     );
 }
 
@@ -24,6 +25,7 @@ function wp_seed_content_kit_get_module_options()
     return array(
         'testimonials' => (bool) $options['testimonials'],
         'quotes' => (bool) $options['quotes'],
+        'directory' => (bool) $options['directory'],
     );
 }
 
@@ -35,6 +37,10 @@ function wp_seed_content_kit_get_default_module_menu_visibility()
             'roles' => array('administrator'),
         ),
         'seed_quote' => array(
+            'show_in_menu' => false,
+            'roles' => array('administrator'),
+        ),
+        'seed_directory' => array(
             'show_in_menu' => false,
             'roles' => array('administrator'),
         ),
@@ -132,7 +138,7 @@ function wp_seed_content_kit_get_post_type_menu_parent($post_type)
 {
     $post_type = sanitize_key($post_type);
 
-    if (in_array($post_type, array('seed_testimonial', 'seed_quote'), true)) {
+    if (in_array($post_type, array('seed_testimonial', 'seed_quote', 'seed_directory'), true)) {
         return 'wp-seed-content-kit';
     }
 
@@ -145,6 +151,7 @@ function wp_seed_content_kit_get_admin_menu_icon($type)
         'parent' => 'dashicons-screenoptions',
         'testimonials' => 'dashicons-testimonial',
         'quotes' => 'dashicons-format-quote',
+        'directory' => 'dashicons-admin-users',
     );
 
     $type = sanitize_key($type);
@@ -163,7 +170,7 @@ function wp_seed_content_kit_is_module_active($module)
         return true;
     }
 
-    if (in_array($module, array('directory', 'audio'), true)) {
+    if ('audio' === $module) {
         return false;
     }
 
@@ -211,12 +218,15 @@ function wp_seed_content_kit_get_modules()
         ),
         'directory' => array(
             'label' => __('Annuaire', 'wp-seed-content-kit'),
-            'active' => false,
-            'planned' => true,
-            'activable' => false,
+            'description' => __('Gestion et affichage de fiches d’annuaire.', 'wp-seed-content-kit'),
+            'active' => wp_seed_content_kit_is_module_active('directory'),
+            'planned' => false,
+            'activable' => true,
+            'seo_opt_out' => true,
             'shortcode' => '',
-            'menu_icon' => 'dashicons-admin-users',
-            'menu_supported' => false,
+            'post_type' => 'seed_directory',
+            'menu_icon' => wp_seed_content_kit_get_admin_menu_icon('directory'),
+            'menu_supported' => true,
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
         ),
         'audio' => array(

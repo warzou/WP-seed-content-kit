@@ -15,6 +15,7 @@ Le plugin ne doit pas devenir un builder.
 
 Le builder (Gutenberg/Spectra/Divi) conserve la mise en page.
 Le plugin conserve la requête de contenu et la sémantique métier.
+Depuis `0.6.0-dev`, Annuaire est un module métier natif de Content Kit. L2 enregistre seulement son CPT administratif privé et son cycle de vie. Son futur shortcode et ses templates suivront les mêmes contrats de sélection, de placeholders typés et de fallback natif que Citations et Témoignages, sans utiliser le contrat tiers comme adaptateur interne.
 
 ## 2) Architecture recommandée V2
 

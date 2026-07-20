@@ -28,6 +28,12 @@ Il fonctionne sans thème imposé, sans ACF obligatoire et sans dépendance à u
 - ordre manuel ;
 - templates réutilisables.
 
+### Annuaire — socle 0.6.0-dev
+
+Le module natif Annuaire est activable dans Content Kit. L2 fournit uniquement le CPT administratif privé `seed_directory`, ses capacités dédiées et son cycle de vie non destructif.
+
+Aucune page, archive, recherche, route REST, Data API, Collection, shortcode ou carte publique Annuaire n’est encore disponible. Les champs métier et les rendus sont prévus pour les lots L3 et L4.
+
 ### Cards
 
 Cards affiche les articles WordPress natifs sous forme de cartes. Il ne crée pas de type de contenu supplémentaire.
@@ -156,7 +162,8 @@ Le plugin ne fournit pas :
 - de sélecteur WP Seed finalisé dans l'éditeur Gutenberg ;
 - d'intégration ACF obligatoire ;
 - d'import ou de migration automatique ;
-- de modules fonctionnels Annuaire ou Créations sonores.
+- de rendu public complet pour le module Annuaire ;
+- de module fonctionnel Créations sonores.
 
 Le provider Divi 5 Dynamic Content reste expérimental. L'aperçu de certaines images ou boucles peut être incomplet dans le Visual Builder, et le texte alternatif d'une photo n'est pas garanti dans tous les modules. Le rendu frontend a été validé sous Divi 5.9.0.
 
