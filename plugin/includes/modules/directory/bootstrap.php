@@ -5,7 +5,11 @@ if (!defined('ABSPATH')) {
 }
 
 require_once __DIR__ . '/capabilities.php';
+require_once __DIR__ . '/fields.php';
 require_once __DIR__ . '/post-type.php';
+require_once __DIR__ . '/validation.php';
+require_once __DIR__ . '/data.php';
+require_once __DIR__ . '/admin.php';
 
 function wp_seed_content_directory_filter_row_actions($actions, $post)
 {

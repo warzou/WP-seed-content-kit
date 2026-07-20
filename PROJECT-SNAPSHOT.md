@@ -1,7 +1,7 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 20 juillet 2026
-Statut : socle natif Annuaire L2 implémenté en 0.6.0-dev ; diff local non stagé en attente de revue
+Statut : cœur métier Annuaire L3 implémenté en 0.6.0-dev ; diff local non stagé en attente de revue
 Version courante du code : 0.6.0-dev
 Version stable publiée : 0.3.0
 Commit de base du RC : 32dac5083491223800d7bf18dccb0a24f8eeaebb
@@ -15,18 +15,18 @@ Ce document est la mémoire de reprise du dépôt WP Seed Content Kit. Le dépô
 ## 1. Mission actuelle
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés et des présentations réutilisables dans WordPress.
-### Annuaire L2
+### Annuaire L3
 
-Le lot L2 introduit uniquement le socle natif du module `directory` :
+Le module directory comprend désormais :
 
-- CPT privé `seed_directory`, hors REST, recherche, archive, single et sitemap ;
-- module actif par défaut et désactivable via l’option canonique des modules ;
-- quatre capacités primitives dédiées, accordées au seul rôle `administrator` à l’activation ;
-- menu `Content Kit > Annuaire`, ordre manuel, Quick Edit et Bulk Edit neutralisés ;
-- désactivation et réactivation sans suppression de données ni de médias.
+- CPT privé seed_directory, hors REST, recherche, archive, single et sitemap ;
+- dix-neuf métas métier privées avec sanitation centralisée et pays par défaut FR ;
+- quatre panneaux admin, colonnes sans données privées et capacités réservées à administrator ;
+- autorisation explicite, validation photo/alt et garde de publication avant/après écriture ;
+- prédicat canonique d’éligibilité et séparation stricte des contacts visibles ;
+- révisions natives et cycle de désactivation/réactivation non destructif.
 
-Aucun champ métier complet, consentement détaillé, Data API, Collection, shortcode, renderer, CSS, migration ou adaptateur Directory n’est inclus en L2. Le dépôt WP Seed Directory reste un prototype de référence temporaire strictement séparé.
-
+Aucune Data API publique, Collection, shortcode, renderer, CSS public, migration ou adaptateur Directory n’est inclus en L3. Ces sorties relèvent de L4. Le dépôt WP Seed Directory reste strictement séparé et inchangé.
 Il combine actuellement :
 
 - des modules de contenus structurés ;

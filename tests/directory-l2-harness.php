@@ -89,6 +89,10 @@ function register_post_type($post_type, $args)
     return (object) $args;
 }
 
+function register_post_meta($post_type, $key, $args)
+{
+}
+
 function add_filter($hook, $callback, $priority = 10, $accepted_args = 1)
 {
     $GLOBALS['seed_l2_filters'][$hook][] = array($callback, $priority, $accepted_args);
@@ -174,7 +178,7 @@ foreach (array('public', 'publicly_queryable', 'show_in_rest', 'has_archive', 'r
 seed_l2_same(true, $cpt['exclude_from_search'], 'Excluded from public search');
 seed_l2_same(true, $cpt['show_ui'], 'Admin UI enabled');
 seed_l2_same('wp-seed-content-kit', $cpt['show_in_menu'], 'Nested under Content Kit');
-seed_l2_same(array('title', 'excerpt', 'thumbnail', 'page-attributes'), $cpt['supports'], 'Minimal supports');
+seed_l2_same(array('title', 'excerpt', 'thumbnail', 'page-attributes', 'revisions'), $cpt['supports'], 'L3 adds native revisions to minimal supports');
 seed_l2_same(array('seed_directory_entry', 'seed_directory_entries'), $cpt['capability_type'], 'Capability type');
 seed_l2_same(true, $cpt['map_meta_cap'], 'Meta capability mapping enabled');
 seed_l2_same($map, $cpt['capabilities'], 'Explicit capability map attached');

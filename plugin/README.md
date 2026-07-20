@@ -28,12 +28,11 @@ Il fonctionne sans thème imposé, sans ACF obligatoire et sans dépendance à u
 - ordre manuel ;
 - templates réutilisables.
 
-### Annuaire — socle 0.6.0-dev
+### Annuaire — cœur métier 0.6.0-dev
 
-Le module natif Annuaire est activable dans Content Kit. L2 fournit uniquement le CPT administratif privé `seed_directory`, ses capacités dédiées et son cycle de vie non destructif.
+Le module natif Annuaire fournit désormais son CPT administratif privé, dix-neuf métas validées, quatre panneaux, les colonnes de suivi, l’autorisation explicite et une garde de publication. Les contacts privés restent séparés des seuls contacts valides et explicitement visibles.
 
-Aucune page, archive, recherche, route REST, Data API, Collection, shortcode ou carte publique Annuaire n’est encore disponible. Les champs métier et les rendus sont prévus pour les lots L3 et L4.
-
+Aucune page, archive, recherche, route REST, Data API publique, Collection, shortcode ou carte publique Annuaire n’est encore disponible. Le rendu public relève de L4.
 ### Cards
 
 Cards affiche les articles WordPress natifs sous forme de cartes. Il ne crée pas de type de contenu supplémentaire.

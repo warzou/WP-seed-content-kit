@@ -43,11 +43,13 @@ function wp_seed_content_directory_register_post_type()
         'can_export' => true,
         'menu_position' => 20,
         'menu_icon' => 'dashicons-admin-users',
-        'supports' => array('title', 'excerpt', 'thumbnail', 'page-attributes'),
+        'supports' => array('title', 'excerpt', 'thumbnail', 'page-attributes', 'revisions'),
         'capability_type' => array('seed_directory_entry', 'seed_directory_entries'),
         'capabilities' => wp_seed_content_directory_get_capability_map(),
         'map_meta_cap' => true,
     ));
+
+    wp_seed_content_directory_register_meta_fields();
 
     if (function_exists('wp_seed_content_kit_register_manual_order_for_post_type')) {
         wp_seed_content_kit_register_manual_order_for_post_type('seed_directory');

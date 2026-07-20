@@ -43,12 +43,15 @@ Elle retourne un ID de Citation publiée non protégée, stable pour la date civ
 
 `[seed_testimonials]` conserve ses valeurs par défaut historiques en les traduisant vers Collections. `[seed_quotes]` conserve son mode aléatoire historique et ajoute le mode quotidien explicite `mode="daily"`.
 
-## Annuaire L2
+## Annuaire L3
 
-`Content Kit > Annuaire` permet d’accéder au CPT privé `seed_directory` lorsque le module est actif. Le module peut être désactivé depuis Configuration sans supprimer ses fiches ou médias, puis réactivé sans perte.
+Content Kit > Annuaire ouvre le CPT privé seed_directory. Les quatre panneaux regroupent identité et présentation, situation, coordonnées avec leur visibilité, puis publication et suivi.
 
-L2 ne fournit pas encore les champs métier, l’autorisation de publication, la Data API, les Collections, les templates Annuaire ou le rendu public. Les fiches créées pendant cette étape doivent rester des brouillons techniques.
+Une fiche ne peut être publiée que si son nom, son statut, son pays et l’autorisation sont valides. La photo reste facultative ; si elle existe, son fichier image, son URL et son texte alternatif doivent être valides. Le retrait de l’autorisation dans l’administration ramène la fiche en brouillon.
 
+Chaque téléphone, e-mail, site, Facebook ou Instagram reste privé tant que « Afficher publiquement » n’est pas coché. Même coché, un contact invalide est absent des données publiques internes. La note et la date de vérification ne sont jamais des contacts publics.
+
+Le module peut être désactivé puis réactivé sans supprimer fiches, médias ou métas. L3 ne fournit pas encore de Data API publique, Collection, template, shortcode ou rendu Annuaire.
 ## Cards
 
 `[seed_cards]` affiche des articles WordPress natifs sous forme de cartes.
