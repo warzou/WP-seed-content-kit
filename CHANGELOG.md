@@ -2,6 +2,21 @@
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 
+## [0.5.0-dev] - Unreleased
+
+### Added
+
+- Template Extension Contract 1.0 avec détection de capacités, registre public de modules et placeholders tiers et résultat de rendu typé.
+- API publique `wp_seed_content_kit_render_template()` avec validation du slug, du module et du contexte.
+- Types fermés, échappement contextuel, garde de récursion, assets par handles WordPress et cache de résolution limité à la requête.
+- Harnais autonomes et WordPress pour un module tiers neutre, sans dépendance à un builder.
+
+### Compatibility
+
+- Les shortcodes, placeholders, renderers et fallbacks Témoignages/Citations conservent leurs parcours 0.4.0.
+- Gutenberg utilise toujours le rendu serveur ; Divi conserve le workflow Layout Divi Library et reste facultatif.
+- Aucun endpoint, CPT, stockage métier ou migration n'est ajouté.
+
 ## [0.4.0] - 2026-07-17
 
 ### Added

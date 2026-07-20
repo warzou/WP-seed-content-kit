@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 17 juillet 2026
-Statut : release candidate 0.4.0 préparé et validé ; lots B, C et D intégrés sur `main` ; diff final en attente de revue ; release finale non publiée
-Version courante du code : 0.4.0
+Date : 20 juillet 2026
+Statut : contrat public Template Extension 1.0 implémenté en 0.5.0-dev ; diff local non stagé en attente de revue
+Version courante du code : 0.5.0-dev
 Version stable publiée : 0.3.0
 Commit de base du RC : 32dac5083491223800d7bf18dccb0a24f8eeaebb
 Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
@@ -469,3 +469,26 @@ Les lots B, C et D sont intégrés et constituent le périmètre fonctionnel du 
 Le ZIP RC reproductible a été construit deux fois avec un SHA-256 identique, audité, extrait puis installé temporairement sur `emilieaucoeurdeletre.fr`. Les harnais Collections et Adaptateurs, les parcours administration, Content Data, Dynamic Data, Collections, shortcodes, Templates, Divi, Gutenberg, Spectra, frontend et Plugin Update Checker sont validés. Le site a ensuite été restauré exactement en `0.3.0`, sans fixture, transient simulé, sauvegarde ni fichier temporaire restant.
 
 Prochaine étape : revue humaine du diff de préparation RC avant commit, tag et publication de la release `0.4.0`.
+
+## 16. Template Extension Contract 1.0
+
+Le lot 0.5.0-dev ajoute une API publique neutre permettant à un plugin tiers d'enregistrer un module de Template et des placeholders typés pendant l'action `wp_seed_content_kit_register_template_modules`.
+
+Le contrat expose :
+
+- `wp_seed_content_kit_get_contract_version()` ;
+- `wp_seed_content_kit_supports()` ;
+- `wp_seed_content_kit_register_template_module()` ;
+- `wp_seed_content_kit_register_template_placeholders()` ;
+- `wp_seed_content_kit_render_template()` ;
+- `WP_Seed_Content_Kit_Render_Result`.
+
+Le registre est ouvert une seule fois à `init` priorité 1. Les modules et placeholders tardifs, invalides ou dupliqués sont refusés. Le contexte est fermé, les clés inconnues sont supprimées et aucune méta métier tierce n'est lue implicitement.
+
+Le rendu accepte uniquement un `seed_template` publié, un slug canonique et un module exact. Les erreurs retournent un HTML vide, aucun asset et un code public stable. Une pile par template/module protège les récursions directes et indirectes, avec une profondeur maximale de huit et une restauration garantie.
+
+Les assets sont des handles WordPress préenregistrés, validés en totalité puis chargés uniquement après succès. Le cache de résolution est limité aux templates trouvés pendant la requête ; aucun cache persistant, option, transient, REST ou AJAX n'est ajouté.
+
+Témoignages et Citations restent sur leurs parcours historiques 0.4.0 afin de garantir des sorties inchangées. Gutenberg conserve le pipeline serveur et Divi le workflow Layout Divi Library. Le contrat fonctionne sans Divi et ne contient aucun couplage métier particulier.
+
+La spécification tierce canonique est `docs/TEMPLATE-EXTENSION-API.md`. Les harnais `tests/template-extension-harness.php` et `tests/wordpress-template-extension-harness.php` couvrent le registre, les types, l'échappement, les codes, les assets, la récursion et les builders indirects.

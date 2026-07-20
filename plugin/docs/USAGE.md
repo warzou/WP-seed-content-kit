@@ -164,6 +164,16 @@ Champs d'édition actuels :
 
 Le titre WordPress est généré à partir de la citation et sert à l'identification dans l'administration.
 
+## API publique d'extension des Templates
+
+Un plugin tiers peut enregistrer un module et ses placeholders pendant `wp_seed_content_kit_register_template_modules`, puis appeler :
+
+```php
+$result = wp_seed_content_kit_render_template($slug, $module, $public_context);
+```
+
+Le résultat est toujours un `WP_Seed_Content_Kit_Render_Result`. En cas d'échec, son HTML et ses assets sont vides ; l'appelant utilise son propre renderer de secours. Les signatures, types, codes d'erreur et exemples sont définis dans `docs/TEMPLATE-EXTENSION-API.md`.
+
 ## Templates WP Seed
 
 Les templates permettent de choisir la mise en forme de chaque élément affiché par un shortcode.

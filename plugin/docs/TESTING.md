@@ -95,6 +95,21 @@ Le harnais réexécute d'abord les assertions Collections, puis vérifie :
 
 En recette WordPress réelle, comparer avant/après le HTML de `[seed_testimonials]` et `[seed_quotes]` sans nouvel attribut. Tester ensuite Tous, featured, une sélection `ids`, la Citation quotidienne, un Template natif et un Layout Divi Library existant. Mesurer les requêtes, vérifier HTTP 200 et les logs, puis restaurer les fichiers exacts déployés temporairement. Aucune fixture publiée n'est nécessaire.
 
+## Template Extension Contract 1.0
+
+Exécuter :
+
+```text
+php tests/template-extension-harness.php
+php tests/wordpress-template-extension-harness.php
+```
+
+Vérifier la version du contrat et toutes les capacités publiques, la fenêtre d'enregistrement, les doublons, les identifiants invalides, les types fermés, les contextes complets ou partiels, les clés inconnues, les valeurs obligatoires, les templates absents ou brouillons et les modules incompatibles.
+
+Vérifier séparément l'échappement de chaque type, les erreurs provider, la récursion directe et indirecte, la restauration de pile, la validation atomique des assets et leur chargement unique après succès. Le harnais WordPress utilise un module tiers neutre et couvre le pipeline serveur Gutenberg ainsi que le fonctionnement sans classe Divi.
+
+Relancer impérativement les harnais Collections et Adaptateurs afin de confirmer que Témoignages et Citations conservent leurs sorties historiques.
+
 ## Gutenberg Block Bindings
 
 - confirmer l'enregistrement unique de `wp-seed-content-kit/dynamic-data` ;

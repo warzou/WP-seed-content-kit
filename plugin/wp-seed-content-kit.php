@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Seed Content Kit
  * Description: Modular editorial content and reusable displays for WordPress.
- * Version: 0.4.0
+ * Version: 0.5.0-dev
  * Requires at least: 6.5
  * Requires PHP: 7.0
  * Author: WP Seed Content Kit
@@ -13,12 +13,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_SEED_CONTENT_KIT_VERSION', '0.4.0');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.5.0-dev');
 define('WP_SEED_CONTENT_KIT_FILE', __FILE__);
 define('WP_SEED_CONTENT_KIT_DIR', plugin_dir_path(__FILE__));
 define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
 
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/helpers.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-contract.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-render-result.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-registry.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/content-data.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/dynamic-data.php';
 $wp_seed_content_gutenberg_block_bindings_file = WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/gutenberg/block-bindings.php';
@@ -36,6 +39,7 @@ require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/manual-order.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/module-menu.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/templates.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-renderer.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-public-renderer.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/update-checker.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/cards/render.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/cards/shortcode.php';

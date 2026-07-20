@@ -157,3 +157,9 @@ Exemples :
 ```
 
 Un Template continue de représenter un élément, pas la collection entière. Un Layout Divi Library peut rester sa source de rendu. Aucun bloc, module builder, placeholder `{{items}}` ou provider de collection n'est ajouté.
+
+## 11) Contrat public d'extension 1.0
+
+À partir de 0.5.0-dev, un registre public fermé permet aux plugins tiers d'ajouter des modules de Template et des placeholders typés sans déplacer leurs données métier dans Content Kit. Le registre est limité à la présentation, reçoit uniquement un contexte explicite et retourne un résultat typé. Le fallback métier appartient toujours au plugin appelant.
+
+Le contrat détaillé se trouve dans `docs/TEMPLATE-EXTENSION-API.md`. Il ne change pas les parcours historiques Témoignages/Citations et n'introduit aucun provider de collection ou builder propriétaire.

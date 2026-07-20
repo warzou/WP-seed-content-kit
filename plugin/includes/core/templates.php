@@ -209,19 +209,27 @@ function wp_seed_content_render_selected_divi_layout_summary($layout_id)
 
 function wp_seed_content_get_template_modules()
 {
-    return array(
+    $modules = array(
         'testimonials' => 'seed_testimonials',
         'quotes' => 'seed_quotes',
         'directory' => 'seed_directory',
         'audio' => 'seed_audio',
     );
+
+    if (function_exists('wp_seed_content_kit_get_registered_template_modules')) {
+        foreach (wp_seed_content_kit_get_registered_template_modules() as $module => $definition) {
+            $modules[$module] = isset($definition['shortcode']) ? (string) $definition['shortcode'] : '';
+        }
+    }
+
+    return $modules;
 }
 
 function wp_seed_content_get_template_shortcode_from_module($module)
 {
     $modules = wp_seed_content_get_template_modules();
     $module = sanitize_key($module);
-    if (!isset($modules[$module])) {
+    if (!isset($modules[$module]) || '' === $modules[$module]) {
         return '';
     }
 
@@ -237,7 +245,18 @@ function wp_seed_content_get_template_module_name($module)
         'audio' => __('Créations sonores', 'wp-seed-content-kit'),
     );
 
-    return $labels[$module] ?? __('Module non défini', 'wp-seed-content-kit');
+    if (function_exists('wp_seed_content_kit_get_registered_template_module')) {
+        $definition = wp_seed_content_kit_get_registered_template_module($module);
+        if (is_array($definition) && !empty($definition['label'])) {
+            return $definition['label'];
+        }
+    }
+
+    if (isset($labels[$module])) {
+        return $labels[$module];
+    }
+
+    return __('Module non défini', 'wp-seed-content-kit');
 }
 
 function wp_seed_content_get_template_placeholders_by_module($module)
@@ -261,6 +280,14 @@ function wp_seed_content_get_template_placeholders_by_module($module)
             'era' => __('Époque / date affichée', 'wp-seed-content-kit'),
             'source' => __('Source / contexte', 'wp-seed-content-kit'),
         );
+    }
+
+    if (function_exists('wp_seed_content_kit_get_registered_template_placeholders')) {
+        $labels = array();
+        foreach (wp_seed_content_kit_get_registered_template_placeholders($module) as $key => $definition) {
+            $labels[$key] = isset($definition['label']) ? $definition['label'] : $key;
+        }
+        return $labels;
     }
 
     return array();
@@ -309,7 +336,12 @@ function wp_seed_content_template_shortcode_for_post($post_id)
 
 function wp_seed_content_get_template_supported_modules()
 {
-    return array('testimonials', 'quotes');
+    $modules = array('testimonials', 'quotes');
+    if (function_exists('wp_seed_content_kit_get_registered_template_modules')) {
+        $modules = array_merge($modules, array_keys(wp_seed_content_kit_get_registered_template_modules()));
+    }
+
+    return array_values(array_unique($modules));
 }
 
 function wp_seed_content_get_template_module_data()
@@ -1095,8 +1127,21 @@ function wp_seed_content_get_template_example_by_module($module)
     if ('quotes' === $module) {
         return "<div class=\"quote-template\">\n{{quote}}\n<p>{{author}}</p>\n<p>{{source}}</p>\n<p>{{era}}</p>\n</div>";
     }
+    if ('testimonials' === $module || '' === $module) {
+        return "<div class=\"testimonial-template\">\n<img src=\"{{photo_url}}\" alt=\"{{photo_alt}}\">\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n<p>{{context}}</p>\n<p>{{date}}</p>\n</div>";
+    }
 
-    return "<div class=\"testimonial-template\">\n<img src=\"{{photo_url}}\" alt=\"{{photo_alt}}\">\n<h3>{{name}}</h3>\n<p>{{text}}</p>\n<p>{{context}}</p>\n<p>{{date}}</p>\n</div>";
+    if (function_exists('wp_seed_content_kit_get_registered_template_placeholders')) {
+        $lines = array();
+        foreach (array_keys(wp_seed_content_kit_get_registered_template_placeholders($module)) as $placeholder) {
+            $lines[] = '{{' . $placeholder . '}}';
+        }
+        if (!empty($lines)) {
+            return '<div class="wp-seed-template-' . esc_attr($module) . '">' . "\n" . implode("\n", $lines) . "\n</div>";
+        }
+    }
+
+    return '';
 }
 function wp_seed_content_seed_template_init_admin_columns()
 {

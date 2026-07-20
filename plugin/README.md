@@ -64,6 +64,18 @@ Sous Divi 5, le provider Dynamic Content enregistre quatre champs Citation (Text
 
 Ces sources dépendent du contenu courant ou du contexte d'une boucle. Elles complètent les Templates WP Seed et les layouts Divi Library ; elles ne les remplacent pas.
 
+## Template Extension API
+
+Le contrat public 1.0 permet à un plugin tiers d'enregistrer un module de Template et des placeholders typés, puis de rendre un `seed_template` publié par slug. Le contexte transmis est fermé, les erreurs sont typées et le fallback reste sous la responsabilité du plugin appelant.
+
+Détection minimale :
+
+```php
+wp_seed_content_kit_supports('template_extension', '1.0');
+```
+
+Le contrat fonctionne sans Divi, ne crée aucun endpoint et ne lit aucune donnée métier tierce implicitement. Voir `docs/TEMPLATE-EXTENSION-API.md`.
+
 ## Shortcodes publics
 
 ```text
