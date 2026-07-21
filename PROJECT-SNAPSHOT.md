@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 20 juillet 2026
-Statut : sortie publique Annuaire L4 implementee en 0.6.0-rc.1 ; diff local non stage en attente de revue
-Version courante du code : 0.6.0-rc.1
+Date : 21 juillet 2026
+Statut : CK-A1 et CK-A2 implémentés localement ; diff non stagé en attente de revue
+Version courante du code : 0.6.0-rc.2-dev
 Version stable publiée : 0.3.0
 Commit de base du RC : 32dac5083491223800d7bf18dccb0a24f8eeaebb
 Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
@@ -21,7 +21,7 @@ Le module directory comprend désormais :
 
 - CPT privé seed_directory, hors REST, recherche, archive, single et sitemap ;
 - dix-neuf métas métier privées avec sanitation centralisée et pays par défaut FR ;
-- quatre panneaux admin, colonnes sans données privées et capacités réservées à administrator ;
+- quatre panneaux admin, colonnes sans données privées et capacités de contenu accordées par défaut à administrator et editor ;
 - autorisation explicite, validation photo/alt et garde de publication avant/après écriture ;
 - prédicat canonique d’éligibilité et séparation stricte des contacts visibles ;
 - révisions natives et cycle de désactivation/réactivation non destructif.
@@ -507,3 +507,18 @@ La spécification tierce canonique est `docs/TEMPLATE-EXTENSION-API.md`. Les har
 - Le plugin WP Seed Directory 0.1.0-rc.1 reste une reference comparative externe et n'est ni couple ni migre automatiquement.
 - Limites RC : aucune recherche publique, aucune fiche individuelle, aucun REST/AJAX et aucune migration runtime.
 - Le diff de preparation RC reste local, non stage et non committe jusqu'a approbation explicite.
+
+## 18. CK-A1 - Administration et Utilisation
+
+CK-A1 remplace la page Aide minimale par Utilisation tout en préservant les réglages et capacités existants. Le menu administrateur reste WP Seed Content Kit, Configuration, Témoignages, Citations, Annuaire et Utilisation.
+
+Utilisation contient Fonctionnement, Templates, Collections et Intégrer dans une page. Les méthodes Shortcodes, Gutenberg, Spectra et Divi sont qualifiées comme fonctionnelles, indirectes, expérimentales ou indisponibles selon leur état réel. Collections reste une API de sélection sans CPT, sauvegarde ou écran de création.
+
+CK-A2 complète cette architecture : editor reçoit par défaut les capacités de contenu de Témoignages, Citations et Annuaire, tandis que Configuration, Utilisation, Templates, Collections, rôles, intégrations et imports restent réservés à administrator.
+## 19. CK-A2 - Rôles et capacités
+
+Les CPT Témoignages, Citations et Annuaire utilisent des mappings de capacités propres. Administrator et Editor reçoivent par défaut les quatre primitives de chaque module : création/modification, publication, lecture privée et suppression, y compris pour les contenus d’autres éditeurs selon le mapping WordPress.
+
+Configuration propose une matrice simple Administrator/Editor par module. Administrator est toujours autorisé. Les six capacités avancées `manage_wp_seed_*` séparent Configuration, Templates, Collections, intégrations, rôles et imports de la gestion éditoriale. Les menus utilisent `current_user_can()` sur ces capacités et non le nom du rôle.
+
+La désactivation d’un module masque son CPT et ses menus sans retirer ses capacités ni supprimer ses données. WP Seed Events reste autonome au commit audité `dfbb66dfa8745350dece988f23ab856fde14d4ed` : son CPT utilise les capacités WordPress standard et ses réglages techniques restent sous `manage_options`. Aucun code Events ni dépendance inter-plugin n’est ajouté.

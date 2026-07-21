@@ -1,0 +1,131 @@
+.seed-usage {
+    max-width: 1120px;
+}
+
+.seed-usage .nav-tab-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-top: 20px;
+}
+
+.seed-usage-section {
+    border-top: 1px solid #dcdcde;
+    margin-top: 24px;
+    padding-top: 20px;
+}
+
+.seed-usage-flow {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 20px 0;
+    padding: 0;
+}
+
+.seed-usage-flow li {
+    border-left: 4px solid #2271b1;
+    margin: 0;
+    padding: 4px 12px;
+}
+
+.seed-usage-flow strong,
+.seed-usage-flow span {
+    display: block;
+}
+
+.seed-usage-flow span {
+    margin-top: 6px;
+}
+
+.seed-usage-subtabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+.seed-usage-copy {
+    margin: 16px 0;
+    max-width: 900px;
+}
+
+.seed-usage-copy__controls {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.seed-usage-copy__controls input {
+    min-width: 0;
+}
+
+.seed-usage-copy__status {
+    min-width: 54px;
+}
+
+.seed-usage-status {
+    border-left: 4px solid #646970;
+    padding: 6px 10px;
+}
+
+.seed-usage-status--functional {
+    border-left-color: #008a20;
+}
+
+.seed-usage-status--indirect {
+    border-left-color: #2271b1;
+}
+
+.seed-usage-status--experimental {
+    border-left-color: #dba617;
+}
+
+.seed-usage-status--unavailable {
+    border-left-color: #8c8f94;
+}
+
+.seed-usage-code-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.seed-usage-table th,
+.seed-usage-table td {
+    vertical-align: top;
+}
+
+@media screen and (max-width: 782px) {
+    .seed-usage-flow {
+        grid-template-columns: 1fr;
+    }
+
+    .seed-usage-copy__controls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .seed-usage-copy__controls .button {
+        align-self: flex-start;
+    }
+
+    .seed-usage-table,
+    .seed-usage-table tbody,
+    .seed-usage-table tr,
+    .seed-usage-table th,
+    .seed-usage-table td {
+        display: block;
+        width: auto;
+    }
+
+    .seed-usage-table thead {
+        display: none;
+    }
+
+    .seed-usage-table tr {
+        border-bottom: 1px solid #dcdcde;
+        padding: 10px;
+    }
+}

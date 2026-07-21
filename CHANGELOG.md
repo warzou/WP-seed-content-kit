@@ -2,6 +2,28 @@
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 
+## [0.6.0-rc.2-dev] - Unreleased
+
+### Changed
+
+- Remplacement de la page Aide minimale par le sous-menu Utilisation.
+- Quatre onglets horizontaux : Fonctionnement, Templates, Collections et Intégrer dans une page.
+- Quatre méthodes d’intégration documentées selon leur état réel : Shortcodes, Gutenberg, Spectra et Divi.
+- Exemples copiables, liens directs vers les Templates et générateur Annuaire sans persistance.
+- Collections présentées comme API de sélection et paramètres de rendu, sans CPT ni objet enregistré.
+- Mise en page administrative responsive et navigation exposant l’onglet courant aux technologies d’assistance.
+- Capacités métier distinctes pour Témoignages, Citations et Annuaire, accordées par défaut à Administrator et Editor.
+- Capacités avancées dédiées pour Configuration, Templates, Collections, intégrations, rôles et imports, réservées à Administrator.
+- Matrice Administrator/Editor configurable par module et menus désormais conditionnés par les capacités réelles.
+- Cycle de désactivation/réactivation non destructif conservant contenus, options et attributions de rôles.
+- Contrat Events réel audité et documenté sans dépendance ni modification du plugin autonome.
+
+### Compatibility
+
+- Les réglages de modules et d’emplacement des menus sont préservés.
+- Utilisation exige manage_wp_seed_integrations; Editor reste limité aux contenus autorisés.
+- Aucun endpoint REST/AJAX, aucune migration et aucune dépendance à WP Seed Directory ou WP Seed Events.
+- Aucun endpoint REST/AJAX, aucune migration et aucune dépendance à WP Seed Directory.
 ## [0.6.0-rc.1] - Unreleased
 
 ### Release candidate

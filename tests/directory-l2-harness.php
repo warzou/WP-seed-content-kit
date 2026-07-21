@@ -21,6 +21,11 @@ class Seed_L2_Role
     {
         $this->capabilities[$capability] = true;
     }
+
+    public function remove_cap($capability)
+    {
+        unset($this->capabilities[$capability]);
+    }
 }
 
 $GLOBALS['seed_l2_roles'] = array(
@@ -120,6 +125,7 @@ function wp_insert_post($args)
 }
 
 require WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-contract.php';
+require WP_SEED_CONTENT_KIT_DIR . 'includes/core/capabilities.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/core/modules.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/bootstrap.php';
 
@@ -165,7 +171,7 @@ seed_l2_same($expected_primitives, $primitive_values, 'Only four primitive capab
 wp_seed_content_directory_grant_capabilities();
 foreach ($expected_primitives as $capability) {
     seed_l2_assert(isset($GLOBALS['seed_l2_roles']['administrator']->capabilities[$capability]), 'Administrator receives ' . $capability);
-    seed_l2_assert(!isset($GLOBALS['seed_l2_roles']['editor']->capabilities[$capability]), 'Editor does not receive ' . $capability);
+    seed_l2_assert(isset($GLOBALS['seed_l2_roles']['editor']->capabilities[$capability]), 'Editor receives ' . $capability);
     seed_l2_assert(!isset($GLOBALS['seed_l2_roles']['author']->capabilities[$capability]), 'Author does not receive ' . $capability);
 }
 
@@ -225,7 +231,9 @@ $GLOBALS['seed_l2_options']['wp_seed_content_kit_modules'] = array(
 $GLOBALS['seed_l2_saved_entry'] = array('ID' => 42, 'post_type' => 'seed_directory', 'post_status' => 'draft');
 seed_l2_same(false, wp_seed_content_kit_is_module_active('directory'), 'Directory can be disabled');
 seed_l2_same(42, $GLOBALS['seed_l2_saved_entry']['ID'], 'Disabling preserves entries');
-seed_l2_same(4, count($GLOBALS['seed_l2_roles']['administrator']->capabilities), 'Disabling preserves capabilities');
+foreach ($expected_primitives as $capability) {
+    seed_l2_assert(isset($GLOBALS['seed_l2_roles']['administrator']->capabilities[$capability]), 'Disabling preserves ' . $capability);
+}
 $GLOBALS['seed_l2_options']['wp_seed_content_kit_modules']['directory'] = true;
 wp_seed_content_directory_register_post_type();
 seed_l2_same(true, wp_seed_content_kit_is_module_active('directory'), 'Directory can be re-enabled');

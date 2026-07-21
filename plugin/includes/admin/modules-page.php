@@ -4,14 +4,46 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+function wp_seed_content_kit_get_admin_menu_capability()
+{
+    if (current_user_can('manage_wp_seed_content_kit')) {
+        return 'manage_wp_seed_content_kit';
+    }
+
+    $module = wp_seed_content_kit_get_first_accessible_module();
+    if (!empty($module['content_capability'])) {
+        return $module['content_capability'];
+    }
+
+    return 'manage_wp_seed_content_kit';
+}
+
+function wp_seed_content_kit_render_admin_landing()
+{
+    if (current_user_can('manage_wp_seed_content_kit')) {
+        wp_seed_content_kit_render_modules_page();
+        return;
+    }
+
+    $module = wp_seed_content_kit_get_first_accessible_module();
+    if (!empty($module['post_type'])) {
+        wp_safe_redirect(admin_url('edit.php?post_type=' . sanitize_key($module['post_type'])));
+        exit;
+    }
+
+    wp_die(esc_html__('Vous n’avez accès à aucun module de contenu WP Seed.', 'wp-seed-content-kit'));
+}
+
 function wp_seed_content_kit_register_modules_page()
 {
+    $menu_capability = wp_seed_content_kit_get_admin_menu_capability();
+
     add_menu_page(
         __('WP Seed Content Kit', 'wp-seed-content-kit'),
         __('WP Seed Content Kit', 'wp-seed-content-kit'),
-        'manage_options',
+        $menu_capability,
         'wp-seed-content-kit',
-        'wp_seed_content_kit_render_modules_page',
+        'wp_seed_content_kit_render_admin_landing',
         wp_seed_content_kit_get_admin_menu_icon('parent'),
         58
     );
@@ -20,30 +52,31 @@ function wp_seed_content_kit_register_modules_page()
         'wp-seed-content-kit',
         __('Configuration', 'wp-seed-content-kit'),
         __('Configuration', 'wp-seed-content-kit'),
-        'manage_options',
+        'manage_wp_seed_content_kit',
         'wp-seed-content-kit',
         'wp_seed_content_kit_render_modules_page',
         1
     );
-
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_testimonial');
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_quote');
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_directory');
 
     $position = 2;
-    $modules = wp_seed_content_kit_get_modules();
-    foreach ($modules as $module_key => $module) {
+    foreach (wp_seed_content_kit_get_modules() as $module_key => $module) {
         wp_seed_content_kit_register_module_submenu($module_key, $module, $position);
         $position++;
     }
+    if (!current_user_can('manage_wp_seed_content_kit')) {
+        remove_submenu_page('wp-seed-content-kit', 'wp-seed-content-kit');
+    }
 
-    add_submenu_page(
+    $GLOBALS['wp_seed_content_kit_usage_page_hook'] = add_submenu_page(
         'wp-seed-content-kit',
-        __('Aide / Documentation', 'wp-seed-content-kit'),
-        __('Aide / Documentation', 'wp-seed-content-kit'),
-        'manage_options',
-        'wp-seed-content-kit-help',
-        'wp_seed_content_kit_render_help_page',
+        __('Utilisation', 'wp-seed-content-kit'),
+        __('Utilisation', 'wp-seed-content-kit'),
+        'manage_wp_seed_integrations',
+        'wp-seed-content-kit-usage',
+        'wp_seed_content_kit_render_usage_page',
         $position
     );
 }
@@ -52,25 +85,20 @@ add_action('admin_post_wp_seed_content_kit_save_modules', 'wp_seed_content_kit_h
 
 function wp_seed_content_kit_register_module_submenu($module_key, $module, $position)
 {
-    $slug = 'wp-seed-content-kit-' . sanitize_key((string) $module_key);
-    $callback = 'wp_seed_content_kit_render_module_admin_submenu_page';
-
-    if (!empty($module['menu_supported']) && !empty($module['active']) && !empty($module['post_type'])) {
-        $slug = 'edit.php?post_type=' . sanitize_key($module['post_type']);
-        $callback = '';
+    if (empty($module['menu_supported']) || empty($module['active']) || empty($module['post_type'])) {
+        return;
     }
 
     add_submenu_page(
         'wp-seed-content-kit',
         $module['label'],
         $module['label'],
-        'manage_options',
-        $slug,
-        $callback,
+        wp_seed_content_kit_get_module_content_capability($module_key),
+        'edit.php?post_type=' . sanitize_key($module['post_type']),
+        '',
         $position
     );
 }
-
 function wp_seed_content_kit_get_available_roles_for_menu_visibility()
 {
     if (!function_exists('wp_roles')) {
@@ -93,7 +121,7 @@ function wp_seed_content_kit_get_available_roles_for_menu_visibility()
 
 function wp_seed_content_kit_add_plugin_action_links($links)
 {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('manage_wp_seed_content_kit')) {
         return $links;
     }
 
@@ -111,7 +139,7 @@ add_filter('plugin_action_links_' . plugin_basename(WP_SEED_CONTENT_KIT_FILE), '
 
 function wp_seed_content_kit_handle_modules_form()
 {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('manage_wp_seed_content_kit')) {
         wp_die(esc_html__('Vous n’avez pas l’autorisation de gérer les modules WP Seed Content Kit.', 'wp-seed-content-kit'));
     }
 
@@ -131,39 +159,27 @@ function wp_seed_content_kit_handle_modules_form()
 
     $menu_visibility = wp_seed_content_kit_get_module_menu_visibility();
     $submitted = isset($_POST['wp_seed_content_kit_module_menu_visibility']) && is_array($_POST['wp_seed_content_kit_module_menu_visibility']) ? wp_unslash($_POST['wp_seed_content_kit_module_menu_visibility']) : array();
-    $all_roles = wp_seed_content_kit_get_user_roles();
 
     foreach ($menu_visibility as $post_type => $visibility) {
-        if (!isset($submitted[$post_type]) || !is_array($submitted[$post_type])) {
-            $menu_visibility[$post_type] = $visibility;
-            continue;
+        if (isset($submitted[$post_type]) && is_array($submitted[$post_type])) {
+            $visibility['show_in_menu'] = !empty($submitted[$post_type]['show_in_menu']);
         }
-
-        $visibility['show_in_menu'] = false;
-        $visibility['roles'] = array('administrator');
-
-        if (!empty($submitted[$post_type]['show_in_menu'])) {
-            $visibility['show_in_menu'] = wp_seed_content_bool_attr($submitted[$post_type]['show_in_menu'], false);
-        }
-
-        if (isset($submitted[$post_type]['roles']) && is_array($submitted[$post_type]['roles'])) {
-            $roles = array();
-            foreach ((array) $submitted[$post_type]['roles'] as $role) {
-                $role = sanitize_key((string) $role);
-                if (in_array($role, $all_roles, true)) {
-                    $roles[] = $role;
-                }
-            }
-            if (!empty($roles)) {
-                $visibility['roles'] = array_values(array_unique($roles));
-            }
-        }
-
         $menu_visibility[$post_type] = $visibility;
+    }
+
+    $submitted_roles = isset($_POST['wp_seed_content_kit_module_roles']) && is_array($_POST['wp_seed_content_kit_module_roles']) ? wp_unslash($_POST['wp_seed_content_kit_module_roles']) : array();
+    $assignments = array();
+    foreach (wp_seed_content_kit_get_content_capability_definitions() as $module_key => $definition) {
+        $assignments[$module_key] = array('administrator');
+        if (!empty($submitted_roles[$module_key]) && in_array('editor', array_map('sanitize_key', (array) $submitted_roles[$module_key]), true)) {
+            $assignments[$module_key][] = 'editor';
+        }
     }
 
     update_option('wp_seed_content_kit_modules', $next);
     update_option('wp_seed_content_kit_module_menu_visibility', $menu_visibility);
+    update_option('wp_seed_content_kit_module_roles', $assignments);
+    wp_seed_content_kit_synchronize_role_capabilities($assignments);
 
     if ($previous !== $next) {
         wp_seed_content_kit_refresh_module_rewrite_rules($next);
@@ -301,47 +317,38 @@ function wp_seed_content_kit_render_module_menu_visibility_toggle($module_key, $
 
     $post_type = sanitize_key($module['post_type']);
     $visibility = wp_seed_content_kit_get_module_menu_visibility_for_post_type($post_type);
-    $selected_roles = isset($visibility['roles']) && is_array($visibility['roles']) ? $visibility['roles'] : array();
-    $available_roles = wp_seed_content_kit_get_available_roles_for_menu_visibility();
-    $name_base = esc_attr($post_type);
-    $disabled = empty($module['active']) ? ' disabled="disabled"' : '';
-
-    if (!empty($module['active'])) {
-        printf(
-            '<input type="hidden" name="wp_seed_content_kit_module_menu_visibility[%s][configured]" value="1" />',
-            $name_base
-        );
-    }
+    $assignments = wp_seed_content_kit_get_module_role_assignments();
+    $selected_roles = isset($assignments[$module_key]) ? $assignments[$module_key] : array('administrator');
+    $disabled_menu = empty($module['active']) ? ' disabled="disabled"' : '';
 
     printf(
         '<label><input type="checkbox" name="wp_seed_content_kit_module_menu_visibility[%1$s][show_in_menu]" value="1" %2$s%3$s /> %4$s</label><br/>',
-        $name_base,
+        esc_attr($post_type),
         checked(!empty($visibility['show_in_menu']), true, false),
-        $disabled,
-        esc_html__('Afficher dans le menu WordPress principal', 'wp-seed-content-kit')
+        $disabled_menu,
+        esc_html__('Afficher comme menu WordPress principal', 'wp-seed-content-kit')
     );
 
-    if (empty($available_roles)) {
-        return;
-    }
-
-    echo '<small>' . esc_html__('Rôles autorisés :', 'wp-seed-content-kit') . '</small><br />';
-    foreach ($available_roles as $role_key => $role_label) {
-        printf(
-            '<label style="margin-right:8px;display:inline-block;"><input type="checkbox" name="wp_seed_content_kit_module_menu_visibility[%1$s][roles][]" value="%2$s" %3$s%4$s /> %5$s</label>',
-            $name_base,
-            esc_attr($role_key),
-            checked(in_array($role_key, $selected_roles, true), true, false),
-            $disabled,
-            esc_html($role_label)
-        );
-    }
+    printf(
+        '<input type="hidden" name="wp_seed_content_kit_module_roles[%s][]" value="administrator" />',
+        esc_attr($module_key)
+    );
+    echo '<small>' . esc_html__('Rôles autorisés à gérer les contenus :', 'wp-seed-content-kit') . '</small><br />';
+    printf(
+        '<label style="margin-right:8px;display:inline-block;"><input type="checkbox" checked="checked" disabled="disabled" /> %s</label>',
+        esc_html__('Administrator', 'wp-seed-content-kit')
+    );
+    printf(
+        '<label style="margin-right:8px;display:inline-block;"><input type="checkbox" name="wp_seed_content_kit_module_roles[%1$s][]" value="editor" %2$s /> %3$s</label>',
+        esc_attr($module_key),
+        checked(in_array('editor', $selected_roles, true), true, false),
+        esc_html__('Editor', 'wp-seed-content-kit')
+    );
 
     if (empty($module['active'])) {
-        echo '<br /><small>' . esc_html__('Disponible après activation.', 'wp-seed-content-kit') . '</small>';
+        echo '<br /><small>' . esc_html__('Le menu reste masqué. Les contenus et l’attribution des droits sont conservés.', 'wp-seed-content-kit') . '</small>';
     }
 }
-
 function wp_seed_content_kit_render_module_quick_links($module_key, $module)
 {
     if (empty($module['active'])) {
@@ -436,12 +443,14 @@ function wp_seed_content_kit_render_configuration_tab()
         <input type="hidden" name="action" value="wp_seed_content_kit_save_modules">
         <?php wp_nonce_field('wp_seed_content_kit_save_modules', 'wp_seed_content_kit_modules_nonce'); ?>
 
+        <p><?php echo esc_html__('Administrator conserve tous les droits. Editor peut gérer uniquement les contenus des modules cochés ; l’emplacement du menu ne change jamais une autorisation.', 'wp-seed-content-kit'); ?></p>
+
         <table class="widefat striped">
             <thead>
                 <tr>
                     <th scope="col"><?php echo esc_html__('Module', 'wp-seed-content-kit'); ?></th>
                     <th scope="col"><?php echo esc_html__('Statut', 'wp-seed-content-kit'); ?></th>
-                    <th scope="col"><?php echo esc_html__('Menu WordPress', 'wp-seed-content-kit'); ?></th>
+                    <th scope="col"><?php echo esc_html__('Accès et menu', 'wp-seed-content-kit'); ?></th>
                     <th scope="col"><?php echo esc_html__('Shortcode', 'wp-seed-content-kit'); ?></th>
                     <th scope="col"><?php echo esc_html__('Liens rapides', 'wp-seed-content-kit'); ?></th>
                 </tr>
@@ -469,7 +478,7 @@ function wp_seed_content_kit_render_configuration_tab()
 
 function wp_seed_content_kit_render_modules_page()
 {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('manage_wp_seed_content_kit')) {
         wp_die(esc_html__('Vous n’avez pas l’autorisation de gérer WP Seed Content Kit.', 'wp-seed-content-kit'));
     }
 
@@ -549,6 +558,8 @@ function wp_seed_content_kit_render_template_builder_compatibility()
         <p>
             <?php esc_html_e('Pour Divi ou Elementor, activez Templates WP Seed dans les réglages du constructeur.', 'wp-seed-content-kit'); ?>
         </p>
+
+        <p><?php echo esc_html__('Administrator conserve tous les droits. Editor peut gérer uniquement les contenus des modules cochés ; l’emplacement du menu ne change jamais une autorisation.', 'wp-seed-content-kit'); ?></p>
 
         <table class="widefat striped">
             <thead>
@@ -712,7 +723,7 @@ function wp_seed_content_kit_render_templates_tab()
 
 function wp_seed_content_kit_render_module_admin_submenu_page()
 {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('manage_wp_seed_content_kit')) {
         wp_die(esc_html__('Vous n’avez pas l’autorisation de gérer WP Seed Content Kit.', 'wp-seed-content-kit'));
     }
 
@@ -741,20 +752,6 @@ function wp_seed_content_kit_render_module_admin_submenu_page()
     <div class="wrap">
         <h1><?php echo esc_html($title); ?></h1>
         <p><?php echo esc_html($description); ?></p>
-    </div>
-    <?php
-}
-
-function wp_seed_content_kit_render_help_page()
-{
-    if (!current_user_can('manage_options')) {
-        wp_die(esc_html__('Vous n’avez pas l’autorisation de gérer WP Seed Content Kit.', 'wp-seed-content-kit'));
-    }
-
-    ?>
-    <div class="wrap">
-        <h1><?php echo esc_html__('Aide / Documentation', 'wp-seed-content-kit'); ?></h1>
-        <p><?php echo esc_html__('Documentation légère prévue pour une prochaine version.', 'wp-seed-content-kit'); ?></p>
     </div>
     <?php
 }

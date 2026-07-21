@@ -46,7 +46,9 @@ function wp_seed_content_register_testimonial_post_type()
             'slug' => 'testimonials',
             'with_front' => false,
         ),
-        'capability_type' => 'post',
+        'capability_type' => array('seed_testimonial', 'seed_testimonials'),
+        'capabilities' => wp_seed_content_kit_get_capability_map('testimonials'),
+        'map_meta_cap' => true,
     ));
 
     if (function_exists('wp_seed_content_kit_register_manual_order_for_post_type')) {

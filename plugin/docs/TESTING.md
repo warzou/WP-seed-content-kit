@@ -173,3 +173,19 @@ La validation RC doit etre executee sous PHP 7.0.33 et PHP 8.4.23, puis depuis l
 Le package RC est construit deux fois avec un ordre, des chemins et des metadonnees deterministes. Les deux archives doivent avoir le meme SHA-256. Le ZIP ne contient que le plugin installable sous une racine unique wp-seed-content-kit/ ; les tests, fixtures, documents de depot et artefacts de recette en sont exclus.
 
 Pour l'Annuaire, verifier en plus que l'etat vide charge le CSS structurel sans CSS de carte, que les cartes gardent une hauteur naturelle, que la grille reste 3/2/1 et qu'aucune valeur privee ou invalide n'apparait dans le HTML.
+
+## CK-A1 - Administration et Utilisation
+
+Exécuter tests/admin-usage-harness.php sous PHP 7.0 et PHP 8.4. Le harnais vérifie les onglets, les liens Templates, les paramètres Collections, le générateur Annuaire non persistant et les statuts des intégrations.
+
+Dans WordPress, vérifier avec administrator le menu Configuration, Témoignages, Citations, Annuaire et Utilisation. Désactiver chaque module et confirmer que son menu suit le réglage sans casser les autres pages.
+
+Avec editor, confirmer que Utilisation reste inaccessible. Tester la navigation au clavier, le focus visible, les boutons Copier, aria-live et le repli mobile sous 782 pixels. Confirmer que CK-A1 ne crée ni REST, AJAX ou Collection persistante.
+
+## CK-A2 - Rôles et capacités
+
+Exécuter `tests/role-capabilities-harness.php` sous PHP 7.0 et PHP 8.4, puis `tests/wordpress-role-capabilities-harness.php` avec `WP_SEED_WORDPRESS_LOAD` vers un WordPress isolé.
+
+Avec Administrator, vérifier Configuration, Utilisation, Templates et les trois modules actifs. Avec Editor, vérifier uniquement les listes et actions Ajouter des modules autorisés, ainsi que création, modification, publication, dépublication et suppression des contenus propres ou créés par d’autres éditeurs. Editor ne doit voir ni Configuration, Utilisation, Templates, Collections, imports ou maintenance.
+
+Retirer puis restaurer l’attribution Editor module par module. Désactiver un module et confirmer menu/CPT absents, contenus et capacités conservés ; réactiver et confirmer leur retour. Vérifier les six capacités avancées Administrator, les quatre primitives de chaque module, les mappings CPT, l’absence de REST/AJAX et l’absence de dépendance à WP Seed Events ou WP Seed Directory.

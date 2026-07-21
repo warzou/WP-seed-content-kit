@@ -29,7 +29,9 @@ function wp_seed_content_register_template_post_type()
         'show_in_menu' => false,
         'show_in_rest' => true,
         'supports' => array('title', 'editor', 'revisions'),
-        'capability_type' => 'post',
+        'capability_type' => array('seed_template', 'seed_templates'),
+        'capabilities' => wp_seed_content_kit_get_template_capability_map(),
+        'map_meta_cap' => false,
         'rewrite' => false,
     ));
 }

@@ -54,7 +54,7 @@ Les quatre capacités primitives restent :
 - read_private_seed_directory_entries ;
 - delete_seed_directory_entries.
 
-Seul administrator les reçoit à l’activation. Désactiver le module retire le CPT et son menu, sans supprimer posts, médias, métas ou capacités. La réactivation retrouve les données.
+Administrator et Editor les reçoivent par défaut. Configuration peut retirer l’attribution Editor sans affecter Administrator. Désactiver le module retire le CPT et son menu, sans supprimer posts, médias, métas ou capacités. La réactivation retrouve les données et les attributions conservées.
 
 Les révisions natives couvrent le titre et la présentation. Les métas métier restent attachées à la fiche courante ; elles ne sont pas dupliquées dans une sortie publique et toute restauration repasse par la garde d’éligibilité.
 

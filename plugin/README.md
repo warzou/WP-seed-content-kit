@@ -1,11 +1,16 @@
 # WP Seed Content Kit
 
-Statut du package : `.6.0-rc.1, candidat de recette locale sans publication stable.
+Statut du package : 0.6.0-rc.2-dev, développement local non publié.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
 Il fonctionne sans thème imposé, sans ACF obligatoire et sans dépendance à un constructeur de page particulier.
 
+## Administration et Utilisation
+
+Le menu administrateur regroupe Configuration, Témoignages, Citations, Annuaire et Utilisation. La page Utilisation explique le circuit Contenus, Collections, Templates et Intégrations, puis documente Shortcodes, Gutenberg, Spectra et Divi selon leur état réel.
+
+Collections reste une API de sélection et un ensemble de paramètres. Aucun contenu Collection, CPT ou écran de sauvegarde n’est créé. CK-A2 accorde par défaut la gestion des contenus à Administrator et Editor, avec une attribution Editor configurable par module. Configuration, Utilisation, Templates et les outils avancés restent réservés à Administrator.
 ## Fonctionnalités actuelles
 
 ### Témoignages
@@ -30,7 +35,7 @@ Il fonctionne sans thème imposé, sans ACF obligatoire et sans dépendance à u
 - ordre manuel ;
 - templates réutilisables.
 
-### Annuaire - sortie publique 0.6.0-rc.1
+### Annuaire - sortie publique 0.6.0-rc.2-dev
 
 Le module natif Annuaire fournit son CPT administratif prive, dix-neuf metas validees, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
 
@@ -42,7 +47,7 @@ Cards affiche les articles WordPress natifs sous forme de cartes. Il ne crée pa
 
 ### Templates WP Seed
 
-Les templates permettent de mettre en forme les Témoignages et les Citations avec :
+Les templates permettent de mettre en forme les Témoignages, les Citations et les fiches Annuaire avec :
 
 - le contenu du template dans l'éditeur WordPress ;
 - Gutenberg ou Spectra ;

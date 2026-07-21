@@ -7,13 +7,7 @@ if (!defined('ABSPATH')) {
 function wp_seed_content_kit_register_module_menus()
 {
     $modules = wp_seed_content_kit_get_modules();
-    $user = wp_get_current_user();
-    $is_admin_user = current_user_can('manage_options');
     $position = 58.01;
-
-    if (!$is_admin_user && empty($user->roles)) {
-        return;
-    }
 
     foreach ($modules as $module) {
         if (empty($module['menu_supported']) || empty($module['active']) || empty($module['post_type'])) {
@@ -28,15 +22,6 @@ function wp_seed_content_kit_register_module_menus()
 
         $visibility = wp_seed_content_kit_get_module_menu_visibility_for_post_type($post_type);
         if (empty($visibility['show_in_menu'])) {
-            continue;
-        }
-
-        $roles = isset($visibility['roles']) && is_array($visibility['roles']) ? $visibility['roles'] : array();
-        if (empty($roles)) {
-            $roles = array('administrator');
-        }
-
-        if (!$is_admin_user && empty(array_intersect($user->roles, array_map('sanitize_key', $roles)))) {
             continue;
         }
 

@@ -40,7 +40,9 @@ function wp_seed_content_register_quote_post_type()
             'slug' => 'quotes',
             'with_front' => false,
         ),
-        'capability_type' => 'post',
+        'capability_type' => array('seed_quote', 'seed_quotes'),
+        'capabilities' => wp_seed_content_kit_get_capability_map('quotes'),
+        'map_meta_cap' => true,
     ));
 
     if (function_exists('wp_seed_content_kit_register_manual_order_for_post_type')) {

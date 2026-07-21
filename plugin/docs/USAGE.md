@@ -1,11 +1,18 @@
 # Usage - WP Seed Content Kit
 
-Statut : WP Seed Content Kit `.6.0-rc.1. Le module Annuaire est natif, optionnel et sans dependance au plugin Directory autonome.
+Statut : WP Seed Content Kit 0.6.0-rc.2-dev. Le module Annuaire est natif, optionnel et sans dépendance au plugin Directory autonome.
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés, des shortcodes et des templates réutilisables dans WordPress.
 
 Il fonctionne avec l'éditeur WordPress, Gutenberg, Spectra, Astra, Divi et les emplacements acceptant les shortcodes WordPress. ACF n'est pas requis.
 
+## Administration
+
+Le menu administrateur cible est Configuration, Témoignages, Citations, Annuaire et Utilisation. Utilisation propose quatre onglets : Fonctionnement, Templates, Collections et Intégrer dans une page. Ce dernier distingue Shortcodes, Gutenberg, Spectra et Divi.
+
+Configuration conserve les réglages de modules et d’emplacement des menus, puis permet d’autoriser ou non Editor pour chaque module. Administrator garde tous les droits. Editor gère uniquement les contenus autorisés et ne voit ni Configuration, ni Utilisation, ni Templates, ni Collections ou outils techniques. La visibilité d’un menu ne constitue jamais une autorisation : les capacités WordPress réelles font foi.
+
+Une Collection définit quels contenus afficher et dans quel ordre. Elle n’est pas enregistrée : il n’existe ni CPT Collection, ni écran de création, ni sauvegarde de Collection. Les générateurs produisent seulement des shortcodes à copier.
 ## Shortcodes disponibles
 
 Les shortcodes publics sont :

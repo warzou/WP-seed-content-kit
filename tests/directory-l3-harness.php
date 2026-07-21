@@ -191,6 +191,7 @@ function wp_seed_content_sanitize_iso_date($value)
     return checkdate((int) $matches[2], (int) $matches[3], (int) $matches[1]) ? (string) $value : '';
 }
 
+require WP_SEED_CONTENT_KIT_DIR . 'includes/core/capabilities.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/bootstrap.php';
 
 $expected_keys = array(

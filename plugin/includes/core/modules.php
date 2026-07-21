@@ -179,6 +179,27 @@ function wp_seed_content_kit_is_module_active($module)
     return isset($options[$module]) ? (bool) $options[$module] : false;
 }
 
+function wp_seed_content_kit_get_module_content_capability($module)
+{
+    $module = sanitize_key((string) $module);
+    $capabilities = wp_seed_content_kit_get_primitive_capabilities($module);
+
+    return isset($capabilities[0]) ? $capabilities[0] : 'manage_wp_seed_content_kit';
+}
+
+function wp_seed_content_kit_get_first_accessible_module()
+{
+    foreach (wp_seed_content_kit_get_modules() as $module_key => $module) {
+        if (empty($module['active']) || empty($module['menu_supported']) || empty($module['post_type'])) {
+            continue;
+        }
+        if (current_user_can(wp_seed_content_kit_get_module_content_capability($module_key))) {
+            return $module;
+        }
+    }
+
+    return array();
+}
 function wp_seed_content_kit_get_builder_usage_help()
 {
     return array(
@@ -200,6 +221,7 @@ function wp_seed_content_kit_get_modules()
             'seo_opt_out' => true,
             'shortcode' => '[seed_testimonials]',
             'post_type' => 'seed_testimonial',
+            'content_capability' => 'edit_seed_testimonials',
             'menu_icon' => wp_seed_content_kit_get_admin_menu_icon('testimonials'),
             'menu_supported' => true,
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
@@ -212,6 +234,7 @@ function wp_seed_content_kit_get_modules()
             'seo_opt_out' => true,
             'shortcode' => '[seed_quotes]',
             'post_type' => 'seed_quote',
+            'content_capability' => 'edit_seed_quotes',
             'menu_icon' => wp_seed_content_kit_get_admin_menu_icon('quotes'),
             'menu_supported' => true,
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
@@ -225,6 +248,7 @@ function wp_seed_content_kit_get_modules()
             'seo_opt_out' => true,
             'shortcode' => '[seed_directory]',
             'post_type' => 'seed_directory',
+            'content_capability' => 'edit_seed_directory_entries',
             'menu_icon' => wp_seed_content_kit_get_admin_menu_icon('directory'),
             'menu_supported' => true,
             'usage' => wp_seed_content_kit_get_builder_usage_help(),

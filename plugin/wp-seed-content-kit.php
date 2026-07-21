@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Seed Content Kit
  * Description: Modular editorial content and reusable displays for WordPress.
- * Version: 0.6.0-rc.1
+ * Version: 0.6.0-rc.2-dev
  * Requires at least: 6.5
  * Requires PHP: 7.0
  * Author: WP Seed Content Kit
@@ -13,12 +13,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_SEED_CONTENT_KIT_VERSION', '0.6.0-rc.1');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.6.0-rc.2-dev');
 define('WP_SEED_CONTENT_KIT_FILE', __FILE__);
 define('WP_SEED_CONTENT_KIT_DIR', plugin_dir_path(__FILE__));
 define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
 
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/helpers.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/capabilities.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-contract.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-render-result.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-registry.php';
@@ -47,6 +48,7 @@ require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/cards/shortcode.php';
 if (is_admin()) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/admin/modules-page.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/admin/generators-page.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/admin/usage-page.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/builders.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/yoast.php';
 }
@@ -73,6 +75,8 @@ if (wp_seed_content_kit_is_module_active('directory')) {
 
 function wp_seed_content_kit_activate()
 {
+    wp_seed_content_kit_synchronize_role_capabilities();
+    update_option('wp_seed_content_kit_capability_schema', '1', false);
     wp_seed_content_register_template_post_type();
 
     if (wp_seed_content_kit_is_module_active('testimonials')) {
