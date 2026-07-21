@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 20 juillet 2026
-Statut : sortie publique Annuaire L4 implementee en 0.6.0-dev ; diff local non stage en attente de revue
-Version courante du code : 0.6.0-dev
+Statut : sortie publique Annuaire L4 implementee en 0.6.0-rc.1 ; diff local non stage en attente de revue
+Version courante du code : 0.6.0-rc.1
 Version stable publiée : 0.3.0
 Commit de base du RC : 32dac5083491223800d7bf18dccb0a24f8eeaebb
 Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
@@ -498,3 +498,12 @@ Les assets sont des handles WordPress préenregistrés, validés en totalité pu
 Témoignages et Citations restent sur leurs parcours historiques 0.4.0 afin de garantir des sorties inchangées. Gutenberg conserve le pipeline serveur et Divi le workflow Layout Divi Library. Le contrat fonctionne sans Divi et ne contient aucun couplage métier particulier.
 
 La spécification tierce canonique est `docs/TEMPLATE-EXTENSION-API.md`. Les harnais `tests/template-extension-harness.php` et `tests/wordpress-template-extension-harness.php` couvrent le registre, les types, l'échappement, les codes, les assets, la récursion et les builders indirects.
+
+## 17. Preparation 0.6.0-rc.1
+
+- Le module Annuaire natif couvre le cycle de vie prive, les 19 champs metier, l'eligibilite publique, les collections, la Data API, les shortcodes et les rendus natif, Content Kit et Divi.
+- Le contrat Template Extension public reste en version 1.0 et ne produit aucun fallback metier pour les plugins tiers.
+- L'etat vide charge uniquement le CSS structurel ; les cartes gardent une hauteur naturelle dans la grille responsive 3/2/1.
+- Le plugin WP Seed Directory 0.1.0-rc.1 reste une reference comparative externe et n'est ni couple ni migre automatiquement.
+- Limites RC : aucune recherche publique, aucune fiche individuelle, aucun REST/AJAX et aucune migration runtime.
+- Le diff de preparation RC reste local, non stage et non committe jusqu'a approbation explicite.

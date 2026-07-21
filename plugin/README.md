@@ -1,5 +1,7 @@
 # WP Seed Content Kit
 
+Statut du package : `.6.0-rc.1, candidat de recette locale sans publication stable.
+
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
 Il fonctionne sans thème imposé, sans ACF obligatoire et sans dépendance à un constructeur de page particulier.
@@ -28,11 +30,11 @@ Il fonctionne sans thème imposé, sans ACF obligatoire et sans dépendance à u
 - ordre manuel ;
 - templates réutilisables.
 
-### Annuaire - sortie publique 0.6.0-dev
+### Annuaire - sortie publique 0.6.0-rc.1
 
 Le module natif Annuaire fournit son CPT administratif prive, dix-neuf metas validees, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
 
-Seuls les contacts valides et explicitement visibles sont publics. Il existe aucune page individuelle, archive, recherche, REST/AJAX, migration runtime ou adaptateur inter-plugin.
+Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, REST/AJAX, migration runtime ou adaptateur inter-plugin.
 
 ### Cards
 
@@ -164,7 +166,8 @@ Le plugin ne fournit pas :
 - de sélecteur WP Seed finalisé dans l'éditeur Gutenberg ;
 - d'intégration ACF obligatoire ;
 - d'import ou de migration automatique ;
-- de rendu public complet pour le module Annuaire ;
+- de recherche publique ni de fiche individuelle pour le module Annuaire ;
+- de desinstallation destructive automatique des donnees ;
 - de module fonctionnel Créations sonores.
 
 Le provider Divi 5 Dynamic Content reste expérimental. L'aperçu de certaines images ou boucles peut être incomplet dans le Visual Builder, et le texte alternatif d'une photo n'est pas garanti dans tous les modules. Le rendu frontend a été validé sous Divi 5.9.0.

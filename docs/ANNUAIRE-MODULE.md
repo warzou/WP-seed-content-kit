@@ -1,6 +1,6 @@
 # Module Annuaire
 
-Statut : sortie publique L4 en developpement dans WP Seed Content Kit 0.6.0-dev.
+Statut : candidat de recette 0.6.0-rc.1 du module Annuaire natif.
 
 ## Périmètre
 
@@ -62,7 +62,7 @@ Les révisions natives couvrent le titre et la présentation. Les métas métier
 
 wp_seed_content_directory_get_public_data($post_id) retourne uniquement le schema ferme id, name, photo, bio, status, status_label, location, featured, display_order et contacts. Une fiche ineligible retourne false. Les contacts absents, invalides ou masques ne figurent pas dans le tableau.
 
-wp_seed_content_directory_get_entries($args) retourne des IDs eligibles. Les filtres sont status, department, country, featured, limit, orderby, order et ids. Ordre display_order : ordre manuel, nom puis ID. Aucun ID explicite ne contourne eligibilite.
+wp_seed_content_directory_get_entries($args) retourne des IDs eligibles. Les filtres sont status, department, country, featured, limit, orderby, order et ids. Ordre display_order : ordre manuel, nom normalise sans distinction de casse ou d'accent, puis ID. Aucun ID explicite ne contourne eligibilite.
 
 [seed_directory] accepte les memes attributs et template. [wp_seed_directory] est un alias temporaire deprecie, sans avertissement public. Les valeurs invalides retournent une chaine vide. Les groupes restent, dans cet ordre, En exercice puis En recherche de modeles ; un groupe vide est omis.
 
@@ -74,4 +74,4 @@ Le module Template directory expose exactement quinze placeholders directory.*, 
 
 Gutenberg utilise le bloc Shortcode. Divi accepte le shortcode dans Texte ou Code et peut rendre un Layout Divi Library via un Template Content Kit. Aucun bloc ou module Divi specifique est cree.
 
-Module desactive : shortcode vide, Collection vide, aucun asset et aucune exposition ; les donnees sont conservees. L4 exclut recherche ou filtres visibles, fiche individuelle, archive, REST/AJAX, migration et cache persistant. L5/L6 traiteront les evolutions editoriales et la convergence apres revue separee.
+Module desactive : shortcode vide, Collection vide, aucun asset et aucune exposition ; les donnees sont conservees. La RC exclut recherche ou filtres visibles, fiche individuelle, archive, REST/AJAX, migration et cache persistant. Le plugin Directory autonome reste une reference comparative externe, sans couplage ni migration automatique.

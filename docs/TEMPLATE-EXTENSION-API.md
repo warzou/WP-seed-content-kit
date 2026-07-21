@@ -1,6 +1,6 @@
 # Template Extension API
 
-Statut : contrat public 1.0, fourni par WP Seed Content Kit 0.5.0-dev
+Statut : contrat public 1.0, conserve sans rupture dans WP Seed Content Kit 0.6.0-rc.1
 
 ## Objectif
 

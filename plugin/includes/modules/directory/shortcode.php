@@ -86,6 +86,7 @@ function wp_seed_content_directory_shortcode($atts = array())
 
     $ids = wp_seed_content_directory_get_entries($normalized['collection']);
     if (empty($ids)) {
+        wp_seed_content_directory_enqueue_structure_assets();
         return '<div class="wp-seed-directory"><p class="wp-seed-directory__empty">' . esc_html__('Aucune fiche n’est disponible pour le moment.', 'wp-seed-content-kit') . '</p></div>';
     }
 
@@ -109,6 +110,7 @@ function wp_seed_content_directory_shortcode($atts = array())
     }
 
     if (empty($groups['practicing']) && empty($groups['seeking_models'])) {
+        wp_seed_content_directory_enqueue_structure_assets();
         return '<div class="wp-seed-directory"><p class="wp-seed-directory__empty">' . esc_html__('Aucune fiche n’est disponible pour le moment.', 'wp-seed-content-kit') . '</p></div>';
     }
 

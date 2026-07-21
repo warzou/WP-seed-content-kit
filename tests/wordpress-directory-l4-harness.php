@@ -123,6 +123,8 @@ try {
     seed_l4_wp_same($GLOBALS['shortcode_tags']['seed_directory'], $GLOBALS['shortcode_tags']['wp_seed_directory'], 'Both shortcodes share callback');
     seed_l4_wp_same(array(), wp_seed_content_directory_get_entries(), 'No entries initially');
     seed_l4_wp_assert(false !== strpos(do_shortcode('[seed_directory]'), 'Aucune fiche'), 'Empty state is controlled');
+    seed_l4_wp_assert(wp_style_is('wp-seed-directory', 'enqueued'), 'Empty state enqueues structural CSS');
+    seed_l4_wp_same(false, wp_style_is('wp-seed-directory-card', 'enqueued'), 'Empty state does not enqueue native card CSS');
 
     $fixture = json_decode(file_get_contents($fixture_file), true);
     if (!is_array($fixture) || empty($fixture['entries'])) {
@@ -143,6 +145,15 @@ try {
     seed_l4_wp_same(14, count(wp_seed_content_directory_get_entries(array('country' => 'FR'))), 'Country filter');
     seed_l4_wp_same(2, count(wp_seed_content_directory_get_entries(array('limit' => 2))), 'Limit filter');
     seed_l4_wp_same(array($public_ids[1], $public_ids[0]), wp_seed_content_directory_get_entries(array('ids' => array($public_ids[0], $public_ids[1]), 'order' => 'desc')), 'Explicit IDs preserve eligibility and ordering');
+    seed_l4_wp_assert(
+        wp_seed_content_directory_compare_entries(
+            (object) array('ID' => 1, 'post_title' => 'Élise', 'post_date' => '', 'menu_order' => 1),
+            (object) array('ID' => 2, 'post_title' => 'Maël', 'post_date' => '', 'menu_order' => 1),
+            'display_order',
+            'asc'
+        ) < 0,
+        'Display order tie ignores accents and case'
+    );
     seed_l4_wp_same(array(), wp_seed_content_directory_get_entries(array('ids' => array($entry_ids[9], $entry_ids[15]))), 'Draft IDs cannot bypass eligibility');
 
     $first = wp_seed_content_directory_get_public_data($entry_ids[0]);

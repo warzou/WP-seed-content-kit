@@ -70,6 +70,10 @@ function sanitize_key($value)
 {
     return strtolower(preg_replace('/[^a-z0-9_-]/', '', (string) $value));
 }
+function remove_accents($value)
+{
+    return strtr($value, array('É' => 'E', 'é' => 'e', 'ë' => 'e', 'ï' => 'i', 'ö' => 'o'));
+}
 function sanitize_title($value)
 {
     return trim(strtolower(preg_replace('/[^a-z0-9]+/i', '-', (string) $value)), '-');
@@ -251,8 +255,23 @@ seed_l4_assert(isset($GLOBALS['seed_l4_shortcodes']['seed_directory']), 'Canonic
 seed_l4_assert(isset($GLOBALS['seed_l4_shortcodes']['wp_seed_directory']), 'Alias registered');
 seed_l4_same($GLOBALS['seed_l4_shortcodes']['seed_directory'], $GLOBALS['seed_l4_shortcodes']['wp_seed_directory'], 'Alias shares callback');
 seed_l4_same(null, wp_seed_content_directory_normalize_shortcode_atts(array('status' => 'bad')), 'Invalid shortcode status rejected');
+seed_l4_assert(
+    wp_seed_content_directory_compare_entries(
+        (object) array('ID' => 1, 'post_title' => 'Élise', 'post_date' => '', 'menu_order' => 1),
+        (object) array('ID' => 2, 'post_title' => 'Maël', 'post_date' => '', 'menu_order' => 1),
+        'display_order',
+        'asc'
+    ) < 0,
+    'Display order tie ignores accents and case'
+);
 seed_l4_same(null, wp_seed_content_directory_normalize_shortcode_atts(array('ids' => '1,bad')), 'Invalid shortcode IDs rejected');
 seed_l4_assert(is_array(wp_seed_content_directory_normalize_shortcode_atts(array('template' => 'Carte Annuaire'))), 'Template slug sanitized');
+
+$GLOBALS['seed_l4_enqueued'] = array();
+$empty_html = wp_seed_content_directory_shortcode(array('country' => 'US'));
+seed_l4_assert(false !== strpos($empty_html, 'Aucune fiche'), 'Empty state rendered');
+seed_l4_assert(isset($GLOBALS['seed_l4_enqueued']['wp-seed-directory']), 'Empty state enqueues structural CSS');
+seed_l4_assert(!isset($GLOBALS['seed_l4_enqueued']['wp-seed-directory-card']), 'Empty state does not enqueue native card CSS');
 
 $html = wp_seed_content_directory_shortcode(array());
 seed_l4_assert(false !== strpos($html, 'En exercice'), 'Practicing group rendered');

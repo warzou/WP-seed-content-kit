@@ -78,10 +78,23 @@ function wp_seed_content_directory_normalize_collection_args($args)
     );
 }
 
+function wp_seed_content_directory_normalize_comparison_text($value)
+{
+    $value = preg_replace('/\s+/u', ' ', trim(strip_tags((string) $value)));
+    if (function_exists('remove_accents')) {
+        $value = remove_accents($value);
+    }
+
+    return function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+}
+
 function wp_seed_content_directory_compare_entries($left, $right, $orderby, $order)
 {
     if ('name' === $orderby) {
-        $comparison = strcasecmp((string) $left->post_title, (string) $right->post_title);
+        $comparison = strcmp(
+            wp_seed_content_directory_normalize_comparison_text($left->post_title),
+            wp_seed_content_directory_normalize_comparison_text($right->post_title)
+        );
     } elseif ('date' === $orderby) {
         $comparison = strcmp((string) $left->post_date, (string) $right->post_date);
     } elseif ('id' === $orderby) {
@@ -89,7 +102,10 @@ function wp_seed_content_directory_compare_entries($left, $right, $orderby, $ord
     } else {
         $comparison = (int) $left->menu_order <=> (int) $right->menu_order;
         if (0 === $comparison) {
-            $comparison = strcasecmp((string) $left->post_title, (string) $right->post_title);
+            $comparison = strcmp(
+                wp_seed_content_directory_normalize_comparison_text($left->post_title),
+                wp_seed_content_directory_normalize_comparison_text($right->post_title)
+            );
         }
     }
 

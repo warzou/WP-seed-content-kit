@@ -1,5 +1,7 @@
 # Usage - WP Seed Content Kit
 
+Statut : WP Seed Content Kit `.6.0-rc.1. Le module Annuaire est natif, optionnel et sans dependance au plugin Directory autonome.
+
 WP Seed Content Kit fournit des contenus éditoriaux structurés, des shortcodes et des templates réutilisables dans WordPress.
 
 Il fonctionne avec l'éditeur WordPress, Gutenberg, Spectra, Astra, Divi et les emplacements acceptant les shortcodes WordPress. ACF n'est pas requis.
@@ -51,7 +53,7 @@ Elle retourne un ID de Citation publiée non protégée, stable pour la date civ
 
 Exemples : [seed_directory], [seed_directory status="practicing" department="75" featured="only"] et [seed_directory ids="12,18" template="annuaire-carte"].
 
-Les valeurs invalides produisent une sortie vide. Il existe aucun parametre GET, formulaire ou filtre visible. Les groupes vides sont omis. Sans fiche, le message public est stable.
+Les valeurs invalides produisent une sortie vide. Il n'existe aucun parametre GET, formulaire ou filtre visible. Les groupes vides sont omis. Sans fiche, le message public est stable.
 
 Sans template, une carte native est rendue. Un Template publie du module Annuaire peut utiliser quinze placeholders directory.*. Un echec de template produit un fallback natif fiche par fiche ; les autres cartes restent personnalisees. Les contacts masques ou invalides sont absents de la Data API, du contexte, des placeholders et du HTML.
 
@@ -339,5 +341,6 @@ WP Seed Content Kit ne fournit pas :
 - de sélecteur WP Seed finalisé dans l'éditeur Gutenberg ;
 - d'intégration ACF obligatoire ;
 - d'outil d'import ou de migration ;
-- de rendu public complet pour Annuaire ;
+- de recherche publique ni de fiche individuelle pour Annuaire ;
+- de desinstallation destructive automatique des donnees ;
 - de module fonctionnel Créations sonores.

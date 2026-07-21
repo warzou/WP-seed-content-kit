@@ -165,3 +165,11 @@ Vérifier mobile, tablette et bureau. Confirmer que les pages restent lisibles, 
 ## Bloquants de release
 
 Ne pas publier si le ZIP ne s'extrait pas correctement, si l'activation échoue, si une régression shortcode/template apparaît, si un brouillon est exposé, si un contexte incompatible utilise une valeur arbitraire, si un fatal ou warning WP Seed est présent, ou si le rollback n'est pas validé.
+
+## Recette 0.6.0-rc.1
+
+La validation RC doit etre executee sous PHP 7.0.33 et PHP 8.4.23, puis depuis le ZIP installable exact sous WordPress. Elle couvre les modules historiques, le contrat Template Extension 1.0, l'Annuaire L2/L3/L4, l'activation, la desactivation, la reactivation et les profils Gutenberg, Divi et theme classique.
+
+Le package RC est construit deux fois avec un ordre, des chemins et des metadonnees deterministes. Les deux archives doivent avoir le meme SHA-256. Le ZIP ne contient que le plugin installable sous une racine unique wp-seed-content-kit/ ; les tests, fixtures, documents de depot et artefacts de recette en sont exclus.
+
+Pour l'Annuaire, verifier en plus que l'etat vide charge le CSS structurel sans CSS de carte, que les cartes gardent une hauteur naturelle, que la grille reste 3/2/1 et qu'aucune valeur privee ou invalide n'apparait dans le HTML.

@@ -15,7 +15,7 @@ Le plugin ne doit pas devenir un builder.
 
 Le builder (Gutenberg/Spectra/Divi) conserve la mise en page.
 Le plugin conserve la requête de contenu et la sémantique métier.
-Depuis 0.6.0-dev, Annuaire est un module metier natif de Content Kit. L4 branche sa Collection, son shortcode et ses quinze placeholders types sur les contrats internes existants. Le wrapper et les groupes restent la responsabilite de Annuaire ; le moteur Template personnalise une carte, avec fallback natif local, sans adaptateur tiers.
+Depuis 0.6.0-rc.1, Annuaire est un module metier natif de Content Kit. L4 branche sa Collection, son shortcode et ses quinze placeholders types sur les contrats internes existants. Le wrapper et les groupes restent la responsabilite de Annuaire ; le moteur Template personnalise une carte, avec fallback natif local, sans adaptateur tiers.
 
 ## 2) Architecture recommandée V2
 

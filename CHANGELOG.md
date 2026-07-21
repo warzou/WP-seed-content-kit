@@ -2,7 +2,15 @@
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 
-## [0.6.0-dev] - Unreleased
+## [0.6.0-rc.1] - Unreleased
+
+### Release candidate
+
+- Audit comparatif final du module Annuaire natif avec le package Directory 0.1.0-rc.1.
+- Chargement du CSS structurel garanti pour l'etat vide, sans charger le CSS de carte.
+- Grille 3/2/1 alignee en debut de ligne et cartes conservees a leur hauteur naturelle.
+- Tri a ordre manuel egal harmonise sans distinction de casse ou d'accent avec la reference Directory.
+- Documentation, controles de non-regression et package reproductible prepares pour la recette RC.
 
 ### Added
 
