@@ -64,6 +64,8 @@ try {
     require_once ABSPATH . 'wp-admin/includes/user.php';
     require_once ABSPATH . 'wp-admin/includes/post.php';
     require_once ABSPATH . 'wp-admin/includes/template.php';
+    require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+    require_once ABSPATH . 'wp-admin/includes/screen.php';
 
     $administrators = get_users(array('role' => 'administrator', 'number' => 1, 'fields' => 'ID'));
     if (empty($administrators)) {
@@ -161,10 +163,33 @@ try {
     update_post_meta($valid_id, '_seed_directory_email_visible', '');
     update_post_meta($valid_id, '_seed_directory_website', 'invalid');
     update_post_meta($valid_id, '_seed_directory_website_visible', '1');
+    seed_l3_wp_assert(in_array('invalid_public_website', wp_seed_content_directory_get_publication_errors($valid_id), true), 'Invalid visible website blocks publication eligibility');
+    seed_l3_wp_same(false, wp_seed_content_directory_is_publicly_eligible($valid_id), 'Invalid visible website makes entry ineligible');
+    seed_l3_wp_same(array(), wp_seed_content_directory_get_public_contacts($valid_id), 'Ineligible entry exposes no contacts');
+    update_post_meta($valid_id, '_seed_directory_website_visible', '');
     $public_contacts = wp_seed_content_directory_get_public_contacts($valid_id);
-    seed_l3_wp_same(array('phone' => '+33 (0)1 23 45 67 89'), $public_contacts, 'Visible valid contact only: ' . serialize($public_contacts));
-    seed_l3_wp_assert(false === strpos(serialize(wp_seed_content_directory_get_public_contacts($valid_id)), 'private@example.test'), 'Masked contact absent from public data');
-    seed_l3_wp_assert(false === strpos(serialize(wp_seed_content_directory_get_public_contacts($valid_id)), 'invalid'), 'Invalid visible contact absent from public data');
+    seed_l3_wp_same(array('phone' => '+33 (0)1 23 45 67 89'), $public_contacts, 'Only valid visible contact returned: ' . serialize($public_contacts));
+    seed_l3_wp_assert(false === strpos(serialize($public_contacts), 'private@example.test'), 'Masked contact absent from public data');
+    seed_l3_wp_assert(false === strpos(serialize($public_contacts), 'invalid'), 'Private invalid contact absent from public data');
+
+    $invalid_contacts = array(
+        '_seed_directory_phone' => array('letters only', 'invalid_public_phone'),
+        '_seed_directory_email' => array('invalid', 'invalid_public_email'),
+        '_seed_directory_website' => array('ftp://example.test', 'invalid_public_website'),
+        '_seed_directory_facebook' => array('https://example.test/facebook', 'invalid_public_facebook'),
+        '_seed_directory_instagram' => array('https://example.test/instagram', 'invalid_public_instagram'),
+    );
+    foreach ($invalid_contacts as $meta_key => $case) {
+        $contact_id = seed_l3_wp_create_entry(array(
+            'post_title' => 'SEED L3 INVALID PUBLIC CONTACT ' . $meta_key,
+            'post_status' => 'publish',
+            'meta_input' => array($meta_key => $case[0], $meta_key . '_visible' => '1'),
+        ));
+        seed_l3_wp_same('draft', get_post_status($contact_id), 'Invalid public contact blocks publication: ' . $meta_key);
+        seed_l3_wp_assert(in_array($case[1], wp_seed_content_directory_get_publication_errors($contact_id), true), 'Precise contact error returned: ' . $meta_key);
+        seed_l3_wp_same($case[0], get_post_meta($contact_id, $meta_key, true), 'Invalid contact value retained privately in draft: ' . $meta_key);
+        seed_l3_wp_same(array(), wp_seed_content_directory_get_public_contacts($contact_id), 'Invalid contact never exposed: ' . $meta_key);
+    }
 
     $_POST = array(
         'wp_seed_content_directory_nonce' => wp_create_nonce('wp_seed_content_directory_save'),
@@ -197,6 +222,31 @@ try {
     seed_l3_wp_same('00120', get_post_meta($internal_id, '_seed_directory_postal_code', true), 'Postal leading zeros preserved');
     seed_l3_wp_same('2A', get_post_meta($internal_id, '_seed_directory_department', true), 'Corsican department preserved');
 
+    $editor_id = wp_create_user('seed_l3_editor_' . wp_generate_password(8, false), wp_generate_password(24), '');
+    if (is_wp_error($editor_id)) {
+        throw new RuntimeException($editor_id->get_error_message());
+    }
+    $created_users[] = (int) $editor_id;
+    (new WP_User($editor_id))->set_role('editor');
+    wp_set_current_user($editor_id);
+    seed_l3_wp_assert(current_user_can('edit_seed_directory_entries'), 'Editor can access Directory entries');
+    seed_l3_wp_assert(current_user_can('publish_seed_directory_entries'), 'Editor can publish Directory entries');
+    seed_l3_wp_assert(current_user_can('edit_seed_directory_entry', $internal_id), 'Editor can edit another author Directory entry');
+    seed_l3_wp_same(false, current_user_can('manage_options'), 'Editor cannot access global configuration');
+    $editor_entry_id = seed_l3_wp_create_entry(array('post_title' => 'SEED L3 EDITOR ENTRY', 'post_status' => 'draft'));
+    seed_l3_wp_same('draft', get_post_status($editor_entry_id), 'Editor creates incomplete or complete draft');
+    wp_update_post(array('ID' => $editor_entry_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('publish', get_post_status($editor_entry_id), 'Editor publishes valid entry');
+    wp_update_post(array('ID' => $internal_id, 'post_title' => 'SEED L3 EDITED BY EDITOR'));
+    seed_l3_wp_same('SEED L3 EDITED BY EDITOR', get_post($internal_id)->post_title, 'Editor updates entry created by another user');
+    wp_update_post(array('ID' => $editor_entry_id, 'post_status' => 'draft'));
+    seed_l3_wp_same('draft', get_post_status($editor_entry_id), 'Editor unpublishes entry');
+    wp_trash_post($editor_entry_id);
+    seed_l3_wp_same('trash', get_post_status($editor_entry_id), 'Editor trashes entry');
+    wp_untrash_post($editor_entry_id);
+    seed_l3_wp_same('draft', get_post_status($editor_entry_id), 'Editor restores entry');
+    wp_set_current_user((int) $administrators[0]);
+    seed_l3_wp_assert(current_user_can('manage_options'), 'Administrator keeps global configuration access');
     $future_id = seed_l3_wp_create_entry(array(
         'post_title' => 'SEED L3 FUTURE VALID',
         'post_status' => 'future',
@@ -228,16 +278,21 @@ try {
     seed_l3_wp_same('Note strictement interne', $admin_data['internal_note'], 'Authorized admin receives internal note');
     seed_l3_wp_same('internal@example.test', $admin_data['email'], 'Authorized admin receives private contact');
 
-    $columns = apply_filters('manage_seed_directory_posts_columns', array('cb' => 'Select', 'title' => 'Title', 'date' => 'Date'));
-    seed_l3_wp_same(array('cb', 'directory_photo', 'title', 'directory_status', 'directory_location', 'directory_authorized', 'directory_order', 'date'), array_keys($columns), 'Exact admin columns');
     ob_start();
-    foreach (array('directory_photo', 'directory_status', 'directory_location', 'directory_authorized', 'directory_order') as $column) {
+    wp_seed_content_directory_admin_filters('seed_directory');
+    $filter_html = ob_get_clean();
+    seed_l3_wp_assert(false !== strpos($filter_html, 'directory-professional-status-filter'), 'Professional status admin filter rendered');
+    $columns = apply_filters('manage_seed_directory_posts_columns', array('cb' => 'Select', 'title' => 'Title', 'date' => 'Date'));
+    seed_l3_wp_same(array('cb', 'directory_photo', 'title', 'directory_status', 'directory_city', 'directory_department', 'directory_authorized', 'directory_public_contacts', 'directory_wp_state', 'date'), array_keys($columns), 'Exact admin columns');
+    ob_start();
+    foreach (array('directory_photo', 'directory_status', 'directory_city', 'directory_department', 'directory_authorized', 'directory_public_contacts', 'directory_wp_state') as $column) {
         do_action('manage_seed_directory_posts_custom_column', $column, $internal_id);
     }
     $column_html = ob_get_clean();
     seed_l3_wp_assert(false === strpos($column_html, 'internal@example.test'), 'Private email absent from columns');
     seed_l3_wp_assert(false === strpos($column_html, 'Note strictement interne'), 'Internal note absent from columns');
 
+    set_current_screen('seed_directory');
     do_action('add_meta_boxes_seed_directory', get_post($internal_id));
     global $wp_meta_boxes;
     $directory_boxes = is_array($wp_meta_boxes) ? $wp_meta_boxes : array();

@@ -48,3 +48,8 @@ Content Kit ne charge, ne modifie et ne synchronise aucune capacité Events. Une
 ## Compatibilité
 
 La synchronisation est effectuée à l’activation et une fois lors de la mise à niveau du schéma de capacités. Elle ne crée aucun contenu, endpoint REST ou action AJAX. Les options de modules et de position de menu existantes sont conservées.
+## Parcours Annuaire CK-A3
+
+Editor voit Annuaire, Toutes les personnes et Ajouter une personne lorsque le module lui est attribué. Il peut créer, enregistrer un brouillon incomplet, publier une personne valide, modifier les contenus d’autres éditeurs, dépublier, mettre à la corbeille et restaurer. Toute publication repasse par la validation canonique, y compris hors du formulaire principal.
+
+Administrator utilise exactement la même fiche métier et conserve en plus les écrans avancés autorisés par les capacités `manage_wp_seed_*`. Ni la fiche ni la liste Annuaire n’exposent les noms de métadonnées, les indicateurs internes de visibilité, les imports, migrations ou capacités.

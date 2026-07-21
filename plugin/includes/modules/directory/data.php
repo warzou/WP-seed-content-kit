@@ -23,7 +23,7 @@ function wp_seed_content_directory_get_public_contacts($post_id)
         if ('1' !== get_post_meta($post_id, $meta_key . '_visible', true)) {
             continue;
         }
-        $value = wp_seed_content_directory_sanitize_meta_value($meta_key, get_post_meta($post_id, $meta_key, true));
+        $value = wp_seed_content_directory_normalize_contact_value($meta_key, get_post_meta($post_id, $meta_key, true));
         if ('' !== $value) {
             $contacts[$public_key] = $value;
         }

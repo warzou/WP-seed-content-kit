@@ -1,6 +1,6 @@
 # Module Annuaire
 
-Statut : candidat de recette 0.6.0-rc.1 du module Annuaire natif.
+Statut : développement 0.6.0-rc.2-dev du module Annuaire natif.
 
 ## Périmètre
 
@@ -24,24 +24,23 @@ Les e-mails et dates sont validés strictement. Les URLs doivent être absolues 
 
 ## Administration
 
-Quatre panneaux structurent la fiche :
+Quatre panneaux structurent la saisie sans exposer les métadonnées techniques :
 
-1. Identité et présentation.
-2. Situation.
-3. Coordonnées et visibilité.
-4. Publication et suivi.
+1. Identité : nom affiché, statut et mise en avant.
+2. Localisation, présentation et photo : ville, code postal, département, pays, présentation courte et alt.
+3. Coordonnées : valeur et case d’affichage visuellement liées pour téléphone, e-mail, site, Facebook et Instagram.
+4. Autorisation et suivi : autorisation explicite, note interne facultative et dernière vérification facultative.
 
-Le titre WordPress porte le nom et le panneau Photo porte l’image. Si une photo existe, elle doit être une pièce jointe image avec URL HTTP(S) et texte alternatif non vide avant publication. Aucun alt ni média par défaut n’est généré.
+Le panneau Photo natif porte l’image. La photo est facultative ; si elle existe, elle doit être une pièce jointe image avec URL HTTP(S) et texte alternatif non vide avant publication. Aucun alt ni média par défaut n’est généré. Le pays vaut FR par défaut ; statut, autorisation et cinq visibilités restent explicitement non sélectionnés à la création.
 
-La liste affiche uniquement photo, nom, statut, ville/département, autorisation, ordre et date. Aucun contact ni note interne n’y apparaît. Quick Edit et Bulk Edit restent neutralisés.
-
+La liste affiche photo, nom, statut, ville, département, autorisation, types de coordonnées publiques, état WordPress et modification. Elle ne montre jamais la valeur d’une coordonnée, une note interne ou l’ordre technique. Le filtre de statut reste réservé à l’administration. Quick Edit et la publication en masse sont neutralisés ; corbeille et restauration restent disponibles.
 ## Publication et confidentialité
 
 wp_seed_content_directory_is_publicly_eligible( $post_id ) retourne vrai uniquement pour une fiche publiée, non protégée par mot de passe, autorisée, nommée, avec statut et pays valides et, le cas échéant, photo et alt valides.
 
 Une publication invalide est ramenée en brouillon. La défense combine validation avant écriture, contrôle après écriture ou transition et prédicat final. Retirer l’autorisation via le formulaire admin rend immédiatement la fiche inéligible et la ramène en brouillon.
 
-wp_seed_content_directory_get_public_contacts() ne retourne que les contacts valides, explicitement visibles et rattachés à une fiche éligible. Un contact masqué ou invalide est absent, sans rendre la fiche entière inéligible.
+wp_seed_content_directory_get_public_contacts() ne retourne que les contacts valides, explicitement visibles et rattachés à une fiche éligible. Une valeur peut rester enregistrée à titre privé dans un brouillon. Dès que sa visibilité est cochée, une valeur vide ou invalide bloque la publication et aucune coordonnée de la fiche inéligible n’est exposée.
 
 wp_seed_content_directory_get_admin_data() exige edit_seed_directory_entry pour la fiche et retourne alors les champs complets, y compris contacts privés, autorisation, note et date de vérification. Cette fonction n’est ni une API REST ni la Data API publique prévue pour L4.
 

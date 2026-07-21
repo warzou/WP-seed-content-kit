@@ -41,6 +41,8 @@ Le module natif Annuaire fournit son CPT administratif prive, dix-neuf metas val
 
 Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, REST/AJAX, migration runtime ou adaptateur inter-plugin.
 
+CK-A3 fournit à Editor et Administrator une fiche en quatre panneaux avec nom affiché, statut, localisation, présentation/photo, coordonnées et autorisation. Les cinq visibilités sont désactivées par défaut. Une coordonnée peut rester privée en brouillon ; si elle est rendue publique, une valeur vide ou invalide bloque la publication avec un message lié au champ.
+
 ### Cards
 
 Cards affiche les articles WordPress natifs sous forme de cartes. Il ne crée pas de type de contenu supplémentaire.

@@ -54,6 +54,14 @@ Elle retourne un ID de Citation publiée non protégée, stable pour la date civ
 
 `[seed_testimonials]` conserve ses valeurs par défaut historiques en les traduisant vers Collections. `[seed_quotes]` conserve son mode aléatoire historique et ajoute le mode quotidien explicite `mode="daily"`.
 
+## Annuaire - saisie CK-A3
+
+Dans Annuaire, Editor et Administrator utilisent la même fiche en quatre panneaux. Saisir le nom dans « Nom affiché », choisir le statut, compléter librement localisation et présentation, puis ajouter une photo facultative. Si une photo est choisie, son texte alternatif devient obligatoire avant publication.
+
+Chaque coordonnée possède une case « Afficher … dans l’annuaire », décochée par défaut. Une valeur peut rester enregistrée en privé, même dans un brouillon incomplet. Cocher sa visibilité exige une valeur publiable valide. L’autorisation « La personne a autorisé la publication de ses informations » est obligatoire mais ne rend aucune coordonnée publique automatiquement.
+
+La liste propose un filtre administratif de statut. Quick Edit et la publication en masse sont neutralisés. Editor peut publier, dépublier, modifier les personnes d’autres éditeurs, mettre à la corbeille et restaurer, sans voir Configuration, Utilisation, Templates ou Collections.
+
 ## Annuaire L4
 
 [seed_directory] affiche les fiches eligibles dans deux groupes fixes. Attributs : status=all|practicing|seeking_models, department, country, featured=all|only|exclude, limit, orderby=display_order|name|date|id, order=asc|desc, ids et template.

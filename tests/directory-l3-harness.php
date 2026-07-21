@@ -233,15 +233,15 @@ $cases = array(
     array('_seed_directory_featured', 1, '1'),
     array('_seed_directory_featured', 0, ''),
     array('_seed_directory_phone', '+33 (0)1 23 45 67 89', '+33 (0)1 23 45 67 89'),
-    array('_seed_directory_phone', '<b>secret</b>', ''),
+    array('_seed_directory_phone', '<b>secret</b>', 'secret'),
     array('_seed_directory_email', 'person@example.test', 'person@example.test'),
-    array('_seed_directory_email', 'invalid', ''),
+    array('_seed_directory_email', 'invalid', 'invalid'),
     array('_seed_directory_website', 'https://example.test/path', 'https://example.test/path'),
-    array('_seed_directory_website', 'ftp://example.test', ''),
+    array('_seed_directory_website', 'ftp://example.test', 'ftp://example.test'),
     array('_seed_directory_facebook', 'https://www.facebook.com/example', 'https://www.facebook.com/example'),
-    array('_seed_directory_facebook', 'https://evil.test/facebook.com', ''),
+    array('_seed_directory_facebook', 'https://evil.test/facebook.com', 'https://evil.test/facebook.com'),
     array('_seed_directory_instagram', 'https://instagram.com/example', 'https://instagram.com/example'),
-    array('_seed_directory_instagram', 'https://example.test/instagram', ''),
+    array('_seed_directory_instagram', 'https://example.test/instagram', 'https://example.test/instagram'),
     array('_seed_directory_last_verified', '2026-02-28', '2026-02-28'),
     array('_seed_directory_last_verified', '2026-02-30', ''),
     array('_seed_directory_internal_note', '<b>Interne</b>', 'Interne'),
@@ -260,6 +260,10 @@ $filtered_draft = wp_seed_content_directory_filter_insert_post_data(array(
 seed_l3_same('Nom', $filtered_draft['post_title'], 'Native title sanitized');
 seed_l3_same('Présentation', $filtered_draft['post_excerpt'], 'Native excerpt sanitized');
 seed_l3_same(0, $filtered_draft['menu_order'], 'Native order clamped to zero');
+$_POST = array('wp_seed_content_directory_nonce' => 'valid', '_thumbnail_id' => '-1');
+$thumbnail_overrides = wp_seed_content_directory_collect_publication_overrides(array());
+seed_l3_same(0, $thumbnail_overrides['_thumbnail_id'], 'No-photo sentinel remains zero');
+$_POST = array();
 
 $post_id = 42;
 $GLOBALS['seed_l3_posts'][$post_id] = (object) array(
@@ -280,12 +284,33 @@ $GLOBALS['seed_l3_meta'][$post_id] = array(
     '_seed_directory_email' => 'private@example.test',
     '_seed_directory_email_visible' => '',
     '_seed_directory_website' => 'not-a-url',
-    '_seed_directory_website_visible' => '1',
+    '_seed_directory_website_visible' => '',
     '_seed_directory_internal_note' => 'Strictement interne',
 );
 seed_l3_same(array(), wp_seed_content_directory_get_publication_errors($post_id), 'Valid entry has no publication errors');
 seed_l3_same(true, wp_seed_content_directory_is_publicly_eligible($post_id), 'Valid published entry eligible');
 seed_l3_same(array('phone' => '+33 1 23 45 67 89'), wp_seed_content_directory_get_public_contacts($post_id), 'Only valid visible contact returned');
+
+$invalid_public_contacts = array(
+    '_seed_directory_phone' => array('letters only', 'invalid_public_phone'),
+    '_seed_directory_email' => array('invalid', 'invalid_public_email'),
+    '_seed_directory_website' => array('ftp://example.test', 'invalid_public_website'),
+    '_seed_directory_facebook' => array('https://example.test/facebook', 'invalid_public_facebook'),
+    '_seed_directory_instagram' => array('https://example.test/instagram', 'invalid_public_instagram'),
+);
+foreach ($invalid_public_contacts as $key => $case) {
+    $original_value = isset($GLOBALS['seed_l3_meta'][$post_id][$key]) ? $GLOBALS['seed_l3_meta'][$post_id][$key] : '';
+    $original_visibility = isset($GLOBALS['seed_l3_meta'][$post_id][$key . '_visible']) ? $GLOBALS['seed_l3_meta'][$post_id][$key . '_visible'] : '';
+    $GLOBALS['seed_l3_meta'][$post_id][$key] = $case[0];
+    $GLOBALS['seed_l3_meta'][$post_id][$key . '_visible'] = '1';
+    seed_l3_assert(in_array($case[1], wp_seed_content_directory_get_publication_errors($post_id), true), 'Invalid visible contact blocks publication: ' . $key);
+    seed_l3_same(false, wp_seed_content_directory_is_publicly_eligible($post_id), 'Invalid visible contact makes entry ineligible: ' . $key);
+    seed_l3_same(array(), wp_seed_content_directory_get_public_contacts($post_id), 'Invalid visible contact exposes nothing: ' . $key);
+    $GLOBALS['seed_l3_meta'][$post_id][$key] = $original_value;
+    $GLOBALS['seed_l3_meta'][$post_id][$key . '_visible'] = $original_visibility;
+}
+seed_l3_same('invalid', wp_seed_content_directory_sanitize_meta_value('_seed_directory_email', 'invalid'), 'Invalid private contact is retained safely');
+seed_l3_same('', wp_seed_content_directory_normalize_contact_value('_seed_directory_email', 'invalid'), 'Invalid private contact is never normalized for public output');
 
 $GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_publication_authorized'] = '';
 seed_l3_same(false, wp_seed_content_directory_is_publicly_eligible($post_id), 'Authorization required');
@@ -315,7 +340,7 @@ seed_l3_assert(wp_seed_content_directory_get_admin_data($post_id) instanceof WP_
 $GLOBALS['seed_l3_caps'] = true;
 
 $columns = wp_seed_content_directory_columns(array('cb' => 'Select', 'title' => 'Title', 'date' => 'Date'));
-seed_l3_same(array('cb', 'directory_photo', 'title', 'directory_status', 'directory_location', 'directory_authorized', 'directory_order', 'date'), array_keys($columns), 'Exact admin columns');
+seed_l3_same(array('cb', 'directory_photo', 'title', 'directory_status', 'directory_city', 'directory_department', 'directory_authorized', 'directory_public_contacts', 'directory_wp_state', 'date'), array_keys($columns), 'Exact admin columns');
 wp_seed_content_directory_add_meta_boxes();
 seed_l3_same(4, count($GLOBALS['seed_l3_meta_boxes']), 'Exactly four custom panels');
 wp_seed_content_directory_register_post_type();
@@ -334,8 +359,8 @@ seed_l3_assert(false !== strpos($admin_source, 'wp_verify_nonce'), 'Save require
 seed_l3_assert(false !== strpos($admin_source, 'DOING_AUTOSAVE'), 'Save ignores autosave');
 seed_l3_assert(false !== strpos($admin_source, 'wp_is_post_revision'), 'Save ignores revision rows');
 seed_l3_assert(false !== strpos($admin_source, "current_user_can('edit_seed_directory_entry'"), 'Save requires object capability');
-seed_l3_assert(false !== strpos($admin_source, 'Autorisation de publication obtenue'), 'Exact authorization label');
-seed_l3_assert(false !== strpos($admin_source, 'Confirme que la personne a autorisé la publication'), 'Authorization help text');
+seed_l3_assert(false !== strpos($admin_source, 'La personne a autorisé la publication de ses informations'), 'Exact authorization label');
+seed_l3_assert(false !== strpos($admin_source, 'Cette autorisation est obligatoire pour publier la fiche'), 'Authorization help text');
 $bootstrap_source = file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/bootstrap.php');
 seed_l3_assert(false !== strpos($bootstrap_source, "require_once __DIR__ . '/shortcode.php'"), 'L4 Directory shortcode loaded');
 seed_l3_assert(false === strpos($bootstrap_source, 'register_rest_route'), 'No Directory REST route');

@@ -42,7 +42,18 @@ function wp_seed_content_directory_get_publication_errors($post_or_id, $override
         $errors[] = 'missing_authorization';
     }
 
-    $thumbnail_id = array_key_exists('_thumbnail_id', $overrides) ? absint($overrides['_thumbnail_id']) : (int) get_post_thumbnail_id($post_id);
+    foreach (wp_seed_content_directory_get_contact_definitions() as $contact) {
+        $visible = wp_seed_content_directory_get_value_for_validation($post_id, $contact['visible_key'], $overrides);
+        if ('1' !== $visible) {
+            continue;
+        }
+        $value = wp_seed_content_directory_get_value_for_validation($post_id, $contact['key'], $overrides);
+        if ('' === wp_seed_content_directory_normalize_contact_value($contact['key'], $value)) {
+            $errors[] = $contact['error'];
+        }
+    }
+
+    $thumbnail_id = array_key_exists('_thumbnail_id', $overrides) ? max(0, (int) $overrides['_thumbnail_id']) : (int) get_post_thumbnail_id($post_id);
     if ($thumbnail_id > 0) {
         $url = wp_get_attachment_url($thumbnail_id);
         if (!wp_attachment_is_image($thumbnail_id) || '' === wp_seed_content_directory_sanitize_http_url($url)) {
@@ -92,15 +103,31 @@ function wp_seed_content_directory_collect_publication_overrides($postarr)
     }
 
     if (array_key_exists('_thumbnail_id', $postarr)) {
-        $overrides['_thumbnail_id'] = absint($postarr['_thumbnail_id']);
+        $overrides['_thumbnail_id'] = max(0, (int) $postarr['_thumbnail_id']);
     } elseif (isset($_POST['_thumbnail_id'])) {
-        $overrides['_thumbnail_id'] = absint(wp_unslash($_POST['_thumbnail_id']));
+        $overrides['_thumbnail_id'] = max(0, (int) wp_unslash($_POST['_thumbnail_id']));
     }
     if (isset($_POST['_seed_directory_photo_alt'])) {
         $overrides['_wp_attachment_image_alt'] = sanitize_text_field(wp_unslash($_POST['_seed_directory_photo_alt']));
     }
 
     return $overrides;
+}
+
+function wp_seed_content_directory_collect_submitted_values()
+{
+    $values = array();
+    foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
+        if ('boolean' === $definition['type']) {
+            $values[$key] = isset($_POST[$key]) ? '1' : '';
+        } elseif (array_key_exists($key, $_POST)) {
+            $values[$key] = wp_seed_content_directory_sanitize_meta_value($key, wp_unslash($_POST[$key]));
+        }
+    }
+    if (isset($_POST['_seed_directory_photo_alt'])) {
+        $values['_seed_directory_photo_alt'] = sanitize_text_field(wp_unslash($_POST['_seed_directory_photo_alt']));
+    }
+    return $values;
 }
 
 function wp_seed_content_directory_filter_insert_post_data($data, $postarr)
@@ -140,20 +167,56 @@ function wp_seed_content_directory_filter_insert_post_data($data, $postarr)
     $errors = wp_seed_content_directory_get_publication_errors($post, $overrides);
     if (!empty($errors)) {
         $data['post_status'] = 'draft';
-        wp_seed_content_directory_store_publication_notice($post_id, $errors);
+        wp_seed_content_directory_store_publication_notice($post_id, $errors, wp_seed_content_directory_collect_submitted_values());
     }
 
     return $data;
 }
 add_filter('wp_insert_post_data', 'wp_seed_content_directory_filter_insert_post_data', 20, 2);
 
-function wp_seed_content_directory_store_publication_notice($post_id, $errors)
+function wp_seed_content_directory_store_publication_notice($post_id, $errors, $values = array())
 {
     $user_id = get_current_user_id();
     if (!$user_id || empty($errors)) {
         return;
     }
-    set_transient('wp_seed_content_directory_notice_' . $user_id . '_' . absint($post_id), array_values(array_unique($errors)), 60);
+    $payload = array(
+        'errors' => array_values(array_unique($errors)),
+        'values' => is_array($values) ? $values : array(),
+    );
+    set_transient('wp_seed_content_directory_notice_' . $user_id . '_' . absint($post_id), $payload, 60);
+    $GLOBALS['wp_seed_content_directory_pending_notice'] = $payload;
+}
+
+function wp_seed_content_directory_reassign_pending_notice($post_id)
+{
+    if (empty($GLOBALS['wp_seed_content_directory_pending_notice']) || !is_array($GLOBALS['wp_seed_content_directory_pending_notice'])) {
+        return;
+    }
+    $payload = $GLOBALS['wp_seed_content_directory_pending_notice'];
+    wp_seed_content_directory_store_publication_notice($post_id, $payload['errors'], $payload['values']);
+    unset($GLOBALS['wp_seed_content_directory_pending_notice']);
+}
+
+function wp_seed_content_directory_get_publication_notice($post_id)
+{
+    static $notices = array();
+    $post_id = absint($post_id);
+    if (array_key_exists($post_id, $notices)) {
+        return $notices[$post_id];
+    }
+    $key = 'wp_seed_content_directory_notice_' . get_current_user_id() . '_' . $post_id;
+    $payload = get_transient($key);
+    delete_transient($key);
+    if (is_array($payload) && isset($payload['errors'])) {
+        $notices[$post_id] = array(
+            'errors' => array_values(array_unique((array) $payload['errors'])),
+            'values' => isset($payload['values']) && is_array($payload['values']) ? $payload['values'] : array(),
+        );
+    } else {
+        $notices[$post_id] = array('errors' => is_array($payload) ? $payload : array(), 'values' => array());
+    }
+    return $notices[$post_id];
 }
 
 function wp_seed_content_directory_enforce_publication($post_id, $post = null)
@@ -196,11 +259,33 @@ add_action('transition_post_status', 'wp_seed_content_directory_guard_scheduled_
 function wp_seed_content_directory_get_error_labels()
 {
     return array(
-        'missing_authorization' => __('autorisation de publication absente', 'wp-seed-content-kit'),
-        'missing_name' => __('nom absent', 'wp-seed-content-kit'),
-        'invalid_status' => __('statut invalide', 'wp-seed-content-kit'),
-        'invalid_country' => __('pays invalide', 'wp-seed-content-kit'),
-        'invalid_photo' => __('photo invalide', 'wp-seed-content-kit'),
-        'missing_photo_alt' => __('texte alternatif de la photo absent', 'wp-seed-content-kit'),
+        'missing_authorization' => __('Cochez l’autorisation de publication avant de publier cette fiche.', 'wp-seed-content-kit'),
+        'missing_name' => __('Saisissez le nom affiché avant de publier cette fiche.', 'wp-seed-content-kit'),
+        'invalid_status' => __('Choisissez le statut de la personne avant de publier cette fiche.', 'wp-seed-content-kit'),
+        'invalid_country' => __('Indiquez un pays valide avant de publier cette fiche.', 'wp-seed-content-kit'),
+        'invalid_photo' => __('Choisissez une photo valide avant de publier cette fiche.', 'wp-seed-content-kit'),
+        'missing_photo_alt' => __('Ajoutez un texte alternatif à la photo avant de publier.', 'wp-seed-content-kit'),
+        'invalid_public_phone' => __('Le numéro de téléphone public n’est pas valide.', 'wp-seed-content-kit'),
+        'invalid_public_email' => __('L’adresse e-mail publique n’est pas valide.', 'wp-seed-content-kit'),
+        'invalid_public_website' => __('L’adresse du site public n’est pas valide.', 'wp-seed-content-kit'),
+        'invalid_public_facebook' => __('Le lien Facebook public n’est pas valide.', 'wp-seed-content-kit'),
+        'invalid_public_instagram' => __('Le lien Instagram public n’est pas valide.', 'wp-seed-content-kit'),
+    );
+}
+
+function wp_seed_content_directory_get_error_field_ids()
+{
+    return array(
+        'missing_name' => 'title',
+        'invalid_status' => 'seed-directory-status',
+        'invalid_country' => '_seed_directory_country',
+        'invalid_photo' => 'postimagediv',
+        'missing_photo_alt' => 'wp_seed_content_directory_photo_alt',
+        'missing_authorization' => '_seed_directory_publication_authorized',
+        'invalid_public_phone' => '_seed_directory_phone',
+        'invalid_public_email' => '_seed_directory_email',
+        'invalid_public_website' => '_seed_directory_website',
+        'invalid_public_facebook' => '_seed_directory_facebook',
+        'invalid_public_instagram' => '_seed_directory_instagram',
     );
 }

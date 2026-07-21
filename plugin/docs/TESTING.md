@@ -189,3 +189,11 @@ Exécuter `tests/role-capabilities-harness.php` sous PHP 7.0 et PHP 8.4, puis `t
 Avec Administrator, vérifier Configuration, Utilisation, Templates et les trois modules actifs. Avec Editor, vérifier uniquement les listes et actions Ajouter des modules autorisés, ainsi que création, modification, publication, dépublication et suppression des contenus propres ou créés par d’autres éditeurs. Editor ne doit voir ni Configuration, Utilisation, Templates, Collections, imports ou maintenance.
 
 Retirer puis restaurer l’attribution Editor module par module. Désactiver un module et confirmer menu/CPT absents, contenus et capacités conservés ; réactiver et confirmer leur retour. Vérifier les six capacités avancées Administrator, les quatre primitives de chaque module, les mappings CPT, l’absence de REST/AJAX et l’absence de dépendance à WP Seed Events ou WP Seed Directory.
+
+## CK-A3 - Saisie Annuaire
+
+Exécuter `tests/directory-l3-harness.php` sous PHP 7.0 et PHP 8.4, puis `tests/wordpress-directory-l3-harness.php` avec `WP_SEED_WORDPRESS_LOAD` vers un WordPress isolé.
+
+Vérifier brouillon vide, publication valide, autorisation absente, photo sans alt, fiche sans photo et les cinq coordonnées en modes privé, public valide, public vide et public invalide. Un contact privé reste absent de la Data API, du contexte Template et du shortcode ; un contact public invalide rend la fiche inéligible et la publication revient en brouillon.
+
+Avec Editor, vérifier création, publication valide, modification d’une fiche d’un autre éditeur, dépublication, corbeille et restauration. Confirmer l’absence de Configuration, Utilisation, Templates, Collections et outils techniques. Avec Administrator, confirmer la même fiche métier et les écrans avancés séparés. Tester les libellés, liens d’erreur, labels, fieldsets, clavier, focus, mobile, filtre de statut administratif, Quick Edit absent et publication en masse absente.

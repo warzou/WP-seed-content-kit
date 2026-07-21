@@ -522,3 +522,11 @@ Les CPT Témoignages, Citations et Annuaire utilisent des mappings de capacités
 Configuration propose une matrice simple Administrator/Editor par module. Administrator est toujours autorisé. Les six capacités avancées `manage_wp_seed_*` séparent Configuration, Templates, Collections, intégrations, rôles et imports de la gestion éditoriale. Les menus utilisent `current_user_can()` sur ces capacités et non le nom du rôle.
 
 La désactivation d’un module masque son CPT et ses menus sans retirer ses capacités ni supprimer ses données. WP Seed Events reste autonome au commit audité `dfbb66dfa8745350dece988f23ab856fde14d4ed` : son CPT utilise les capacités WordPress standard et ses réglages techniques restent sous `manage_options`. Aucun code Events ni dépendance inter-plugin n’est ajouté.
+
+## 20. CK-A3 - Saisie Annuaire
+
+L’écran Annuaire emploie quatre panneaux métier et le libellé « Nom affiché ». Editor et Administrator partagent la même saisie simple ; les écrans Configuration, Utilisation, Templates, Collections et outils avancés restent réservés par capacités.
+
+Une fiche incomplète ou contenant une coordonnée privée invalide peut rester en brouillon. La publication exige un nom, un statut, un pays, l’autorisation explicite, un alt lorsque la photo existe et une valeur valide pour chaque coordonnée rendue publique. Aucune coordonnée n’est publique par défaut et aucune coordonnée publique n’est obligatoire.
+
+La liste expose photo, nom, statut, ville, département, autorisation, types de coordonnées publiques, état WordPress et modification. Le filtre de statut est administratif uniquement. Quick Edit et la publication en masse restent neutralisés.

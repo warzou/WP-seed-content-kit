@@ -6,6 +6,11 @@ All notable changes to WP-seed-content-kit will be documented in this file.
 
 ### Changed
 
+- Finalisation CK-A3 de l’écran Annuaire pour une saisie explicite par Editor et Administrator.
+- Quatre panneaux métier : identité, localisation/présentation/photo, coordonnées, autorisation et suivi.
+- Coordonnées privées conservables en brouillon, mais publication bloquée pour toute coordonnée visible vide ou invalide.
+- Messages de publication précis, liés aux champs, liste métier enrichie et filtre administratif par statut.
+- Quick Edit et publication en masse maintenus neutralisés ; toute publication repasse par la validation canonique.
 - Remplacement de la page Aide minimale par le sous-menu Utilisation.
 - Quatre onglets horizontaux : Fonctionnement, Templates, Collections et Intégrer dans une page.
 - Quatre méthodes d’intégration documentées selon leur état réel : Shortcodes, Gutenberg, Spectra et Divi.
@@ -84,6 +89,11 @@ All notable changes to WP-seed-content-kit will be documented in this file.
 
 ### Changed
 
+- Finalisation CK-A3 de l’écran Annuaire pour une saisie explicite par Editor et Administrator.
+- Quatre panneaux métier : identité, localisation/présentation/photo, coordonnées, autorisation et suivi.
+- Coordonnées privées conservables en brouillon, mais publication bloquée pour toute coordonnée visible vide ou invalide.
+- Messages de publication précis, liés aux champs, liste métier enrichie et filtre administratif par statut.
+- Quick Edit et publication en masse maintenus neutralisés ; toute publication repasse par la validation canonique.
 - `[seed_testimonials]` sélectionne désormais ses contenus via Collections V1 tout en conservant ses valeurs par défaut historiques.
 - Le libellé éditorial Contexte devient Information complémentaire sans changer l'identifiant métier `testimonial.context` ni la méta existante.
 - Un Template introuvable ou associé au mauvais module revient explicitement au renderer natif.
@@ -118,6 +128,11 @@ All notable changes to WP-seed-content-kit will be documented in this file.
 
 ### Changed
 
+- Finalisation CK-A3 de l’écran Annuaire pour une saisie explicite par Editor et Administrator.
+- Quatre panneaux métier : identité, localisation/présentation/photo, coordonnées, autorisation et suivi.
+- Coordonnées privées conservables en brouillon, mais publication bloquée pour toute coordonnée visible vide ou invalide.
+- Messages de publication précis, liés aux champs, liste métier enrichie et filtre administratif par statut.
+- Quick Edit et publication en masse maintenus neutralisés ; toute publication repasse par la validation canonique.
 - Les rendus et placeholders Citation/Témoignage existants consomment désormais la Content Data API sans changer leur contrat public.
 - La version minimale prise en charge est WordPress 6.5 avec PHP 7.0.
 
