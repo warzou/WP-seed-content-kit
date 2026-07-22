@@ -381,3 +381,9 @@ Le catalogue de Templates affiche sept placeholders Témoignages, quatre Citatio
 - **Divi — Fonctionnel/Indirect** : shortcode dans Texte ou Code, ou Layout Divi Library comme source d’un Template ; Dynamic Content reste expérimental et aucun module propriétaire n’est fourni.
 
 Les filtres de Collection sont choisis par Administrator lors de l’intégration. Aucun champ de recherche ni filtre n’est présenté au visiteur.
+
+## Migration fictive CK-A6
+
+Le moteur CK-A6 n'est pas une fonctionnalite editoriale visible. Il est reserve aux recettes techniques Administrator et exige un appel PHP interne explicite avec `manage_wp_seed_imports`. Editor ne peut ni importer ni effectuer un rollback.
+
+Le manifeste fourni contient exclusivement des noms, contacts et images de demonstration. Aucun import ne part a l'activation, au chargement, depuis un shortcode ou par REST/AJAX. Toute migration reelle requiert une autorisation et un lot distincts.

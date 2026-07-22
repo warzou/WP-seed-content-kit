@@ -205,3 +205,9 @@ Exécuter tests/admin-usage-harness.php sous PHP 7.0 et PHP 8.4, puis les harnai
 Contrôler les trois exemples Fonctionnement et les catalogues Collections. Annuaire doit exposer exactement status, department, country, featured, ids, limit, orderby et order. Générer au moins un shortcode Annuaire, Témoignages et Citations, avec et sans Template, puis tester attribut invalide, résultat vide, module désactivé et alias Annuaire déprécié.
 
 Dans WordPress Playground, vérifier Administrator avec accès complet et Editor sans Utilisation, Templates, Collections, générateurs ni placeholders. Tester sans Divi et sans Spectra, puis confirmer les libellés Fonctionnel, Indirect, Expérimental et Non disponible. Aucun test CK-A4 ne doit créer de CPT Collection, de sauvegarde, de REST/AJAX ou d’association persistante entre Collection et Template.
+
+## Migration Annuaire CK-A6
+
+Executer `tests/directory-migration-harness.php` sous les runtimes PHP compatibles, puis `tests/wordpress-directory-migration-harness.php` dans un WordPress isole sous PHP 8.4. Le second harnais exige le plugin actif et cree puis nettoie lui-meme ses contenus et son utilisateur Editor.
+
+Verifier le manifeste ferme, les 16 fiches, les 13 medias, les refus globaux sans ecriture, l'import initial, le reimport `unchanged`, les mises a jour fiche/media sur ID conserve, `missing_from_source`, le registre non autoloaded, les permissions, la Data API, les Collections, les Templates, les shortcodes et les deux rollbacks. A la fin, aucune fiche, revision, piece jointe, option de lot, page, Template, Citation, Temoignage ou utilisateur de recette ne doit subsister.

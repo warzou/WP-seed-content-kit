@@ -82,3 +82,7 @@ L’onglet Collections documente status, department, country, featured, ids, lim
 L’onglet Templates décrit exactement les quinze placeholders directory.*. Ils proviennent tous de la projection publique fermée. Les cinq placeholders de contact sont disponibles uniquement lorsque la valeur est valide et explicitement rendue publique ; aucune donnée privée n’est proposée. Sans attribut template, ou lorsqu’un Template demandé est inutilisable, la carte native reste le fallback local.
 
 Gutenberg utilise le bloc Shortcode Core. Spectra intègre indirectement ce bloc ou le contenu d’un Template. Divi utilise un module Texte ou Code et peut fournir un Layout Divi Library à un Template. Il n’existe ni provider Spectra natif, ni module Divi propriétaire, ni filtre public visible.
+
+## Migration fictive CK-A6
+
+Le module inclut une API interne de migration documentee dans `ANNUAIRE-MIGRATION.md`. Elle cible exclusivement le CPT et les 19 metas natives, ne charge aucun code de WP Seed Directory et ne declenche jamais une migration au runtime. Les references, hashes, notes et registres techniques restent prives et ne traversent aucune couche publique.

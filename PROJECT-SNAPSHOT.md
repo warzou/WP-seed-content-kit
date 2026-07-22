@@ -1,10 +1,10 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 21 juillet 2026
-Statut : CK-A1 et CK-A2 implémentés localement ; diff non stagé en attente de revue
+Date : 22 juillet 2026
+Statut : CK-A6 implemente localement ; diff non stage en attente de revue
 Version courante du code : 0.6.0-rc.2-dev
 Version stable publiée : 0.3.0
-Commit de base du RC : 32dac5083491223800d7bf18dccb0a24f8eeaebb
+Commit de base CK-A6 : 184032b13204282cf52e29ea54129d6bbdb34525
 Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
 Tag stable : v0.3.0
 WordPress minimum : 6.5
@@ -538,3 +538,9 @@ La page Utilisation présente le flux Contenus vers Collections, Templates et In
 Les paramètres, valeurs autorisées, défauts et états vides sont documentés par module. Le générateur Annuaire couvre statut, département, pays, mise en avant, IDs, limite, tri, ordre et Template. Le catalogue expose uniquement les 26 placeholders publics réellement disponibles, dont exactement 15 directory.*, avec copie accessible et règles de visibilité.
 
 Shortcodes est le parcours canonique. Gutenberg utilise le bloc Shortcode Core, Spectra reste indirect, Divi accepte Texte ou Code et les Layouts Divi Library. Les Block Bindings et Dynamic Content restent limités à leur périmètre réel. Utilisation et les réglages d’affichage demeurent hors du parcours Editor.
+
+## CK-A6 - migration fictive native de l'Annuaire
+
+CK-A6 ajoute un moteur interne explicite, sans execution automatique, pour valider et importer le manifeste fictif ferme `native-directory-demo-v1`. Le cycle couvre 16 fiches, 13 medias, idempotence, mises a jour ciblees, source absente, registre prive non autoloaded et rollback deterministe.
+
+Administrator doit posseder `manage_wp_seed_imports` et fournir le contexte interne attendu. Editor est refuse. Aucune route REST/AJAX, interface admin ou dependance au depot WP Seed Directory n'est ajoutee. La version reste 0.6.0-rc.2-dev.

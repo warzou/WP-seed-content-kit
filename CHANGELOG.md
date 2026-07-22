@@ -4,6 +4,15 @@ All notable changes to WP-seed-content-kit will be documented in this file.
 
 ## [0.6.0-rc.2-dev] - Unreleased
 
+### Added
+
+- Moteur interne CK-A6 de migration fictive pour le CPT Annuaire natif, sans execution automatique.
+- Manifeste ferme de 16 fiches et 13 medias generes localement, avec validation globale et hashes SHA-256 canoniques.
+- Import idempotent, mises a jour ciblees sur IDs conserves, signalement des sources absentes et registre prive non autoloaded.
+- Rollback deterministe des objets du lot, restauration des objets preexistants et preservation des medias reutilises hors lot.
+- Harnais autonomes et WordPress couvrant permissions, confidentialite, rendu public et nettoyage complet.
+
+
 ### Changed
 - Finalisation CK-A4 de la page Utilisation autour du parcours Contenus, Collections, Templates et Intégrations.
 - Catalogue copiable des placeholders publics avec type, description, visibilité et comportement vide.
@@ -32,8 +41,8 @@ All notable changes to WP-seed-content-kit will be documented in this file.
 
 - Les réglages de modules et d’emplacement des menus sont préservés.
 - Utilisation exige manage_wp_seed_integrations; Editor reste limité aux contenus autorisés.
-- Aucun endpoint REST/AJAX, aucune migration et aucune dépendance à WP Seed Directory ou WP Seed Events.
-- Aucun endpoint REST/AJAX, aucune migration et aucune dépendance à WP Seed Directory.
+- Aucun endpoint REST/AJAX, aucune migration automatique ou réelle et aucune dépendance à WP Seed Directory ou WP Seed Events.
+- Aucun endpoint REST/AJAX, aucune migration automatique ou réelle et aucune dépendance à WP Seed Directory.
 ## [0.6.0-rc.1] - Unreleased
 
 ### Release candidate

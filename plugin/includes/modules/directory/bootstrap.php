@@ -15,6 +15,7 @@ require_once __DIR__ . '/assets.php';
 require_once __DIR__ . '/templates.php';
 require_once __DIR__ . '/render.php';
 require_once __DIR__ . '/shortcode.php';
+require_once __DIR__ . '/migration.php';
 
 function wp_seed_content_directory_filter_row_actions($actions, $post)
 {
