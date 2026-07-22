@@ -359,3 +359,25 @@ WP Seed Content Kit ne fournit pas :
 - de recherche publique ni de fiche individuelle pour Annuaire ;
 - de desinstallation destructive automatique des donnees ;
 - de module fonctionnel Créations sonores.
+
+## Comprendre Contenus, Collections, Templates et Intégrations
+
+- **Contenus** : les Témoignages, Citations ou personnes de l’Annuaire.
+- **Collections** : les paramètres qui choisissent quels contenus afficher et dans quel ordre.
+- **Templates** : la présentation facultative de chaque contenu sélectionné.
+- **Intégrations** : l’endroit où le shortcode et son résultat sont insérés.
+
+Une Collection n’est jamais enregistrée et ne choisit aucun Template durablement. L’attribut template du shortcode relie temporairement sélection et présentation. Sans cet attribut, le rendu natif du module s’applique.
+
+Pour Annuaire, le générateur couvre status, department, country, featured, ids, limit, orderby, order et template. Il produit le shortcode canonique [seed_directory]. L’alias [wp_seed_directory] est conservé uniquement pour compatibilité temporaire.
+
+Le catalogue de Templates affiche sept placeholders Témoignages, quatre Citations et quinze Annuaire. Seules les données publiques sont proposées. Un contact Annuaire masqué, invalide ou non autorisé reste vide et n’est jamais transmis au Template.
+
+### Intégrations
+
+- **Shortcodes — Fonctionnel** : méthode canonique dans tout emplacement WordPress compatible.
+- **Gutenberg — Fonctionnel** : bloc Shortcode Core ; les Block Bindings restent indirects et ne couvrent pas Annuaire.
+- **Spectra — Indirect** : bloc Shortcode Core dans une page ou un Container, ou blocs Spectra dans un Template ; aucun provider natif.
+- **Divi — Fonctionnel/Indirect** : shortcode dans Texte ou Code, ou Layout Divi Library comme source d’un Template ; Dynamic Content reste expérimental et aucun module propriétaire n’est fourni.
+
+Les filtres de Collection sont choisis par Administrator lors de l’intégration. Aucun champ de recherche ni filtre n’est présenté au visiteur.

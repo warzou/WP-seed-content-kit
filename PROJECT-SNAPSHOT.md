@@ -530,3 +530,11 @@ L’écran Annuaire emploie quatre panneaux métier et le libellé « Nom affich
 Une fiche incomplète ou contenant une coordonnée privée invalide peut rester en brouillon. La publication exige un nom, un statut, un pays, l’autorisation explicite, un alt lorsque la photo existe et une valeur valide pour chaque coordonnée rendue publique. Aucune coordonnée n’est publique par défaut et aucune coordonnée publique n’est obligatoire.
 
 La liste expose photo, nom, statut, ville, département, autorisation, types de coordonnées publiques, état WordPress et modification. Le filtre de statut est administratif uniquement. Quick Edit et la publication en masse restent neutralisés.
+
+## 21. CK-A4 - Templates, Collections et intégrations
+
+La page Utilisation présente le flux Contenus vers Collections, Templates et Intégrations avec des exemples Annuaire, Témoignages et Citations. Une Collection reste un ensemble de paramètres non persistant qui sélectionne les contenus ; un Template reste une présentation facultative, choisie au moment du shortcode et sans association enregistrée.
+
+Les paramètres, valeurs autorisées, défauts et états vides sont documentés par module. Le générateur Annuaire couvre statut, département, pays, mise en avant, IDs, limite, tri, ordre et Template. Le catalogue expose uniquement les 26 placeholders publics réellement disponibles, dont exactement 15 directory.*, avec copie accessible et règles de visibilité.
+
+Shortcodes est le parcours canonique. Gutenberg utilise le bloc Shortcode Core, Spectra reste indirect, Divi accepte Texte ou Code et les Layouts Divi Library. Les Block Bindings et Dynamic Content restent limités à leur périmètre réel. Utilisation et les réglages d’affichage demeurent hors du parcours Editor.

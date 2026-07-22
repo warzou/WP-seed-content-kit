@@ -184,3 +184,9 @@ Le provider Divi 5 Dynamic Content reste expérimental. L'aperçu de certaines i
 - `docs/USAGE.md`
 - `docs/TESTING.md`
 - `docs/UPDATES.md`
+
+## Parcours Utilisation CK-A4
+
+La page Utilisation explique le parcours Contenus → Collections → Templates → Intégrations. Les Collections sont des paramètres non persistants de sélection. Les Templates sont facultatifs et indépendants de la sélection. Les générateurs Témoignages, Citations et Annuaire produisent des shortcodes copiables sans enregistrer de réglage.
+
+Le catalogue de Templates expose les placeholders publics réels, leur type et leur comportement vide. Shortcodes reste la méthode canonique ; Gutenberg utilise le bloc Shortcode Core, Spectra est indirect et Divi accepte Texte ou Code ainsi que les Layouts Divi Library. Editor gère les contenus autorisés mais ne voit pas cette documentation technique ni les réglages d’affichage.

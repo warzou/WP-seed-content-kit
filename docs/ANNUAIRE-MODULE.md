@@ -74,3 +74,11 @@ Le module Template directory expose exactement quinze placeholders directory.*, 
 Gutenberg utilise le bloc Shortcode. Divi accepte le shortcode dans Texte ou Code et peut rendre un Layout Divi Library via un Template Content Kit. Aucun bloc ou module Divi specifique est cree.
 
 Module desactive : shortcode vide, Collection vide, aucun asset et aucune exposition ; les donnees sont conservees. La RC exclut recherche ou filtres visibles, fiche individuelle, archive, REST/AJAX, migration et cache persistant. Le plugin Directory autonome reste une reference comparative externe, sans couplage ni migration automatique.
+
+## Guidage Utilisation CK-A4
+
+L’onglet Collections documente status, department, country, featured, ids, limit, orderby et order, leurs valeurs autorisées, le tri par défaut et l’état vide. Le générateur produit uniquement un shortcode [seed_directory] à copier et peut lui ajouter un slug de Template. Il ne sauvegarde ni Collection ni association Template/Collection.
+
+L’onglet Templates décrit exactement les quinze placeholders directory.*. Ils proviennent tous de la projection publique fermée. Les cinq placeholders de contact sont disponibles uniquement lorsque la valeur est valide et explicitement rendue publique ; aucune donnée privée n’est proposée. Sans attribut template, ou lorsqu’un Template demandé est inutilisable, la carte native reste le fallback local.
+
+Gutenberg utilise le bloc Shortcode Core. Spectra intègre indirectement ce bloc ou le contenu d’un Template. Divi utilise un module Texte ou Code et peut fournir un Layout Divi Library à un Template. Il n’existe ni provider Spectra natif, ni module Divi propriétaire, ni filtre public visible.

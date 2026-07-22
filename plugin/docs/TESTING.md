@@ -197,3 +197,11 @@ Exécuter `tests/directory-l3-harness.php` sous PHP 7.0 et PHP 8.4, puis `tests/
 Vérifier brouillon vide, publication valide, autorisation absente, photo sans alt, fiche sans photo et les cinq coordonnées en modes privé, public valide, public vide et public invalide. Un contact privé reste absent de la Data API, du contexte Template et du shortcode ; un contact public invalide rend la fiche inéligible et la publication revient en brouillon.
 
 Avec Editor, vérifier création, publication valide, modification d’une fiche d’un autre éditeur, dépublication, corbeille et restauration. Confirmer l’absence de Configuration, Utilisation, Templates, Collections et outils techniques. Avec Administrator, confirmer la même fiche métier et les écrans avancés séparés. Tester les libellés, liens d’erreur, labels, fieldsets, clavier, focus, mobile, filtre de statut administratif, Quick Edit absent et publication en masse absente.
+
+## CK-A4 - Templates, Collections et guidage
+
+Exécuter tests/admin-usage-harness.php sous PHP 7.0 et PHP 8.4, puis les harnais historiques. Vérifier les quatre onglets, les quatre sous-onglets, les relations aria-selected/aria-controls, les flèches, Home/End, le focus visible, la copie des shortcodes et des 26 placeholders, ainsi que les tables mobiles.
+
+Contrôler les trois exemples Fonctionnement et les catalogues Collections. Annuaire doit exposer exactement status, department, country, featured, ids, limit, orderby et order. Générer au moins un shortcode Annuaire, Témoignages et Citations, avec et sans Template, puis tester attribut invalide, résultat vide, module désactivé et alias Annuaire déprécié.
+
+Dans WordPress Playground, vérifier Administrator avec accès complet et Editor sans Utilisation, Templates, Collections, générateurs ni placeholders. Tester sans Divi et sans Spectra, puis confirmer les libellés Fonctionnel, Indirect, Expérimental et Non disponible. Aucun test CK-A4 ne doit créer de CPT Collection, de sauvegarde, de REST/AJAX ou d’association persistante entre Collection et Template.

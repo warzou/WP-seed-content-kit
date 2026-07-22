@@ -97,6 +97,88 @@
     vertical-align: top;
 }
 
+.seed-usage [role="tab"]:focus-visible,
+.seed-usage button:focus-visible,
+.seed-usage summary:focus-visible,
+.seed-usage a:focus-visible {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2271b1;
+    outline: 2px solid transparent;
+}
+
+.seed-usage-panel:focus,
+.seed-usage-integration:focus {
+    outline: 0;
+}
+
+.seed-usage-examples {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.seed-usage-example {
+    border-left: 4px solid #646970;
+    padding-left: 14px;
+}
+
+.seed-usage-example h3 {
+    margin-top: 0;
+}
+
+.seed-usage-example dl,
+.seed-usage-parameters {
+    display: grid;
+    gap: 6px 12px;
+    grid-template-columns: minmax(90px, max-content) minmax(0, 1fr);
+}
+
+.seed-usage-example dt,
+.seed-usage-parameters dt {
+    font-weight: 600;
+}
+
+.seed-usage-example dd,
+.seed-usage-parameters dd {
+    margin: 0;
+}
+
+.seed-usage-details {
+    border-bottom: 1px solid #dcdcde;
+    padding: 12px 0;
+}
+
+.seed-usage-details summary {
+    cursor: pointer;
+    font-size: 14px;
+    padding: 6px 2px;
+}
+
+.seed-usage-collection {
+    max-width: 900px;
+    padding: 8px 0;
+}
+
+.seed-usage-table-wrap {
+    overflow-x: auto;
+    padding: 8px 0;
+}
+
+.seed-usage-placeholder-table {
+    min-width: 860px;
+}
+
+.seed-usage-placeholder-table td:first-child {
+    min-width: 210px;
+}
+
+.seed-usage-copy-key {
+    margin-left: 6px;
+}
+
+.seed-usage-copy-key + .seed-usage-copy__status {
+    display: inline-block;
+    margin-left: 4px;
+}
 @media screen and (max-width: 782px) {
     .seed-usage-flow {
         grid-template-columns: 1fr;
@@ -127,5 +209,31 @@
     .seed-usage-table tr {
         border-bottom: 1px solid #dcdcde;
         padding: 10px;
+    }
+}
+@media screen and (max-width: 782px) {
+    .seed-usage-examples {
+        grid-template-columns: 1fr;
+    }
+
+    .seed-usage-placeholder-table {
+        min-width: 0;
+    }
+
+    .seed-usage-table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .seed-usage-example dl,
+    .seed-usage-parameters {
+        grid-template-columns: 1fr;
+    }
+
+    .seed-usage-example dd,
+    .seed-usage-parameters dd {
+        margin-bottom: 8px;
     }
 }

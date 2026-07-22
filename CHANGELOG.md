@@ -5,6 +5,11 @@ All notable changes to WP-seed-content-kit will be documented in this file.
 ## [0.6.0-rc.2-dev] - Unreleased
 
 ### Changed
+- Finalisation CK-A4 de la page Utilisation autour du parcours Contenus, Collections, Templates et Intégrations.
+- Catalogue copiable des placeholders publics avec type, description, visibilité et comportement vide.
+- Paramètres, valeurs, défauts, états vides et exemples des Collections Témoignages, Citations et Annuaire.
+- Générateur Annuaire complété avec statut, département, pays, mise en avant, IDs, limite, tri, ordre et Template facultatif.
+- Navigation clavier, relations ARIA, focus visible et tables administratives mobiles renforcés.
 
 - Finalisation CK-A3 de l’écran Annuaire pour une saisie explicite par Editor et Administrator.
 - Quatre panneaux métier : identité, localisation/présentation/photo, coordonnées, autorisation et suivi.
@@ -88,6 +93,11 @@ All notable changes to WP-seed-content-kit will be documented in this file.
 - Harnais versionnés Collections et Adaptateurs couvrant les APIs, shortcodes, Templates et parcours builders indirects.
 
 ### Changed
+- Finalisation CK-A4 de la page Utilisation autour du parcours Contenus, Collections, Templates et Intégrations.
+- Catalogue copiable des placeholders publics avec type, description, visibilité et comportement vide.
+- Paramètres, valeurs, défauts, états vides et exemples des Collections Témoignages, Citations et Annuaire.
+- Générateur Annuaire complété avec statut, département, pays, mise en avant, IDs, limite, tri, ordre et Template facultatif.
+- Navigation clavier, relations ARIA, focus visible et tables administratives mobiles renforcés.
 
 - Finalisation CK-A3 de l’écran Annuaire pour une saisie explicite par Editor et Administrator.
 - Quatre panneaux métier : identité, localisation/présentation/photo, coordonnées, autorisation et suivi.
@@ -127,6 +137,11 @@ All notable changes to WP-seed-content-kit will be documented in this file.
 - Provider expérimental Divi 5 Dynamic Content avec quatre champs Témoignage : Texte, Nom, Contexte et Photo.
 
 ### Changed
+- Finalisation CK-A4 de la page Utilisation autour du parcours Contenus, Collections, Templates et Intégrations.
+- Catalogue copiable des placeholders publics avec type, description, visibilité et comportement vide.
+- Paramètres, valeurs, défauts, états vides et exemples des Collections Témoignages, Citations et Annuaire.
+- Générateur Annuaire complété avec statut, département, pays, mise en avant, IDs, limite, tri, ordre et Template facultatif.
+- Navigation clavier, relations ARIA, focus visible et tables administratives mobiles renforcés.
 
 - Finalisation CK-A3 de l’écran Annuaire pour une saisie explicite par Editor et Administrator.
 - Quatre panneaux métier : identité, localisation/présentation/photo, coordonnées, autorisation et suivi.

@@ -220,6 +220,58 @@ foreach (array('Fonctionnel', 'Indirect', 'Expérimental', 'Non disponible') as 
 }
 seed_admin_usage_assert(false !== strpos($divi_html, 'ne couvrent pas Annuaire'), 'Divi Dynamic Content scope is accurate');
 seed_admin_usage_assert(false !== strpos($divi_html, 'Aucun module Divi propriétaire'), 'No proprietary Divi module claimed');
+seed_admin_usage_assert(false !== strpos($tabs_html, 'role="tablist"'), 'Primary navigation exposes a tablist');
+seed_admin_usage_same(4, substr_count($tabs_html, 'role="tab"'), 'Primary navigation exposes four tabs');
+seed_admin_usage_same(1, substr_count($tabs_html, 'aria-selected="true"'), 'Primary navigation exposes one selected tab');
+seed_admin_usage_assert(false !== strpos($tabs_html, 'aria-controls="seed-usage-panel-collections"'), 'Primary tab controls its panel');
+seed_admin_usage_assert(false !== strpos($subtabs_html, 'role="tablist"'), 'Integration navigation exposes a tablist');
+seed_admin_usage_same(4, substr_count($subtabs_html, 'role="tab"'), 'Integration navigation exposes four tabs');
+seed_admin_usage_same(1, substr_count($subtabs_html, 'aria-selected="true"'), 'Integration navigation exposes one selected tab');
+
+$placeholder_catalog = wp_seed_content_kit_get_usage_template_placeholder_catalog();
+seed_admin_usage_same(7, count($placeholder_catalog['Témoignages']), 'Seven Testimonial placeholders described');
+seed_admin_usage_same(4, count($placeholder_catalog['Citations']), 'Four Quote placeholders described');
+seed_admin_usage_same(15, count($placeholder_catalog['Annuaire']), 'Fifteen Directory placeholders described');
+seed_admin_usage_same('directory.name', $placeholder_catalog['Annuaire'][0]['key'], 'Directory placeholder keys stay canonical');
+seed_admin_usage_same('text', $placeholder_catalog['Annuaire'][0]['type'], 'Directory placeholder type documented');
+seed_admin_usage_same('Publique si autorisée', $placeholder_catalog['Annuaire'][9]['visibility'], 'Directory contact visibility is conditional');
+foreach ($placeholder_catalog as $definitions) {
+    foreach ($definitions as $definition) {
+        seed_admin_usage_assert(false === strpos($definition['key'], 'private'), 'No private placeholder exposed: ' . $definition['key']);
+        seed_admin_usage_assert('' !== $definition['description'], 'Placeholder description provided: ' . $definition['key']);
+        seed_admin_usage_assert('' !== $definition['empty'], 'Empty behavior provided: ' . $definition['key']);
+    }
+}
+seed_admin_usage_same(26, substr_count($templates_html, 'data-seed-usage-copy-value='), 'Every placeholder has a copy action');
+seed_admin_usage_assert(false !== strpos($templates_html, 'Un Template présente un contenu'), 'Template and selection stay separate');
+seed_admin_usage_assert(false !== strpos($templates_html, 'sans association enregistrée'), 'No persistent Template Collection association');
+seed_admin_usage_assert(false !== strpos($templates_html, 'Seules les données de rendu publiques'), 'Private fields excluded from placeholder catalog');
+
+$collection_catalog = wp_seed_content_kit_get_usage_collection_catalog();
+seed_admin_usage_same(3, count($collection_catalog), 'Three Collection modules documented');
+seed_admin_usage_same(
+    array('status', 'department', 'country', 'featured', 'ids', 'limit', 'orderby', 'order'),
+    array_keys($collection_catalog['Annuaire']['parameters']),
+    'Directory Collection parameters are exact'
+);
+seed_admin_usage_assert(false !== strpos($collections_html, 'Aucune recherche publique'), 'No public search promised');
+seed_admin_usage_assert(false !== strpos($collections_html, 'aucun filtre public visible'), 'No visible public filters promised');
+foreach (array('department', 'country', 'ids', 'template') as $attribute) {
+    seed_admin_usage_assert(false !== strpos($collections_html, 'data-seed-usage-attr="' . $attribute . '"'), 'Directory generator supports ' . $attribute);
+}
+seed_admin_usage_assert(false !== strpos($collections_html, 'data-seed-usage-summary'), 'Directory generator provides a plain-language summary');
+seed_admin_usage_assert(false !== strpos($collections_html, '[seed_testimonials'), 'Testimonial generator remains available');
+seed_admin_usage_assert(false !== strpos($collections_html, '[seed_quotes'), 'Quote generator remains available');
+
+$_GET = array('usage_tab' => 'integrations', 'integration' => 'gutenberg');
+ob_start();
+wp_seed_content_kit_render_usage_integrations();
+$integrations_html = ob_get_clean();
+seed_admin_usage_assert(false !== strpos($integrations_html, 'role="tabpanel"'), 'Integration content exposes a tab panel');
+seed_admin_usage_assert(false !== strpos($integrations_html, 'aria-labelledby="seed-usage-integration-tab-gutenberg"'), 'Integration panel is labelled by the selected tab');
+seed_admin_usage_assert(false !== strpos($gutenberg_html, 'Ajoutez un bloc Shortcode'), 'Gutenberg steps are concrete');
+seed_admin_usage_assert(false !== strpos($spectra_html, 'Container Spectra'), 'Spectra indirect steps are concrete');
+seed_admin_usage_assert(false !== strpos($divi_html, 'module Texte ou Code'), 'Divi shortcode steps are concrete');
 $GLOBALS['seed_admin_usage_can_manage'] = false;
 $GLOBALS['seed_admin_usage_died'] = '';
 ob_start();
@@ -246,6 +298,11 @@ seed_admin_usage_assert(false === strpos($menu_source, 'Aide / Documentation'), 
 seed_admin_usage_assert(false !== strpos($bootstrap_source, '0.6.0-rc.2-dev'), 'Development version updated');
 seed_admin_usage_assert(false !== strpos($bootstrap_source, 'usage-page.php'), 'Usage page loaded only in admin bootstrap');
 seed_admin_usage_assert(false !== strpos($css_source, '@media screen and (max-width: 782px)'), 'Responsive admin layout included');
+seed_admin_usage_assert(false !== strpos($css_source, ':focus-visible'), 'Visible keyboard focus included');
+seed_admin_usage_assert(false !== strpos($css_source, 'content: attr(data-label)'), 'Responsive table labels included');
+seed_admin_usage_assert(false !== strpos($js_source, 'ArrowLeft'), 'Arrow-key tab navigation included');
+seed_admin_usage_assert(false !== strpos($js_source, 'data-seed-usage-copy-value'), 'Placeholder copy interaction included');
+seed_admin_usage_assert(false !== strpos($js_source, 'data-seed-usage-summary'), 'Generator plain-language summary included');
 seed_admin_usage_assert(false !== strpos($js_source, "addEventListener('click'"), 'Copy interaction is keyboard-triggerable');
 seed_admin_usage_assert(false !== strpos($js_source, 'data-seed-usage-generator'), 'Directory generator updates locally');
 
