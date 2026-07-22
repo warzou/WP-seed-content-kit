@@ -1,6 +1,6 @@
 # Migration fictive de l'Annuaire
 
-Statut : CK-A6, version 0.6.0-rc.2-dev.
+Statut : CK-A6 valide dans la release candidate 0.6.0-rc.2.
 
 ## Perimetre
 

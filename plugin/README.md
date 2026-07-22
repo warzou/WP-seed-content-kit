@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.6.0-rc.2-dev, développement local non publié.
+Statut du package : 0.6.0-rc.2, release candidate locale non publiee.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -35,7 +35,7 @@ Collections reste une API de sélection et un ensemble de paramètres. Aucun con
 - ordre manuel ;
 - templates réutilisables.
 
-### Annuaire - sortie publique 0.6.0-rc.2-dev
+### Annuaire - sortie publique 0.6.0-rc.2
 
 Le module natif Annuaire fournit son CPT administratif prive, dix-neuf metas validees, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
 

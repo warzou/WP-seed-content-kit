@@ -1,12 +1,12 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 22 juillet 2026
-Statut : CK-A6 implemente localement ; diff non stage en attente de revue
-Version courante du code : 0.6.0-rc.2-dev
-Version stable publiée : 0.3.0
-Commit de base CK-A6 : 184032b13204282cf52e29ea54129d6bbdb34525
-Commit stable : 650d0ed4af8554f620d97d1a91e62d6848b418ef
-Tag stable : v0.3.0
+Statut : CK-A7 valide localement ; RC2 preparee, diff non stage en attente de revue
+Version courante du code : 0.6.0-rc.2
+Version stable publiee de reference : 0.4.0
+Commit de base CK-A7 : 6e31b073d0546da57992b298d463d3ea5cdfb74d
+Commit stable de reference : d60ae9189fabcc405b9108311de936e452d91b7f
+Tag stable de reference : v0.4.0
 WordPress minimum : 6.5
 PHP minimum : 7.0
 
@@ -543,4 +543,14 @@ Shortcodes est le parcours canonique. Gutenberg utilise le bloc Shortcode Core, 
 
 CK-A6 ajoute un moteur interne explicite, sans execution automatique, pour valider et importer le manifeste fictif ferme `native-directory-demo-v1`. Le cycle couvre 16 fiches, 13 medias, idempotence, mises a jour ciblees, source absente, registre prive non autoloaded et rollback deterministe.
 
-Administrator doit posseder `manage_wp_seed_imports` et fournir le contexte interne attendu. Editor est refuse. Aucune route REST/AJAX, interface admin ou dependance au depot WP Seed Directory n'est ajoutee. La version reste 0.6.0-rc.2-dev.
+Administrator doit posseder `manage_wp_seed_imports` et fournir le contexte interne attendu. Editor est refuse. Aucune route REST/AJAX, interface admin ou dependance au depot WP Seed Directory n'est ajoutee. La version cible est 0.6.0-rc.2.
+
+## 22. CK-A7 - regression globale et preparation RC2
+
+La regression globale couvre les dix harnais autonomes sous PHP 7.0.33 et PHP 8.4.23, les six harnais WordPress sous WordPress 7.0.2/PHP 8.4.23, une installation neuve du ZIP, une mise a jour depuis 0.4.0 et le cycle desactivation, desinstallation puis reinstallation sur une copie dediee. Les contenus, IDs, statuts, metadonnees, reglages et capacites attendues sont preserves.
+
+La recette navigateur utilise Microsoft Edge, le theme classique Twenty Twenty-One et Spectra. Quarante-deux captures couvrent Citations, Temoignages, Annuaire, page mixte, Template Annuaire, etat vide, administration Annuaire et Utilisation entre 1440 x 1000 et 320 x 700, plus une simulation correcte du zoom navigateur a 200 %. Aucun debordement, chevauchement, echec HTTP, erreur console ou fuite de donnee privee n'est releve. La grille Annuaire reste 3/2/1 et les quatorze fiches publiques restent reparties en deux groupes.
+
+Divi reste facultatif et n'est pas distribue dans l'environnement isole. Son contrat, le rendu Layout Library, le fallback sans Divi et le Dynamic Content experimental sont couverts par les harnais autonomes et WordPress ; aucune nouvelle integration builder n'est ajoutee.
+
+La RC2 conserve les Collections non persistantes, le Template Extension Contract 1.0, l'absence de REST/AJAX et l'absence de dependance au depot WP Seed Directory. Le ZIP officiel est construit hors depot de facon reproductible. Aucun staging, commit, push, tag, release ou site de production ne fait partie de CK-A7.

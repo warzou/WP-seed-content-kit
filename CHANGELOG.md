@@ -2,7 +2,14 @@
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 
-## [0.6.0-rc.2-dev] - Unreleased
+## [0.6.0-rc.2] - 2026-07-22
+### Release candidate
+
+- Regression globale CK-A7 sous PHP 7.0.33, PHP 8.4.23 et WordPress 7.0.2.
+- Installation neuve, mise a jour depuis 0.4.0 et cycle desactivation/desinstallation/reinstallation valides sur des sites isoles.
+- Recette reelle sous theme classique et Spectra : Citations, Temoignages, Annuaire, page mixte et administration, de 1440 x 1000 a 320 x 700 ainsi qu'a 200 % de zoom.
+- Grille Annuaire 3/2/1, Templates, Collections, shortcodes, roles, confidentialite et migration fictive revalides sans regression.
+- Package RC2 reproductible prepare hors depot ; aucun tag, push ou release n'est cree.
 
 ### Added
 

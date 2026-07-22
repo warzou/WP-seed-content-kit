@@ -211,3 +211,13 @@ Dans WordPress Playground, vérifier Administrator avec accès complet et Editor
 Executer `tests/directory-migration-harness.php` sous les runtimes PHP compatibles, puis `tests/wordpress-directory-migration-harness.php` dans un WordPress isole sous PHP 8.4. Le second harnais exige le plugin actif et cree puis nettoie lui-meme ses contenus et son utilisateur Editor.
 
 Verifier le manifeste ferme, les 16 fiches, les 13 medias, les refus globaux sans ecriture, l'import initial, le reimport `unchanged`, les mises a jour fiche/media sur ID conserve, `missing_from_source`, le registre non autoloaded, les permissions, la Data API, les Collections, les Templates, les shortcodes et les deux rollbacks. A la fin, aucune fiche, revision, piece jointe, option de lot, page, Template, Citation, Temoignage ou utilisateur de recette ne doit subsister.
+
+## Regression globale CK-A7 et RC2
+
+Executer les dix harnais autonomes et le lint complet sous PHP 7.0.33 puis PHP 8.4.23. Sous WordPress 7.0.2/PHP 8.4.23, executer les harnais Template Extension, Annuaire L2/L3/L4, roles et migration. Tester separement une installation neuve du ZIP, une mise a jour depuis 0.4.0 et un cycle desactivation, desinstallation puis reinstallation sur une copie dediee.
+
+La matrice navigateur minimale couvre Citations, Temoignages, Annuaire, page mixte, administration Annuaire et Utilisation aux formats 1440 x 1000, 1280 x 900, 1024 x 900, 820 x 1180, 768 x 1024, 390 x 844, 375 x 812 et 320 x 700, puis a 200 % de zoom. Verifier HTTP 200, console, ressources, debordements, grille 3/2/1, images et alt, contacts, focus, onglets, formulaires et tables.
+
+Le theme classique et Spectra sont testes dans le navigateur. Divi reste un produit tiers facultatif : en l'absence d'un package prive autorise dans l'environnement isole, ses contrats, son Layout Library, son fallback et son Dynamic Content experimental restent valides par les harnais dedies. Ne jamais ajouter Divi ou un autre builder au package Content Kit.
+
+Construire deux fois le ZIP RC2 depuis les seuls fichiers distribues, comparer les SHA-256, extraire et relinter chaque archive. Le package doit avoir une racine unique wp-seed-content-kit/, des chemins Linux, aucun test, fixture, document historique, secret ou temporaire.
