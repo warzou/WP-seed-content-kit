@@ -2,7 +2,7 @@
 
 define('ABSPATH', __DIR__ . '/');
 define('WP_SEED_CONTENT_KIT_URL', 'https://example.test/plugin/');
-define('WP_SEED_CONTENT_KIT_VERSION', '0.6.0-rc.2');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.6.0-rc.3');
 
 $GLOBALS['seed_admin_usage_assertions'] = 0;
 $GLOBALS['seed_admin_usage_failures'] = array();
@@ -148,7 +148,7 @@ seed_admin_usage_same(array(), $GLOBALS['seed_admin_usage_styles'], 'Assets stay
 wp_seed_content_kit_enqueue_usage_assets('content-kit_page_usage');
 seed_admin_usage_assert(isset($GLOBALS['seed_admin_usage_styles']['wp-seed-content-kit-admin-usage']), 'Usage stylesheet enqueued');
 seed_admin_usage_assert(isset($GLOBALS['seed_admin_usage_scripts']['wp-seed-content-kit-admin-usage']), 'Usage script enqueued');
-seed_admin_usage_same('0.6.0-rc.2', $GLOBALS['seed_admin_usage_styles']['wp-seed-content-kit-admin-usage'][2], 'Usage assets use plugin version');
+seed_admin_usage_same('0.6.0-rc.3', $GLOBALS['seed_admin_usage_styles']['wp-seed-content-kit-admin-usage'][2], 'Usage assets use plugin version');
 
 ob_start();
 wp_seed_content_kit_render_usage_tabs('collections');
@@ -295,7 +295,7 @@ seed_admin_usage_assert(false !== strpos($menu_source, "'wp-seed-content-kit-usa
 seed_admin_usage_assert(false !== strpos($menu_source, "'manage_wp_seed_content_kit'"), 'Configuration uses its dedicated capability');
 seed_admin_usage_assert(false !== strpos($menu_source, "'manage_wp_seed_integrations'"), 'Usage uses its dedicated capability');
 seed_admin_usage_assert(false === strpos($menu_source, 'Aide / Documentation'), 'Minimal Help menu removed');
-seed_admin_usage_assert(false !== strpos($bootstrap_source, '0.6.0-rc.2'), 'Development version updated');
+seed_admin_usage_assert(false !== strpos($bootstrap_source, '0.6.0-rc.3'), 'Development version updated');
 seed_admin_usage_assert(false !== strpos($bootstrap_source, 'usage-page.php'), 'Usage page loaded only in admin bootstrap');
 seed_admin_usage_assert(false !== strpos($css_source, '@media screen and (max-width: 782px)'), 'Responsive admin layout included');
 seed_admin_usage_assert(false !== strpos($css_source, ':focus-visible'), 'Visible keyboard focus included');

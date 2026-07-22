@@ -78,7 +78,7 @@ try {
     wp_set_current_user((int) $administrators[0]);
     do_action('init');
 
-    seed_l3_wp_same('0.6.0-rc.2', WP_SEED_CONTENT_KIT_VERSION, 'Plugin version');
+    seed_l3_wp_same('0.6.0-rc.3', WP_SEED_CONTENT_KIT_VERSION, 'Plugin version');
     seed_l3_wp_assert(post_type_exists('seed_directory'), 'Directory CPT registered');
     seed_l3_wp_same(false, get_post_type_object('seed_directory')->show_in_rest, 'Directory remains outside REST');
     seed_l3_wp_assert(post_type_supports('seed_directory', 'revisions'), 'Directory supports native revisions');
@@ -310,6 +310,18 @@ try {
         }
     }
     seed_l3_wp_same($expected_boxes, array_values(array_intersect($expected_boxes, array_keys($found_boxes))), 'Exactly four Directory custom panels: ' . serialize(array_keys($found_boxes)));
+
+    ob_start();
+    wp_seed_content_directory_admin_styles();
+    $directory_admin_css = ob_get_clean();
+    seed_l3_wp_assert(false !== strpos($directory_admin_css, '#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{display:block;width:100%;box-sizing:border-box}'), 'Directory edit screen receives scoped fluid input CSS');
+    seed_l3_wp_assert(false !== strpos($directory_admin_css, '@media(max-width:782px){#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{max-width:100%}'), 'Directory edit screen receives the mobile width override');
+    seed_l3_wp_assert(false === strpos($directory_admin_css, '<style>.regular-text{'), 'Directory edit CSS has no global regular-text override');
+    set_current_screen('seed_quote');
+    ob_start();
+    wp_seed_content_directory_admin_styles();
+    seed_l3_wp_same('', ob_get_clean(), 'Directory edit CSS is absent from Citation screens');
+    set_current_screen('seed_directory');
 
     wp_update_post(array('ID' => $internal_id, 'post_excerpt' => 'Présentation modifiée pour la révision.'));
     $revisions = wp_get_post_revisions($internal_id);

@@ -2,6 +2,13 @@
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 
+## [0.6.0-rc.3] - 2026-07-22
+### Fixed
+
+- Les champs de localisation et de contact du formulaire Annuaire utilisent une largeur fluide bornee a leur metabox, avec box-sizing: border-box.
+- Le correctif reste limite aux ecrans Annuaire et supprime le defilement horizontal a 390 px et 320 px pour Administrator et Editor.
+- Les largeurs desktop existantes sont conservees et les aides de visibilite peuvent revenir a la ligne sans deborder.
+
 ## [0.6.0-rc.2] - 2026-07-22
 ### Release candidate
 

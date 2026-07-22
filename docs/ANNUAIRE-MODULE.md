@@ -1,6 +1,6 @@
 # Module Annuaire
 
-Statut : release candidate 0.6.0-rc.2 du module Annuaire natif.
+Statut : release candidate 0.6.0-rc.3 du module Annuaire natif.
 
 ## Périmètre
 

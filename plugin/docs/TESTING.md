@@ -221,3 +221,9 @@ La matrice navigateur minimale couvre Citations, Temoignages, Annuaire, page mix
 Le theme classique et Spectra sont testes dans le navigateur. Divi reste un produit tiers facultatif : en l'absence d'un package prive autorise dans l'environnement isole, ses contrats, son Layout Library, son fallback et son Dynamic Content experimental restent valides par les harnais dedies. Ne jamais ajouter Divi ou un autre builder au package Content Kit.
 
 Construire deux fois le ZIP RC2 depuis les seuls fichiers distribues, comparer les SHA-256, extraire et relinter chaque archive. Le package doit avoir une racine unique wp-seed-content-kit/, des chemins Linux, aucun test, fixture, document historique, secret ou temporaire.
+
+## Correction responsive Annuaire RC3
+
+Executer tests/directory-l3-harness.php sous PHP 7.0.33 et PHP 8.4.23, puis tests/wordpress-directory-l3-harness.php dans WordPress. Le CSS correctif doit etre emis uniquement sur les ecrans Annuaire.
+
+Verifier avec Administrator et Editor les formats 1440 x 1000, 820 x 1180, 390 x 844, 320 x 700 et le zoom 200 %. Le document ne doit jamais depasser le viewport ; les champs de localisation et de contact restent fluides, tandis que leurs largeurs maximales desktop sont conservees. Recontroler les aides, erreurs, cases de visibilite, focus, cibles tactiles et l'absence de regression sur Citations, Temoignages, Templates et Utilisation.

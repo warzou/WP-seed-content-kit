@@ -1,6 +1,6 @@
 # Usage - WP Seed Content Kit
 
-Statut : WP Seed Content Kit 0.6.0-rc.2. Le module Annuaire est natif, optionnel et sans dépendance au plugin Directory autonome.
+Statut : WP Seed Content Kit 0.6.0-rc.3. Le module Annuaire est natif, optionnel et sans dépendance au plugin Directory autonome.
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés, des shortcodes et des templates réutilisables dans WordPress.
 

@@ -115,7 +115,7 @@ try {
     wp_set_current_user((int) $admins[0]);
     do_action('init');
 
-    seed_l4_wp_same('0.6.0-rc.2', WP_SEED_CONTENT_KIT_VERSION, 'Plugin version');
+    seed_l4_wp_same('0.6.0-rc.3', WP_SEED_CONTENT_KIT_VERSION, 'Plugin version');
     seed_l4_wp_assert(post_type_exists('seed_directory'), 'Directory CPT registered');
     seed_l4_wp_same(false, get_post_type_object('seed_directory')->show_in_rest, 'Directory outside REST');
     seed_l4_wp_assert(shortcode_exists('seed_directory'), 'Canonical shortcode registered');

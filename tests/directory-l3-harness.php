@@ -361,6 +361,10 @@ seed_l3_assert(false !== strpos($admin_source, 'wp_is_post_revision'), 'Save ign
 seed_l3_assert(false !== strpos($admin_source, "current_user_can('edit_seed_directory_entry'"), 'Save requires object capability');
 seed_l3_assert(false !== strpos($admin_source, 'La personne a autorisé la publication de ses informations'), 'Exact authorization label');
 seed_l3_assert(false !== strpos($admin_source, 'Cette autorisation est obligatoire pour publier la fiche'), 'Authorization help text');
+seed_l3_assert(false !== strpos($admin_source, '#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{display:block;width:100%;box-sizing:border-box}'), 'Directory text inputs use scoped fluid sizing');
+seed_l3_assert(false !== strpos($admin_source, '#wp_seed_content_directory_situation .regular-text{max-width:400px}'), 'Situation fields preserve the desktop width cap');
+seed_l3_assert(false !== strpos($admin_source, '@media(max-width:782px){#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{max-width:100%}'), 'Directory text inputs become fluid at the WordPress mobile breakpoint');
+seed_l3_assert(false === strpos($admin_source, '<style>.regular-text{'), 'Directory admin styles do not override regular-text globally');
 $bootstrap_source = file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/bootstrap.php');
 seed_l3_assert(false !== strpos($bootstrap_source, "require_once __DIR__ . '/shortcode.php'"), 'L4 Directory shortcode loaded');
 seed_l3_assert(false === strpos($bootstrap_source, 'register_rest_route'), 'No Directory REST route');
