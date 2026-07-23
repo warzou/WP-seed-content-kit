@@ -47,13 +47,11 @@ function wp_seed_content_directory_render_native_card($data)
     ob_start();
     ?>
     <article class="wp-seed-directory-card">
-        <div class="wp-seed-directory-card__media">
-            <?php if ($photo && !empty($photo['url'])) : ?>
+        <?php if ($photo && !empty($photo['url'])) : ?>
+            <div class="wp-seed-directory-card__media">
                 <img class="wp-seed-directory-card__photo" src="<?php echo esc_url($photo['url']); ?>" alt="<?php echo esc_attr(isset($photo['alt']) ? $photo['alt'] : ''); ?>"<?php echo !empty($photo['width']) ? ' width="' . (int) $photo['width'] . '"' : ''; ?><?php echo !empty($photo['height']) ? ' height="' . (int) $photo['height'] . '"' : ''; ?> loading="lazy">
-            <?php else : ?>
-                <span class="wp-seed-directory-card__photo-placeholder" aria-hidden="true"></span>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
         <div class="wp-seed-directory-card__body">
             <h3 class="wp-seed-directory-card__name"><?php echo esc_html($data['name']); ?></h3>
             <?php if (!empty($data['status_label'])) : ?><p class="wp-seed-directory-card__status"><?php echo esc_html($data['status_label']); ?></p><?php endif; ?>

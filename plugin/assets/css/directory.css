@@ -10,7 +10,7 @@
     margin: 0 0 1rem;
 }
 
-.wp-seed-directory__grid {
+.wp-seed-directory .wp-seed-directory__grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: start;
@@ -20,8 +20,14 @@
     list-style: none;
 }
 
-.wp-seed-directory__item {
+.wp-seed-directory .wp-seed-directory__item {
+    display: block;
     min-width: 0;
+    list-style: none;
+}
+
+.wp-seed-directory .wp-seed-directory__item::marker {
+    content: "";
 }
 
 .wp-seed-directory__empty {
@@ -32,14 +38,85 @@
     min-width: 0;
 }
 
+.wp-seed-directory-template-card__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    background: #fff;
+    color: #1d2327;
+}
+
+.wp-seed-directory-template-card__media:empty {
+    display: none;
+}
+
+.wp-seed-directory-template-card__media img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.wp-seed-directory-template-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: .65rem;
+    padding: 1rem;
+}
+
+.wp-seed-directory-template-card__name,
+.wp-seed-directory-template-card__status,
+.wp-seed-directory-template-card__location,
+.wp-seed-directory-template-card__bio {
+    margin: 0;
+}
+
+.wp-seed-directory-template-card__name {
+    font-size: 1.25rem;
+    line-height: 1.25;
+}
+
+.wp-seed-directory-template-card__status {
+    font-weight: 600;
+}
+
+.wp-seed-directory-template-card__location {
+    color: #50575e;
+}
+
+.wp-seed-directory-template-card__contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    margin-top: auto;
+    padding-top: .35rem;
+}
+
+.wp-seed-directory-template-card__contact:empty {
+    display: none;
+}
+
+.wp-seed-directory-template-card a {
+    overflow-wrap: anywhere;
+}
+
+.wp-seed-directory-template-card a:focus-visible {
+    outline: 2px solid #2271b1;
+    outline-offset: 3px;
+}
+
 @media (max-width: 900px) {
-    .wp-seed-directory__grid {
+    .wp-seed-directory .wp-seed-directory__grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 600px) {
-    .wp-seed-directory__grid {
+    .wp-seed-directory .wp-seed-directory__grid {
         grid-template-columns: minmax(0, 1fr);
     }
 }

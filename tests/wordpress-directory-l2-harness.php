@@ -47,7 +47,7 @@ try {
     wp_set_current_user((int) $administrators[0]);
     do_action('init');
 
-    seed_l2_wp_same('0.6.0-rc.3', WP_SEED_CONTENT_KIT_VERSION, 'Plugin version');
+    seed_l2_wp_same('0.6.0-rc.4', WP_SEED_CONTENT_KIT_VERSION, 'Plugin version');
     seed_l2_wp_same(true, wp_seed_content_kit_is_module_active('directory'), 'Directory active after clean activation');
     seed_l2_wp_assert(post_type_exists('seed_directory'), 'Directory CPT registered');
 

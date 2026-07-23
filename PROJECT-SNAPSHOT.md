@@ -1,10 +1,10 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 22 juillet 2026
-Statut : RC3 corrective validee localement ; diff non stage en attente de revue
-Version courante du code : 0.6.0-rc.3
+Statut : RC4 corrective validee localement ; diff non stage en attente de revue
+Version courante du code : 0.6.0-rc.4
 Version stable publiee de reference : 0.4.0
-Commit de base RC3 corrective : b4ce8e9433005ad37bd6f46c2c0578d50d1dc116
+Commit de base RC4 corrective : cd628bdd74308d78e067b2f91d4fb8fbce794a51
 Commit stable de reference : d60ae9189fabcc405b9108311de936e452d91b7f
 Tag stable de reference : v0.4.0
 WordPress minimum : 6.5
@@ -26,7 +26,7 @@ Le module directory comprend désormais :
 - prédicat canonique d’éligibilité et séparation stricte des contacts visibles ;
 - révisions natives et cycle de désactivation/réactivation non destructif.
 
-L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], un alias temporaire, deux groupes fixes, une carte native responsive et des cartes personnalisees par Template Content Kit. Le fallback reste local a chaque fiche et ne peut exposer un contact masque. Il ne subsiste aucune recherche publique, single, archive, REST/AJAX, migration runtime ou adaptateur inter-plugin. Le depot WP Seed Directory reste strictement separe et inchange.
+L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], un alias temporaire, deux groupes fixes, une carte native responsive et des cartes personnalisees par Template Content Kit. La grille semantique neutralise les marqueurs de liste herites des themes et une fiche sans photo commence directement par son contenu, sans placeholder. Le fallback reste local a chaque fiche et ne peut exposer un contact masque. Il ne subsiste aucune recherche publique, single, archive, REST/AJAX, migration runtime ou adaptateur inter-plugin. Le depot WP Seed Directory reste strictement separe et inchange.
 Il combine actuellement :
 
 - des modules de contenus structurés ;

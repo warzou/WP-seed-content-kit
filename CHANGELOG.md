@@ -2,6 +2,12 @@
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 
+## [0.6.0-rc.4] - 2026-07-22
+### Fixed
+
+- Le rendu public Annuaire neutralise les marqueurs de liste herites de Divi sans abandonner la structure semantique `ul`/`li`.
+- Une fiche sans photo ne genere plus de placeholder gris ni de zone media vide ; les cartes Template opt-in et les Layouts Divi de demonstration conservent une presentation compacte 3/2/1.
+
 ## [0.6.0-rc.3] - 2026-07-22
 ### Fixed
 

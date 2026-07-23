@@ -1,6 +1,6 @@
 # Module Annuaire
 
-Statut : release candidate 0.6.0-rc.3 du module Annuaire natif.
+Statut : release candidate 0.6.0-rc.4 du module Annuaire natif.
 
 ## Périmètre
 
@@ -65,11 +65,11 @@ wp_seed_content_directory_get_entries($args) retourne des IDs eligibles. Les fil
 
 [seed_directory] accepte les memes attributs et template. [wp_seed_directory] est un alias temporaire deprecie, sans avertissement public. Les valeurs invalides retournent une chaine vide. Les groupes restent, dans cet ordre, En exercice puis En recherche de modeles ; un groupe vide est omis.
 
-La carte native affiche uniquement photo ou emplacement neutre, nom, statut, localisation, presentation et contacts publics. La grille CSS est 3/2/1 colonnes. Le CSS structurel est charge seulement avec des fiches rendues et le CSS de carte seulement avec une carte native.
+La carte native affiche uniquement la photo lorsqu'elle existe, puis le nom, le statut, la localisation, la presentation et les contacts publics. Sans photo, aucun emplacement, placeholder ou hauteur media n'est rendu : la carte commence directement par son contenu. La grille semantique `ul`/`li` reste en 3/2/1 colonnes et neutralise explicitement les marqueurs imposes par les themes. Le CSS structurel est charge seulement avec des fiches rendues et le CSS de carte seulement avec une carte native.
 
 ## Templates et confidentialite
 
-Le module Template directory expose exactement quinze placeholders directory.*, du nom a directory.featured. Leur contexte provient exclusivement de la Data API publique. Un Template publie personnalise une carte ; template absent, brouillon, mauvais module, resultat vide, recursion, erreur, contexte ou assets invalides declenchent un fallback natif pour cette fiche seulement.
+Le module Template directory expose exactement quinze placeholders directory.*, du nom a directory.featured. Leur contexte provient exclusivement de la Data API publique. Un Template publie personnalise une carte ; les classes opt-in `wp-seed-directory-template-card__*` permettent a une fixture ou a un integrateur d'adopter les espacements de la carte native sans imposer ce design aux autres Templates. Un Layout Divi reste responsable de ses propres espacements. Template absent, brouillon, mauvais module, resultat vide, recursion, erreur, contexte ou assets invalides declenchent un fallback natif pour cette fiche seulement.
 
 Gutenberg utilise le bloc Shortcode. Divi accepte le shortcode dans Texte ou Code et peut rendre un Layout Divi Library via un Template Content Kit. Aucun bloc ou module Divi specifique est cree.
 

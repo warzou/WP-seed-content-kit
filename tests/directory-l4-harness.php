@@ -238,6 +238,14 @@ seed_l4_same(array('phone' => '+33 1 00 00 00 01'), $data['contacts'], 'Only vis
 seed_l4_assert(false === strpos(serialize($data), 'PRIVATE-L4'), 'Public data excludes private sentinels');
 seed_l4_same(false, wp_seed_content_directory_get_public_data(4), 'Ineligible entry returns false');
 seed_l4_same(array('city', 'postal_code', 'department', 'country'), array_keys($data['location']), 'Location schema');
+$card_without_photo = wp_seed_content_directory_render_native_card($data);
+seed_l4_assert(false === strpos($card_without_photo, 'wp-seed-directory-card__media'), 'Card without photo omits media wrapper');
+seed_l4_assert(false === strpos($card_without_photo, 'photo-placeholder'), 'Card without photo omits placeholder');
+$data_with_photo = $data;
+$data_with_photo['photo'] = array('url' => 'https://example.test/photo.jpg', 'alt' => 'Portrait fictif', 'width' => 640, 'height' => 480);
+$card_with_photo = wp_seed_content_directory_render_native_card($data_with_photo);
+seed_l4_assert(false !== strpos($card_with_photo, 'wp-seed-directory-card__media'), 'Card with photo renders media wrapper');
+seed_l4_assert(false !== strpos($card_with_photo, 'alt="Portrait fictif"'), 'Card with photo preserves alt text');
 
 seed_l4_same(array(1, 2, 3), wp_seed_content_directory_get_entries(), 'Collection excludes draft');
 seed_l4_same(array(1, 2), wp_seed_content_directory_get_entries(array('status' => 'practicing')), 'Status filter');
@@ -281,6 +289,11 @@ seed_l4_assert(false === strpos($html, '<ul class="wp-seed-directory__grid"></ul
 seed_l4_assert(false === strpos($html, 'PRIVATE-L4'), 'Native HTML excludes private sentinels');
 seed_l4_assert(isset($GLOBALS['seed_l4_enqueued']['wp-seed-directory']), 'Structural CSS enqueued');
 seed_l4_assert(isset($GLOBALS['seed_l4_enqueued']['wp-seed-directory-card']), 'Native CSS enqueued');
+$structure_css = file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'assets/css/directory.css');
+$card_css = file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'assets/css/directory-card.css');
+seed_l4_assert(false !== strpos($structure_css, '.wp-seed-directory .wp-seed-directory__grid'), 'Grid reset outranks theme list styles');
+seed_l4_assert(false !== strpos($structure_css, '.wp-seed-directory .wp-seed-directory__item::marker'), 'List marker is explicitly neutralized');
+seed_l4_assert(false === strpos($card_css, 'photo-placeholder'), 'Native CSS has no photo placeholder');
 
 $GLOBALS['seed_l4_template_mode'] = 'success';
 $template_html = wp_seed_content_directory_shortcode(array('template' => 'card'));

@@ -115,7 +115,7 @@ try {
     wp_set_current_user((int) $admins[0]);
     do_action('init');
 
-    seed_l4_wp_same('0.6.0-rc.3', WP_SEED_CONTENT_KIT_VERSION, 'Plugin version');
+    seed_l4_wp_same('0.6.0-rc.4', WP_SEED_CONTENT_KIT_VERSION, 'Plugin version');
     seed_l4_wp_assert(post_type_exists('seed_directory'), 'Directory CPT registered');
     seed_l4_wp_same(false, get_post_type_object('seed_directory')->show_in_rest, 'Directory outside REST');
     seed_l4_wp_assert(shortcode_exists('seed_directory'), 'Canonical shortcode registered');
@@ -170,6 +170,8 @@ try {
     seed_l4_wp_assert(strpos($native, 'En exercice') < strpos($native, 'En recherche'), 'Groups keep fixed order');
     seed_l4_wp_same(2, substr_count($native, '<section class="wp-seed-directory__group">'), 'Two non-empty groups');
     seed_l4_wp_same(2, substr_count($native, '<ul class="wp-seed-directory__grid">'), 'No empty list');
+    seed_l4_wp_same(0, substr_count($native, 'wp-seed-directory-card__media'), 'Cards without photos omit media wrappers');
+    seed_l4_wp_not_contains('photo-placeholder', $native, 'Native HTML has no photo placeholder');
     seed_l4_wp_not_contains($private_sentinel, $native, 'Masked sentinel absent from native HTML');
     seed_l4_wp_not_contains('data-', $native, 'No business data attributes');
     seed_l4_wp_assert(wp_style_is('wp-seed-directory', 'enqueued'), 'Structural CSS enqueued');

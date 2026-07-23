@@ -14,23 +14,11 @@
     background: #f0f0f1;
 }
 
-.wp-seed-directory-card__photo,
-.wp-seed-directory-card__photo-placeholder {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
 .wp-seed-directory-card__photo {
-    object-fit: cover;
-}
-
-.wp-seed-directory-card__photo-placeholder::before {
     display: block;
     width: 100%;
     height: 100%;
-    content: "";
-    background: #dcdcde;
+    object-fit: cover;
 }
 
 .wp-seed-directory-card__body {
