@@ -104,6 +104,8 @@ Le slug doit déjà être canonique selon `sanitize_title()`. Content Kit résou
 
 Le contexte est fermé par les `context_key` déclarées. Les clés inconnues sont supprimées avant tout validator, normalizer ou provider. Content Kit ne consulte aucune donnée métier implicite.
 
+Ce contexte est un contrat de données, pas une mutation du contexte WordPress global. L'appelant reste responsable du contexte d'item propre à sa boucle ou à son builder. Content Kit ne modifie ni `$post`, ni la requête globale, ni les métadonnées du contenu consommateur. Sa pile de rendu interne est toujours nettoyée dans un bloc `finally`.
+
 ## Résultat typé
 
 Tout appel retourne un `WP_Seed_Content_Kit_Render_Result` :
@@ -142,6 +144,8 @@ Un module peut annoncer uniquement des handles de styles ou scripts WordPress. T
 ## Gutenberg et Divi
 
 Le rendu natif passe par le pipeline serveur `the_content` et fonctionne dans un bloc Shortcode ou un thème classique. Il ne crée aucun Block Binding implicite.
+
+Les blocs Gutenberg Core et les blocs tiers déjà enregistrés, notamment Spectra lorsqu'il est présent, restent traités par ce pipeline WordPress normal. Spectra n'est jamais requis, chargé ou détecté par le contrat. Les placeholders sont destinés au contenu rendu ; leur insertion manuelle dans le JSON des commentaires de blocs n'est pas un usage contractuel.
 
 Un module déclarant `divi_layout` peut utiliser la source Layout Divi Library existante d'un Template. L'API publique ne dépend d'aucune classe interne Divi et reste entièrement fonctionnelle sans Divi. Content Kit ne charge jamais Divi manuellement.
 

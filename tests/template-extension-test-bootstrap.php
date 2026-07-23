@@ -179,12 +179,17 @@ function apply_filters($hook, $value)
         return $value;
     }
 
+    if (false !== strpos((string) $value, '[[throw:pipeline]]')) {
+        throw new RuntimeException('private pipeline detail');
+    }
+
     return preg_replace_callback(
-        '/\[\[render:([a-z0-9_-]+)\]\]/',
+        '/\[\[render:(?:([a-z][a-z0-9_-]*):)?([a-z0-9_-]+)\]\]/',
         function ($matches) {
+            $module = !empty($matches[1]) ? $matches[1] : 'third_party';
             $result = wp_seed_content_kit_render_template(
-                $matches[1],
-                'third_party',
+                $matches[2],
+                $module,
                 $GLOBALS['wp_seed_contract_render_context']
             );
             $GLOBALS['wp_seed_contract_nested_codes'][] = $result->get_code();
