@@ -2,6 +2,13 @@
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 
+## [0.6.0] - 2026-07-23
+### Stable
+
+- Publication stable du module Annuaire natif, de son administration responsive, de sa Data API fermee, de ses Collections non persistantes, de ses shortcodes et de ses rendus natif, Template et Divi.
+- Validation finale sous PHP 7.0.33, PHP 8.4.23 et WordPress 7.0.2, avec installation neuve, mise a jour depuis 0.4.0, cycle de vie non destructif, confidentialite et recette DEV protegee.
+- Le package stable reprend les correctifs RC3 et RC4 sans nouvelle fonctionnalite : formulaires Annuaire responsives, marqueurs de liste neutralises et absence de zone media pour les fiches sans photo.
+
 ## [0.6.0-rc.4] - 2026-07-22
 ### Fixed
 

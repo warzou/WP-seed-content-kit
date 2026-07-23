@@ -227,3 +227,11 @@ Construire deux fois le ZIP RC2 depuis les seuls fichiers distribues, comparer l
 Executer tests/directory-l3-harness.php sous PHP 7.0.33 et PHP 8.4.23, puis tests/wordpress-directory-l3-harness.php dans WordPress. Le CSS correctif doit etre emis uniquement sur les ecrans Annuaire.
 
 Verifier avec Administrator et Editor les formats 1440 x 1000, 820 x 1180, 390 x 844, 320 x 700 et le zoom 200 %. Le document ne doit jamais depasser le viewport ; les champs de localisation et de contact restent fluides, tandis que leurs largeurs maximales desktop sont conservees. Recontroler les aides, erreurs, cases de visibilite, focus, cibles tactiles et l'absence de regression sur Citations, Temoignages, Templates et Utilisation.
+
+## Validation stable 0.6.0
+
+La stable reprend strictement le perimetre fonctionnel de RC4. Reexecuter le lint complet et les dix harnais autonomes sous PHP 7.0.33 et PHP 8.4.23, puis les six harnais WordPress sous WordPress 7.0.2. Valider une installation neuve, une mise a jour depuis 0.4.0 et le cycle activation, desactivation, reactivation, desinstallation non destructive et reinstallation.
+
+Sur DEV protege, limiter les contenus temporaires au prefixe SEED CONTENT KIT TEST - STABLE -. Verifier Administrator, Editor, Citations, Temoignages, Annuaire natif et Template, page mixte, etat vide, Divi, confidentialite, absence de Collection persistante et nettoyage complet. La matrice visuelle minimale reste 1440 x 1000, 820 x 1180, 390 x 844, 320 x 700 et zoom 200 %.
+
+Construire le ZIP stable deux fois depuis les seuls fichiers distribues. Les deux archives doivent etre identiques octet pour octet, avoir une racine unique wp-seed-content-kit/, utiliser uniquement des / et exclure tests, fixtures, documents de depot, secrets et temporaires.
