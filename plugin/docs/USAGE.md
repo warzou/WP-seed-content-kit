@@ -1,6 +1,6 @@
 # Usage - WP Seed Content Kit
 
-Statut : WP Seed Content Kit 0.6.0 stable. Le module Annuaire est natif, optionnel et sans dépendance au plugin Directory autonome.
+Statut : WP Seed Content Kit 0.7.0-dev. Le module Annuaire reste natif et le module Divi 5 Témoignages est en préparation.
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés, des shortcodes et des templates réutilisables dans WordPress.
 
@@ -72,7 +72,7 @@ Les valeurs invalides produisent une sortie vide. Il n'existe aucun parametre GE
 
 Sans template, une carte native est rendue. Un Template publie du module Annuaire peut utiliser quinze placeholders directory.*. Un echec de template produit un fallback natif fiche par fiche ; les autres cartes restent personnalisees. Les contacts masques ou invalides sont absents de la Data API, du contexte, des placeholders et du HTML.
 
-Gutenberg utilise le bloc Shortcode. Divi utilise Texte ou Code, avec source native ou Layout Divi Library. Aucun bloc Gutenberg ou module Divi dedie est fourni. Desactiver Annuaire rend shortcodes et Collections vides, sans supprimer les donnees.
+Gutenberg utilise le bloc Shortcode. Divi 5 propose le module natif « WP Seed — Témoignages » ; Texte ou Code restent supportés pour les shortcodes historiques, et un Layout Divi Library peut servir de source à un Template. Aucun bloc Gutenberg dédié n’est fourni. Désactiver Annuaire rend ses shortcodes et Collections vides, sans supprimer les données.
 
 ## Cards
 
@@ -259,7 +259,7 @@ Dans un module Code ou Texte, insérer par exemple :
 [seed_quotes mode="daily" template="citation-du-jour"]
 ```
 
-Un Template peut utiliser un Layout Divi Library pour la mise en forme de chaque élément. Aucun module Divi propriétaire ni provider de collection n'est requis.
+Un Template peut utiliser un Layout Divi Library pour la mise en forme de chaque élément. Pour Témoignages, le module Divi 5 natif fournit désormais la sélection de Collection et l’aperçu sans shortcode ; les intégrations historiques restent compatibles.
 
 ### Gutenberg
 
@@ -350,7 +350,7 @@ Le plugin ne réinitialise pas les styles globaux du site et n'impose ni thème 
 
 WP Seed Content Kit ne fournit pas :
 
-- de module Divi personnalisé ;
+- de module Divi 4 ou de module Divi personnalisé pour Citations et Annuaire ;
 - de widget Elementor ;
 - de bloc Gutenberg personnalisé ;
 - de sélecteur WP Seed finalisé dans l'éditeur Gutenberg ;
@@ -378,7 +378,7 @@ Le catalogue de Templates affiche sept placeholders Témoignages, quatre Citatio
 - **Shortcodes — Fonctionnel** : méthode canonique dans tout emplacement WordPress compatible.
 - **Gutenberg — Fonctionnel** : bloc Shortcode Core ; les Block Bindings restent indirects et ne couvrent pas Annuaire.
 - **Spectra — Indirect** : bloc Shortcode Core dans une page ou un Container, ou blocs Spectra dans un Template ; aucun provider natif.
-- **Divi — Fonctionnel/Indirect** : shortcode dans Texte ou Code, ou Layout Divi Library comme source d’un Template ; Dynamic Content reste expérimental et aucun module propriétaire n’est fourni.
+- **Divi — Fonctionnel/Indirect** : module natif Témoignages sous Divi 5, shortcode dans Texte ou Code pour compatibilité, ou Layout Divi Library comme source d’un Template ; Dynamic Content reste expérimental.
 
 Les filtres de Collection sont choisis par Administrator lors de l’intégration. Aucun champ de recherche ni filtre n’est présenté au visiteur.
 
@@ -387,3 +387,9 @@ Les filtres de Collection sont choisis par Administrator lors de l’intégratio
 Le moteur CK-A6 n'est pas une fonctionnalite editoriale visible. Il est reserve aux recettes techniques Administrator et exige un appel PHP interne explicite avec `manage_wp_seed_imports`. Editor ne peut ni importer ni effectuer un rollback.
 
 Le manifeste fourni contient exclusivement des noms, contacts et images de demonstration. Aucun import ne part a l'activation, au chargement, depuis un shortcode ou par REST/AJAX. Toute migration reelle requiert une autorisation et un lot distincts.
+
+## Module Divi 5 « WP Seed — Témoignages »
+
+Dans le Visual Builder, ajouter le module `WP Seed — Témoignages`, puis régler le titre facultatif, la sélection mis en avant, le contexte, les IDs explicites, la limite, le tri, l’ordre, le Template facultatif et les colonnes. Le module interroge la Collection canonique et affiche le rendu réel à chaque changement. Un Template publié du module Témoignages peut être choisi par Administrator ; un Template absent, brouillon ou incompatible déclenche le fallback natif.
+
+Le shortcode `[seed_testimonials]` reste supporté pour les pages existantes. À paramètres identiques, son HTML de collection est produit par le même renderer. Editor conserve ses droits WordPress/Divi sur les pages et les Témoignages, sans accès à la gestion des Templates ni à la configuration globale Content Kit.

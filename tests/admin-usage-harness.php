@@ -2,7 +2,7 @@
 
 define('ABSPATH', __DIR__ . '/');
 define('WP_SEED_CONTENT_KIT_URL', 'https://example.test/plugin/');
-define('WP_SEED_CONTENT_KIT_VERSION', '0.6.0');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.7.0-dev');
 
 $GLOBALS['seed_admin_usage_assertions'] = 0;
 $GLOBALS['seed_admin_usage_failures'] = array();
@@ -148,7 +148,7 @@ seed_admin_usage_same(array(), $GLOBALS['seed_admin_usage_styles'], 'Assets stay
 wp_seed_content_kit_enqueue_usage_assets('content-kit_page_usage');
 seed_admin_usage_assert(isset($GLOBALS['seed_admin_usage_styles']['wp-seed-content-kit-admin-usage']), 'Usage stylesheet enqueued');
 seed_admin_usage_assert(isset($GLOBALS['seed_admin_usage_scripts']['wp-seed-content-kit-admin-usage']), 'Usage script enqueued');
-seed_admin_usage_same('0.6.0', $GLOBALS['seed_admin_usage_styles']['wp-seed-content-kit-admin-usage'][2], 'Usage assets use plugin version');
+seed_admin_usage_same('0.7.0-dev', $GLOBALS['seed_admin_usage_styles']['wp-seed-content-kit-admin-usage'][2], 'Usage assets use plugin version');
 
 ob_start();
 wp_seed_content_kit_render_usage_tabs('collections');
@@ -215,11 +215,13 @@ seed_admin_usage_assert(false !== strpos($spectra_html, 'Aucun provider'), 'No n
 ob_start();
 wp_seed_content_kit_render_usage_divi();
 $divi_html = ob_get_clean();
-foreach (array('Fonctionnel', 'Indirect', 'Expérimental', 'Non disponible') as $needle) {
+foreach (array('Fonctionnel', 'Indirect', 'Expérimental') as $needle) {
     seed_admin_usage_assert(false !== strpos($divi_html, $needle), 'Divi state documented: ' . $needle);
 }
 seed_admin_usage_assert(false !== strpos($divi_html, 'ne couvrent pas Annuaire'), 'Divi Dynamic Content scope is accurate');
-seed_admin_usage_assert(false !== strpos($divi_html, 'Aucun module Divi propriétaire'), 'No proprietary Divi module claimed');
+seed_admin_usage_assert(false !== strpos($divi_html, 'WP Seed — Témoignages'), 'Native Divi testimonial module documented');
+seed_admin_usage_assert(false !== strpos($divi_html, 'aperçu réel'), 'Real Visual Builder preview documented');
+seed_admin_usage_assert(false !== strpos($divi_html, 'shortcode historique reste supporté'), 'Historical shortcode compatibility documented');
 seed_admin_usage_assert(false !== strpos($tabs_html, 'role="tablist"'), 'Primary navigation exposes a tablist');
 seed_admin_usage_same(4, substr_count($tabs_html, 'role="tab"'), 'Primary navigation exposes four tabs');
 seed_admin_usage_same(1, substr_count($tabs_html, 'aria-selected="true"'), 'Primary navigation exposes one selected tab');
@@ -271,7 +273,7 @@ seed_admin_usage_assert(false !== strpos($integrations_html, 'role="tabpanel"'),
 seed_admin_usage_assert(false !== strpos($integrations_html, 'aria-labelledby="seed-usage-integration-tab-gutenberg"'), 'Integration panel is labelled by the selected tab');
 seed_admin_usage_assert(false !== strpos($gutenberg_html, 'Ajoutez un bloc Shortcode'), 'Gutenberg steps are concrete');
 seed_admin_usage_assert(false !== strpos($spectra_html, 'Container Spectra'), 'Spectra indirect steps are concrete');
-seed_admin_usage_assert(false !== strpos($divi_html, 'module Texte ou Code'), 'Divi shortcode steps are concrete');
+seed_admin_usage_assert(false !== strpos($divi_html, 'module WP Seed — Témoignages'), 'Divi module steps are concrete');
 $GLOBALS['seed_admin_usage_can_manage'] = false;
 $GLOBALS['seed_admin_usage_died'] = '';
 ob_start();
@@ -295,7 +297,7 @@ seed_admin_usage_assert(false !== strpos($menu_source, "'wp-seed-content-kit-usa
 seed_admin_usage_assert(false !== strpos($menu_source, "'manage_wp_seed_content_kit'"), 'Configuration uses its dedicated capability');
 seed_admin_usage_assert(false !== strpos($menu_source, "'manage_wp_seed_integrations'"), 'Usage uses its dedicated capability');
 seed_admin_usage_assert(false === strpos($menu_source, 'Aide / Documentation'), 'Minimal Help menu removed');
-seed_admin_usage_assert(false !== strpos($bootstrap_source, '0.6.0'), 'Stable version updated');
+seed_admin_usage_assert(false !== strpos($bootstrap_source, '0.7.0-dev'), 'Development version updated');
 seed_admin_usage_assert(false !== strpos($bootstrap_source, 'usage-page.php'), 'Usage page loaded only in admin bootstrap');
 seed_admin_usage_assert(false !== strpos($css_source, '@media screen and (max-width: 782px)'), 'Responsive admin layout included');
 seed_admin_usage_assert(false !== strpos($css_source, ':focus-visible'), 'Visible keyboard focus included');

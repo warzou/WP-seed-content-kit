@@ -59,11 +59,16 @@ function _wp_seed_content_collections_normalize_testimonial_args($args)
         $order = 'asc';
     }
 
+    $context = isset($args['context']) && is_scalar($args['context'])
+        ? trim((string) $args['context'])
+        : '';
+
     return array(
         'ids' => _wp_seed_content_collections_normalize_ids($ids_value),
         'manual_selection' => $manual_selection,
         'invalid_manual_selection' => $invalid_manual_selection,
         'featured' => $featured,
+        'context' => $context,
         'limit' => $limit,
         'orderby' => $orderby,
         'order' => $order,
@@ -218,6 +223,20 @@ function wp_seed_content_get_testimonials($args = array())
                     $featured = wp_seed_content_is_truthy_meta($post->ID, '_seed_featured');
 
                     return 'only' === $args['featured'] ? $featured : !$featured;
+                }
+            )
+        );
+    }
+
+    if ('' !== $args['context']) {
+        $posts = array_values(
+            array_filter(
+                $posts,
+                function ($post) use ($args) {
+                    return (string) wp_seed_content_get_meta(
+                        $post->ID,
+                        '_seed_testimonial_context'
+                    ) === $args['context'];
                 }
             )
         );

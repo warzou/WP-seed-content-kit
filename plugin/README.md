@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.6.0 stable, preparee localement avant revue du diff.
+Statut du package : 0.7.0-dev, module Divi 5 Témoignages en préparation avant revue du diff.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -55,7 +55,7 @@ Les templates permettent de mettre en forme les Témoignages, les Citations et l
 - Gutenberg ou Spectra ;
 - un layout Divi Library sélectionné comme source du rendu.
 
-Le plugin ne fournit pas de module Divi personnalisé. Avec Divi, la mise en forme est créée dans Divi Library puis sélectionnée depuis le template WP Seed.
+Sous Divi 5, le module natif « WP Seed — Témoignages » sélectionne et rend directement une Collection sans shortcode saisi. Les Layouts Divi Library restent disponibles comme source d’un Template WP Seed facultatif.
 
 ### Content Data API
 
@@ -167,7 +167,7 @@ L'asset de release attendu est `wp-seed-content-kit.zip`.
 
 Le plugin ne fournit pas :
 
-- de module Divi personnalisé ;
+- de module Divi 4 ou de module Divi personnalisé pour Citations et Annuaire ;
 - de widget Elementor ;
 - de bloc Gutenberg personnalisé ;
 - de sélecteur WP Seed finalisé dans l'éditeur Gutenberg ;
@@ -189,8 +189,14 @@ Le provider Divi 5 Dynamic Content reste expérimental. L'aperçu de certaines i
 
 La page Utilisation explique le parcours Contenus → Collections → Templates → Intégrations. Les Collections sont des paramètres non persistants de sélection. Les Templates sont facultatifs et indépendants de la sélection. Les générateurs Témoignages, Citations et Annuaire produisent des shortcodes copiables sans enregistrer de réglage.
 
-Le catalogue de Templates expose les placeholders publics réels, leur type et leur comportement vide. Shortcodes reste la méthode canonique ; Gutenberg utilise le bloc Shortcode Core, Spectra est indirect et Divi accepte Texte ou Code ainsi que les Layouts Divi Library. Editor gère les contenus autorisés mais ne voit pas cette documentation technique ni les réglages d’affichage.
+Le catalogue de Templates expose les placeholders publics réels, leur type et leur comportement vide. Le shortcode reste supporté partout ; Gutenberg utilise le bloc Shortcode Core et Spectra reste indirect. Divi 5 propose en plus le module natif « WP Seed — Témoignages », avec aperçu serveur, sélection de Collection et Template facultatif. Editor gère les contenus autorisés mais ne voit ni la gestion des Templates ni la configuration globale.
 
 ## Migration fictive CK-A6
 
 Une API PHP interne permet de tester explicitement l'import et le rollback du manifeste fictif Annuaire. Elle valide le manifeste entier avant ecriture, conserve un registre prive non autoloaded et exige `manage_wp_seed_imports`. Elle ne s'execute jamais automatiquement et n'expose ni ecran, ni REST/AJAX, ni donnees de migration dans le rendu public. Voir `docs/ANNUAIRE-MIGRATION.md`.
+
+## Module Divi 5 Témoignages — 0.7.0-dev
+
+Le module `WP Seed — Témoignages` utilise directement la Collection canonique et le renderer partagé avec `[seed_testimonials]`. Il expose le titre facultatif, `featured`, `context`, `ids`, `limit`, `orderby`, `order`, le Template Content Kit facultatif et le nombre de colonnes. Le Visual Builder récupère un aperçu serveur authentifié ; le frontend ne dépend d’aucun shortcode généré.
+
+Le module et sa route d’aperçu ne sont enregistrés que lorsque Divi 5 est actif. Sans Divi, le plugin, Gutenberg, les shortcodes, les Templates, Citations et Annuaire restent inchangés. Le choix des Templates est réservé aux utilisateurs disposant de `manage_wp_seed_templates`.

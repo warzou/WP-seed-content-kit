@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 23 juillet 2026
-Statut : 0.6.0 stable preparee localement ; diff non stage en attente de revue
-Version courante du code : 0.6.0
+Statut : 0.7.0-dev ; module Divi 5 Témoignages non stagé en attente de revue
+Version courante du code : 0.7.0-dev
 Version stable publiee de reference : 0.4.0
 Commit de base de preparation stable : fdd723b73d63fb27d9b93396ffc60f44ec3a1147
 Commit stable publie de reference : d60ae9189fabcc405b9108311de936e452d91b7f
@@ -184,7 +184,7 @@ Compatibilités actuelles :
 - Divi : layouts Divi Library comme source de rendu ;
 - Elementor : aide de compatibilité dans l'administration, sans intégration de rendu dédiée.
 
-Content Kit ne fournit ni module Divi personnalisé, ni widget Elementor, ni bloc Gutenberg propriétaire.
+Content Kit fournit un module Divi 5 natif limité aux Collections Témoignages. Il ne fournit ni module Divi 4, ni widget Elementor, ni bloc Gutenberg propriétaire.
 
 ## 8. Administration
 
@@ -554,3 +554,9 @@ La recette navigateur utilise Microsoft Edge, le theme classique Twenty Twenty-O
 Divi reste facultatif et n'est pas distribue dans l'environnement isole. Son contrat, le rendu Layout Library, le fallback sans Divi et le Dynamic Content experimental sont couverts par les harnais autonomes et WordPress ; aucune nouvelle integration builder n'est ajoutee.
 
 La RC2 conserve les Collections non persistantes, le Template Extension Contract 1.0, l'absence de REST/AJAX et l'absence de dependance au depot WP Seed Directory. Le ZIP officiel est construit hors depot de facon reproductible. Aucun staging, commit, push, tag, release ou site de production ne fait partie de CK-A7.
+
+## 20. Module Divi 5 Témoignages — 0.7.0-dev
+
+Le module `wp-seed-content-kit/testimonial-collection`, affiché comme « WP Seed — Témoignages », utilise l’API Divi 5 `ModuleRegistration`, un callback PHP et un composant Visual Builder dynamique. Il réutilise `wp_seed_content_get_testimonials()` et le renderer partagé avec le shortcode ; aucune requête métier n’est dupliquée et aucun shortcode n’est généré par l’interface.
+
+L’aperçu passe par une route REST authentifiée réservée à `edit_pages`, uniquement enregistrée lorsque Divi 5 est disponible. Les Templates proposés sont publiés, associés à Témoignages et visibles seulement pour `manage_wp_seed_templates`. Le frontend conserve le fallback natif, les métadonnées privées ne sont jamais ajoutées au contexte, et le plugin reste activable sans Divi.

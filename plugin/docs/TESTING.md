@@ -235,3 +235,9 @@ La stable reprend strictement le perimetre fonctionnel de RC4. Reexecuter le lin
 Sur DEV protege, limiter les contenus temporaires au prefixe SEED CONTENT KIT TEST - STABLE -. Verifier Administrator, Editor, Citations, Temoignages, Annuaire natif et Template, page mixte, etat vide, Divi, confidentialite, absence de Collection persistante et nettoyage complet. La matrice visuelle minimale reste 1440 x 1000, 820 x 1180, 390 x 844, 320 x 700 et zoom 200 %.
 
 Construire le ZIP stable deux fois depuis les seuls fichiers distribues. Les deux archives doivent etre identiques octet pour octet, avoir une racine unique wp-seed-content-kit/, utiliser uniquement des / et exclure tests, fixtures, documents de depot, secrets et temporaires.
+
+## Module Divi 5 Témoignages — 0.7.0-dev
+
+Exécuter `tests/divi-testimonial-collection-harness.php` sous PHP 7.0.33 et PHP 8.4.x, puis les harnais historiques. Vérifier l’absence complète du module et de la route lorsque Divi 5 est absent, l’enregistrement via `ModuleRegistration`, les valeurs par défaut, `ids`, `featured`, `context`, `limit`, `orderby`, `order`, Template et colonnes, ainsi que l’équivalence avec `[seed_testimonials]`.
+
+Dans un WordPress isolé avec Divi 5.9.x, créer des Témoignages fictifs, un Template natif et un Template utilisant un Layout Divi Library. Vérifier le Visual Builder sans chargement permanent, les changements de réglages sans rechargement, les états vide et fallback, les droits Administrator/Editor, l’absence de fuite privée et les viewports 1440, 820, 390 et 320 px avec zoom 200 %. Après recette, supprimer site, fixtures, captures brutes, runtime et copie privée de Divi.

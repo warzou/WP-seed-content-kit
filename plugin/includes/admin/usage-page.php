@@ -455,23 +455,22 @@ function wp_seed_content_kit_render_usage_spectra()
 
 function wp_seed_content_kit_render_usage_divi()
 {
-    wp_seed_content_kit_render_usage_status('functional', __('Shortcode dans Divi', 'wp-seed-content-kit'));
+    wp_seed_content_kit_render_usage_status('functional', __('Module WP Seed — Témoignages', 'wp-seed-content-kit'));
     ?>
+    <p><?php esc_html_e('Dans Divi 5, ajoutez le module WP Seed — Témoignages. Il sélectionne directement une Collection publiée, propose un Template Content Kit facultatif et affiche un aperçu réel dans le Visual Builder.', 'wp-seed-content-kit'); ?></p>
     <ol>
-        <li><?php esc_html_e('Ajoutez un module Texte ou Code.', 'wp-seed-content-kit'); ?></li>
-        <li><?php esc_html_e('Collez le shortcode WP Seed dans le module.', 'wp-seed-content-kit'); ?></li>
-        <li><?php esc_html_e('Enregistrez puis contrôlez la page publique.', 'wp-seed-content-kit'); ?></li>
+        <li><?php esc_html_e('Ajoutez le module WP Seed — Témoignages.', 'wp-seed-content-kit'); ?></li>
+        <li><?php esc_html_e('Réglez la sélection, la limite, le tri, les colonnes et, si nécessaire, le Template.', 'wp-seed-content-kit'); ?></li>
+        <li><?php esc_html_e('Contrôlez l’aperçu puis enregistrez la page.', 'wp-seed-content-kit'); ?></li>
     </ol>
-    <?php wp_seed_content_kit_render_usage_example('seed-usage-divi-directory', __('Exemple Annuaire', 'wp-seed-content-kit'), '[seed_directory template="annuaire-carte"]'); ?>
+    <?php wp_seed_content_kit_render_usage_status('functional', __('Shortcode dans Divi', 'wp-seed-content-kit')); ?>
+    <p><?php esc_html_e('Le shortcode historique reste supporté dans un module Texte ou Code pour la compatibilité des pages existantes.', 'wp-seed-content-kit'); ?></p>
     <?php wp_seed_content_kit_render_usage_status('indirect', __('Layout Divi Library', 'wp-seed-content-kit')); ?>
-    <p><?php esc_html_e('Un Layout Divi Library publié peut servir de source à un Template WP Seed. Placez les placeholders dans un module Texte ou Code du layout.', 'wp-seed-content-kit'); ?></p>
+    <p><?php esc_html_e('Un Layout Divi Library publié peut servir de source à un Template WP Seed Témoignages. Le module applique alors ce Template à chaque élément ; un Template absent ou incompatible revient au rendu natif.', 'wp-seed-content-kit'); ?></p>
     <?php wp_seed_content_kit_render_usage_status('experimental', __('Dynamic Content Divi 5', 'wp-seed-content-kit')); ?>
-    <p><?php esc_html_e('Les sources expérimentales couvrent Citations et Témoignages. Ces sources ne couvrent pas Annuaire et ne remplacent pas les Templates.', 'wp-seed-content-kit'); ?></p>
-    <?php wp_seed_content_kit_render_usage_status('unavailable', __('Module Divi propriétaire', 'wp-seed-content-kit')); ?>
-    <p><?php esc_html_e('Aucun module Divi propriétaire n’est fourni.', 'wp-seed-content-kit'); ?></p>
+    <p><?php esc_html_e('Les sources expérimentales couvrent Citations et Témoignages. Elles ne couvrent pas Annuaire et restent distinctes du module de Collection.', 'wp-seed-content-kit'); ?></p>
     <?php
 }
-
 function wp_seed_content_kit_render_usage_integrations()
 {
     $current = wp_seed_content_kit_get_current_usage_integration_tab();

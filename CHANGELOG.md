@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.0-dev] - Unreleased
+
+- Module Divi 5 natif « WP Seed — Témoignages » avec sélection de Collection, Template facultatif et aperçu serveur dans le Visual Builder.
+- Renderer de Collection partagé avec `[seed_testimonials]`, filtre de contexte canonique et fallback natif conservé.
+- Intégration facultative : aucune classe Divi chargée sans Divi 5, aucune dépendance Directory ou Events et aucun changement des autres modules.
+
 All notable changes to WP-seed-content-kit will be documented in this file.
 
 ## [0.6.0] - 2026-07-23

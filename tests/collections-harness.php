@@ -395,6 +395,29 @@ try {
     wp_seed_test_same(array(18, 19, 20), wp_seed_content_get_testimonials(array('featured' => 'only')), 'featured only');
     wp_seed_test_same(array(13, 10, 17, 11, 12, 21), wp_seed_content_get_testimonials(array('featured' => 'exclude')), 'featured exclude');
     wp_seed_test_same($display_asc, wp_seed_content_get_testimonials(array('featured' => 'all')), 'featured all');
+
+    wp_seed_test_set_meta(18, '_seed_testimonial_context', 'Accompagnement');
+    wp_seed_test_set_meta(19, '_seed_testimonial_context', 'Accompagnement');
+    wp_seed_test_set_meta(20, '_seed_testimonial_context', 'Autre');
+    wp_seed_test_same(
+        array(18, 19),
+        wp_seed_content_get_testimonials(
+            array('context' => 'Accompagnement', 'orderby' => 'id', 'order' => 'asc', 'limit' => 0)
+        ),
+        'context filter is exact and canonical'
+    );
+    wp_seed_test_same(
+        array(19),
+        wp_seed_content_get_testimonials(
+            array('context' => 'Accompagnement', 'orderby' => 'id', 'order' => 'desc', 'limit' => 1)
+        ),
+        'context filter precedes sort and limit'
+    );
+    wp_seed_test_same(
+        array(20),
+        wp_seed_content_get_testimonials(array('context' => 'Autre', 'orderby' => 'id', 'limit' => 0)),
+        'different context remains isolated'
+    );
     $protected_guard = wp_seed_content_get_testimonials(
         array('featured' => 'only', 'orderby' => 'id', 'order' => 'desc', 'limit' => 2)
     );
