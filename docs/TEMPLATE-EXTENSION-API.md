@@ -149,6 +149,10 @@ Les blocs Gutenberg Core et les blocs tiers déjà enregistrés, notamment Spect
 
 Un module déclarant `divi_layout` peut utiliser la source Layout Divi Library existante d'un Template. L'API publique ne dépend d'aucune classe interne Divi et reste entièrement fonctionnelle sans Divi. Content Kit ne charge jamais Divi manuellement.
 
+Le module Témoignages ajoute une orchestration interne, hors du contrat public 1.0 : pendant le rendu d'une carte, son ID validé est injecté dans `value.post_id` des cinq variables Dynamic Content Témoignages. Le scanner accepte le JSON direct et l'échappement `\u0022` produit par les attributs de blocs WordPress, injecte avant `parse_blocks()`, puis resérialise une copie en mémoire. Cette séquence évite que le parseur frontend Divi ne résolve d'abord les variables avec l'ID de la page porteuse. Elle ne modifie ni le Template, ni le Layout, ni les variables d'un module tiers.
+
+Un signal interne recense les variables attendues et celles effectivement résolues par les providers. Un Layout statique légitime reste valide ; un Layout dynamique réduit à des wrappers ou préfixes vides retourne un rendu Divi vide au renderer appelant. Le fallback métier demeure la responsabilité du module Témoignages et reste limité à la carte concernée ; le contrat public ne fabrique aucun contenu de remplacement.
+
 ## Exemple neutre
 
 ```php

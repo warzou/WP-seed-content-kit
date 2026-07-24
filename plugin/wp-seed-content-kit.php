@@ -20,6 +20,7 @@ define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
 
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/helpers.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/capabilities.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/render-context.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-contract.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-render-result.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-registry.php';
@@ -32,6 +33,10 @@ if (file_exists($wp_seed_content_gutenberg_block_bindings_file)) {
 $wp_seed_content_divi_dynamic_content_file = WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/dynamic-content.php';
 if (file_exists($wp_seed_content_divi_dynamic_content_file)) {
     require_once $wp_seed_content_divi_dynamic_content_file;
+}
+$wp_seed_content_divi_testimonial_layout_context_file = WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-layout-context.php';
+if (file_exists($wp_seed_content_divi_testimonial_layout_context_file)) {
+    require_once $wp_seed_content_divi_testimonial_layout_context_file;
 }
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/modules.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/collections.php';

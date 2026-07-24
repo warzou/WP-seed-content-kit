@@ -242,6 +242,10 @@ Le workflow est :
 
 Le template WP Seed reste le point d'entrée. L'édition directe du CPT Template avec Divi n'est pas le workflow pris en charge.
 
+Pour un Template Témoignages, les cinq champs Dynamic Content WP Seed peuvent aussi être placés dans les modules du Layout. Pendant le rendu de la Collection, Content Kit injecte l'ID du témoignage courant dans chaque variable autorisée, uniquement en mémoire et avant le parsing frontend, que le payload soit direct ou sérialisé dans un attribut de bloc. Les variables Citations, Annuaire et Divi natives restent inchangées.
+
+L'éditeur isolé du Layout ne dispose d'aucun témoignage courant : les champs peuvent y être vides. Tester le résultat dans le shortcode, la page ou la boucle qui fournit réellement la Collection. Aucun ID fictif n'est enregistré dans le Layout.
+
 Si le layout est absent, invalide ou non publié, le contenu du template reste le fallback.
 
 Si le slug d'un Template demandé est introuvable ou appartient à un autre module, le shortcode utilise le renderer natif. Aucun placeholder incompatible brut n'est affiché et ce fallback n'est pas étendu à d'autres sélections implicites.
@@ -333,6 +337,10 @@ WP Seed — Témoignages :
 - Photo.
 
 Aucun shortcode ni identifiant fixe n'est nécessaire. Les valeurs utilisent le contenu courant ou l'élément courant d'une boucle. Une page ordinaire, un mauvais type de contenu ou une boucle incompatible produit une valeur vide sans fallback arbitraire.
+
+Dans un Layout utilisé comme Template de collection, le contexte explicite par carte complète ce comportement : seuls les cinq identifiants ci-dessus reçoivent `value.post_id`. L'injection intervient dans la représentation exacte consommée par le frontend avant que WordPress et Divi ne parsèrent puis resérialisent la copie en mémoire. La clé de cache Divi est ainsi différenciée par témoignage et le Layout enregistré reste bit à bit inchangé.
+
+Une erreur de parsing, un contexte invalide, un Layout indisponible, une résolution dynamique incomplète ou un rendu vide ne remplace pas toute la Collection : la carte concernée reprend son rendu natif et la pile de contexte, limitée à 16 niveaux, est restaurée avant la carte suivante. Un Layout statique non vide reste accepté.
 
 La source Date du témoignage retourne la valeur ISO canonique. Sa sélection et sa persistance visuelles ont été validées sous Divi 5.9.0 ; les Templates utilisent `{{date}}` pour une présentation localisée.
 

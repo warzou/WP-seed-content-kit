@@ -75,6 +75,10 @@ Un provider serveur permet de lier huit champs texte WP Seed à l'attribut `cont
 
 ### Divi 5 Dynamic Content expérimental
 
+Lorsqu'un Layout Divi Library sert de Template Témoignage, Content Kit injecte en mémoire l'ID du témoignage courant dans ses cinq variables Dynamic Content, y compris lorsqu'elles sont échappées dans un attribut de bloc sérialisé. L'injection précède le parsing frontend Divi ; chaque carte possède ainsi une identité de cache distincte. Une pile interne limitée à 16 niveaux est toujours restaurée et un signal attendu/résolu interdit les cartes dynamiques vides. Le contenu enregistré du Layout n'est jamais modifié et une erreur de contexte ou de rendu déclenche uniquement le fallback natif de la carte concernée.
+
+L'édition isolée du Layout ne possède pas de témoignage courant et peut donc afficher ces champs vides. Aucun ID de démonstration n'est persisté pour fabriquer cet aperçu.
+
 Sous Divi 5, le provider Dynamic Content enregistre quatre champs Citation (Texte, Auteur, Époque, Source) et cinq champs Témoignage (Texte, Nom, Information complémentaire, Date du témoignage, Photo). Leur sélection et leur persistance visuelles ont été validées sous Divi 5.9.0.
 
 Ces sources dépendent du contenu courant ou du contexte d'une boucle. Elles complètent les Templates WP Seed et les layouts Divi Library ; elles ne les remplacent pas.

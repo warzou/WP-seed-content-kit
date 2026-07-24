@@ -132,6 +132,20 @@ Relancer impérativement les harnais Collections et Adaptateurs afin de confirme
 
 ## Divi 5 Dynamic Content expérimental
 
+Exécuter `tests/divi-per-item-context-harness.php` sous PHP 7.0.33 et PHP 8.4.x. Il couvre la pile bornée, la récursion, le `finally`, les cinq noms autorisés, les blocs imbriqués, les payloads directs et sérialisés avec `\u0022`, la conservation des variables Citations/Annuaire/Divi, l'injection de `post_id`, le signal attendu/résolu, trois identités de cache distinctes et une exception sur la carte intermédiaire avec profondeur finale nulle.
+
+Exécuter ensuite `tests/wordpress-divi-per-item-context-harness.php` avec `WP_SEED_WORDPRESS_LOAD` vers un WordPress isolé sous PHP 8.4 et Divi 5.9.0. Le harnais crée puis supprime trois Témoignages, un Layout et un Template fictifs. Il vérifie :
+
+- cinq valeurs Dynamic Content distinctes par carte ;
+- deux modules et deux Layouts sur une même page lors de la recette navigateur ;
+- l'absence de variable brute et de répétition de la première carte ;
+- le Layout enregistré inchangé ;
+- quatre gardes : Layout statique, dynamique résolu, dynamique non résolu et réellement vide ;
+- le fallback natif local et la restauration après erreur ;
+- la parité frontend/Visual Builder, les viewports 1440, 820, 390 et 320 px et le zoom 200 %.
+
+L'éditeur isolé du Layout peut rester sans contexte. Ne jamais enregistrer un ID fictif dans le Layout pour son aperçu. Supprimer le WordPress jetable, les médias, captures et copies privées de Divi après la recette.
+
 Confirmer la présence unique des neuf options :
 
 - Citations : Texte, Auteur, Époque, Source ;

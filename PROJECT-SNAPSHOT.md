@@ -1,7 +1,7 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 23 juillet 2026
-Statut : 0.7.0-dev ; module Divi 5 Témoignages non stagé en attente de revue
+Date : 24 juillet 2026
+Statut : 0.7.0-dev ; contexte Divi par carte non stagé en attente de revue
 Version courante du code : 0.7.0-dev
 Version stable publiee de reference : 0.4.0
 Commit de base de preparation stable : fdd723b73d63fb27d9b93396ffc60f44ec3a1147
@@ -36,6 +36,8 @@ Il combine actuellement :
 - un rendu natif ;
 - une source de rendu Divi Library ;
 - une administration compatible avec les usages WordPress courants.
+
+Pour les Templates Témoignages fondés sur un Layout Divi Library, le renderer transmet désormais explicitement l'ID de chaque témoignage. `value.post_id` est injecté dans la représentation JSON directe ou sérialisée des cinq variables Dynamic Content autorisées avant le parsing frontend, puis le Layout est parsé et resérialisé uniquement en mémoire. Une pile interne bornée, restaurée dans `finally`, isole les cartes. Un signal attendu/résolu refuse les cartes dynamiques non résolues et laisse le fallback natif prendre le relais sur la seule carte en erreur. Le Layout, ses révisions et ses métadonnées restent inchangés.
 
 Le plugin ne doit pas devenir un builder, un thème ou le registre central de l'écosystème WP Seed.
 

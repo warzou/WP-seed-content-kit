@@ -2,9 +2,11 @@
 
 ## [0.7.0-dev] - Unreleased
 
-- Module Divi 5 natif « WP Seed — Témoignages » avec sélection de Collection, Template facultatif et aperçu serveur dans le Visual Builder.
-- Renderer de Collection partagé avec `[seed_testimonials]`, filtre de contexte canonique et fallback natif conservé.
-- Intégration facultative : aucune classe Divi chargée sans Divi 5, aucune dépendance Directory ou Events et aucun changement des autres modules.
+- Contexte de rendu borné et restauré par carte pour les Templates Témoignages utilisant un Layout Divi Library.
+- Injection en mémoire de `value.post_id` dans les représentations JSON directe et sérialisée des cinq sources Dynamic Content Témoignages, avant le parsing frontend Divi.
+- Identité de cache distincte par témoignage et fallback natif local lorsqu'un Layout, un contexte ou une variable dynamique est invalide.
+- Signal interne attendu/résolu empêchant qu'un Layout dynamique réduit à des wrappers ou préfixes vides soit considéré comme un succès.
+- Harnais autonomes et WordPress/Divi dédiés à la récursion, à la restauration après exception et à l'absence de contamination entre cartes.
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 

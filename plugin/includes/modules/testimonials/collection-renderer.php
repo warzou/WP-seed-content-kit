@@ -187,14 +187,12 @@ function wp_seed_content_render_testimonial_collection($args = array(), $enqueue
     <section class="<?php echo esc_attr($section_class); ?>" data-columns="<?php echo esc_attr($args['columns']); ?>">
         <div class="<?php echo esc_attr($collection_class); ?>">
             <?php
-            global $post;
             foreach ($testimonial_ids as $testimonial_id) {
-                $post = get_post($testimonial_id);
-                if (!$post instanceof WP_Post) {
+                $testimonial_id = absint($testimonial_id);
+                if ($testimonial_id <= 0) {
                     continue;
                 }
 
-                setup_postdata($post);
                 if ($is_template_mode) {
                     echo wp_seed_content_render_template_testimonial_item($testimonial_id, $args['template']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                     continue;
@@ -206,7 +204,6 @@ function wp_seed_content_render_testimonial_collection($args = array(), $enqueue
         </div>
     </section>
     <?php
-    wp_reset_postdata();
 
     return ob_get_clean();
 }
