@@ -81,7 +81,9 @@ L'édition isolée du Layout ne possède pas de témoignage courant et peut donc
 
 Sous Divi 5, le provider Dynamic Content enregistre quatre champs Citation (Texte, Auteur, Époque, Source) et cinq champs Témoignage (Texte, Nom, Information complémentaire, Date du témoignage, Photo). Leur sélection et leur persistance visuelles ont été validées sous Divi 5.9.0.
 
-Ces sources dépendent du contenu courant ou du contexte d'une boucle. Elles complètent les Templates WP Seed et les layouts Divi Library ; elles ne les remplacent pas.
+Ces sources dépendent du contenu courant ou du contexte explicite fourni par un Template Content Kit. Elles complètent les Templates WP Seed et les layouts Divi Library ; elles ne les remplacent pas.
+
+Sous Divi 5.9.0, leur utilisation directe dans une boucle native Loop Builder n'est pas prise en charge. Le frontend peut résoudre certaines valeurs alors que le Visual Builder ne résout pas contractuellement tous les champs, notamment la photo. Pour une liste de Témoignages, utiliser le module `WP Seed — Témoignages`, `[seed_testimonials]` ou un Template Content Kit utilisant un Layout Divi.
 
 ## Template Extension API
 
@@ -181,7 +183,7 @@ Le plugin ne fournit pas :
 - de desinstallation destructive automatique des donnees ;
 - de module fonctionnel Créations sonores.
 
-Le provider Divi 5 Dynamic Content reste expérimental. L'aperçu de certaines images ou boucles peut être incomplet dans le Visual Builder, et le texte alternatif d'une photo n'est pas garanti dans tous les modules. Le rendu frontend a été validé sous Divi 5.9.0.
+Le provider Divi 5 Dynamic Content reste expérimental. Il est pris en charge sur un contenu courant individuel et dans un Template Content Kit utilisant un Layout Divi avec contexte par carte. Son utilisation directe dans une boucle native Divi Loop Builder n'est pas prise en charge sous Divi 5.9.0 ; le texte alternatif d'une photo n'est pas garanti dans tous les modules.
 
 ## Documentation
 

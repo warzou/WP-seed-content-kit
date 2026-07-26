@@ -153,6 +153,8 @@ Le module Témoignages ajoute une orchestration interne, hors du contrat public 
 
 Un signal interne recense les variables attendues et celles effectivement résolues par les providers. Un Layout statique légitime reste valide ; un Layout dynamique réduit à des wrappers ou préfixes vides retourne un rendu Divi vide au renderer appelant. Le fallback métier demeure la responsabilité du module Témoignages et reste limité à la carte concernée ; le contrat public ne fabrique aucun contenu de remplacement.
 
+Cette orchestration s'applique uniquement au rendu d'un Template Content Kit utilisant un Layout Divi. Elle ne constitue pas un contrat d'intégration avec une boucle native Divi Loop Builder. Sous Divi 5.9.0, l'utilisation directe des providers Content Kit dans Loop Builder n'est pas prise en charge, car le Visual Builder ne garantit pas la résolution de tous les champs personnalisés, notamment les médias. Le contrat public reste indépendant des API internes de clonage de Divi.
+
 ## Exemple neutre
 
 ```php

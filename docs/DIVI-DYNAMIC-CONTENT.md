@@ -290,7 +290,7 @@ La règle runtime validée pour le premier spike est :
 
 `loop_object` est volontairement ignoré par le premier spike. Il ne sert ni de source d'identifiant, ni de confirmation, ni de fallback.
 
-Cette règle a été confirmée côté serveur sous Divi 5.9.0 : contexte hors boucle avec `loop_id => null`, single Citation, contextes incompatibles, `loop_id` non nul autoritaire et Loop Builder serveur avec des identifiants distincts. Les parcours visuels restent à valider.
+Cette règle a été confirmée côté serveur sous Divi 5.9.0 : contexte hors boucle avec `loop_id => null`, single Citation, contextes incompatibles et `loop_id` non nul autoritaire. Les probes serveur avec plusieurs identifiants ne constituent pas une promesse de support du Loop Builder natif.
 
 Lorsqu'un ID valide est disponible, le contexte transmis prend la forme conceptuelle suivante :
 
@@ -472,28 +472,13 @@ Aucune compatibilité Theme Builder ne doit être annoncée avant la réussite d
 
 ## 17. Loop Builder
 
-Loop Builder fait partie du protocole de test, mais pas de la promesse V1.
+L'utilisation directe des providers Content Kit dans une boucle native Divi Loop Builder n'est pas prise en charge sous Divi 5.9.0.
 
-Scénarios à valider :
+Le frontend peut résoudre certaines valeurs, tandis que le vrai canevas du Visual Builder laisse des variables non résolues, notamment pour la photo. Les attributs de boucle reconnus par Divi utilisent le préfixe `loop_` et passent par `getLoopedAttrs()`, mais `loopIndex` n'est disponible que pendant un clonage interne. Aucun point d'interception public fiable n'est exposé avant ce clonage.
 
-- boucle de Citations ;
-- boucle de Témoignages ;
-- `loop_id` distinct pour chaque élément ;
-- champ correspondant au CPT courant ;
-- champ incompatible ;
-- aperçu Visual Builder ;
-- rendu frontend ;
-- sauvegarde et rechargement du module.
+Aucun alias de boucle, correctif Webpack, interception React ou DOM, `MutationObserver` ou délai artificiel ne fait partie du produit.
 
-Le provider ne gère :
-
-- ni requête ;
-- ni filtre ;
-- ni tri ;
-- ni pagination ;
-- ni limite ou comptage d'éléments.
-
-Aucun alias dédié aux boucles n'est introduit avant preuve de sa nécessité. Loop Builder est une extension de périmètre testée séparément, pas une précondition absolue du provider texte page/single. Si son contexte ne peut pas être résolu avec les neuf identifiants persistants, son support est reporté, aucune promesse de boucle n'est publiée et le provider page/single peut continuer s'il est fiable.
+Le sujet pourra être rouvert uniquement si Elegant Themes publie une API pré-clonage ou un contrat officiel pour les variables Dynamic Content personnalisées dans Loop Builder, ou si une version ultérieure de Divi résout nativement ce cas dans le frontend et le Visual Builder.
 
 ## 18. Divi Library et Templates WP Seed
 
@@ -509,9 +494,9 @@ Module Divi → Dynamic Content WP Seed → contexte Divi courant → résolveur
 
 Le workflow actuel reste officiel et inchangé. Les placeholders demeurent la méthode prévue dans les Layouts Divi Library utilisés comme source de rendu d'un Template WP Seed.
 
-Le renderer actuel des Templates WP Seed ne garantit pas que l'identifiant métier de chaque élément soit injecté comme contexte global Divi. Lorsqu'un Layout Divi Library est rendu dans ce workflow, Divi peut transmettre l'ID du `seed_template`, l'ID de la page porteuse, aucun ID métier exploitable ou un autre contexte interne Divi. Aucun de ces cas ne permet au provider de deviner l'élément Citation ou Témoignage attendu.
+Pour les Templates Témoignages, le renderer injecte explicitement l'identifiant validé de chaque carte dans les cinq variables Dynamic Content autorisées avant le parsing frontend du Layout. La copie en mémoire possède une identité de cache propre et le Layout enregistré reste inchangé.
 
-Une option Dynamic Content WP Seed placée dans un Layout Divi Library n'est donc pas garantie dans ce workflow. Les placeholders restent la méthode officielle : le provider ne doit ni déduire l'élément métier depuis la page ou le template, ni créer un contexte implicite pour contourner cette limite.
+Dans ce workflow contrôlé, les placeholders et les variables Dynamic Content Témoignages sont pris en charge. Une erreur de contexte ou de résolution déclenche uniquement le fallback natif de la carte concernée.
 
 La V1 ne doit :
 
@@ -659,7 +644,7 @@ Résultats confirmés :
 Restent différés :
 
 - prévisualisation directe d'un corps Theme Builder sans contexte métier transmis par Divi ;
-- recette visuelle Loop Builder autonome ;
+- Loop Builder natif déclaré non pris en charge sous Divi 5.9.0 ;
 - aperçu dynamique de l'image dans le canvas du Visual Builder, qui reste vide malgré la source Photo persistée.
 
 Le provider conserve donc un statut expérimental. Il ne doit pas être présenté comme une compatibilité Divi générale ou une fonctionnalité couvrant tous les champs WP Seed.
@@ -678,7 +663,7 @@ Sont explicitement exclus :
 - nombres ;
 - Design Variables ;
 - support garanti de Theme Builder ;
-- support garanti de Loop Builder ;
+- utilisation directe des providers Content Kit dans Loop Builder ;
 - requêtes ou collections ;
 - aliases propres aux boucles ;
 - modification des CPT ;
@@ -716,7 +701,7 @@ Le contenu choisi pour l'aperçu peut différer du contenu réellement rendu sur
 
 ### 26.7 Contexte de boucle incertain
 
-La priorité de `loop_id` non nul et le recours à `post_id` lorsque `loop_id` est absent ou strictement nul sont confirmés côté serveur. `loop_object` est ignoré. Les parcours visuels Loop Builder restent différés et peuvent encore révéler une incompatibilité sans remettre en cause les contextes serveur déjà validés.
+La priorité de `loop_id` non nul et le recours à `post_id` lorsque `loop_id` est absent ou strictement nul restent confirmés côté serveur. Cela ne rend pas le Loop Builder natif compatible : Divi ne fournit pas d'API publique garantissant l'injection des alias `loop_` avant `getLoopedAttrs()`, lorsque `loopIndex` est disponible.
 
 ### 26.8 HTML historique
 
@@ -804,9 +789,9 @@ Validé côté serveur :
 - absence de contexte valide avec `current_post_id` forcé à `0` ;
 - `loop_id => null` avec recours à `post_id` ;
 - `loop_id` non nul autoritaire ;
-- Loop Builder serveur avec identifiants distincts.
+- probes serveur avec identifiants distincts, sans promesse Loop Builder.
 
-Restent différés : prévisualisation directe d'un corps Theme Builder sans contexte métier et recette visuelle Loop Builder autonome. Le frontend Theme Builder en contexte `seed_quote` est validé.
+Reste différée : la prévisualisation directe d'un corps Theme Builder sans contexte métier. Le Loop Builder natif est explicitement non pris en charge sous Divi 5.9.0. Le frontend Theme Builder en contexte `seed_quote` est validé.
 
 ### 28.4 Valeurs
 
@@ -852,7 +837,7 @@ La V1 respecte les invariants suivants :
 - aucune lecture directe des métadonnées ;
 - aucun contenu non publié exposé ;
 - aucun endpoint, JavaScript ou module Divi WP Seed ;
-- Theme Builder et Loop Builder visuels reportés et non promis ;
+- Theme Builder visuel reporté et Loop Builder natif non pris en charge ;
 - booléens et nombres reportés ;
 - Templates WP Seed, placeholders, shortcodes et Divi Library conservés.
 

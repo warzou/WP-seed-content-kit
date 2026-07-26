@@ -146,6 +146,10 @@ Exécuter ensuite `tests/wordpress-divi-per-item-context-harness.php` avec `WP_S
 
 L'éditeur isolé du Layout peut rester sans contexte. Ne jamais enregistrer un ID fictif dans le Layout pour son aperçu. Supprimer le WordPress jetable, les médias, captures et copies privées de Divi après la recette.
 
+La recette prise en charge s'arrête aux Templates Content Kit utilisant un Layout Divi avec contexte par carte. Ne pas valider ni documenter comme supportée l'utilisation directe des providers Content Kit dans une boucle native Divi Loop Builder sous Divi 5.9.0.
+
+Note de supervision : Divi reconnaît les attributs de boucle préfixés par `loop_` via `getLoopedAttrs()`, mais `loopIndex` n'est disponible que pendant le clonage interne. Divi 5.9.0 n'expose aucun point d'interception public fiable avant ce clonage, et la résolution des médias ne peut pas être garantie dans le vrai Visual Builder. Ne pas reprendre de spike fondé sur les modules Webpack internes, l'arbre React, le DOM, `MutationObserver` ou un délai artificiel. Réouvrir uniquement si Elegant Themes publie un contrat officiel adapté.
+
 Confirmer la présence unique des neuf options :
 
 - Citations : Texte, Auteur, Époque, Source ;
@@ -154,7 +158,7 @@ Confirmer la présence unique des neuf options :
 Tester :
 
 - un single `seed_quote` et un single `seed_testimonial` ;
-- une boucle contenant au moins deux éléments distincts ;
+- deux contextes serveur explicites contenant des éléments distincts ;
 - une page ordinaire incompatible ;
 - un `loop_id` non nul valide puis invalide ;
 - un brouillon et un contenu privé ;
@@ -163,7 +167,7 @@ Tester :
 - la valeur ISO de Date du témoignage et sa valeur vide en contexte incompatible ;
 - la résolution d'un contexte publié compatible lorsque le module Témoignages est désactivé.
 
-Pour Photo, vérifier l'URL, l'ID média reconstruit, les dimensions, `srcset`, `sizes` et l'absence de chaîne `Array` ou de variable brute. Consigner séparément l'aperçu du Visual Builder et le texte alternatif, qui ne sont pas garantis dans tous les modules ou contextes.
+Pour Photo, vérifier l'URL, l'ID média reconstruit, les dimensions, `srcset`, `sizes` et l'absence de chaîne `Array` ou de variable brute. Consigner séparément le texte alternatif, qui n'est pas garanti dans tous les modules. Le Loop Builder natif reste hors du périmètre pris en charge.
 
 ## Frontend et responsive
 

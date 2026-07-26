@@ -517,13 +517,13 @@ Aucun nouveau shortcode n'est créé. Le mode quotidien ignore les arguments de 
 
 ### 19.1 Cas simples
 
-Le Loop Builder Divi 5 peut parcourir un CPT et fournir l'ID de chaque élément aux sources Dynamic Content WP Seed. Il peut convenir à une page listant les Témoignages ou à une sélection configurée entièrement dans Divi.
+L'utilisation directe des sources Dynamic Content WP Seed dans une boucle native Divi Loop Builder n'est pas prise en charge sous Divi 5.9.0. Le frontend peut résoudre certaines valeurs, mais le Visual Builder ne garantit pas tous les champs, notamment les médias.
 
-Dans ce parcours :
+Pour afficher une liste dans Divi, utiliser un parcours pris en charge :
 
-- Divi possède la requête et la boucle ;
-- WP Seed Dynamic Content fournit uniquement les champs du Témoignage courant ;
-- les règles exactes de l'API Collections ne sont garanties que si Divi les reproduit explicitement.
+- module `WP Seed — Témoignages` ;
+- shortcode `[seed_testimonials]` ;
+- Template Content Kit utilisant un Layout Divi avec contexte par carte.
 
 ### 19.2 Règles WP Seed garanties
 
@@ -535,7 +535,7 @@ Pour garantir exactement les priorités `ids`, `featured`, `limit`, `orderby` et
 
 La Citation quotidienne doit suivre le même principe tant qu'aucun adaptateur de requête Divi distinct n'est documenté.
 
-Il n'est prévu ni module Divi propriétaire, ni logique de collection dans les classes Dynamic Content.
+Le module `WP Seed — Témoignages` est l'adaptateur Divi de Collection pris en charge. Les classes Dynamic Content ne portent toujours aucune logique de requête.
 
 ## 20. Gutenberg
 
@@ -587,7 +587,7 @@ Une fermeture future des URLs devra être traitée dans un chantier séparé com
 - inventaire des liens et usages existants ;
 - audit SEO et sitemap ;
 - stratégie de redirection ;
-- compatibilité Divi Loop Builder ;
+- impact d'une éventuelle intégration Divi future officiellement contractuelle ;
 - compatibilité Gutenberg Query Loop ;
 - compatibilité Spectra ;
 - REST ;
@@ -654,7 +654,7 @@ Cette décision ne bloque pas le contrat technique Collections, mais elle doit p
 
 ### Lot E - Recettes builders
 
-- Divi Loop Builder et Dynamic Content ;
+- contrôle négatif du Loop Builder natif Divi, documenté comme non pris en charge sous Divi 5.9.0 ;
 - Gutenberg Query Loop et Block Bindings ;
 - Spectra bloc par bloc ;
 - comparaison des résultats avec le shortcode canonique.

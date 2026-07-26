@@ -244,7 +244,7 @@ Le template WP Seed reste le point d'entrée. L'édition directe du CPT Template
 
 Pour un Template Témoignages, les cinq champs Dynamic Content WP Seed peuvent aussi être placés dans les modules du Layout. Pendant le rendu de la Collection, Content Kit injecte l'ID du témoignage courant dans chaque variable autorisée, uniquement en mémoire et avant le parsing frontend, que le payload soit direct ou sérialisé dans un attribut de bloc. Les variables Citations, Annuaire et Divi natives restent inchangées.
 
-L'éditeur isolé du Layout ne dispose d'aucun témoignage courant : les champs peuvent y être vides. Tester le résultat dans le shortcode, la page ou la boucle qui fournit réellement la Collection. Aucun ID fictif n'est enregistré dans le Layout.
+L'éditeur isolé du Layout ne dispose d'aucun témoignage courant : les champs peuvent y être vides. Tester le résultat dans le shortcode, le module Divi ou la page qui fournit réellement la Collection. Aucun ID fictif n'est enregistré dans le Layout.
 
 Si le layout est absent, invalide ou non publié, le contenu du template reste le fallback.
 
@@ -336,7 +336,7 @@ WP Seed — Témoignages :
 - Date du témoignage ;
 - Photo.
 
-Aucun shortcode ni identifiant fixe n'est nécessaire. Les valeurs utilisent le contenu courant ou l'élément courant d'une boucle. Une page ordinaire, un mauvais type de contenu ou une boucle incompatible produit une valeur vide sans fallback arbitraire.
+Aucun shortcode ni identifiant fixe n'est nécessaire sur un témoignage courant individuel. Dans un Template Content Kit utilisant un Layout Divi, Content Kit fournit explicitement le contexte de la carte. Une page ordinaire ou un mauvais type de contenu produit une valeur vide sans fallback arbitraire.
 
 Dans un Layout utilisé comme Template de collection, le contexte explicite par carte complète ce comportement : seuls les cinq identifiants ci-dessus reçoivent `value.post_id`. L'injection intervient dans la représentation exacte consommée par le frontend avant que WordPress et Divi ne parsèrent puis resérialisent la copie en mémoire. La clé de cache Divi est ainsi différenciée par témoignage et le Layout enregistré reste bit à bit inchangé.
 
@@ -344,7 +344,9 @@ Une erreur de parsing, un contexte invalide, un Layout indisponible, une résolu
 
 La source Date du témoignage retourne la valeur ISO canonique. Sa sélection et sa persistance visuelles ont été validées sous Divi 5.9.0 ; les Templates utilisent `{{date}}` pour une présentation localisée.
 
-Photo est prioritairement compatible avec la propriété source du module Image. Divi peut reconstruire l'ID média, les dimensions, `srcset` et `sizes` à partir d'une URL locale. L'aperçu du Visual Builder peut rester vide et le texte alternatif n'est pas garanti dans tous les modules ou contextes de boucle.
+Photo est prioritairement compatible avec la propriété source du module Image. Divi peut reconstruire l'ID média, les dimensions, `srcset` et `sizes` à partir d'une URL locale. Le texte alternatif n'est pas garanti dans tous les modules.
+
+L'utilisation directe de ces sources dans une boucle native Divi Loop Builder n'est pas prise en charge sous Divi 5.9.0. Le frontend peut résoudre certaines valeurs, mais le Visual Builder ne garantit pas la résolution de tous les champs, notamment les médias. Utiliser le module `WP Seed — Témoignages`, le shortcode ou un Template Content Kit avec Layout Divi pour rendre une Collection.
 
 Ce provider cible Divi 5. Divi 4 n'est pas pris en charge. Les layouts Divi Library avec placeholders restent officiellement pris en charge et complémentaires de Dynamic Content.
 
@@ -386,7 +388,7 @@ Le catalogue de Templates affiche sept placeholders Témoignages, quatre Citatio
 - **Shortcodes — Fonctionnel** : méthode canonique dans tout emplacement WordPress compatible.
 - **Gutenberg — Fonctionnel** : bloc Shortcode Core ; les Block Bindings restent indirects et ne couvrent pas Annuaire.
 - **Spectra — Indirect** : bloc Shortcode Core dans une page ou un Container, ou blocs Spectra dans un Template ; aucun provider natif.
-- **Divi — Fonctionnel/Indirect** : module natif Témoignages sous Divi 5, shortcode dans Texte ou Code pour compatibilité, ou Layout Divi Library comme source d’un Template ; Dynamic Content reste expérimental.
+- **Divi — Fonctionnel/Indirect** : module natif Témoignages sous Divi 5, shortcode dans Texte ou Code pour compatibilité, ou Layout Divi Library comme source d’un Template ; Dynamic Content reste expérimental et son usage direct dans Loop Builder n'est pas pris en charge.
 
 Les filtres de Collection sont choisis par Administrator lors de l’intégration. Aucun champ de recherche ni filtre n’est présenté au visiteur.
 

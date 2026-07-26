@@ -7,6 +7,8 @@
 - Identité de cache distincte par témoignage et fallback natif local lorsqu'un Layout, un contexte ou une variable dynamique est invalide.
 - Signal interne attendu/résolu empêchant qu'un Layout dynamique réduit à des wrappers ou préfixes vides soit considéré comme un succès.
 - Harnais autonomes et WordPress/Divi dédiés à la récursion, à la restauration après exception et à l'absence de contamination entre cartes.
+- Matrice de support Divi clarifiée : module `WP Seed — Témoignages`, shortcode historique, Dynamic Content sur un témoignage individuel et Templates Content Kit utilisant un Layout Divi avec contexte par carte.
+- Les providers Content Kit utilisés directement dans une boucle native Divi Loop Builder ne sont pas pris en charge sous Divi 5.9.0, car le Visual Builder ne résout pas contractuellement tous les champs, notamment les médias.
 
 All notable changes to WP-seed-content-kit will be documented in this file.
 

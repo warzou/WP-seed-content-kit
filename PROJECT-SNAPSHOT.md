@@ -1,7 +1,7 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 24 juillet 2026
-Statut : 0.7.0-dev ; contexte Divi par carte non stagé en attente de revue
+Statut : 0.7.0-dev ; intégration stable du contexte Divi par carte en préparation documentaire
 Version courante du code : 0.7.0-dev
 Version stable publiee de reference : 0.4.0
 Commit de base de preparation stable : fdd723b73d63fb27d9b93396ffc60f44ec3a1147
@@ -38,6 +38,8 @@ Il combine actuellement :
 - une administration compatible avec les usages WordPress courants.
 
 Pour les Templates Témoignages fondés sur un Layout Divi Library, le renderer transmet désormais explicitement l'ID de chaque témoignage. `value.post_id` est injecté dans la représentation JSON directe ou sérialisée des cinq variables Dynamic Content autorisées avant le parsing frontend, puis le Layout est parsé et resérialisé uniquement en mémoire. Une pile interne bornée, restaurée dans `finally`, isole les cartes. Un signal attendu/résolu refuse les cartes dynamiques non résolues et laisse le fallback natif prendre le relais sur la seule carte en erreur. Le Layout, ses révisions et ses métadonnées restent inchangés.
+
+Sous Divi 5.9.0, les parcours pris en charge sont le module `WP Seed — Témoignages`, `[seed_testimonials]`, le Dynamic Content sur un témoignage individuel et les Templates Content Kit utilisant un Layout Divi avec contexte distinct par carte. L'utilisation directe des providers Content Kit dans une boucle native Divi Loop Builder n'est pas prise en charge : le frontend peut résoudre certaines valeurs alors que le Visual Builder laisse des champs non résolus, notamment les médias.
 
 Le plugin ne doit pas devenir un builder, un thème ou le registre central de l'écosystème WP Seed.
 
@@ -418,12 +420,12 @@ Le provider expérimental Divi 5 Dynamic Content expose les quatre champs texte 
 - frontend `seed_testimonial` validé pour Texte, Nom et Information complémentaire, y compris chaîne vide, multiligne, Unicode et HTML historique ;
 - persistance brute unique et reconnaissance visuelle validées pour les cinq options Témoignage ;
 - source Photo de type `image`, sans source dérivée, tableau média ou HTML transmis à Divi ;
-- reconstruction par Divi des IDs média, dimensions, `srcset` et `sizes` pour les pièces jointes locales testées ; alt retrouvé sur le single mais non garanti dans la boucle ;
-- rendu frontend Photo validé en single et en boucle, sans variable brute ni chaîne `Array` ;
+- reconstruction par Divi des IDs média, dimensions, `srcset` et `sizes` pour les pièces jointes locales testées ; alt retrouvé sur le single mais non garanti dans tous les modules ;
+- rendu frontend Photo validé en single et dans le contexte contrôlé d'un Template avec Layout Divi, sans variable brute ni chaîne `Array` ;
 - aperçu Image du Visual Builder encore vide malgré la sélection et la persistance correctes de la source Photo ;
 - provider Citation, Gutenberg, shortcodes, templates et placeholders non régressés ;
 - statut expérimental maintenu ;
-- prévisualisation directe d'un corps Theme Builder sans contexte métier et recette visuelle Loop Builder autonome reportées.
+- prévisualisation directe d'un corps Theme Builder sans contexte métier reportée ; Loop Builder natif non pris en charge sous Divi 5.9.0.
 
 Le provider Gutenberg serveur est inclus depuis la version 0.3.0 ; son interface éditeur native reste différée. Le provider Divi 5 conserve un statut expérimental et les limites visuelles documentées ci-dessus. Les shortcodes publics et les layouts Divi Library restent inchangés ; le lot B étend uniquement les placeholders Témoignage.
 
