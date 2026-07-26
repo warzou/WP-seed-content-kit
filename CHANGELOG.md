@@ -1,6 +1,11 @@
 # Changelog
 
-## [0.7.0-dev] - Unreleased
+## [0.7.0-rc.1] - 2026-07-26
+
+### Release candidate
+
+- Première Release Candidate de 0.7.0 destinée à validation ; cette version n'est pas une release stable.
+- Module Divi 5 `WP Seed — Témoignages` avec aperçu serveur dans le Visual Builder et rendu frontend partagé avec `[seed_testimonials]`.
 
 - Contexte de rendu borné et restauré par carte pour les Templates Témoignages utilisant un Layout Divi Library.
 - Injection en mémoire de `value.post_id` dans les représentations JSON directe et sérialisée des cinq sources Dynamic Content Témoignages, avant le parsing frontend Divi.

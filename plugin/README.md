@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.7.0-dev, module Divi 5 Témoignages en préparation avant revue du diff.
+Statut du package : 0.7.0-rc.1, Release Candidate en validation et non stable.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -201,7 +201,7 @@ Le catalogue de Templates expose les placeholders publics réels, leur type et l
 
 Une API PHP interne permet de tester explicitement l'import et le rollback du manifeste fictif Annuaire. Elle valide le manifeste entier avant ecriture, conserve un registre prive non autoloaded et exige `manage_wp_seed_imports`. Elle ne s'execute jamais automatiquement et n'expose ni ecran, ni REST/AJAX, ni donnees de migration dans le rendu public. Voir `docs/ANNUAIRE-MIGRATION.md`.
 
-## Module Divi 5 Témoignages — 0.7.0-dev
+## Module Divi 5 Témoignages — 0.7.0-rc.1
 
 Le module `WP Seed — Témoignages` utilise directement la Collection canonique et le renderer partagé avec `[seed_testimonials]`. Il expose le titre facultatif, `featured`, `context`, `ids`, `limit`, `orderby`, `order`, le Template Content Kit facultatif et le nombre de colonnes. Le Visual Builder récupère un aperçu serveur authentifié ; le frontend ne dépend d’aucun shortcode généré.
 

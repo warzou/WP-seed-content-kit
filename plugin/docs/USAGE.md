@@ -1,6 +1,6 @@
 # Usage - WP Seed Content Kit
 
-Statut : WP Seed Content Kit 0.7.0-dev. Le module Annuaire reste natif et le module Divi 5 Témoignages est en préparation.
+Statut : WP Seed Content Kit 0.7.0-rc.1. Cette Release Candidate n’est pas une version stable ; le module Annuaire reste natif et le module Divi 5 Témoignages est disponible pour validation.
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés, des shortcodes et des templates réutilisables dans WordPress.
 

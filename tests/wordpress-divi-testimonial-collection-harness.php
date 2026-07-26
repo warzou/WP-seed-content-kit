@@ -17,7 +17,13 @@ $assert = function ($condition, $label) use (&$assertions, &$failures) {
     }
 };
 
-$assert(false !== strpos($bootstrap, "WP_SEED_CONTENT_KIT_VERSION', '0.7.0-dev'"), 'Plugin development version is 0.7.0-dev');
+preg_match('/^\s*\*\s*Version:\s*(\S+)/m', $bootstrap, $plugin_header_matches);
+preg_match("/define\('WP_SEED_CONTENT_KIT_VERSION',\s*'([^']+)'\);/", $bootstrap, $plugin_constant_matches);
+$assert(
+    isset($plugin_header_matches[1], $plugin_constant_matches[1])
+    && $plugin_header_matches[1] === $plugin_constant_matches[1],
+    'Plugin header and canonical version constant match'
+);
 $assert(false !== strpos($bootstrap, "collection-renderer.php"), 'Shared testimonial renderer loaded before shortcode');
 $assert(false !== strpos($bootstrap, "testimonial-collection.php"), 'Divi integration loaded only with testimonial module');
 $assert(false !== strpos($integration, "et_builder_d5_enabled"), 'Divi 5 availability guard exists');

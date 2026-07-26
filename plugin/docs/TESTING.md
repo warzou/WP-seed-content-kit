@@ -254,7 +254,7 @@ Sur DEV protege, limiter les contenus temporaires au prefixe SEED CONTENT KIT TE
 
 Construire le ZIP stable deux fois depuis les seuls fichiers distribues. Les deux archives doivent etre identiques octet pour octet, avoir une racine unique wp-seed-content-kit/, utiliser uniquement des / et exclure tests, fixtures, documents de depot, secrets et temporaires.
 
-## Module Divi 5 Témoignages — 0.7.0-dev
+## Module Divi 5 Témoignages — 0.7.0-rc.1
 
 Exécuter `tests/divi-testimonial-collection-harness.php` sous PHP 7.0.33 et PHP 8.4.x, puis les harnais historiques. Vérifier l’absence complète du module et de la route lorsque Divi 5 est absent, l’enregistrement via `ModuleRegistration`, les valeurs par défaut, `ids`, `featured`, `context`, `limit`, `orderby`, `order`, Template et colonnes, ainsi que l’équivalence avec `[seed_testimonials]`.
 
