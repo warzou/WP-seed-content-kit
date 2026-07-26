@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.7.0] - 2026-07-26
+
+### Stable
+
+- Publication stable du module Divi 5 `WP Seed — Témoignages`, partagé avec le renderer canonique de `[seed_testimonials]`.
+- Conception des cartes par Templates Content Kit utilisant un Layout Divi Library, avec contexte Dynamic Content distinct pour chaque témoignage.
+- Parité validée entre frontend et Visual Builder, y compris les ordres normal et inverse.
+- Identité de cache distincte par témoignage et restauration systématique du contexte après chaque carte.
+- Fallback natif limité à la carte concernée lorsqu'un Layout, un contexte ou une variable dynamique échoue.
+- Shortcode `[seed_testimonials]` et Dynamic Content individuel conservés sans changement de contrat public.
+- Compatibilité complète sans Divi : le plugin, Gutenberg, les shortcodes, Citations, Témoignages et Annuaire restent disponibles.
+- Validation sous PHP 7.0.33 et PHP 8.4.23, avec harnais autonomes, WordPress et Divi.
+- Annuaire natif, Collections non persistantes, séparation des rôles et confidentialité conservés sans régression.
+
+### Limite connue
+
+- Les providers Content Kit utilisés directement dans le Loop Builder natif de Divi 5.9.0 ne sont pas pris en charge.
+
 ## [0.7.0-rc.1] - 2026-07-26
 
 ### Release candidate

@@ -1,12 +1,11 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 26 juillet 2026
-Statut : 0.7.0-rc.1 ; Release Candidate locale en validation, non stable
-Version courante du code : 0.7.0-rc.1
-Version stable publiee de reference : 0.4.0
-Commit de base de preparation stable : fdd723b73d63fb27d9b93396ffc60f44ec3a1147
-Commit stable publie de reference : d60ae9189fabcc405b9108311de936e452d91b7f
-Tag stable publie de reference : v0.4.0
+Statut : 0.7.0 ; version stable
+Version courante du code : 0.7.0
+Version stable publiee de reference : 0.7.0
+Commit de base de preparation stable : 8a6fb735a729d4b14c753c78f5304fb59349b287
+Tag stable publie de reference : v0.7.0
 WordPress minimum : 6.5
 PHP minimum : 7.0
 

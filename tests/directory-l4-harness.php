@@ -3,7 +3,13 @@
 define('ABSPATH', __DIR__ . '/');
 define('WP_SEED_CONTENT_KIT_DIR', dirname(__DIR__) . '/plugin/');
 define('WP_SEED_CONTENT_KIT_URL', 'https://example.test/plugin/');
-define('WP_SEED_CONTENT_KIT_VERSION', '0.6.0-dev');
+$seed_l4_plugin_source = file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'wp-seed-content-kit.php');
+$seed_l4_version_matches = array();
+if (!preg_match('/^\s*\*\s*Version:\s*(\S+)/m', $seed_l4_plugin_source, $seed_l4_version_matches)) {
+    fwrite(STDERR, "Unable to read the plugin version.\n");
+    exit(1);
+}
+define('WP_SEED_CONTENT_KIT_VERSION', $seed_l4_version_matches[1]);
 
 $GLOBALS['seed_l4_assertions'] = 0;
 $GLOBALS['seed_l4_failures'] = array();

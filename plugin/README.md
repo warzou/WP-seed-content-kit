@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.7.0-rc.1, Release Candidate en validation et non stable.
+Statut du package : 0.7.0, version stable.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
