@@ -78,7 +78,8 @@ try {
     wp_set_current_user((int) $administrators[0]);
     do_action('init');
 
-    seed_l3_wp_same('0.6.0', WP_SEED_CONTENT_KIT_VERSION, 'Plugin version');
+    $plugin_headers = get_file_data(WP_SEED_CONTENT_KIT_FILE, array('Version' => 'Version'), 'plugin');
+    seed_l3_wp_same($plugin_headers['Version'], WP_SEED_CONTENT_KIT_VERSION, 'Plugin version matches header');
     seed_l3_wp_assert(post_type_exists('seed_directory'), 'Directory CPT registered');
     seed_l3_wp_same(false, get_post_type_object('seed_directory')->show_in_rest, 'Directory remains outside REST');
     seed_l3_wp_assert(post_type_supports('seed_directory', 'revisions'), 'Directory supports native revisions');
