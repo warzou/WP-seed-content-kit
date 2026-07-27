@@ -35,7 +35,7 @@ ck_a6_same('native-directory-demo:ck-a6-v1', $manifest['batch_id'], 'Batch ID');
 ck_a6_same('native-directory-demo', $manifest['source_system'], 'Source system');
 ck_a6_same(16, count($manifest['entries']), 'Sixteen entries');
 ck_a6_same(13, count($manifest['media']), 'Thirteen media');
-ck_a6_same(19, count(wp_seed_content_directory_get_meta_definitions()), 'Exactly nineteen native meta definitions');
+ck_a6_same(21, count(wp_seed_content_directory_get_meta_definitions()), 'Exactly twenty-one native meta definitions');
 
 $statuses = array_count_values(array_column($manifest['entries'], 'professional_status'));
 $targets = array_count_values(array_column($manifest['entries'], 'target_status'));
@@ -64,6 +64,9 @@ foreach ($manifest['entries'] as $index => $entry) {
     ck_a6_same('native-directory-demo:' . $entry['source_id'], wp_seed_content_directory_migration_entry_reference($entry['source_id']), 'Private reference ' . $index);
     ck_a6_assert(false === strpos(json_encode($entry), 'wp-seed-directory'), 'No historical plugin namespace ' . $index);
     if ('publish' === $entry['target_status']) { ck_a6_assert($entry['publication_authorized'], 'Published entry authorized ' . $index); }
+    $fields = wp_seed_content_directory_migration_entry_fields($entry, 100 + $index);
+    ck_a6_same('seeking_models' === $entry['professional_status'] ? '1' : '', $fields['meta']['_seed_directory_seeking_models'], 'Seeking status mapped to orthogonal boolean ' . $index);
+    ck_a6_assert(!isset($fields['meta']['_seed_directory_profile_types']), 'Fictional import never guesses a profile type ' . $index);
 }
 
 ck_a6_same('{"a":{"a":1,"b":2},"z":"é/x"}', wp_seed_content_directory_migration_canonical_json(array('z' => 'é/x', 'a' => array('b' => 2, 'a' => 1))), 'Canonical JSON sorting and escaping');

@@ -21,6 +21,57 @@ function wp_seed_content_directory_normalize_collection_ids($ids)
     return array_values($normalized);
 }
 
+function wp_seed_content_directory_normalize_profile_type_filter($value)
+{
+    if (is_string($value)) {
+        $value = '' === trim($value) ? array() : explode(',', $value);
+    }
+    if (!is_array($value)) {
+        return null;
+    }
+
+    $registered = wp_seed_content_directory_get_profile_types();
+    $normalized = array();
+    foreach ($value as $profile_type) {
+        if (!is_scalar($profile_type)) {
+            return null;
+        }
+        $profile_type = sanitize_key(trim((string) $profile_type));
+        if ('' === $profile_type || !isset($registered[$profile_type])) {
+            return null;
+        }
+        $normalized[$profile_type] = $profile_type;
+    }
+
+    return array_values($normalized);
+}
+
+function wp_seed_content_directory_normalize_seeking_models_filter($value)
+{
+    if (is_bool($value)) {
+        return $value ? '1' : '0';
+    }
+    if (is_int($value)) {
+        return 1 === $value ? '1' : (0 === $value ? '0' : null);
+    }
+    if (!is_scalar($value)) {
+        return null;
+    }
+
+    $value = strtolower(trim((string) $value));
+    if ('' === $value || 'all' === $value) {
+        return 'all';
+    }
+    if (in_array($value, array('1', 'true', 'only'), true)) {
+        return '1';
+    }
+    if (in_array($value, array('0', 'false', 'exclude'), true)) {
+        return '0';
+    }
+
+    return null;
+}
+
 function wp_seed_content_directory_normalize_collection_args($args)
 {
     if (!is_array($args)) {
@@ -29,13 +80,19 @@ function wp_seed_content_directory_normalize_collection_args($args)
 
     $defaults = array(
         'status' => 'all',
+        'profile_type' => '',
+        'profile_types' => array(),
+        'profile_type_operator' => 'or',
+        'seeking_models' => 'all',
         'department' => '',
         'country' => '',
         'featured' => 'all',
         'limit' => 0,
+        'offset' => 0,
         'orderby' => 'display_order',
         'order' => 'asc',
         'ids' => array(),
+        'exclude_ids' => array(),
     );
     $args = array_merge($defaults, $args);
 
@@ -43,15 +100,35 @@ function wp_seed_content_directory_normalize_collection_args($args)
     $featured = is_string($args['featured']) ? strtolower($args['featured']) : '';
     $orderby = is_string($args['orderby']) ? strtolower($args['orderby']) : '';
     $order = is_string($args['order']) ? strtolower($args['order']) : '';
+    $profile_type_operator = is_string($args['profile_type_operator'])
+        ? strtolower($args['profile_type_operator'])
+        : '';
     if (!in_array($status, array('all', 'practicing', 'seeking_models'), true)
         || !in_array($featured, array('all', 'only', 'exclude'), true)
         || !in_array($orderby, array('display_order', 'name', 'date', 'id'), true)
         || !in_array($order, array('asc', 'desc'), true)
+        || !in_array($profile_type_operator, array('or', 'and'), true)
         || !is_int($args['limit'])
         || $args['limit'] < 0
+        || !is_int($args['offset'])
+        || $args['offset'] < 0
     ) {
         return null;
     }
+
+    $profile_types = wp_seed_content_directory_normalize_profile_type_filter(
+        $args['profile_types']
+    );
+    $profile_type = wp_seed_content_directory_normalize_profile_type_filter(
+        $args['profile_type']
+    );
+    $seeking_models = wp_seed_content_directory_normalize_seeking_models_filter(
+        $args['seeking_models']
+    );
+    if (null === $profile_types || null === $profile_type || null === $seeking_models) {
+        return null;
+    }
+    $profile_types = array_values(array_unique(array_merge($profile_types, $profile_type)));
 
     $department_raw = is_scalar($args['department']) ? trim((string) $args['department']) : '';
     $country_raw = is_scalar($args['country']) ? trim((string) $args['country']) : '';
@@ -62,19 +139,25 @@ function wp_seed_content_directory_normalize_collection_args($args)
     }
 
     $ids = wp_seed_content_directory_normalize_collection_ids($args['ids']);
-    if (null === $ids) {
+    $exclude_ids = wp_seed_content_directory_normalize_collection_ids($args['exclude_ids']);
+    if (null === $ids || null === $exclude_ids) {
         return null;
     }
 
     return array(
         'status' => $status,
+        'profile_types' => $profile_types,
+        'profile_type_operator' => $profile_type_operator,
+        'seeking_models' => $seeking_models,
         'department' => $department,
         'country' => $country,
         'featured' => $featured,
         'limit' => min(100, $args['limit']),
+        'offset' => min(10000, $args['offset']),
         'orderby' => $orderby,
         'order' => $order,
         'ids' => $ids,
+        'exclude_ids' => $exclude_ids,
     );
 }
 
@@ -116,6 +199,19 @@ function wp_seed_content_directory_compare_entries($left, $right, $orderby, $ord
     return 'desc' === $order ? -$comparison : $comparison;
 }
 
+function wp_seed_content_directory_entry_matches_profile_types($entry_types, $required_types, $operator)
+{
+    if (empty($required_types)) {
+        return true;
+    }
+    $entry_types = wp_seed_content_directory_normalize_profile_types($entry_types);
+    $matches = array_intersect($required_types, $entry_types);
+
+    return 'and' === $operator
+        ? count($matches) === count($required_types)
+        : !empty($matches);
+}
+
 function wp_seed_content_directory_get_entries($args = array())
 {
     if (!wp_seed_content_kit_is_module_active('directory')) {
@@ -143,6 +239,9 @@ function wp_seed_content_directory_get_entries($args = array())
     if (!empty($args['ids'])) {
         $query['post__in'] = $args['ids'];
     }
+    if (!empty($args['exclude_ids'])) {
+        $query['post__not_in'] = $args['exclude_ids'];
+    }
 
     $posts = get_posts($query);
     $selected = array();
@@ -152,10 +251,19 @@ function wp_seed_content_directory_get_entries($args = array())
         }
 
         $status = wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_status');
+        $profile_types = wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_profile_types');
+        $seeking_models = '1' === get_post_meta($post->ID, '_seed_directory_seeking_models', true);
         $department = wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_department');
         $country = wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_country');
         $featured = '1' === get_post_meta($post->ID, '_seed_directory_featured', true);
         if (('all' !== $args['status'] && $status !== $args['status'])
+            || !wp_seed_content_directory_entry_matches_profile_types(
+                $profile_types,
+                $args['profile_types'],
+                $args['profile_type_operator']
+            )
+            || ('1' === $args['seeking_models'] && !$seeking_models)
+            || ('0' === $args['seeking_models'] && $seeking_models)
             || ('' !== $args['department'] && $department !== $args['department'])
             || ('' !== $args['country'] && $country !== $args['country'])
             || ('only' === $args['featured'] && !$featured)
@@ -173,6 +281,39 @@ function wp_seed_content_directory_get_entries($args = array())
     $ids = array_map(function ($post) {
         return (int) $post->ID;
     }, $selected);
+    if ($args['offset'] > 0) {
+        $ids = array_slice($ids, $args['offset']);
+    }
 
     return $args['limit'] > 0 ? array_slice($ids, 0, $args['limit']) : $ids;
+}
+
+function wp_seed_content_directory_get_predefined_collections()
+{
+    return array(
+        'all' => array(
+            'label' => __('Tous les profils', 'wp-seed-content-kit'),
+            'args' => array(),
+        ),
+        'praticiens' => array(
+            'label' => __('Praticiens', 'wp-seed-content-kit'),
+            'args' => array('profile_type' => 'praticien'),
+        ),
+        'intervenants' => array(
+            'label' => __('Intervenants', 'wp-seed-content-kit'),
+            'args' => array('profile_type' => 'intervenant'),
+        ),
+        'seeking_models' => array(
+            'label' => __('Recherche de modèles', 'wp-seed-content-kit'),
+            'args' => array('seeking_models' => '1'),
+        ),
+        'praticiens_seeking_models' => array(
+            'label' => __('Praticiens recherchant des modèles', 'wp-seed-content-kit'),
+            'args' => array('profile_type' => 'praticien', 'seeking_models' => '1'),
+        ),
+        'intervenants_seeking_models' => array(
+            'label' => __('Intervenants recherchant des modèles', 'wp-seed-content-kit'),
+            'args' => array('profile_type' => 'intervenant', 'seeking_models' => '1'),
+        ),
+    );
 }

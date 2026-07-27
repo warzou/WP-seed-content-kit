@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.7.0, version stable.
+Statut du package : 0.8.0-dev, développement Annuaire multi-usages.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -37,11 +37,11 @@ Collections reste une API de sélection et un ensemble de paramètres. Aucun con
 
 ### Annuaire - sortie publique 0.6.0
 
-Le module natif Annuaire fournit son CPT administratif prive, dix-neuf metas validees, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
+Le module natif Annuaire fournit son CPT administratif privé, vingt et une métas validées, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
 
-Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, REST/AJAX, migration runtime ou adaptateur inter-plugin.
+Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, REST/AJAX, import métier automatique ou adaptateur inter-plugin. La seule mise à niveau runtime 0.8.0-dev est additive : elle copie l'ancien statut de recherche vers le nouveau booléen sans attribuer de type.
 
-CK-A3 fournit à Editor et Administrator une fiche en quatre panneaux avec nom affiché, statut, localisation, présentation/photo, coordonnées et autorisation. Les cinq visibilités sont désactivées par défaut. Une coordonnée peut rester privée en brouillon ; si elle est rendue publique, une valeur vide ou invalide bloque la publication avec un message lié au champ.
+CK-A3 fournit à Editor et Administrator une fiche désormais organisée en cinq panneaux avec nom affiché, profil multi-usages, statut historique, localisation, présentation/photo, coordonnées et autorisation. Les cinq visibilités sont désactivées par défaut. Une coordonnée peut rester privée en brouillon ; si elle est rendue publique, une valeur vide ou invalide bloque la publication avec un message lié au champ.
 
 ### Cards
 
@@ -206,3 +206,16 @@ Une API PHP interne permet de tester explicitement l'import et le rollback du ma
 Le module `WP Seed — Témoignages` utilise directement la Collection canonique et le renderer partagé avec `[seed_testimonials]`. Il expose le titre facultatif, `featured`, `context`, `ids`, `limit`, `orderby`, `order`, le Template Content Kit facultatif et le nombre de colonnes. Le Visual Builder récupère un aperçu serveur authentifié ; le frontend ne dépend d’aucun shortcode généré.
 
 Le module et sa route d’aperçu ne sont enregistrés que lorsque Divi 5 est actif. Sans Divi, le plugin, Gutenberg, les shortcodes, les Templates, Citations et Annuaire restent inchangés. Le choix des Templates est réservé aux utilisateurs disposant de `manage_wp_seed_templates`.
+
+## Annuaire multi-usages — 0.8.0-dev
+
+Une fiche Annuaire peut être praticien, intervenant, les deux ou ne pas encore être classée. La recherche actuelle de modèles est un statut temporaire indépendant.
+
+```text
+[seed_directory profile_type="praticien"]
+[seed_directory profile_type="intervenant"]
+[seed_directory seeking_models="1"]
+[seed_directory profile_type="praticien" seeking_models="1"]
+```
+
+Sans ces attributs, `[seed_directory]` conserve son comportement historique et inclut les fiches existantes sans type. Les Collections restent non persistantes et aucun filtre n'est affiché aux visiteurs.

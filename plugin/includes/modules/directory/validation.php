@@ -93,8 +93,16 @@ function wp_seed_content_directory_collect_publication_overrides($postarr)
     $has_form = isset($_POST['wp_seed_content_directory_nonce'])
         && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['wp_seed_content_directory_nonce'])), 'wp_seed_content_directory_save');
     if ($has_form) {
+        $profile_panel_present = isset($_POST['wp_seed_content_directory_profile_present']);
         foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
-            if ('boolean' === $definition['type']) {
+            if (in_array($key, array('_seed_directory_profile_types', '_seed_directory_seeking_models'), true) && !$profile_panel_present) {
+                continue;
+            }
+            if ('profile_types' === $definition['type']) {
+                $overrides[$key] = isset($_POST[$key])
+                    ? wp_seed_content_directory_sanitize_meta_value($key, wp_unslash($_POST[$key]))
+                    : array();
+            } elseif ('boolean' === $definition['type']) {
                 $overrides[$key] = isset($_POST[$key]) ? '1' : '';
             } elseif (array_key_exists($key, $_POST)) {
                 $overrides[$key] = wp_seed_content_directory_sanitize_meta_value($key, wp_unslash($_POST[$key]));
@@ -117,8 +125,16 @@ function wp_seed_content_directory_collect_publication_overrides($postarr)
 function wp_seed_content_directory_collect_submitted_values()
 {
     $values = array();
+    $profile_panel_present = isset($_POST['wp_seed_content_directory_profile_present']);
     foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
-        if ('boolean' === $definition['type']) {
+        if (in_array($key, array('_seed_directory_profile_types', '_seed_directory_seeking_models'), true) && !$profile_panel_present) {
+            continue;
+        }
+        if ('profile_types' === $definition['type']) {
+            $values[$key] = isset($_POST[$key])
+                ? wp_seed_content_directory_sanitize_meta_value($key, wp_unslash($_POST[$key]))
+                : array();
+        } elseif ('boolean' === $definition['type']) {
             $values[$key] = isset($_POST[$key]) ? '1' : '';
         } elseif (array_key_exists($key, $_POST)) {
             $values[$key] = wp_seed_content_directory_sanitize_meta_value($key, wp_unslash($_POST[$key]));

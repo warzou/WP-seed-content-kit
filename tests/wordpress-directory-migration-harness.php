@@ -117,6 +117,8 @@ try {
     ck_a6_wp_same(14, count($batch_public), 'Data API collection has fourteen eligible entries');
     ck_a6_wp_same(9, count(array_intersect(wp_seed_content_directory_get_entries(array('status' => 'practicing')), array_values($entry_ids))), 'Nine public practicing');
     ck_a6_wp_same(5, count(array_intersect(wp_seed_content_directory_get_entries(array('status' => 'seeking_models')), array_values($entry_ids))), 'Five public seeking models');
+    ck_a6_wp_same(5, count(array_intersect(wp_seed_content_directory_get_entries(array('seeking_models' => '1')), array_values($entry_ids))), 'Five public entries have the orthogonal seeking flag');
+    ck_a6_wp_same(0, count(array_intersect(wp_seed_content_directory_get_entries(array('profile_type' => 'praticien')), array_values($entry_ids))), 'Fictional import assigns no permanent profile type');
     foreach ($batch_public as $id) {
         $data = wp_seed_content_directory_get_public_data($id);
         $serialized = serialize($data);

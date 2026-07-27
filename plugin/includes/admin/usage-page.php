@@ -235,6 +235,10 @@ function wp_seed_content_kit_get_usage_template_placeholder_catalog()
             wp_seed_content_kit_usage_placeholder('directory.bio', __('Présentation', 'wp-seed-content-kit'), 'textarea', __('Présentation publique.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.status', __('Code du statut', 'wp-seed-content-kit'), 'text', __('Valeur technique du statut professionnel.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.status_label', __('Statut', 'wp-seed-content-kit'), 'text', __('Libellé public du statut professionnel.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.profile_types', __('Types de profil', 'wp-seed-content-kit'), 'text', __('Libellés publics des types de profil.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.profile_type_slugs', __('Codes des types de profil', 'wp-seed-content-kit'), 'text', __('Codes praticien et intervenant séparés par des virgules.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.seeking_models', __('Recherche de modèles', 'wp-seed-content-kit'), 'text', __('Libellé public lorsque la recherche de modèles est active.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.seeking_models_active', __('Recherche active', 'wp-seed-content-kit'), 'text', __('Retourne 1 lorsque la recherche de modèles est active.', 'wp-seed-content-kit'), $public, __('Vide si inactive', 'wp-seed-content-kit')),
             wp_seed_content_kit_usage_placeholder('directory.city', __('Ville', 'wp-seed-content-kit'), 'text', __('Ville publique.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.postal_code', __('Code postal', 'wp-seed-content-kit'), 'text', __('Code postal public.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.department', __('Département', 'wp-seed-content-kit'), 'text', __('Département public.', 'wp-seed-content-kit'), $public, $empty),
@@ -357,10 +361,16 @@ function wp_seed_content_kit_get_usage_collection_catalog()
         __('Annuaire', 'wp-seed-content-kit') => array(
             'parameters' => array(
                 'status' => __('all, practicing ou seeking_models.', 'wp-seed-content-kit'),
+                'profile_type' => __('praticien ou intervenant.', 'wp-seed-content-kit'),
+                'profile_types' => __('Types séparés par des virgules.', 'wp-seed-content-kit'),
+                'profile_type_operator' => __('or pour au moins un type, and pour tous les types.', 'wp-seed-content-kit'),
+                'seeking_models' => __('all, 1 pour actives ou 0 pour inactives.', 'wp-seed-content-kit'),
                 'department' => __('Département public exact.', 'wp-seed-content-kit'),
                 'country' => __('Pays public exact.', 'wp-seed-content-kit'),
                 'featured' => __('all, only ou exclude.', 'wp-seed-content-kit'),
                 'ids' => __('Identifiants positifs séparés par des virgules.', 'wp-seed-content-kit'),
+                'exclude_ids' => __('Identifiants à exclure, séparés par des virgules.', 'wp-seed-content-kit'),
+                'offset' => __('Nombre de fiches à ignorer après tri.', 'wp-seed-content-kit'),
                 'limit' => __('0 pour tout afficher, sinon 1 à 100.', 'wp-seed-content-kit'),
                 'orderby' => __('display_order, name, date ou id.', 'wp-seed-content-kit'),
                 'order' => __('asc ou desc.', 'wp-seed-content-kit'),
@@ -515,6 +525,19 @@ function wp_seed_content_kit_render_usage_page()
     </div>
     <?php
 }
+
+function wp_seed_content_kit_get_usage_directory_presets()
+{
+    return array(
+        __('Tous les profils', 'wp-seed-content-kit') => '[seed_directory]',
+        __('Praticiens', 'wp-seed-content-kit') => '[seed_directory profile_type="praticien"]',
+        __('Intervenants', 'wp-seed-content-kit') => '[seed_directory profile_type="intervenant"]',
+        __('Recherche de modèles', 'wp-seed-content-kit') => '[seed_directory seeking_models="1"]',
+        __('Praticiens recherchant des modèles', 'wp-seed-content-kit') => '[seed_directory profile_type="praticien" seeking_models="1"]',
+        __('Intervenants recherchant des modèles', 'wp-seed-content-kit') => '[seed_directory profile_type="intervenant" seeking_models="1"]',
+    );
+}
+
 function wp_seed_content_kit_render_directory_generator()
 {
     ?>
@@ -522,6 +545,12 @@ function wp_seed_content_kit_render_directory_generator()
         <summary><strong><?php esc_html_e('Générateur Annuaire', 'wp-seed-content-kit'); ?></strong></summary>
         <div class="seed-usage-generator" data-seed-usage-generator data-shortcode="seed_directory">
             <p><?php esc_html_e('Module : Annuaire. Les filtres sont appliqués par le serveur et ne sont jamais affichés aux visiteurs.', 'wp-seed-content-kit'); ?></p>
+            <p><strong><?php esc_html_e('Configurations courantes', 'wp-seed-content-kit'); ?></strong></p>
+            <ul class="seed-usage-preset-list">
+                <?php foreach (wp_seed_content_kit_get_usage_directory_presets() as $label => $shortcode) : ?>
+                    <li><strong><?php echo esc_html($label); ?></strong> <code><?php echo esc_html($shortcode); ?></code></li>
+                <?php endforeach; ?>
+            </ul>
             <table class="form-table" role="presentation">
                 <tbody>
                     <tr>
@@ -530,6 +559,25 @@ function wp_seed_content_kit_render_directory_generator()
                             <option value=""><?php esc_html_e('Tous', 'wp-seed-content-kit'); ?></option>
                             <option value="practicing"><?php esc_html_e('En exercice', 'wp-seed-content-kit'); ?></option>
                             <option value="seeking_models"><?php esc_html_e('En recherche de modèles', 'wp-seed-content-kit'); ?></option>
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <th><label for="seed-directory-generator-profile-types"><?php esc_html_e('Types de profil', 'wp-seed-content-kit'); ?></label></th>
+                        <td><input id="seed-directory-generator-profile-types" type="text" class="regular-text code" placeholder="praticien,intervenant" data-seed-usage-attr="profile_types" data-seed-usage-label="<?php esc_attr_e('types de profil', 'wp-seed-content-kit'); ?>" data-seed-usage-default=""></td>
+                    </tr>
+                    <tr>
+                        <th><label for="seed-directory-generator-profile-operator"><?php esc_html_e('Combinaison des types', 'wp-seed-content-kit'); ?></label></th>
+                        <td><select id="seed-directory-generator-profile-operator" data-seed-usage-attr="profile_type_operator" data-seed-usage-label="<?php esc_attr_e('combinaison', 'wp-seed-content-kit'); ?>" data-seed-usage-default="or">
+                            <option value="or"><?php esc_html_e('Au moins un type (OU)', 'wp-seed-content-kit'); ?></option>
+                            <option value="and"><?php esc_html_e('Tous les types (ET)', 'wp-seed-content-kit'); ?></option>
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <th><label for="seed-directory-generator-seeking"><?php esc_html_e('Recherche de modèles', 'wp-seed-content-kit'); ?></label></th>
+                        <td><select id="seed-directory-generator-seeking" data-seed-usage-attr="seeking_models" data-seed-usage-label="<?php esc_attr_e('recherche de modèles', 'wp-seed-content-kit'); ?>" data-seed-usage-default="all">
+                            <option value="all"><?php esc_html_e('Toutes les fiches', 'wp-seed-content-kit'); ?></option>
+                            <option value="1"><?php esc_html_e('Recherche active', 'wp-seed-content-kit'); ?></option>
+                            <option value="0"><?php esc_html_e('Recherche inactive', 'wp-seed-content-kit'); ?></option>
                         </select></td>
                     </tr>
                     <tr>
@@ -551,6 +599,14 @@ function wp_seed_content_kit_render_directory_generator()
                     <tr>
                         <th><label for="seed-directory-generator-ids"><?php esc_html_e('Identifiants', 'wp-seed-content-kit'); ?></label></th>
                         <td><input id="seed-directory-generator-ids" type="text" class="regular-text code" inputmode="numeric" placeholder="12,34,56" data-seed-usage-attr="ids" data-seed-usage-label="<?php esc_attr_e('identifiants', 'wp-seed-content-kit'); ?>" data-seed-usage-default=""></td>
+                    </tr>
+                    <tr>
+                        <th><label for="seed-directory-generator-exclude-ids"><?php esc_html_e('Identifiants exclus', 'wp-seed-content-kit'); ?></label></th>
+                        <td><input id="seed-directory-generator-exclude-ids" type="text" class="regular-text code" inputmode="numeric" placeholder="78,90" data-seed-usage-attr="exclude_ids" data-seed-usage-label="<?php esc_attr_e('identifiants exclus', 'wp-seed-content-kit'); ?>" data-seed-usage-default=""></td>
+                    </tr>
+                    <tr>
+                        <th><label for="seed-directory-generator-offset"><?php esc_html_e('Décalage', 'wp-seed-content-kit'); ?></label></th>
+                        <td><input id="seed-directory-generator-offset" type="number" min="0" max="100" value="0" data-seed-usage-attr="offset" data-seed-usage-label="<?php esc_attr_e('décalage', 'wp-seed-content-kit'); ?>" data-seed-usage-default="0"></td>
                     </tr>
                     <tr>
                         <th><label for="seed-directory-generator-limit"><?php esc_html_e('Limite', 'wp-seed-content-kit'); ?></label></th>

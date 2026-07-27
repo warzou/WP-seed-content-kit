@@ -68,6 +68,16 @@ function wp_seed_content_directory_get_public_data($post_id)
 
     $status = wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_status');
     $statuses = wp_seed_content_directory_get_statuses();
+    $profile_types = wp_seed_content_directory_get_meta_value(
+        $post_id,
+        '_seed_directory_profile_types'
+    );
+    $profile_type_labels = wp_seed_content_directory_get_profile_type_labels($profile_types);
+    $seeking_models = '1' === get_post_meta(
+        $post_id,
+        '_seed_directory_seeking_models',
+        true
+    );
     $photo = null;
     $thumbnail_id = (int) get_post_thumbnail_id($post_id);
     if ($thumbnail_id > 0) {
@@ -90,6 +100,13 @@ function wp_seed_content_directory_get_public_data($post_id)
         'bio' => sanitize_textarea_field($post->post_excerpt),
         'status' => $status,
         'status_label' => isset($statuses[$status]) ? $statuses[$status] : '',
+        'profile_types' => $profile_types,
+        'profile_type_labels' => $profile_type_labels,
+        'profile_types_label' => implode(', ', $profile_type_labels),
+        'seeking_models' => $seeking_models,
+        'seeking_models_label' => $seeking_models
+            ? __('Recherche de modèles', 'wp-seed-content-kit')
+            : '',
         'location' => array(
             'city' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_city'),
             'postal_code' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_postal_code'),

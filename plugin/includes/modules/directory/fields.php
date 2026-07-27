@@ -8,6 +8,8 @@ function wp_seed_content_directory_get_meta_definitions()
 {
     return array(
         '_seed_directory_status' => array('type' => 'status'),
+        '_seed_directory_profile_types' => array('type' => 'profile_types'),
+        '_seed_directory_seeking_models' => array('type' => 'boolean'),
         '_seed_directory_city' => array('type' => 'text'),
         '_seed_directory_postal_code' => array('type' => 'postal_code'),
         '_seed_directory_department' => array('type' => 'department'),
@@ -27,6 +29,57 @@ function wp_seed_content_directory_get_meta_definitions()
         '_seed_directory_internal_note' => array('type' => 'textarea'),
         '_seed_directory_last_verified' => array('type' => 'date'),
     );
+}
+
+function wp_seed_content_directory_get_profile_types()
+{
+    return array(
+        'praticien' => __('Praticien', 'wp-seed-content-kit'),
+        'intervenant' => __('Intervenant', 'wp-seed-content-kit'),
+    );
+}
+
+function wp_seed_content_directory_normalize_profile_types($value)
+{
+    if (is_string($value)) {
+        $value = '' === trim($value) ? array() : explode(',', $value);
+    }
+    if (!is_array($value)) {
+        return array();
+    }
+
+    $requested = array();
+    foreach ($value as $profile_type) {
+        if (!is_scalar($profile_type)) {
+            continue;
+        }
+        $profile_type = sanitize_key(trim((string) $profile_type));
+        if ('' !== $profile_type) {
+            $requested[$profile_type] = true;
+        }
+    }
+
+    $normalized = array();
+    foreach (wp_seed_content_directory_get_profile_types() as $profile_type => $label) {
+        if (isset($requested[$profile_type])) {
+            $normalized[] = $profile_type;
+        }
+    }
+
+    return $normalized;
+}
+
+function wp_seed_content_directory_get_profile_type_labels($profile_types)
+{
+    $labels = array();
+    $registered = wp_seed_content_directory_get_profile_types();
+    foreach (wp_seed_content_directory_normalize_profile_types($profile_types) as $profile_type) {
+        if (isset($registered[$profile_type])) {
+            $labels[] = $registered[$profile_type];
+        }
+    }
+
+    return $labels;
 }
 
 function wp_seed_content_directory_get_statuses()
@@ -176,6 +229,9 @@ function wp_seed_content_directory_sanitize_meta_value($key, $value)
     if ('boolean' === $type) {
         return !empty($value) ? '1' : '';
     }
+    if ('profile_types' === $type) {
+        return wp_seed_content_directory_normalize_profile_types($value);
+    }
     if ('textarea' === $type) {
         return sanitize_textarea_field($value);
     }
@@ -210,6 +266,9 @@ function wp_seed_content_directory_get_meta_value($post_id, $key)
         return '';
     }
     $value = get_post_meta($post_id, $key, true);
+    if ('profile_types' === $definitions[$key]['type']) {
+        return wp_seed_content_directory_normalize_profile_types($value);
+    }
     if ('' === $value && isset($definitions[$key]['default'])) {
         return $definitions[$key]['default'];
     }
@@ -223,8 +282,9 @@ function wp_seed_content_directory_sanitize_registered_meta($value, $meta_key)
 function wp_seed_content_directory_register_meta_fields()
 {
     foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
+        $registered_type = 'profile_types' === $definition['type'] ? 'array' : 'string';
         register_post_meta('seed_directory', $key, array(
-            'type' => 'string',
+            'type' => $registered_type,
             'single' => true,
             'show_in_rest' => false,
             'sanitize_callback' => 'wp_seed_content_directory_sanitize_registered_meta',

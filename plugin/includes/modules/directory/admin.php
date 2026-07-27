@@ -11,6 +11,7 @@ function wp_seed_content_directory_add_meta_boxes()
     remove_meta_box('slugdiv', 'seed_directory', 'normal');
 
     add_meta_box('wp_seed_content_directory_identity', __('Identité', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_identity_box', 'seed_directory', 'normal', 'high');
+    add_meta_box('wp_seed_content_directory_profile', __('Profil dans l’annuaire', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_profile_box', 'seed_directory', 'normal', 'high');
     add_meta_box('wp_seed_content_directory_situation', __('Localisation, présentation et photo', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_situation_box', 'seed_directory', 'normal', 'high');
     add_meta_box('wp_seed_content_directory_contacts', __('Coordonnées', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_contacts_box', 'seed_directory', 'normal', 'default');
     add_meta_box('wp_seed_content_directory_publication', __('Autorisation et suivi', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_publication_box', 'seed_directory', 'normal', 'default');
@@ -109,6 +110,33 @@ function wp_seed_content_directory_render_situation_box($post)
     <?php
 }
 
+function wp_seed_content_directory_render_profile_box($post)
+{
+    $selected = wp_seed_content_directory_get_admin_field_value(
+        $post->ID,
+        '_seed_directory_profile_types'
+    );
+    $selected = is_array($selected) ? $selected : array();
+    ?>
+    <input type="hidden" name="wp_seed_content_directory_profile_present" value="1">
+    <p class="description"><?php esc_html_e('Les types décrivent les usages durables de la fiche. Le statut de recherche de modèles est temporaire et indépendant.', 'wp-seed-content-kit'); ?></p>
+    <fieldset class="seed-directory-field-group">
+        <legend><strong><?php esc_html_e('Types de profil', 'wp-seed-content-kit'); ?></strong></legend>
+        <?php foreach (wp_seed_content_directory_get_profile_types() as $profile_type => $label) : ?>
+            <p><label>
+                <input type="checkbox" name="_seed_directory_profile_types[]" value="<?php echo esc_attr($profile_type); ?>" <?php checked(in_array($profile_type, $selected, true)); ?>>
+                <?php echo esc_html($label); ?>
+            </label></p>
+        <?php endforeach; ?>
+        <p class="description"><?php esc_html_e('Une fiche peut avoir plusieurs types ou rester temporairement non classée.', 'wp-seed-content-kit'); ?></p>
+    </fieldset>
+    <fieldset class="seed-directory-field-group">
+        <legend><strong><?php esc_html_e('Statut actuel', 'wp-seed-content-kit'); ?></strong></legend>
+        <?php wp_seed_content_directory_render_checkbox($post->ID, '_seed_directory_seeking_models', __('Recherche actuellement des modèles', 'wp-seed-content-kit')); ?>
+    </fieldset>
+    <?php
+}
+
 function wp_seed_content_directory_render_contacts_box($post)
 {
     echo '<p class="description">' . esc_html__('Les coordonnées restent privées tant que leur case d’affichage n’est pas cochée. Une coordonnée publique doit être renseignée et valide.', 'wp-seed-content-kit') . '</p>';
@@ -167,15 +195,23 @@ function wp_seed_content_directory_save_meta($post_id, $post)
         return;
     }
 
+    $profile_panel_present = isset($_POST['wp_seed_content_directory_profile_present']);
     foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
-        if ('boolean' === $definition['type']) {
+        if (in_array($key, array('_seed_directory_profile_types', '_seed_directory_seeking_models'), true) && !$profile_panel_present) {
+            continue;
+        }
+        if ('profile_types' === $definition['type']) {
+            $value = isset($_POST[$key])
+                ? wp_seed_content_directory_sanitize_meta_value($key, wp_unslash($_POST[$key]))
+                : array();
+        } elseif ('boolean' === $definition['type']) {
             $value = isset($_POST[$key]) ? '1' : '';
         } elseif (array_key_exists($key, $_POST)) {
             $value = wp_seed_content_directory_sanitize_meta_value($key, wp_unslash($_POST[$key]));
         } else {
             continue;
         }
-        if ('' === $value) {
+        if ('' === $value || array() === $value) {
             delete_post_meta($post_id, $key);
         } else {
             update_post_meta($post_id, $key, $value);

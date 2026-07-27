@@ -12,7 +12,7 @@ Le manifeste de reference `tests/fixtures/native-directory-demo-v1.json` est ent
 
 La racine autorise uniquement `schema_version`, `batch_id`, `source_system`, `source_snapshot`, `generated_at`, `media` et `entries`. Les objets media et fiche ont egalement une liste fermee de cles. Les types, identifiants, references, pays, statuts, contacts publics, autorisations, alts, dimensions, MIME, donnees binaires et hashes sont controles avant la premiere ecriture. Une erreur retourne un resultat type en echec et ne cree ni fiche, ni media, ni registre.
 
-Chaque fiche utilise exclusivement le titre, l'extrait, l'image mise en avant, `menu_order` et les 19 metas natives documentees dans `ANNUAIRE-MODULE.md`. Aucun champ historique abandonne n'est importe.
+Chaque fiche utilise exclusivement le titre, l'extrait, l'image mise en avant, `menu_order` et les 21 metas natives documentees dans `ANNUAIRE-MODULE.md`. Aucun champ historique abandonne n'est importe.
 
 ## References et hashes
 
@@ -41,3 +41,7 @@ L'import et le rollback exigent le contexte retourne par `wp_seed_content_direct
 Le harnais autonome valide le schema, les hashes, les erreurs globales, les permissions et l'absence de surfaces automatiques. Le harnais WordPress valide import, reimport, mises a jour ciblees, media, source absente, registre, rendu public, Collections, Templates, shortcode, confidentialite, rollback et preservation du contenu hors lot. Il supprime ses contenus, utilisateurs et registres temporaires apres execution.
 
 WP Seed Directory peut servir de reference conceptuelle, mais CK-A6 ne charge, n'appelle et ne copie aucun de ses namespaces ou fichiers.
+
+## Compatibilité 0.8.0-dev
+
+L'import fictif renseigne `_seed_directory_seeking_models=1` lorsque son statut source vaut `seeking_models`. Il ne renseigne jamais `_seed_directory_profile_types`, car le manifeste historique ne contient aucune décision explicite permettant de distinguer praticien et intervenant. Réimport et rollback conservent leur contrat idempotent.

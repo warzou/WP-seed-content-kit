@@ -239,7 +239,7 @@ $GLOBALS['seed_l4_meta'][1]['_seed_directory_email_visible'] = '';
 $GLOBALS['seed_l4_meta'][1]['_seed_directory_internal_note'] = 'PRIVATE-L4-NOTE';
 
 $data = wp_seed_content_directory_get_public_data(1);
-seed_l4_same(array('id', 'name', 'photo', 'bio', 'status', 'status_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($data), 'Fixed public schema');
+seed_l4_same(array('id', 'name', 'photo', 'bio', 'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label', 'seeking_models', 'seeking_models_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($data), 'Fixed public schema');
 seed_l4_same(array('phone' => '+33 1 00 00 00 01'), $data['contacts'], 'Only visible contact returned');
 seed_l4_assert(false === strpos(serialize($data), 'PRIVATE-L4'), 'Public data excludes private sentinels');
 seed_l4_same(false, wp_seed_content_directory_get_public_data(4), 'Ineligible entry returns false');
@@ -319,6 +319,7 @@ seed_l4_same('directory', $GLOBALS['seed_l4_template_module'][0], 'Directory tem
 $definitions = $GLOBALS['seed_l4_template_module'][1]['placeholders'];
 $expected_placeholders = array(
     'directory.name', 'directory.photo', 'directory.bio', 'directory.status', 'directory.status_label',
+    'directory.profile_types', 'directory.profile_type_slugs', 'directory.seeking_models', 'directory.seeking_models_active',
     'directory.city', 'directory.postal_code', 'directory.department', 'directory.country',
     'directory.phone', 'directory.email', 'directory.website', 'directory.facebook',
     'directory.instagram', 'directory.featured',

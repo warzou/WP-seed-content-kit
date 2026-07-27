@@ -846,3 +846,14 @@ La V1 respecte les invariants suivants :
 Ce document fixe le contrat expérimental après l'implémentation et la validation serveur et visuelle des quatre champs Citation, des quatre champs texte Témoignage et de la source Photo. Il ne vaut ni compatibilité Divi générale, ni garantie universelle de l'aperçu ou des métadonnées média, ni promesse produit.
 
 En cas de contradiction entre une proposition technique future et ce contrat, la décision doit être réexaminée explicitement. Une contrainte de Divi ne doit pas modifier silencieusement le sens des données WP Seed, contourner le résolveur ou fragiliser les workflows existants.
+
+## 15. Annuaire multi-usages 0.8.0-dev
+
+L'Annuaire n'ajoute aucun provider Dynamic Content Divi direct et aucun support Loop Builder. Les nouveaux champs sont disponibles dans le contexte public d'un Template Annuaire :
+
+- `directory.profile_types` : liste de libellés humains ;
+- `directory.profile_type_slugs` : CSV de slugs ;
+- `directory.seeking_models` : libellé humain ou chaîne vide ;
+- `directory.seeking_models_active` : `1` ou chaîne vide.
+
+Un Template Content Kit peut utiliser un Layout Divi Library pour afficher ces valeurs par fiche. Les limites Divi 5.9.0 documentées pour les boucles natives restent inchangées. Le fallback local par fiche et l'intégrité du Layout enregistré doivent être vérifiés en recette.

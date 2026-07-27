@@ -254,7 +254,9 @@ function wp_seed_content_directory_migration_find_medium($source_id)
 function wp_seed_content_directory_migration_entry_fields($entry, $attachment_id)
 {
     $meta = array(
-        '_seed_directory_status' => $entry['professional_status'], '_seed_directory_city' => $entry['city'],
+        '_seed_directory_status' => $entry['professional_status'],
+        '_seed_directory_seeking_models' => 'seeking_models' === $entry['professional_status'] ? '1' : '',
+        '_seed_directory_city' => $entry['city'],
         '_seed_directory_postal_code' => $entry['postal_code'], '_seed_directory_department' => $entry['department'],
         '_seed_directory_country' => strtoupper($entry['country']), '_seed_directory_featured' => $entry['featured'] ? '1' : '',
         '_seed_directory_phone' => $entry['phone'], '_seed_directory_phone_visible' => $entry['phone_public'] ? '1' : '',

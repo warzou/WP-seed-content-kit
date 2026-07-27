@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0-dev] - 2026-07-26
+
+### Annuaire multi-usages
+
+- Ajout de types de profil multi-valués `praticien` et `intervenant`, indépendants du statut temporaire « Recherche de modèles ».
+- Extension additive de la Data API Annuaire, des Collections, de `[seed_directory]`, du générateur Utilisation et des Templates avec valeurs vides propres.
+- Compatibilité préservée pour les fiches historiques sans type : visibles sans filtre, exclues uniquement des sélections typées.
+- Migration idempotente de l'ancien statut `seeking_models` vers le nouveau booléen, sans attribution automatique d'un type permanent.
+- Six configurations non persistantes documentées pour les annuaires complet, praticiens, intervenants et recherche de modèles.
+- Aucun rendu supplémentaire imposé aux cartes natives et aucune intégration Divi Loop Builder ajoutée.
+
 ## [0.7.0] - 2026-07-26
 
 ### Stable

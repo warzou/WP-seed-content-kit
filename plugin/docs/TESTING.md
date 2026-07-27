@@ -259,3 +259,16 @@ Construire le ZIP stable deux fois depuis les seuls fichiers distribues. Les deu
 Exécuter `tests/divi-testimonial-collection-harness.php` sous PHP 7.0.33 et PHP 8.4.x, puis les harnais historiques. Vérifier l’absence complète du module et de la route lorsque Divi 5 est absent, l’enregistrement via `ModuleRegistration`, les valeurs par défaut, `ids`, `featured`, `context`, `limit`, `orderby`, `order`, Template et colonnes, ainsi que l’équivalence avec `[seed_testimonials]`.
 
 Dans un WordPress isolé avec Divi 5.9.x, créer des Témoignages fictifs, un Template natif et un Template utilisant un Layout Divi Library. Vérifier le Visual Builder sans chargement permanent, les changements de réglages sans rechargement, les états vide et fallback, les droits Administrator/Editor, l’absence de fuite privée et les viewports 1440, 820, 390 et 320 px avec zoom 200 %. Après recette, supprimer site, fixtures, captures brutes, runtime et copie privée de Divi.
+
+## Annuaire 0.8.0-dev — profils multi-usages
+
+Harnais dédiés :
+
+```text
+php tests/directory-profile-types-harness.php
+WP_SEED_WORDPRESS_LOAD=/chemin/wp-load.php php tests/wordpress-directory-profile-types-harness.php
+```
+
+La matrice WordPress jetable couvre Alice (praticienne), Bruno (intervenant), Céline (les deux), David (praticien avec recherche active), Emma (intervenante avec recherche active), une fiche historique sans nouvelle méta et un brouillon. Elle vérifie les Collections exactes, la confidentialité, les shortcodes, les Templates, la sauvegarde Editor, le refus d'un utilisateur non autorisé, le nonce, la sauvegarde partielle et la migration idempotente.
+
+La recette Divi 5.9.0 doit utiliser un Layout de Template Annuaire, sans Loop Builder, puis vérifier frontend, Visual Builder, profil multi-type, valeur vide, fallback local et intégrité du Layout enregistré.

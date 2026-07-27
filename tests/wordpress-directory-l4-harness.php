@@ -158,7 +158,7 @@ try {
     seed_l4_wp_same(array(), wp_seed_content_directory_get_entries(array('ids' => array($entry_ids[9], $entry_ids[15]))), 'Draft IDs cannot bypass eligibility');
 
     $first = wp_seed_content_directory_get_public_data($entry_ids[0]);
-    seed_l4_wp_same(array('id', 'name', 'photo', 'bio', 'status', 'status_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($first), 'Fixed public schema');
+    seed_l4_wp_same(array('id', 'name', 'photo', 'bio', 'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label', 'seeking_models', 'seeking_models_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($first), 'Fixed public schema');
     seed_l4_wp_same(array('city', 'postal_code', 'department', 'country'), array_keys($first['location']), 'Fixed location schema');
     seed_l4_wp_same(array('phone'), array_keys($first['contacts']), 'Only visible contact in public API');
     seed_l4_wp_same(false, wp_seed_content_directory_get_public_data($entry_ids[9]), 'Draft has no public data');
@@ -241,7 +241,7 @@ try {
     seed_l4_wp_assert(shortcode_exists('seed_testimonials'), 'Testimonials shortcode unchanged');
     seed_l4_wp_assert(shortcode_exists('seed_quotes'), 'Quotes shortcode unchanged');
     seed_l4_wp_same('1.0', wp_seed_content_kit_get_contract_version(), 'Template Extension contract unchanged');
-    seed_l4_wp_same(15, count(wp_seed_content_kit_get_registered_template_placeholders('directory')), 'Exactly fifteen Directory placeholders');
+    seed_l4_wp_same(19, count(wp_seed_content_kit_get_registered_template_placeholders('directory')), 'Exactly nineteen Directory placeholders');
 
     wp_cache_flush();
     $performance['data_api'] = seed_l4_wp_measure(function () use ($public_ids) { return wp_seed_content_directory_get_public_data($public_ids[0]); });

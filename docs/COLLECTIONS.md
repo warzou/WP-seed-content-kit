@@ -848,3 +848,21 @@ Ce document fixe le contrat Collections V1. Le lot C fournit l'API PHP de sélec
 La documentation distingue la release stable publique `0.3.0` du release candidate `0.4.0` en préparation.
 
 En cas de contradiction entre une proposition technique et les priorités, états vides ou invariants de ce document, le contrat doit être réexaminé explicitement avant tout changement de code.
+
+## 14. Annuaire multi-usages — contrat 0.8.0-dev
+
+La fonction `wp_seed_content_directory_get_entries($args)` reste l'unique source de sélection Annuaire et retourne des IDs éligibles ordonnés.
+
+| Argument | Défaut | Contrat |
+| --- | --- | --- |
+| `profile_type` | `''` | `praticien` ou `intervenant` |
+| `profile_types` | `array()` | tableau ou CSV de types autorisés |
+| `profile_type_operator` | `or` | `or` exige au moins un type, `and` exige tous les types |
+| `seeking_models` | `all` | `all`, `1` ou `0` |
+| `ids` / `exclude_ids` | `array()` | tableaux d'IDs positifs |
+| `offset` / `limit` | `0` | pagination appliquée après tri et éligibilité |
+| `orderby` / `order` | historique | tri stable inchangé |
+
+Une valeur de type, d'opérateur ou de statut temporaire invalide échoue fermement avec une Collection vide. L'absence de filtre inclut les fiches historiques sans type. Un filtre explicite les exclut. Les filtres de profil et de recherche se combinent par intersection.
+
+Six configurations non persistantes sont fournies par `wp_seed_content_directory_get_predefined_collections()` : tous, praticiens, intervenants, recherche active et les deux combinaisons type + recherche.

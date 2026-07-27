@@ -83,7 +83,7 @@ try {
     seed_l3_wp_assert(post_type_exists('seed_directory'), 'Directory CPT registered');
     seed_l3_wp_same(false, get_post_type_object('seed_directory')->show_in_rest, 'Directory remains outside REST');
     seed_l3_wp_assert(post_type_supports('seed_directory', 'revisions'), 'Directory supports native revisions');
-    seed_l3_wp_same(19, count(wp_seed_content_directory_get_meta_definitions()), 'Exact business meta count');
+    seed_l3_wp_same(21, count(wp_seed_content_directory_get_meta_definitions()), 'Exact business meta count');
 
     $draft_id = seed_l3_wp_create_entry(array(
         'post_title' => 'SEED L3 MINIMAL DRAFT',
@@ -299,6 +299,7 @@ try {
     $directory_boxes = is_array($wp_meta_boxes) ? $wp_meta_boxes : array();
     $expected_boxes = array(
         'wp_seed_content_directory_identity',
+        'wp_seed_content_directory_profile',
         'wp_seed_content_directory_situation',
         'wp_seed_content_directory_contacts',
         'wp_seed_content_directory_publication',
@@ -310,7 +311,7 @@ try {
             $found_boxes[$box_id] = true;
         }
     }
-    seed_l3_wp_same($expected_boxes, array_values(array_intersect($expected_boxes, array_keys($found_boxes))), 'Exactly four Directory custom panels: ' . serialize(array_keys($found_boxes)));
+    seed_l3_wp_same($expected_boxes, array_values(array_intersect($expected_boxes, array_keys($found_boxes))), 'Exactly five Directory custom panels: ' . serialize(array_keys($found_boxes)));
 
     ob_start();
     wp_seed_content_directory_admin_styles();

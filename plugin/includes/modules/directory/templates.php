@@ -18,6 +18,10 @@ function wp_seed_content_directory_register_template_module()
             'directory.bio' => array('type' => 'textarea', 'label' => __('Présentation', 'wp-seed-content-kit')),
             'directory.status' => array('type' => 'text', 'label' => __('Code du statut', 'wp-seed-content-kit')),
             'directory.status_label' => array('type' => 'text', 'label' => __('Statut', 'wp-seed-content-kit')),
+            'directory.profile_types' => array('type' => 'text', 'label' => __('Types de profil', 'wp-seed-content-kit')),
+            'directory.profile_type_slugs' => array('type' => 'text', 'label' => __('Codes des types de profil', 'wp-seed-content-kit')),
+            'directory.seeking_models' => array('type' => 'text', 'label' => __('Recherche de modèles', 'wp-seed-content-kit')),
+            'directory.seeking_models_active' => array('type' => 'text', 'label' => __('Recherche de modèles active', 'wp-seed-content-kit')),
             'directory.city' => array('type' => 'text', 'label' => __('Ville', 'wp-seed-content-kit')),
             'directory.postal_code' => array('type' => 'text', 'label' => __('Code postal', 'wp-seed-content-kit')),
             'directory.department' => array('type' => 'text', 'label' => __('Département', 'wp-seed-content-kit')),
@@ -51,6 +55,12 @@ function wp_seed_content_directory_get_template_context($data)
         'directory.bio' => isset($data['bio']) ? $data['bio'] : '',
         'directory.status' => isset($data['status']) ? $data['status'] : '',
         'directory.status_label' => isset($data['status_label']) ? $data['status_label'] : '',
+        'directory.profile_types' => isset($data['profile_types_label']) ? $data['profile_types_label'] : '',
+        'directory.profile_type_slugs' => !empty($data['profile_types']) && is_array($data['profile_types'])
+            ? implode(',', $data['profile_types'])
+            : '',
+        'directory.seeking_models' => isset($data['seeking_models_label']) ? $data['seeking_models_label'] : '',
+        'directory.seeking_models_active' => !empty($data['seeking_models']) ? '1' : '',
         'directory.city' => isset($location['city']) ? $location['city'] : '',
         'directory.postal_code' => isset($location['postal_code']) ? $location['postal_code'] : '',
         'directory.department' => isset($location['department']) ? $location['department'] : '',

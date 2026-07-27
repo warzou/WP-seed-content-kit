@@ -31,22 +31,30 @@ function wp_seed_content_directory_normalize_shortcode_atts($atts)
 {
     $atts = shortcode_atts(array(
         'status' => 'all',
+        'profile_type' => '',
+        'profile_types' => '',
+        'profile_type_operator' => 'or',
+        'seeking_models' => 'all',
         'department' => '',
         'country' => '',
         'featured' => 'all',
         'limit' => '0',
+        'offset' => '0',
         'orderby' => 'display_order',
         'order' => 'asc',
         'ids' => '',
+        'exclude_ids' => '',
         'template' => '',
     ), $atts, 'seed_directory');
 
     $limit_raw = trim(sanitize_text_field((string) $atts['limit']));
-    if (!preg_match('/^\d+$/D', $limit_raw)) {
+    $offset_raw = trim(sanitize_text_field((string) $atts['offset']));
+    if (!preg_match('/^\d+$/D', $limit_raw) || !preg_match('/^\d+$/D', $offset_raw)) {
         return null;
     }
     $ids = wp_seed_content_directory_parse_shortcode_ids($atts['ids']);
-    if (null === $ids) {
+    $exclude_ids = wp_seed_content_directory_parse_shortcode_ids($atts['exclude_ids']);
+    if (null === $ids || null === $exclude_ids) {
         return null;
     }
 
@@ -58,13 +66,19 @@ function wp_seed_content_directory_normalize_shortcode_atts($atts)
 
     $args = array(
         'status' => strtolower(sanitize_key($atts['status'])),
+        'profile_type' => sanitize_text_field($atts['profile_type']),
+        'profile_types' => sanitize_text_field($atts['profile_types']),
+        'profile_type_operator' => strtolower(sanitize_key($atts['profile_type_operator'])),
+        'seeking_models' => strtolower(sanitize_key($atts['seeking_models'])),
         'department' => sanitize_text_field($atts['department']),
         'country' => sanitize_text_field($atts['country']),
         'featured' => strtolower(sanitize_key($atts['featured'])),
         'limit' => min(100, (int) $limit_raw),
+        'offset' => min(10000, (int) $offset_raw),
         'orderby' => strtolower(sanitize_key($atts['orderby'])),
         'order' => strtolower(sanitize_key($atts['order'])),
         'ids' => $ids,
+        'exclude_ids' => $exclude_ids,
     );
     if (null === wp_seed_content_directory_normalize_collection_args($args)) {
         return null;

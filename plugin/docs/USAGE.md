@@ -1,6 +1,6 @@
 # Usage - WP Seed Content Kit
 
-Statut : WP Seed Content Kit 0.7.0, version stable. Le module Annuaire reste natif et le module Divi 5 Témoignages est validé.
+Statut : WP Seed Content Kit 0.8.0-dev. Le module Annuaire reste natif et le module Divi 5 Témoignages est validé.
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés, des shortcodes et des templates réutilisables dans WordPress.
 
@@ -56,7 +56,7 @@ Elle retourne un ID de Citation publiée non protégée, stable pour la date civ
 
 ## Annuaire - saisie CK-A3
 
-Dans Annuaire, Editor et Administrator utilisent la même fiche en quatre panneaux. Saisir le nom dans « Nom affiché », choisir le statut, compléter librement localisation et présentation, puis ajouter une photo facultative. Si une photo est choisie, son texte alternatif devient obligatoire avant publication.
+Dans Annuaire, Editor et Administrator utilisent la même fiche en cinq panneaux. Saisir le nom dans « Nom affiché », classer si nécessaire le profil comme praticien et/ou intervenant, indiquer séparément une recherche actuelle de modèles, puis compléter librement localisation et présentation. La photo reste facultative ; si elle est choisie, son texte alternatif devient obligatoire avant publication.
 
 Chaque coordonnée possède une case « Afficher … dans l’annuaire », décochée par défaut. Une valeur peut rester enregistrée en privé, même dans un brouillon incomplet. Cocher sa visibilité exige une valeur publiable valide. L’autorisation « La personne a autorisé la publication de ses informations » est obligatoire mais ne rend aucune coordonnée publique automatiquement.
 
@@ -403,3 +403,22 @@ Le manifeste fourni contient exclusivement des noms, contacts et images de demon
 Dans le Visual Builder, ajouter le module `WP Seed — Témoignages`, puis régler le titre facultatif, la sélection mis en avant, le contexte, les IDs explicites, la limite, le tri, l’ordre, le Template facultatif et les colonnes. Le module interroge la Collection canonique et affiche le rendu réel à chaque changement. Un Template publié du module Témoignages peut être choisi par Administrator ; un Template absent, brouillon ou incompatible déclenche le fallback natif.
 
 Le shortcode `[seed_testimonials]` reste supporté pour les pages existantes. À paramètres identiques, son HTML de collection est produit par le même renderer. Editor conserve ses droits WordPress/Divi sur les pages et les Témoignages, sans accès à la gestion des Templates ni à la configuration globale Content Kit.
+
+## Annuaire multi-usages
+
+Le type décrit durablement la fonction publique de la personne. Le statut « Recherche de modèles » décrit une situation temporaire et ne remplace pas le type.
+
+```text
+Tous                 [seed_directory]
+Praticiens           [seed_directory profile_type="praticien"]
+Intervenants         [seed_directory profile_type="intervenant"]
+Recherche            [seed_directory seeking_models="1"]
+Praticiens + recherche    [seed_directory profile_type="praticien" seeking_models="1"]
+Intervenants + recherche  [seed_directory profile_type="intervenant" seeking_models="1"]
+```
+
+Une fiche `praticien,intervenant` peut apparaître dans les deux pages. `profile_types="praticien,intervenant" profile_type_operator="and"` sélectionne uniquement les profils cumulant les deux types. L'opérateur `or` sélectionne au moins un type. `exclude_ids`, `offset`, `limit`, `orderby` et `order` s'appliquent après les règles d'éligibilité.
+
+Les fiches historiques sans `_seed_directory_profile_types` restent dans `[seed_directory]`, mais sont absentes d'un filtre typé. Aucun type n'est attribué automatiquement.
+
+Gutenberg et Spectra utilisent le shortcode canonique. Divi utilise le shortcode ou un Template Content Kit fondé sur un Layout Divi Library. Le Loop Builder Annuaire n'est pas pris en charge.

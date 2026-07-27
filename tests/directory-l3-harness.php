@@ -196,6 +196,8 @@ require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/bootstrap.php';
 
 $expected_keys = array(
     '_seed_directory_status',
+    '_seed_directory_profile_types',
+    '_seed_directory_seeking_models',
     '_seed_directory_city',
     '_seed_directory_postal_code',
     '_seed_directory_department',
@@ -216,12 +218,15 @@ $expected_keys = array(
     '_seed_directory_last_verified',
 );
 seed_l3_same($expected_keys, array_keys(wp_seed_content_directory_get_meta_definitions()), 'Exact canonical meta definitions');
-seed_l3_same(19, count(wp_seed_content_directory_get_meta_definitions()), 'No extra business meta');
+seed_l3_same(21, count(wp_seed_content_directory_get_meta_definitions()), 'No extra business meta');
 seed_l3_same(array('practicing', 'seeking_models'), array_keys(wp_seed_content_directory_get_statuses()), 'Exact statuses');
 
 $cases = array(
     array('_seed_directory_status', 'practicing', 'practicing'),
     array('_seed_directory_status', 'other', ''),
+    array('_seed_directory_profile_types', array('intervenant', 'invalid', 'praticien', 'intervenant'), array('praticien', 'intervenant')),
+    array('_seed_directory_seeking_models', 1, '1'),
+    array('_seed_directory_seeking_models', 0, ''),
     array('_seed_directory_city', ' <b>Paris</b> ', 'Paris'),
     array('_seed_directory_postal_code', '00120', '00120'),
     array('_seed_directory_postal_code', 'AB-01 2', 'AB-01 2'),
@@ -247,7 +252,8 @@ $cases = array(
     array('_seed_directory_internal_note', '<b>Interne</b>', 'Interne'),
 );
 foreach ($cases as $case) {
-    seed_l3_same($case[2], wp_seed_content_directory_sanitize_meta_value($case[0], $case[1]), 'Sanitize ' . $case[0] . ' ' . $case[1]);
+    $case_label = is_array($case[1]) ? implode(',', $case[1]) : $case[1];
+    seed_l3_same($case[2], wp_seed_content_directory_sanitize_meta_value($case[0], $case[1]), 'Sanitize ' . $case[0] . ' ' . $case_label);
 }
 seed_l3_same('', wp_seed_content_directory_sanitize_meta_value('_seed_directory_unknown', 'value'), 'Unknown meta rejected');
 $filtered_draft = wp_seed_content_directory_filter_insert_post_data(array(
@@ -342,9 +348,9 @@ $GLOBALS['seed_l3_caps'] = true;
 $columns = wp_seed_content_directory_columns(array('cb' => 'Select', 'title' => 'Title', 'date' => 'Date'));
 seed_l3_same(array('cb', 'directory_photo', 'title', 'directory_status', 'directory_city', 'directory_department', 'directory_authorized', 'directory_public_contacts', 'directory_wp_state', 'date'), array_keys($columns), 'Exact admin columns');
 wp_seed_content_directory_add_meta_boxes();
-seed_l3_same(4, count($GLOBALS['seed_l3_meta_boxes']), 'Exactly four custom panels');
+seed_l3_same(5, count($GLOBALS['seed_l3_meta_boxes']), 'Exactly five custom panels');
 wp_seed_content_directory_register_post_type();
-seed_l3_same(19, count($GLOBALS['seed_l3_registered_meta']), 'All canonical meta registered');
+seed_l3_same(21, count($GLOBALS['seed_l3_registered_meta']), 'All canonical meta registered');
 foreach ($GLOBALS['seed_l3_registered_meta'] as $registered) {
     seed_l3_same(false, $registered['show_in_rest'], 'Registered meta remains private');
 }
@@ -359,6 +365,12 @@ seed_l3_assert(false !== strpos($admin_source, 'wp_verify_nonce'), 'Save require
 seed_l3_assert(false !== strpos($admin_source, 'DOING_AUTOSAVE'), 'Save ignores autosave');
 seed_l3_assert(false !== strpos($admin_source, 'wp_is_post_revision'), 'Save ignores revision rows');
 seed_l3_assert(false !== strpos($admin_source, "current_user_can('edit_seed_directory_entry'"), 'Save requires object capability');
+seed_l3_assert(false !== strpos($admin_source, "Profil dans l’annuaire"), 'Profile panel title is explicit');
+seed_l3_assert(false !== strpos($admin_source, "_seed_directory_profile_types[]"), 'Profile panel supports multiple types');
+seed_l3_assert(false !== strpos($admin_source, "_seed_directory_seeking_models"), 'Profile panel exposes temporary seeking status');
+seed_l3_assert(false !== strpos($admin_source, "wp_seed_content_directory_profile_present"), 'Profile panel has a partial-save marker');
+seed_l3_assert(false !== strpos($admin_source, '&& !$profile_panel_present'), 'Partial saves preserve the new fields');
+seed_l3_assert(false !== strpos($admin_source, "current_user_can('edit_seed_directory_entry'"), 'Editor capability protects profile fields');
 seed_l3_assert(false !== strpos($admin_source, 'La personne a autorisé la publication de ses informations'), 'Exact authorization label');
 seed_l3_assert(false !== strpos($admin_source, 'Cette autorisation est obligatoire pour publier la fiche'), 'Authorization help text');
 seed_l3_assert(false !== strpos($admin_source, '#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{display:block;width:100%;box-sizing:border-box}'), 'Directory text inputs use scoped fluid sizing');

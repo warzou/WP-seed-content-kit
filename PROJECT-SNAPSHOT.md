@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 26 juillet 2026
-Statut : 0.7.0 ; version stable
-Version courante du code : 0.7.0
+Statut : 0.8.0-dev ; développement Annuaire multi-usages
+Version courante du code : 0.8.0-dev
 Version stable publiee de reference : 0.7.0
 Commit de base de preparation stable : 8a6fb735a729d4b14c753c78f5304fb59349b287
 Tag stable publie de reference : v0.7.0
@@ -19,13 +19,13 @@ WP Seed Content Kit fournit des contenus éditoriaux structurés et des présent
 Le module directory comprend désormais :
 
 - CPT privé seed_directory, hors REST, recherche, archive, single et sitemap ;
-- dix-neuf métas métier privées avec sanitation centralisée et pays par défaut FR ;
-- quatre panneaux admin, colonnes sans données privées et capacités de contenu accordées par défaut à administrator et editor ;
+- vingt et une métas métier privées avec sanitation centralisée et pays par défaut FR ;
+- cinq panneaux admin, colonnes sans données privées et capacités de contenu accordées par défaut à administrator et editor ;
 - autorisation explicite, validation photo/alt et garde de publication avant/après écriture ;
 - prédicat canonique d’éligibilité et séparation stricte des contacts visibles ;
 - révisions natives et cycle de désactivation/réactivation non destructif.
 
-L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], un alias temporaire, deux groupes fixes, une carte native responsive et des cartes personnalisees par Template Content Kit. La grille semantique neutralise les marqueurs de liste herites des themes et une fiche sans photo commence directement par son contenu, sans placeholder. Le fallback reste local a chaque fiche et ne peut exposer un contact masque. Il ne subsiste aucune recherche publique, single, archive, REST/AJAX, migration runtime ou adaptateur inter-plugin. Le depot WP Seed Directory reste strictement separe et inchange.
+L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], un alias temporaire, deux groupes fixes, une carte native responsive et des cartes personnalisees par Template Content Kit. La grille semantique neutralise les marqueurs de liste herites des themes et une fiche sans photo commence directement par son contenu, sans placeholder. Le fallback reste local a chaque fiche et ne peut exposer un contact masque. Il ne subsiste aucune recherche publique, single, archive, REST/AJAX, import métier automatique ou adaptateur inter-plugin. La migration de schéma 0.8.0-dev est strictement additive et idempotente. Le depot WP Seed Directory reste strictement separe et inchange.
 Il combine actuellement :
 
 - des modules de contenus structurés ;
@@ -565,3 +565,11 @@ Le module `wp-seed-content-kit/testimonial-collection`, affiché comme « WP See
 L’aperçu passe par une route REST authentifiée réservée à `edit_pages`, uniquement enregistrée lorsque Divi 5 est disponible. Les Templates proposés sont publiés, associés à Témoignages et visibles seulement pour `manage_wp_seed_templates`. Le frontend conserve le fallback natif, les métadonnées privées ne sont jamais ajoutées au contexte, et le plugin reste activable sans Divi.
 
 La RC1 conserve le shortcode historique et le Dynamic Content individuel. Les Templates Content Kit fondés sur un Layout Divi résolvent le frontend et le Visual Builder avec un contexte et une identité de cache distincts par témoignage ; une erreur intermédiaire déclenche uniquement le fallback natif de la carte concernée. L’utilisation directe des providers Content Kit dans le Loop Builder natif de Divi 5.9.0 reste explicitement non supportée.
+
+## 22. Annuaire multi-usages — 0.8.0-dev
+
+Le développement 0.8.0-dev ajoute deux facettes orthogonales au module Annuaire : une liste normalisée de types permanents (`praticien`, `intervenant`) et le booléen temporaire « Recherche de modèles ». Une fiche peut cumuler les deux types et le statut temporaire.
+
+Les anciennes fiches sans type restent visibles dans la Collection complète. Elles ne sont jamais classées automatiquement et n'apparaissent dans une Collection typée qu'après une décision éditoriale. L'ancien statut `seeking_models` est copié de façon additive et idempotente vers le nouveau booléen, sans suppression ni réécriture du statut historique.
+
+Les Collections restent non persistantes et constituent l'unique source de filtrage pour les shortcodes et intégrations. Le rendu natif historique reste inchangé ; les nouveaux libellés sont opt-in dans les Templates. Divi reste pris en charge via shortcode et Layout de Template, sans Loop Builder Annuaire.

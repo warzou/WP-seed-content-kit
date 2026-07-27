@@ -1,20 +1,20 @@
 # Module Annuaire
 
-Statut : version stable 0.6.0 du module Annuaire natif.
+Statut : développement 0.8.0-dev du module Annuaire natif.
 
 ## Périmètre
 
 Annuaire est le module natif directory, actif par défaut et désactivable. Son CPT seed_directory reste strictement administratif : aucune archive, page individuelle, recherche publique, route REST ou entrée de sitemap.
 
-L3 fournit les champs, administration et eligibilite. L4 ajoute la Data API publique, les Collections, les shortcodes, le rendu natif et les Templates Content Kit. Il ne cree ni recherche, single, archive, migration runtime ou adaptateur avec WP Seed Directory.
+L3 fournit les champs, administration et eligibilite. L4 ajoute la Data API publique, les Collections, les shortcodes, le rendu natif et les Templates Content Kit. Il ne cree ni recherche, single, archive, import métier automatique ou adaptateur avec WP Seed Directory.
 
 ## Champs
 
 Les champs WordPress natifs sont le titre (nom), l’image mise en avant (photo), son texte alternatif, le résumé (présentation) et menu_order.
 
-Les dix-neuf métas privées sont :
+Les vingt et une métas privées sont :
 
-- _seed_directory_status, _seed_directory_city, _seed_directory_postal_code, _seed_directory_department, _seed_directory_country, _seed_directory_featured ;
+- _seed_directory_status, _seed_directory_profile_types, _seed_directory_seeking_models, _seed_directory_city, _seed_directory_postal_code, _seed_directory_department, _seed_directory_country, _seed_directory_featured ;
 - _seed_directory_phone, _seed_directory_email, _seed_directory_website, _seed_directory_facebook, _seed_directory_instagram et leurs cinq indicateurs _visible ;
 - _seed_directory_publication_authorized, _seed_directory_internal_note, _seed_directory_last_verified.
 
@@ -59,9 +59,9 @@ Les révisions natives couvrent le titre et la présentation. Les métas métier
 
 ## Sortie publique L4
 
-wp_seed_content_directory_get_public_data($post_id) retourne uniquement le schema ferme id, name, photo, bio, status, status_label, location, featured, display_order et contacts. Une fiche ineligible retourne false. Les contacts absents, invalides ou masques ne figurent pas dans le tableau.
+wp_seed_content_directory_get_public_data($post_id) retourne uniquement le schéma fermé id, name, photo, bio, status, status_label, profile_types, profile_type_labels, profile_types_label, seeking_models, seeking_models_label, location, featured, display_order et contacts. Une fiche ineligible retourne false. Les contacts absents, invalides ou masques ne figurent pas dans le tableau.
 
-wp_seed_content_directory_get_entries($args) retourne des IDs eligibles. Les filtres sont status, department, country, featured, limit, orderby, order et ids. Ordre display_order : ordre manuel, nom normalise sans distinction de casse ou d'accent, puis ID. Aucun ID explicite ne contourne eligibilite.
+wp_seed_content_directory_get_entries($args) retourne des IDs eligibles. Les filtres sont status (compatibilité), profile_type, profile_types, profile_type_operator, seeking_models, department, country, featured, ids, exclude_ids, offset, limit, orderby et order. Ordre display_order : ordre manuel, nom normalise sans distinction de casse ou d'accent, puis ID. Aucun ID explicite ne contourne eligibilite.
 
 [seed_directory] accepte les memes attributs et template. [wp_seed_directory] est un alias temporaire deprecie, sans avertissement public. Les valeurs invalides retournent une chaine vide. Les groupes restent, dans cet ordre, En exercice puis En recherche de modeles ; un groupe vide est omis.
 
@@ -77,7 +77,7 @@ Module desactive : shortcode vide, Collection vide, aucun asset et aucune exposi
 
 ## Guidage Utilisation CK-A4
 
-L’onglet Collections documente status, department, country, featured, ids, limit, orderby et order, leurs valeurs autorisées, le tri par défaut et l’état vide. Le générateur produit uniquement un shortcode [seed_directory] à copier et peut lui ajouter un slug de Template. Il ne sauvegarde ni Collection ni association Template/Collection.
+L’onglet Collections documente les types de profil, leur opérateur OR/AND, le statut temporaire, les sélections et exclusions, la pagination, le tri par défaut et l’état vide. Le générateur produit uniquement un shortcode [seed_directory] à copier et peut lui ajouter un slug de Template. Il ne sauvegarde ni Collection ni association Template/Collection.
 
 L’onglet Templates décrit exactement les quinze placeholders directory.*. Ils proviennent tous de la projection publique fermée. Les cinq placeholders de contact sont disponibles uniquement lorsque la valeur est valide et explicitement rendue publique ; aucune donnée privée n’est proposée. Sans attribut template, ou lorsqu’un Template demandé est inutilisable, la carte native reste le fallback local.
 
@@ -85,4 +85,24 @@ Gutenberg utilise le bloc Shortcode Core. Spectra intègre indirectement ce bloc
 
 ## Migration fictive CK-A6
 
-Le module inclut une API interne de migration documentee dans `ANNUAIRE-MIGRATION.md`. Elle cible exclusivement le CPT et les 19 metas natives, ne charge aucun code de WP Seed Directory et ne declenche jamais une migration au runtime. Les references, hashes, notes et registres techniques restent prives et ne traversent aucune couche publique.
+Le module inclut une API interne de migration documentee dans `ANNUAIRE-MIGRATION.md`. Elle cible exclusivement le CPT et les 21 metas natives, ne charge aucun code de WP Seed Directory et ne déclenche jamais cet import fictif au runtime. La mise à niveau de schéma 0.8.0-dev est séparée, additive et idempotente. Les references, hashes, notes et registres techniques restent prives et ne traversent aucune couche publique.
+
+## Profils multi-usages — 0.8.0-dev
+
+### Deux facettes indépendantes
+
+`_seed_directory_profile_types` contient un tableau ordonné et normalisé de zéro, un ou deux slugs : `praticien`, `intervenant`. `_seed_directory_seeking_models` vaut `1` uniquement lorsque la recherche de modèles est active ; la valeur inactive est absente.
+
+Le premier champ décrit un type durable. Le second décrit une situation temporaire. La V1 n'ajoute ni annonce, date d'expiration, discipline, quota, candidature ou coordonnées supplémentaires.
+
+### Compatibilité
+
+Une fiche sans type reste éligible dans l'Annuaire complet. Un filtre `profile_type` ou `profile_types` l'exclut. La migration additive copie uniquement l'ancien statut `seeking_models` vers le booléen et ne classe jamais automatiquement une ancienne fiche comme praticien.
+
+### Administration et publication
+
+Le panneau « Profil dans l'annuaire » accepte plusieurs types et aucun type obligatoire. Son marqueur de présence protège les deux nouvelles métadonnées lors d'une sauvegarde partielle. Nonce, capacité objet, autosave et révisions utilisent les gardes de l'éditeur Annuaire existant. Les règles d'autorisation de publication et de contacts publics ne changent pas.
+
+### Contrat public
+
+La Data API ajoute `profile_types`, `profile_type_labels`, `profile_types_label`, `seeking_models` et `seeking_models_label`, uniquement après le prédicat d'éligibilité. Les Templates ajoutent `directory.profile_types`, `directory.profile_type_slugs`, `directory.seeking_models` et `directory.seeking_models_active`. Les valeurs absentes sont des tableaux, booléens ou chaînes vides propres, jamais une sérialisation PHP.

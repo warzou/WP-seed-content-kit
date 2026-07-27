@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/capabilities.php';
 require_once __DIR__ . '/fields.php';
+require_once __DIR__ . '/profile-upgrade.php';
 require_once __DIR__ . '/post-type.php';
 require_once __DIR__ . '/validation.php';
 require_once __DIR__ . '/data.php';

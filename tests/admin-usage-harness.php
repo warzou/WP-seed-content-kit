@@ -173,7 +173,7 @@ foreach (array('Contenus', 'Collections', 'Templates', 'Intégrations', 'Annuair
 
 $placeholders = wp_seed_content_kit_get_usage_template_placeholders();
 seed_admin_usage_same(3, count($placeholders), 'Three Template modules documented');
-seed_admin_usage_same(15, count($placeholders['Annuaire']), 'Fifteen Directory placeholders documented');
+seed_admin_usage_same(19, count($placeholders['Annuaire']), 'Nineteen Directory placeholders documented');
 seed_admin_usage_assert(in_array('directory.phone', $placeholders['Annuaire'], true), 'Directory phone placeholder documented');
 
 ob_start();
@@ -236,10 +236,10 @@ seed_admin_usage_same(1, substr_count($subtabs_html, 'aria-selected="true"'), 'I
 $placeholder_catalog = wp_seed_content_kit_get_usage_template_placeholder_catalog();
 seed_admin_usage_same(7, count($placeholder_catalog['Témoignages']), 'Seven Testimonial placeholders described');
 seed_admin_usage_same(4, count($placeholder_catalog['Citations']), 'Four Quote placeholders described');
-seed_admin_usage_same(15, count($placeholder_catalog['Annuaire']), 'Fifteen Directory placeholders described');
+seed_admin_usage_same(19, count($placeholder_catalog['Annuaire']), 'Nineteen Directory placeholders described');
 seed_admin_usage_same('directory.name', $placeholder_catalog['Annuaire'][0]['key'], 'Directory placeholder keys stay canonical');
 seed_admin_usage_same('text', $placeholder_catalog['Annuaire'][0]['type'], 'Directory placeholder type documented');
-seed_admin_usage_same('Publique si autorisée', $placeholder_catalog['Annuaire'][9]['visibility'], 'Directory contact visibility is conditional');
+seed_admin_usage_same('Publique si autorisée', $placeholder_catalog['Annuaire'][13]['visibility'], 'Directory contact visibility is conditional');
 foreach ($placeholder_catalog as $definitions) {
     foreach ($definitions as $definition) {
         seed_admin_usage_assert(false === strpos($definition['key'], 'private'), 'No private placeholder exposed: ' . $definition['key']);
@@ -247,7 +247,7 @@ foreach ($placeholder_catalog as $definitions) {
         seed_admin_usage_assert('' !== $definition['empty'], 'Empty behavior provided: ' . $definition['key']);
     }
 }
-seed_admin_usage_same(26, substr_count($templates_html, 'data-seed-usage-copy-value='), 'Every placeholder has a copy action');
+seed_admin_usage_same(30, substr_count($templates_html, 'data-seed-usage-copy-value='), 'Every placeholder has a copy action');
 seed_admin_usage_assert(false !== strpos($templates_html, 'Un Template présente un contenu'), 'Template and selection stay separate');
 seed_admin_usage_assert(false !== strpos($templates_html, 'sans association enregistrée'), 'No persistent Template Collection association');
 seed_admin_usage_assert(false !== strpos($templates_html, 'Seules les données de rendu publiques'), 'Private fields excluded from placeholder catalog');
@@ -255,15 +255,18 @@ seed_admin_usage_assert(false !== strpos($templates_html, 'Seules les données d
 $collection_catalog = wp_seed_content_kit_get_usage_collection_catalog();
 seed_admin_usage_same(3, count($collection_catalog), 'Three Collection modules documented');
 seed_admin_usage_same(
-    array('status', 'department', 'country', 'featured', 'ids', 'limit', 'orderby', 'order'),
+    array('status', 'profile_type', 'profile_types', 'profile_type_operator', 'seeking_models', 'department', 'country', 'featured', 'ids', 'exclude_ids', 'offset', 'limit', 'orderby', 'order'),
     array_keys($collection_catalog['Annuaire']['parameters']),
     'Directory Collection parameters are exact'
 );
 seed_admin_usage_assert(false !== strpos($collections_html, 'Aucune recherche publique'), 'No public search promised');
 seed_admin_usage_assert(false !== strpos($collections_html, 'aucun filtre public visible'), 'No visible public filters promised');
-foreach (array('department', 'country', 'ids', 'template') as $attribute) {
+foreach (array('profile_types', 'profile_type_operator', 'seeking_models', 'department', 'country', 'ids', 'exclude_ids', 'offset', 'template') as $attribute) {
     seed_admin_usage_assert(false !== strpos($collections_html, 'data-seed-usage-attr="' . $attribute . '"'), 'Directory generator supports ' . $attribute);
 }
+seed_admin_usage_same(6, count(wp_seed_content_kit_get_usage_directory_presets()), 'Six common Directory configurations documented');
+seed_admin_usage_assert(false !== strpos($collections_html, '[seed_directory profile_type=&quot;praticien&quot;]'), 'Practitioner preset rendered');
+seed_admin_usage_assert(false !== strpos($collections_html, '[seed_directory profile_type=&quot;intervenant&quot; seeking_models=&quot;1&quot;]'), 'Speaker seeking preset rendered');
 seed_admin_usage_assert(false !== strpos($collections_html, 'data-seed-usage-summary'), 'Directory generator provides a plain-language summary');
 seed_admin_usage_assert(false !== strpos($collections_html, '[seed_testimonials'), 'Testimonial generator remains available');
 seed_admin_usage_assert(false !== strpos($collections_html, '[seed_quotes'), 'Quote generator remains available');
