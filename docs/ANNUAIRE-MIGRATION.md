@@ -42,6 +42,6 @@ Le harnais autonome valide le schema, les hashes, les erreurs globales, les perm
 
 WP Seed Directory peut servir de reference conceptuelle, mais CK-A6 ne charge, n'appelle et ne copie aucun de ses namespaces ou fichiers.
 
-## Compatibilité 0.8.0-dev
+## Compatibilité 0.8.0-rc.1
 
 L'import fictif renseigne `_seed_directory_seeking_models=1` lorsque son statut source vaut `seeking_models`. Il ne renseigne jamais `_seed_directory_profile_types`, car le manifeste historique ne contient aucune décision explicite permettant de distinguer praticien et intervenant. Réimport et rollback conservent leur contrat idempotent.

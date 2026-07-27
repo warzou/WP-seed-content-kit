@@ -847,7 +847,7 @@ Ce document fixe le contrat expérimental après l'implémentation et la validat
 
 En cas de contradiction entre une proposition technique future et ce contrat, la décision doit être réexaminée explicitement. Une contrainte de Divi ne doit pas modifier silencieusement le sens des données WP Seed, contourner le résolveur ou fragiliser les workflows existants.
 
-## 15. Annuaire multi-usages 0.8.0-dev
+## 15. Annuaire multi-usages 0.8.0-rc.1
 
 L'Annuaire n'ajoute aucun provider Dynamic Content Divi direct et aucun support Loop Builder. Les nouveaux champs sont disponibles dans le contexte public d'un Template Annuaire :
 

@@ -260,7 +260,7 @@ Exécuter `tests/divi-testimonial-collection-harness.php` sous PHP 7.0.33 et PHP
 
 Dans un WordPress isolé avec Divi 5.9.x, créer des Témoignages fictifs, un Template natif et un Template utilisant un Layout Divi Library. Vérifier le Visual Builder sans chargement permanent, les changements de réglages sans rechargement, les états vide et fallback, les droits Administrator/Editor, l’absence de fuite privée et les viewports 1440, 820, 390 et 320 px avec zoom 200 %. Après recette, supprimer site, fixtures, captures brutes, runtime et copie privée de Divi.
 
-## Annuaire 0.8.0-dev — profils multi-usages
+## Annuaire 0.8.0-rc.1 — profils multi-usages
 
 Harnais dédiés :
 

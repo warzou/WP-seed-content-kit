@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.8.0-dev, développement Annuaire multi-usages.
+Statut du package : 0.8.0-rc.1, Release Candidate en validation et non stable.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -39,7 +39,7 @@ Collections reste une API de sélection et un ensemble de paramètres. Aucun con
 
 Le module natif Annuaire fournit son CPT administratif privé, vingt et une métas validées, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
 
-Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, REST/AJAX, import métier automatique ou adaptateur inter-plugin. La seule mise à niveau runtime 0.8.0-dev est additive : elle copie l'ancien statut de recherche vers le nouveau booléen sans attribuer de type.
+Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, REST/AJAX, import métier automatique ou adaptateur inter-plugin. La seule mise à niveau runtime 0.8.0-rc.1 est additive : elle copie l'ancien statut de recherche vers le nouveau booléen sans attribuer de type.
 
 CK-A3 fournit à Editor et Administrator une fiche désormais organisée en cinq panneaux avec nom affiché, profil multi-usages, statut historique, localisation, présentation/photo, coordonnées et autorisation. Les cinq visibilités sont désactivées par défaut. Une coordonnée peut rester privée en brouillon ; si elle est rendue publique, une valeur vide ou invalide bloque la publication avec un message lié au champ.
 
@@ -207,7 +207,7 @@ Le module `WP Seed — Témoignages` utilise directement la Collection canonique
 
 Le module et sa route d’aperçu ne sont enregistrés que lorsque Divi 5 est actif. Sans Divi, le plugin, Gutenberg, les shortcodes, les Templates, Citations et Annuaire restent inchangés. Le choix des Templates est réservé aux utilisateurs disposant de `manage_wp_seed_templates`.
 
-## Annuaire multi-usages — 0.8.0-dev
+## Annuaire multi-usages — 0.8.0-rc.1
 
 Une fiche Annuaire peut être praticien, intervenant, les deux ou ne pas encore être classée. La recherche actuelle de modèles est un statut temporaire indépendant.
 

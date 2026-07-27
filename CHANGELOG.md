@@ -1,9 +1,18 @@
 # Changelog
 
-## [0.8.0-dev] - 2026-07-26
+## [0.8.0-rc.1] - 2026-07-27
+
+### Release candidate
+
+- Premiere Release Candidate de 0.8.0 destinee a validation ; cette version n'est pas une release stable.
+- Compatibilite validee avec PHP 7.0.33, PHP 8.4.23, WordPress 7.0.2 et Divi 5.9.0.
+- Le Loop Builder natif de Divi reste explicitement non supporte.
 
 ### Annuaire multi-usages
 
+- Administration et roles conserves : Editor gere les contenus, Administrator reste responsable de l'architecture.
+- Dynamic Content Annuaire et Templates Annuaire exposes avec valeurs vides propres et sans donnee privee.
+- Filtres Collections combinables par type permanent, statut temporaire et operateur OR/AND.
 - Ajout de types de profil multi-valués `praticien` et `intervenant`, indépendants du statut temporaire « Recherche de modèles ».
 - Extension additive de la Data API Annuaire, des Collections, de `[seed_directory]`, du générateur Utilisation et des Templates avec valeurs vides propres.
 - Compatibilité préservée pour les fiches historiques sans type : visibles sans filtre, exclues uniquement des sélections typées.

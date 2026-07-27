@@ -1,6 +1,6 @@
 # Module Annuaire
 
-Statut : développement 0.8.0-dev du module Annuaire natif.
+Statut : Release Candidate 0.8.0-rc.1 du module Annuaire natif, en validation et non stable.
 
 ## Périmètre
 
@@ -85,9 +85,9 @@ Gutenberg utilise le bloc Shortcode Core. Spectra intègre indirectement ce bloc
 
 ## Migration fictive CK-A6
 
-Le module inclut une API interne de migration documentee dans `ANNUAIRE-MIGRATION.md`. Elle cible exclusivement le CPT et les 21 metas natives, ne charge aucun code de WP Seed Directory et ne déclenche jamais cet import fictif au runtime. La mise à niveau de schéma 0.8.0-dev est séparée, additive et idempotente. Les references, hashes, notes et registres techniques restent prives et ne traversent aucune couche publique.
+Le module inclut une API interne de migration documentee dans `ANNUAIRE-MIGRATION.md`. Elle cible exclusivement le CPT et les 21 metas natives, ne charge aucun code de WP Seed Directory et ne déclenche jamais cet import fictif au runtime. La mise à niveau de schéma 0.8.0-rc.1 est séparée, additive et idempotente. Les references, hashes, notes et registres techniques restent prives et ne traversent aucune couche publique.
 
-## Profils multi-usages — 0.8.0-dev
+## Profils multi-usages — 0.8.0-rc.1
 
 ### Deux facettes indépendantes
 

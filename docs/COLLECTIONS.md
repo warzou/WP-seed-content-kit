@@ -849,7 +849,7 @@ La documentation distingue la release stable publique `0.3.0` du release candida
 
 En cas de contradiction entre une proposition technique et les priorités, états vides ou invariants de ce document, le contrat doit être réexaminé explicitement avant tout changement de code.
 
-## 14. Annuaire multi-usages — contrat 0.8.0-dev
+## 14. Annuaire multi-usages — contrat 0.8.0-rc.1
 
 La fonction `wp_seed_content_directory_get_entries($args)` reste l'unique source de sélection Annuaire et retourne des IDs éligibles ordonnés.
 
