@@ -232,7 +232,9 @@ function wp_seed_content_kit_get_usage_template_placeholder_catalog()
         __('Annuaire', 'wp-seed-content-kit') => array(
             wp_seed_content_kit_usage_placeholder('directory.name', __('Nom', 'wp-seed-content-kit'), 'text', __('Nom affiché de la personne.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.photo', __('Photo', 'wp-seed-content-kit'), 'image', __('Photo et texte alternatif validés.', 'wp-seed-content-kit'), $public, __('Image absente', 'wp-seed-content-kit')),
-            wp_seed_content_kit_usage_placeholder('directory.bio', __('Présentation', 'wp-seed-content-kit'), 'textarea', __('Présentation publique.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.summary', __('Présentation courte', 'wp-seed-content-kit'), 'textarea', __('Résumé public issu de post_excerpt.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.bio', __('Présentation courte (alias historique)', 'wp-seed-content-kit'), 'textarea', __('Alias rétrocompatible strict de directory.summary.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.full_presentation', __('Présentation complète', 'wp-seed-content-kit'), 'html', __('Contenu public développé issu de post_content.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.status', __('Code du statut', 'wp-seed-content-kit'), 'text', __('Valeur technique du statut professionnel.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.status_label', __('Statut', 'wp-seed-content-kit'), 'text', __('Libellé public du statut professionnel.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.profile_types', __('Types de profil', 'wp-seed-content-kit'), 'text', __('Libellés publics des types de profil.', 'wp-seed-content-kit'), $public, $empty),

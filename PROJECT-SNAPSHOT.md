@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 27 juillet 2026
-Statut : 0.8.0-rc.1 ; Release Candidate locale en validation, non stable
-Version courante du code : 0.8.0-rc.1
+Statut : 0.8.0-rc.2 ; Release Candidate locale en validation, non stable
+Version courante du code : 0.8.0-rc.2
 Version stable publiee de reference : 0.7.0
 Commit de base de preparation stable : 8a6fb735a729d4b14c753c78f5304fb59349b287
 Tag stable publie de reference : v0.7.0
@@ -19,7 +19,7 @@ WP Seed Content Kit fournit des contenus éditoriaux structurés et des présent
 Le module directory comprend désormais :
 
 - CPT privé seed_directory, hors REST, recherche, archive, single et sitemap ;
-- vingt et une métas métier privées avec sanitation centralisée et pays par défaut FR ;
+- vingt-deux métas métier privées avec sanitation centralisée et pays par défaut FR ;
 - cinq panneaux admin, colonnes sans données privées et capacités de contenu accordées par défaut à administrator et editor ;
 - autorisation explicite, validation photo/alt et garde de publication avant/après écriture ;
 - prédicat canonique d’éligibilité et séparation stricte des contacts visibles ;
@@ -187,7 +187,7 @@ Compatibilités actuelles :
 - Divi : layouts Divi Library comme source de rendu ;
 - Elementor : aide de compatibilité dans l'administration, sans intégration de rendu dédiée.
 
-Content Kit fournit un module Divi 5 natif limité aux Collections Témoignages. Il ne fournit ni module Divi 4, ni widget Elementor, ni bloc Gutenberg propriétaire.
+Content Kit fournit des modules Divi 5 natifs pour les Collections Témoignages et Annuaire. Il ne fournit ni module Divi 4, ni widget Elementor, ni bloc Gutenberg propriétaire.
 
 ## 8. Administration
 
@@ -573,3 +573,22 @@ La Release Candidate 0.8.0-rc.1 ajoute deux facettes orthogonales au module Annu
 Les anciennes fiches sans type restent visibles dans la Collection complète. Elles ne sont jamais classées automatiquement et n'apparaissent dans une Collection typée qu'après une décision éditoriale. L'ancien statut `seeking_models` est copié de façon additive et idempotente vers le nouveau booléen, sans suppression ni réécriture du statut historique.
 
 Les Collections restent non persistantes et constituent l'unique source de filtrage pour les shortcodes et intégrations. Le rendu natif historique reste inchangé ; les nouveaux libellés sont opt-in dans les Templates. Divi reste pris en charge via shortcode et Layout de Template, sans Loop Builder Annuaire.
+
+
+## 23. Annuaire — visibilité publique et présentation complète — 0.8.0-rc.2
+
+La RC.2 ajoute une présentation complète native dans `post_content` et sépare explicitement `summary`, `bio` (alias rétrocompatible strict) et `full_presentation`. La visibilité publique devient une décision indépendante stockée par `_seed_directory_publicly_listed=1` ; toute autre situation est exclue des Collections publiques.
+
+Une migration additive et reprenable attribue cette valeur uniquement aux fiches existantes publiées, non protégées et sans valeur explicite. Elle ne classe aucun profil et ne modifie ni consentement, contacts, types, statut Recherche de modèles, médias, résumé ou présentation complète. Le Loop Builder natif Divi reste hors contrat ; les Templates Content Kit continuent d’alimenter les Layouts Divi avec un contexte public fermé.
+
+## 24. Module Divi 5 Annuaire — 0.8.0-rc.2
+
+Le module `wp-seed-content-kit/directory-collection`, affiché comme « WP Seed — Annuaire », utilise l’API publique Divi 5 `ModuleRegistration`. Il expose les filtres canoniques Annuaire, la sélection et l’exclusion par IDs, la limite, l’offset, le tri et un Template Content Kit publié.
+
+Le shortcode `[seed_directory]`, le callback frontend du module et l’aperçu Visual Builder utilisent `wp_seed_content_render_directory_collection()`. Ce renderer appelle exclusivement `wp_seed_content_directory_get_entries()`, la Data API publique et le renderer de carte existant. Il n’existe aucune requête ou règle d’éligibilité propre au Builder.
+
+L’aperçu est fourni par `GET /wp-seed-content-kit/v1/divi/directory-preview`. La route n’est enregistrée que lorsque Divi 5 est disponible, exige un nonce REST valide et `edit_pages`, est en lecture seule et répond sans cache public. Les Templates restent sélectionnables uniquement avec `manage_wp_seed_templates`.
+
+Les Collections restent fermées : une fiche non listée, brouillon, privée, protégée ou non autorisée ne peut être rendue, même par ID explicite. `directory.summary`, `directory.bio` et `directory.full_presentation` suivent le même contexte et le fallback reste local à la carte défaillante.
+
+Cette intégration ne prend pas en charge le Loop Builder natif Divi et n’utilise ni `MutationObserver`, ni remplacement DOM, ni API React/Webpack interne, ni délai arbitraire. Sans Divi, aucun module ni route n’est enregistré et les shortcodes historiques restent fonctionnels.

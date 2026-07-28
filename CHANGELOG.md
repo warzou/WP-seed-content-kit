@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.8.0-rc.2] - 2026-07-28
+
+### Annuaire : présentation complète et visibilité publique
+
+- Le CPT `seed_directory` prend en charge l’éditeur WordPress pour stocker la présentation complète dans `post_content`.
+- La projection publique distingue `summary` (`post_excerpt`), `bio` (alias strict de `summary`) et `full_presentation` (`post_content` rendu et filtré).
+- La case « Afficher cette personne dans les annuaires publics » stocke uniquement la valeur vraie `1` dans `_seed_directory_publicly_listed`; une valeur fausse est une méta absente.
+- Toutes les Collections et sorties publiques excluent les fiches non listées, sans contournement par IDs explicites.
+- Une migration additive, idempotente et reprenable liste les fiches déjà publiées et non protégées sans valeur explicite; brouillons, privées, protégées et valeurs explicites restent inchangés.
+- Aucun contact, type, statut temporaire, consentement, média, résumé ou contenu existant n’est modifié par cette migration.
+
+### Annuaire : module Divi 5 et aperçu officiel
+
+- Nouveau module Divi 5 `WP Seed — Annuaire`, sans dépendance Divi 4 ni shortcode généré.
+- Le shortcode historique, le frontend du module et le Visual Builder partagent le même normaliseur, la même Collection publique et le même renderer.
+- Aperçu serveur privé `GET /wp-seed-content-kit/v1/divi/directory-preview`, protégé par nonce REST et `edit_pages`, sans cache public.
+- Filtres de statut, types OR/AND, Recherche de modèles, localisation, mise en avant, IDs, exclusions, limite, offset, ordre et Template pris en charge.
+- Les fiches non listées, brouillons, privées ou protégées restent exclues, même lorsqu’un ID est demandé explicitement.
+- Le fallback Template reste local à chaque carte. Le Loop Builder natif Divi reste hors du contrat.
 ## [0.8.0-rc.1] - 2026-07-27
 
 ### Release candidate

@@ -45,3 +45,11 @@ WP Seed Directory peut servir de reference conceptuelle, mais CK-A6 ne charge, n
 ## Compatibilité 0.8.0-rc.1
 
 L'import fictif renseigne `_seed_directory_seeking_models=1` lorsque son statut source vaut `seeking_models`. Il ne renseigne jamais `_seed_directory_profile_types`, car le manifeste historique ne contient aucune décision explicite permettant de distinguer praticien et intervenant. Réimport et rollback conservent leur contrat idempotent.
+
+## Migration de visibilité publique — 0.8.0-rc.2
+
+La mise à niveau runtime est distincte de l’import fictif CK-A6. Elle parcourt les fiches par ID, par lots bornés, et conserve dans une option non autoloadée le curseur, les compteurs et les IDs effectivement modifiés.
+
+Une fiche reçoit `_seed_directory_publicly_listed=1` seulement si elle est déjà `publish`, sans mot de passe et sans valeur explicite. Les brouillons, fiches privées ou protégées restent sans valeur. Une valeur explicite existante, y compris non vraie, n’est jamais écrasée. Les types, le statut Recherche de modèles, le consentement, les coordonnées, les médias, `post_excerpt` et `post_content` ne sont jamais modifiés.
+
+La migration est idempotente et reprenable. L’option de schéma n’est marquée complète qu’après épuisement de la liste. Les compteurs `scanned`, `updated`, `kept`, `skipped`, `errors` et `updated_ids` permettent l’audit et un rollback ciblé documenté sans inférence à partir du statut WordPress.

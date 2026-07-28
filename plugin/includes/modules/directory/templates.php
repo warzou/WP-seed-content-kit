@@ -15,7 +15,9 @@ function wp_seed_content_directory_register_template_module()
         'placeholders' => array(
             'directory.name' => array('type' => 'text', 'label' => __('Nom', 'wp-seed-content-kit')),
             'directory.photo' => array('type' => 'image', 'label' => __('Photo', 'wp-seed-content-kit')),
-            'directory.bio' => array('type' => 'textarea', 'label' => __('Présentation', 'wp-seed-content-kit')),
+            'directory.summary' => array('type' => 'textarea', 'label' => __('Présentation courte', 'wp-seed-content-kit')),
+            'directory.bio' => array('type' => 'textarea', 'label' => __('Présentation courte (alias historique)', 'wp-seed-content-kit')),
+            'directory.full_presentation' => array('type' => 'html', 'label' => __('Présentation complète', 'wp-seed-content-kit')),
             'directory.status' => array('type' => 'text', 'label' => __('Code du statut', 'wp-seed-content-kit')),
             'directory.status_label' => array('type' => 'text', 'label' => __('Statut', 'wp-seed-content-kit')),
             'directory.profile_types' => array('type' => 'text', 'label' => __('Types de profil', 'wp-seed-content-kit')),
@@ -52,7 +54,9 @@ function wp_seed_content_directory_get_template_context($data)
     $context = array(
         'directory.name' => isset($data['name']) ? $data['name'] : '',
         'directory.photo' => $photo,
+        'directory.summary' => isset($data['summary']) ? $data['summary'] : '',
         'directory.bio' => isset($data['bio']) ? $data['bio'] : '',
+        'directory.full_presentation' => isset($data['full_presentation']) ? $data['full_presentation'] : '',
         'directory.status' => isset($data['status']) ? $data['status'] : '',
         'directory.status_label' => isset($data['status_label']) ? $data['status_label'] : '',
         'directory.profile_types' => isset($data['profile_types_label']) ? $data['profile_types_label'] : '',

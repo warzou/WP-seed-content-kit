@@ -214,6 +214,7 @@ require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/collections.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/assets.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/templates.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/render.php';
+require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/collection-renderer.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/shortcode.php';
 
 $GLOBALS['seed_l4_module_active'] = true;
@@ -229,6 +230,7 @@ for ($i = 1; $i <= 4; $i++) {
         '_seed_directory_city' => 1 === $i ? 'Paris' : 'Lyon',
         '_seed_directory_postal_code' => 1 === $i ? '75001' : '69001',
         '_seed_directory_publication_authorized' => '1',
+        '_seed_directory_publicly_listed' => '1',
         '_seed_directory_featured' => 1 === $i ? '1' : '',
     );
 }
@@ -239,7 +241,7 @@ $GLOBALS['seed_l4_meta'][1]['_seed_directory_email_visible'] = '';
 $GLOBALS['seed_l4_meta'][1]['_seed_directory_internal_note'] = 'PRIVATE-L4-NOTE';
 
 $data = wp_seed_content_directory_get_public_data(1);
-seed_l4_same(array('id', 'name', 'photo', 'bio', 'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label', 'seeking_models', 'seeking_models_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($data), 'Fixed public schema');
+seed_l4_same(array('id', 'name', 'photo', 'summary', 'bio', 'full_presentation', 'publicly_listed', 'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label', 'seeking_models', 'seeking_models_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($data), 'Fixed public schema');
 seed_l4_same(array('phone' => '+33 1 00 00 00 01'), $data['contacts'], 'Only visible contact returned');
 seed_l4_assert(false === strpos(serialize($data), 'PRIVATE-L4'), 'Public data excludes private sentinels');
 seed_l4_same(false, wp_seed_content_directory_get_public_data(4), 'Ineligible entry returns false');
@@ -295,6 +297,20 @@ seed_l4_assert(false === strpos($html, '<ul class="wp-seed-directory__grid"></ul
 seed_l4_assert(false === strpos($html, 'PRIVATE-L4'), 'Native HTML excludes private sentinels');
 seed_l4_assert(isset($GLOBALS['seed_l4_enqueued']['wp-seed-directory']), 'Structural CSS enqueued');
 seed_l4_assert(isset($GLOBALS['seed_l4_enqueued']['wp-seed-directory-card']), 'Native CSS enqueued');
+$GLOBALS['seed_l4_enqueued'] = array();
+seed_l4_same(
+    $html,
+    wp_seed_content_render_directory_collection(array(), false),
+    'Shortcode and builder renderer produce identical public HTML'
+);
+seed_l4_same(
+    array(),
+    $GLOBALS['seed_l4_enqueued'],
+    'Builder preview can render without mutating frontend asset queues'
+);
+$GLOBALS['seed_l4_eligible'][2] = false;
+seed_l4_same(array(), wp_seed_content_directory_get_entries(array('ids' => array(2))), 'Explicit ID cannot bypass public listing');
+$GLOBALS['seed_l4_eligible'][2] = true;
 $structure_css = file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'assets/css/directory.css');
 $card_css = file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'assets/css/directory-card.css');
 seed_l4_assert(false !== strpos($structure_css, '.wp-seed-directory .wp-seed-directory__grid'), 'Grid reset outranks theme list styles');
@@ -318,7 +334,7 @@ wp_seed_content_directory_register_template_module();
 seed_l4_same('directory', $GLOBALS['seed_l4_template_module'][0], 'Directory template module registered');
 $definitions = $GLOBALS['seed_l4_template_module'][1]['placeholders'];
 $expected_placeholders = array(
-    'directory.name', 'directory.photo', 'directory.bio', 'directory.status', 'directory.status_label',
+    'directory.name', 'directory.photo', 'directory.summary', 'directory.bio', 'directory.full_presentation', 'directory.status', 'directory.status_label',
     'directory.profile_types', 'directory.profile_type_slugs', 'directory.seeking_models', 'directory.seeking_models_active',
     'directory.city', 'directory.postal_code', 'directory.department', 'directory.country',
     'directory.phone', 'directory.email', 'directory.website', 'directory.facebook',

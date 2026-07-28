@@ -19,6 +19,7 @@ class WP_Post
     public $post_password = '';
     public $post_title = '';
     public $post_excerpt = 'Fictional public profile.';
+    public $post_content = '';
     public $post_date = '2026-07-26 00:00:00';
     public $menu_order = 0;
 
@@ -48,6 +49,7 @@ function __($text, $domain = null) { return $text; }
 function esc_html__($text, $domain = null) { return htmlspecialchars($text, ENT_QUOTES, 'UTF-8'); }
 function sanitize_text_field($value) { return trim(strip_tags((string) $value)); }
 function sanitize_textarea_field($value) { return trim(strip_tags((string) $value)); }
+function strip_shortcodes($value) { return preg_replace('/\[[^\]]+\]/', '', (string) $value); }
 function sanitize_key($value) { return strtolower(preg_replace('/[^a-z0-9_-]/', '', (string) $value)); }
 function sanitize_title($value) { return trim(strtolower(preg_replace('/[^a-z0-9]+/i', '-', (string) $value)), '-'); }
 function sanitize_email($value) { return filter_var((string) $value, FILTER_SANITIZE_EMAIL); }
@@ -129,13 +131,15 @@ function wp_seed_content_directory_is_publicly_eligible($post_id)
     return $post instanceof WP_Post
         && 'publish' === $post->post_status
         && '' === $post->post_password
-        && '1' === get_post_meta($post_id, '_seed_directory_publication_authorized', true);
+        && '1' === get_post_meta($post_id, '_seed_directory_publication_authorized', true)
+        && '1' === get_post_meta($post_id, '_seed_directory_publicly_listed', true);
 }
 
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/fields.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/data.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/collections.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/templates.php';
+require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/collection-renderer.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/shortcode.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/profile-upgrade.php';
 
@@ -154,6 +158,7 @@ foreach ($profiles as $id => $profile) {
         '_seed_directory_status' => $profile[3],
         '_seed_directory_country' => 'FR',
         '_seed_directory_publication_authorized' => '1',
+        '_seed_directory_publicly_listed' => '1',
     );
     if (null !== $profile[1]) {
         $GLOBALS['dpt_meta'][$id]['_seed_directory_profile_types'] = $profile[1];
@@ -203,7 +208,9 @@ dpt_same(false, wp_seed_content_directory_get_public_data(16), 'Protected profil
 $GLOBALS['dpt_posts'][16]->post_password = '';
 
 wp_seed_content_directory_register_template_module();
-dpt_same(19, count($GLOBALS['dpt_template_module'][1]['placeholders']), 'Nineteen public Directory placeholders');
+dpt_same(21, count($GLOBALS['dpt_template_module'][1]['placeholders']), 'Twenty-one public Directory placeholders');
+dpt_same($celine['summary'], $celine['bio'], 'Historical bio remains a strict summary alias');
+dpt_same('', $celine['full_presentation'], 'Missing long presentation is a clean empty value');
 $celine_context = wp_seed_content_directory_get_template_context($celine);
 dpt_same('Praticien, Intervenant', $celine_context['directory.profile_types'], 'Template gets human profile list');
 dpt_same('praticien,intervenant', $celine_context['directory.profile_type_slugs'], 'Template gets normalized slugs');
@@ -230,6 +237,52 @@ dpt_same(array('status' => 'migrated', 'updated' => 1), $upgrade, 'Additive migr
 dpt_same('1', get_post_meta(16, '_seed_directory_seeking_models', true), 'Legacy seeking status copied to orthogonal boolean');
 dpt_same(false, metadata_exists('post', 16, '_seed_directory_profile_types'), 'Migration never assigns practitioner automatically');
 dpt_same(array('status' => 'unchanged', 'updated' => 0), wp_seed_content_directory_upgrade_profile_facets(), 'Additive migration is idempotent');
+$additional_profiles = array(
+    18 => array('Profil 08', array('praticien'), false, 'publish', true),
+    19 => array('Profil 09', array('intervenant'), false, 'publish', true),
+    20 => array('Profil 10', array('praticien', 'intervenant'), false, 'publish', true),
+    21 => array('Profil 11', null, false, 'publish', true),
+    22 => array('Profil 12', array('praticien'), true, 'publish', true),
+    23 => array('Profil 13', array('intervenant'), true, 'publish', true),
+    24 => array('Profil 14 non liste', array('praticien', 'intervenant'), false, 'publish', false),
+    25 => array('Profil 15', array('praticien'), false, 'publish', true),
+    26 => array('Profil 16 brouillon', array('intervenant'), false, 'draft', true),
+    27 => array('Profil 17 prive', array('praticien'), false, 'private', true),
+    28 => array('Profil 18', array('praticien'), false, 'publish', true),
+    29 => array('Profil 19', array('intervenant'), false, 'publish', true),
+    30 => array('Profil 20', null, false, 'publish', true),
+);
+foreach ($additional_profiles as $id => $profile) {
+    $GLOBALS['dpt_posts'][$id] = new WP_Post($id, $profile[0], $profile[3]);
+    $GLOBALS['dpt_posts'][$id]->post_excerpt = 'Resume court ' . $id;
+    $GLOBALS['dpt_posts'][$id]->post_content = '<p>Presentation complete ' . $id . '</p>';
+    $GLOBALS['dpt_meta'][$id] = array(
+        '_seed_directory_status' => 'practicing',
+        '_seed_directory_country' => 'FR',
+        '_seed_directory_publication_authorized' => '1',
+    );
+    if (null !== $profile[1]) {
+        $GLOBALS['dpt_meta'][$id]['_seed_directory_profile_types'] = $profile[1];
+    }
+    if ($profile[2]) {
+        $GLOBALS['dpt_meta'][$id]['_seed_directory_seeking_models'] = '1';
+    }
+    if ($profile[4]) {
+        $GLOBALS['dpt_meta'][$id]['_seed_directory_publicly_listed'] = '1';
+    }
+}
+
+dpt_same(20, count($GLOBALS['dpt_posts']), 'Twenty fictional real-site-compatible profiles prepared');
+dpt_same(16, count(wp_seed_content_directory_get_entries()), 'Only sixteen published and explicitly listed profiles are public');
+dpt_same(array(), wp_seed_content_directory_get_entries(array('ids' => array(24))), 'Explicit IDs cannot include an unlisted profile');
+dpt_same(false, wp_seed_content_directory_get_public_data(24), 'Unlisted profile has no public Data API projection');
+$full = wp_seed_content_directory_get_public_data(20);
+dpt_same('Resume court 20', $full['summary'], 'Summary remains sourced from post_excerpt');
+dpt_same('Resume court 20', $full['bio'], 'Bio remains the strict summary alias');
+dpt_same('<p>Presentation complete 20</p>', $full['full_presentation'], 'Full presentation remains independently sourced from post_content');
+$full_context = wp_seed_content_directory_get_template_context($full);
+dpt_same($full['summary'], $full_context['directory.summary'], 'Template summary is available');
+dpt_same($full['full_presentation'], $full_context['directory.full_presentation'], 'Template full presentation is available');
 
 if (!empty($GLOBALS['dpt_failures'])) {
     fwrite(STDERR, 'FAIL ' . count($GLOBALS['dpt_failures']) . ' / ' . $GLOBALS['dpt_assertions'] . PHP_EOL);

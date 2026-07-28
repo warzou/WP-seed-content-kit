@@ -77,6 +77,9 @@ function wp_seed_content_directory_is_publicly_eligible($post_id)
     if (!$post || 'seed_directory' !== $post->post_type || 'publish' !== $post->post_status || '' !== (string) $post->post_password) {
         return false;
     }
+    if ('1' !== get_post_meta((int) $post_id, '_seed_directory_publicly_listed', true)) {
+        return false;
+    }
     return array() === wp_seed_content_directory_get_publication_errors($post);
 }
 
@@ -94,8 +97,12 @@ function wp_seed_content_directory_collect_publication_overrides($postarr)
         && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['wp_seed_content_directory_nonce'])), 'wp_seed_content_directory_save');
     if ($has_form) {
         $profile_panel_present = isset($_POST['wp_seed_content_directory_profile_present']);
+        $publication_panel_present = isset($_POST['wp_seed_content_directory_publication_present']);
         foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
             if (in_array($key, array('_seed_directory_profile_types', '_seed_directory_seeking_models'), true) && !$profile_panel_present) {
+                continue;
+            }
+            if ('_seed_directory_publicly_listed' === $key && !$publication_panel_present) {
                 continue;
             }
             if ('profile_types' === $definition['type']) {
@@ -126,8 +133,12 @@ function wp_seed_content_directory_collect_submitted_values()
 {
     $values = array();
     $profile_panel_present = isset($_POST['wp_seed_content_directory_profile_present']);
+    $publication_panel_present = isset($_POST['wp_seed_content_directory_publication_present']);
     foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
         if (in_array($key, array('_seed_directory_profile_types', '_seed_directory_seeking_models'), true) && !$profile_panel_present) {
+            continue;
+        }
+        if ('_seed_directory_publicly_listed' === $key && !$publication_panel_present) {
             continue;
         }
         if ('profile_types' === $definition['type']) {

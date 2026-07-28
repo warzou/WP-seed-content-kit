@@ -136,6 +136,20 @@ function wp_update_post($data)
 {
     return isset($data['ID']) ? $data['ID'] : 0;
 }
+function update_post_meta($post_id, $key, $value)
+{
+    $GLOBALS['seed_l3_meta'][$post_id][$key] = $value;
+    return true;
+}
+function delete_post_meta($post_id, $key)
+{
+    unset($GLOBALS['seed_l3_meta'][$post_id][$key]);
+    return true;
+}
+function wp_is_post_revision($post_id)
+{
+    return false;
+}
 function wp_verify_nonce($nonce, $action)
 {
     return 'valid' === $nonce;
@@ -198,6 +212,7 @@ $expected_keys = array(
     '_seed_directory_status',
     '_seed_directory_profile_types',
     '_seed_directory_seeking_models',
+    '_seed_directory_publicly_listed',
     '_seed_directory_city',
     '_seed_directory_postal_code',
     '_seed_directory_department',
@@ -218,7 +233,7 @@ $expected_keys = array(
     '_seed_directory_last_verified',
 );
 seed_l3_same($expected_keys, array_keys(wp_seed_content_directory_get_meta_definitions()), 'Exact canonical meta definitions');
-seed_l3_same(21, count(wp_seed_content_directory_get_meta_definitions()), 'No extra business meta');
+seed_l3_same(22, count(wp_seed_content_directory_get_meta_definitions()), 'Exact RC2 business meta count');
 seed_l3_same(array('practicing', 'seeking_models'), array_keys(wp_seed_content_directory_get_statuses()), 'Exact statuses');
 
 $cases = array(
@@ -227,6 +242,8 @@ $cases = array(
     array('_seed_directory_profile_types', array('intervenant', 'invalid', 'praticien', 'intervenant'), array('praticien', 'intervenant')),
     array('_seed_directory_seeking_models', 1, '1'),
     array('_seed_directory_seeking_models', 0, ''),
+    array('_seed_directory_publicly_listed', 1, '1'),
+    array('_seed_directory_publicly_listed', 0, ''),
     array('_seed_directory_city', ' <b>Paris</b> ', 'Paris'),
     array('_seed_directory_postal_code', '00120', '00120'),
     array('_seed_directory_postal_code', 'AB-01 2', 'AB-01 2'),
@@ -285,6 +302,7 @@ $GLOBALS['seed_l3_meta'][$post_id] = array(
     '_seed_directory_status' => 'practicing',
     '_seed_directory_country' => 'FR',
     '_seed_directory_publication_authorized' => '1',
+    '_seed_directory_publicly_listed' => '1',
     '_seed_directory_phone' => '+33 1 23 45 67 89',
     '_seed_directory_phone_visible' => '1',
     '_seed_directory_email' => 'private@example.test',
@@ -296,6 +314,11 @@ $GLOBALS['seed_l3_meta'][$post_id] = array(
 seed_l3_same(array(), wp_seed_content_directory_get_publication_errors($post_id), 'Valid entry has no publication errors');
 seed_l3_same(true, wp_seed_content_directory_is_publicly_eligible($post_id), 'Valid published entry eligible');
 seed_l3_same(array('phone' => '+33 1 23 45 67 89'), wp_seed_content_directory_get_public_contacts($post_id), 'Only valid visible contact returned');
+$GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_publicly_listed'] = '';
+seed_l3_same(false, wp_seed_content_directory_is_publicly_eligible($post_id), 'Missing public listing flag closes eligibility');
+$GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_publicly_listed'] = '0';
+seed_l3_same(false, wp_seed_content_directory_is_publicly_eligible($post_id), 'Non-canonical public listing flag closes eligibility');
+$GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_publicly_listed'] = '1';
 
 $invalid_public_contacts = array(
     '_seed_directory_phone' => array('letters only', 'invalid_public_phone'),
@@ -345,12 +368,26 @@ $GLOBALS['seed_l3_caps'] = false;
 seed_l3_assert(wp_seed_content_directory_get_admin_data($post_id) instanceof WP_Error, 'Unauthorized admin data denied');
 $GLOBALS['seed_l3_caps'] = true;
 
+$saved_status = $GLOBALS['seed_l3_posts'][$post_id]->post_status;
+$_POST = array('wp_seed_content_directory_nonce' => 'valid');
+wp_seed_content_directory_save_meta($post_id, $GLOBALS['seed_l3_posts'][$post_id]);
+seed_l3_same('1', $GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_publicly_listed'], 'Partial save preserves public listing flag');
+$_POST = array('wp_seed_content_directory_nonce' => 'valid', 'wp_seed_content_directory_publication_present' => '1', '_seed_directory_publication_authorized' => '1');
+wp_seed_content_directory_save_meta($post_id, $GLOBALS['seed_l3_posts'][$post_id]);
+seed_l3_assert(!isset($GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_publicly_listed']), 'Unchecked public listing flag is deleted');
+seed_l3_same($saved_status, $GLOBALS['seed_l3_posts'][$post_id]->post_status, 'Unchecking public listing does not change WordPress status');
+$_POST['_seed_directory_publicly_listed'] = '1';
+wp_seed_content_directory_save_meta($post_id, $GLOBALS['seed_l3_posts'][$post_id]);
+seed_l3_same('1', $GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_publicly_listed'], 'Checked public listing flag stores canonical one');
+seed_l3_same($saved_status, $GLOBALS['seed_l3_posts'][$post_id]->post_status, 'Checking public listing does not change WordPress status');
+$_POST = array();
+
 $columns = wp_seed_content_directory_columns(array('cb' => 'Select', 'title' => 'Title', 'date' => 'Date'));
 seed_l3_same(array('cb', 'directory_photo', 'title', 'directory_status', 'directory_city', 'directory_department', 'directory_authorized', 'directory_public_contacts', 'directory_wp_state', 'date'), array_keys($columns), 'Exact admin columns');
 wp_seed_content_directory_add_meta_boxes();
 seed_l3_same(5, count($GLOBALS['seed_l3_meta_boxes']), 'Exactly five custom panels');
 wp_seed_content_directory_register_post_type();
-seed_l3_same(21, count($GLOBALS['seed_l3_registered_meta']), 'All canonical meta registered');
+seed_l3_same(22, count($GLOBALS['seed_l3_registered_meta']), 'All canonical RC2 meta registered');
 foreach ($GLOBALS['seed_l3_registered_meta'] as $registered) {
     seed_l3_same(false, $registered['show_in_rest'], 'Registered meta remains private');
 }

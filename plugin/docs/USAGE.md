@@ -1,6 +1,6 @@
 # Usage - WP Seed Content Kit
 
-Statut : WP Seed Content Kit 0.8.0-rc.1. Cette Release Candidate est en validation et n'est pas une version stable.
+Statut : WP Seed Content Kit 0.8.0-rc.2. Cette Release Candidate est en validation et n'est pas une version stable.
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés, des shortcodes et des templates réutilisables dans WordPress.
 
@@ -70,7 +70,7 @@ Exemples : [seed_directory], [seed_directory status="practicing" department="75"
 
 Les valeurs invalides produisent une sortie vide. Il n'existe aucun parametre GET, formulaire ou filtre visible. Les groupes vides sont omis. Sans fiche, le message public est stable.
 
-Sans template, une carte native est rendue. Un Template publie du module Annuaire peut utiliser quinze placeholders directory.*. Un echec de template produit un fallback natif fiche par fiche ; les autres cartes restent personnalisees. Les contacts masques ou invalides sont absents de la Data API, du contexte, des placeholders et du HTML.
+Sans template, une carte native est rendue. Un Template publie du module Annuaire peut utiliser vingt et un placeholders directory.*. Un echec de template produit un fallback natif fiche par fiche ; les autres cartes restent personnalisees. Les contacts masques ou invalides sont absents de la Data API, du contexte, des placeholders et du HTML.
 
 Gutenberg utilise le bloc Shortcode. Divi 5 propose le module natif « WP Seed — Témoignages » ; Texte ou Code restent supportés pour les shortcodes historiques, et un Layout Divi Library peut servir de source à un Template. Aucun bloc Gutenberg dédié n’est fourni. Désactiver Annuaire rend ses shortcodes et Collections vides, sans supprimer les données.
 
@@ -360,7 +360,7 @@ Le plugin ne réinitialise pas les styles globaux du site et n'impose ni thème 
 
 WP Seed Content Kit ne fournit pas :
 
-- de module Divi 4 ou de module Divi personnalisé pour Citations et Annuaire ;
+-- de module Divi 4 ou de module Divi personnalisé pour Citations ;
 - de widget Elementor ;
 - de bloc Gutenberg personnalisé ;
 - de sélecteur WP Seed finalisé dans l'éditeur Gutenberg ;
@@ -388,7 +388,7 @@ Le catalogue de Templates affiche sept placeholders Témoignages, quatre Citatio
 - **Shortcodes — Fonctionnel** : méthode canonique dans tout emplacement WordPress compatible.
 - **Gutenberg — Fonctionnel** : bloc Shortcode Core ; les Block Bindings restent indirects et ne couvrent pas Annuaire.
 - **Spectra — Indirect** : bloc Shortcode Core dans une page ou un Container, ou blocs Spectra dans un Template ; aucun provider natif.
-- **Divi — Fonctionnel/Indirect** : module natif Témoignages sous Divi 5, shortcode dans Texte ou Code pour compatibilité, ou Layout Divi Library comme source d’un Template ; Dynamic Content reste expérimental et son usage direct dans Loop Builder n'est pas pris en charge.
+- **Divi — Fonctionnel/Indirect** : modules natifs Témoignages et Annuaire sous Divi 5, shortcodes dans Texte ou Code pour compatibilité, ou Layout Divi Library comme source d’un Template ; Dynamic Content reste expérimental et son usage direct dans Loop Builder n'est pas pris en charge.
 
 Les filtres de Collection sont choisis par Administrator lors de l’intégration. Aucun champ de recherche ni filtre n’est présenté au visiteur.
 
@@ -421,4 +421,34 @@ Une fiche `praticien,intervenant` peut apparaître dans les deux pages. `profile
 
 Les fiches historiques sans `_seed_directory_profile_types` restent dans `[seed_directory]`, mais sont absentes d'un filtre typé. Aucun type n'est attribué automatiquement.
 
-Gutenberg et Spectra utilisent le shortcode canonique. Divi utilise le shortcode ou un Template Content Kit fondé sur un Layout Divi Library. Le Loop Builder Annuaire n'est pas pris en charge.
+Gutenberg et Spectra utilisent le shortcode canonique. Divi 5 utilise de préférence le module `WP Seed — Annuaire`; le shortcode et les Templates Content Kit fondés sur un Layout Divi Library restent compatibles. Le Loop Builder Annuaire n'est pas pris en charge.
+
+
+## Présentation complète et visibilité Annuaire
+
+Renseignez la présentation courte dans l’extrait et la présentation complète dans l’éditeur WordPress. Cochez « Afficher cette personne dans les annuaires publics » seulement lorsque la fiche doit apparaître dans les Collections. Cette case ne change ni le statut WordPress, ni le consentement, ni les coordonnées affichées.
+
+Dans un Template Annuaire, utilisez `directory.summary` ou son alias `directory.bio` pour le texte court et `directory.full_presentation` pour le texte long. Le Layout reste libre de ne pas afficher le texte long.
+
+## Module Divi 5 « WP Seed — Annuaire »
+
+Ajouter le module dans le Visual Builder, puis choisir :
+
+- tous les profils ou un statut ;
+- Praticien, Intervenant ou les deux ;
+- la relation OR ou AND ;
+- Recherche de modèles ;
+- les filtres facultatifs de localisation et mise en avant ;
+- les IDs inclus ou exclus ;
+- limite, offset, tri et ordre ;
+- rendu natif ou Template Annuaire publié.
+
+Le module affiche immédiatement le rendu public réel dans le canevas. Le changement d’un filtre, de l’ordre, de la limite ou du Template relance une requête serveur annulable ; aucun shortcode n’est injecté dans le navigateur.
+
+La route d’aperçu est privée : session WordPress, nonce REST et `edit_pages` sont obligatoires. Editor peut prévisualiser la Collection mais ne reçoit pas le catalogue de Templates réservé à `manage_wp_seed_templates`.
+
+Le Builder n’assouplit aucune règle publique. Une fiche non listée ou non publiable reste absente, y compris avec un ID explicite. Les coordonnées masquées et données internes ne sont jamais envoyées.
+
+Le shortcode `[seed_directory]` reste pris en charge. À réglages identiques, le shortcode, le frontend du module et l’aperçu utilisent le même renderer. Le fallback d’une carte en erreur reste local.
+
+Le module nécessite Divi 5. Sans Divi, aucune route ni module n’est enregistré. Le Loop Builder natif Divi reste non pris en charge.

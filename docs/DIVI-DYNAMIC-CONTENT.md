@@ -857,3 +857,29 @@ L'Annuaire n'ajoute aucun provider Dynamic Content Divi direct et aucun support 
 - `directory.seeking_models_active` : `1` ou chaîne vide.
 
 Un Template Content Kit peut utiliser un Layout Divi Library pour afficher ces valeurs par fiche. Les limites Divi 5.9.0 documentées pour les boucles natives restent inchangées. Le fallback local par fiche et l'intégrité du Layout enregistré doivent être vérifiés en recette.
+
+## 16. Annuaire : présentation complète — 0.8.0-rc.2
+
+Le contexte officiel des Templates Annuaire fournit `directory.summary`, `directory.bio` et `directory.full_presentation`. `directory.bio` reste un alias strict de la présentation courte. La présentation complète est de type HTML public filtré et peut être placée ou omise librement dans le Layout Divi Library associé au Template.
+
+Ce contrat ne crée pas un provider Loop Builder natif Divi. L’intégration officielle reste Template Content Kit → contexte public Annuaire → Layout Divi. Une fiche non listée ne produit aucun contexte, même lorsqu’un ID est demandé explicitement.
+
+## 17. Module Annuaire et aperçu Visual Builder — 0.8.0-rc.2
+
+Le module Divi 5 `WP Seed — Annuaire` complète le workflow Template sans modifier le contrat Dynamic Content. Sa chaîne est :
+
+```text
+réglages du module
+→ normaliseur public Annuaire
+→ wp_seed_content_directory_get_entries()
+→ renderer partagé
+→ frontend ou réponse privée Visual Builder
+```
+
+L’aperçu utilise `GET /wp-seed-content-kit/v1/divi/directory-preview`. WordPress authentifie la session et son nonce REST ; Content Kit exige en plus `edit_pages`. La réponse est en lecture seule et non publiquement cacheable. Les options de Template ne sont envoyées qu’aux utilisateurs disposant de `manage_wp_seed_templates`.
+
+Le renderer n’accorde aucun privilège Builder. Les fiches non listées, brouillons, privées, protégées ou non autorisées sont absentes avant la création du contexte Template. Un ID explicite ne contourne jamais cette fermeture.
+
+`directory.summary` reste l’extrait, `directory.bio` son alias strict et `directory.full_presentation` le contenu WordPress public filtré. La route ne sérialise ni méta privée, ni objet PHP, ni variable brute.
+
+Le module emploie les APIs publiques de module, paquet et requête REST de Divi 5. Il ne s’appuie pas sur le Loop Builder, le DOM, `MutationObserver`, un délai arbitraire ou des modules React/Webpack internes.

@@ -35,7 +35,7 @@ ck_a6_same('native-directory-demo:ck-a6-v1', $manifest['batch_id'], 'Batch ID');
 ck_a6_same('native-directory-demo', $manifest['source_system'], 'Source system');
 ck_a6_same(16, count($manifest['entries']), 'Sixteen entries');
 ck_a6_same(13, count($manifest['media']), 'Thirteen media');
-ck_a6_same(21, count(wp_seed_content_directory_get_meta_definitions()), 'Exactly twenty-one native meta definitions');
+ck_a6_same(22, count(wp_seed_content_directory_get_meta_definitions()), 'Exactly twenty-two native meta definitions');
 
 $statuses = array_count_values(array_column($manifest['entries'], 'professional_status'));
 $targets = array_count_values(array_column($manifest['entries'], 'target_status'));
@@ -66,6 +66,7 @@ foreach ($manifest['entries'] as $index => $entry) {
     if ('publish' === $entry['target_status']) { ck_a6_assert($entry['publication_authorized'], 'Published entry authorized ' . $index); }
     $fields = wp_seed_content_directory_migration_entry_fields($entry, 100 + $index);
     ck_a6_same('seeking_models' === $entry['professional_status'] ? '1' : '', $fields['meta']['_seed_directory_seeking_models'], 'Seeking status mapped to orthogonal boolean ' . $index);
+    ck_a6_same('publish' === $entry['target_status'] ? '1' : '', $fields['meta']['_seed_directory_publicly_listed'], 'Published imports explicitly listed ' . $index);
     ck_a6_assert(!isset($fields['meta']['_seed_directory_profile_types']), 'Fictional import never guesses a profile type ' . $index);
 }
 

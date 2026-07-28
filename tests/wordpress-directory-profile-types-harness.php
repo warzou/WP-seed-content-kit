@@ -42,6 +42,7 @@ function dpt_wp_create_entry($name, $profile_types, $seeking, $status = 'publish
         '_seed_directory_status' => 'practicing',
         '_seed_directory_country' => 'FR',
         '_seed_directory_publication_authorized' => '1',
+        '_seed_directory_publicly_listed' => '1',
     );
     if (null !== $profile_types) {
         $meta['_seed_directory_profile_types'] = $profile_types;
@@ -226,7 +227,7 @@ try {
     dpt_wp_same('', get_post_meta($ids['legacy'], '_seed_directory_profile_types', true), 'Migration does not auto-assign practitioner');
     dpt_wp_same(array('status' => 'unchanged', 'updated' => 0), wp_seed_content_directory_upgrade_profile_facets(), 'Profile migration is idempotent');
 
-    dpt_wp_same(19, count(wp_seed_content_kit_get_registered_template_placeholders('directory')), 'Nineteen Directory template placeholders registered');
+    dpt_wp_same(21, count(wp_seed_content_kit_get_registered_template_placeholders('directory')), 'Twenty-one Directory template placeholders registered');
     dpt_wp_same(6, count(wp_seed_content_directory_get_predefined_collections()), 'Six non-persistent predefined Collections');
 } catch (Throwable $error) {
     $failures[] = 'Unhandled exception: ' . $error->getMessage();

@@ -80,6 +80,20 @@ function wp_seed_content_directory_render_identity_box($post)
     <?php
 }
 
+function wp_seed_content_directory_render_full_presentation_intro($post)
+{
+    if (!is_object($post) || 'seed_directory' !== $post->post_type) {
+        return;
+    }
+    ?>
+    <div class="seed-directory-editor-intro">
+        <h2><?php esc_html_e('Présentation complète', 'wp-seed-content-kit'); ?></h2>
+        <p class="description"><?php esc_html_e('Utilisez l’éditeur WordPress pour la présentation développée. Le résumé court reste indépendant dans le panneau Annuaire.', 'wp-seed-content-kit'); ?></p>
+    </div>
+    <?php
+}
+add_action('edit_form_after_title', 'wp_seed_content_directory_render_full_presentation_intro');
+
 function wp_seed_content_directory_render_situation_box($post)
 {
     ?>
@@ -91,7 +105,7 @@ function wp_seed_content_directory_render_situation_box($post)
         <?php wp_seed_content_directory_render_text_input($post->ID, '_seed_directory_country', __('Pays', 'wp-seed-content-kit'), 'text', 2, __('Par exemple : FR pour France.', 'wp-seed-content-kit')); ?>
     </fieldset>
     <fieldset class="seed-directory-field-group">
-        <legend><strong><?php esc_html_e('Présentation', 'wp-seed-content-kit'); ?></strong></legend>
+        <legend><strong><?php esc_html_e('Présentation courte', 'wp-seed-content-kit'); ?></strong></legend>
         <p>
             <label for="wp_seed_content_directory_excerpt"><strong><?php esc_html_e('Présentation courte', 'wp-seed-content-kit'); ?></strong></label><br>
             <textarea id="wp_seed_content_directory_excerpt" name="wp_seed_content_directory_excerpt" rows="5" class="widefat"><?php echo esc_textarea($post->post_excerpt); ?></textarea>
@@ -155,6 +169,10 @@ function wp_seed_content_directory_render_contacts_box($post)
 
 function wp_seed_content_directory_render_publication_box($post)
 {
+    echo '<input type="hidden" name="wp_seed_content_directory_publication_present" value="1">';
+    wp_seed_content_directory_render_checkbox($post->ID, '_seed_directory_publicly_listed', __('Afficher cette personne dans les annuaires publics', 'wp-seed-content-kit'));
+    echo '<p class="description">' . esc_html__('Cette case contrôle uniquement l’apparition dans les Collections publiques. Elle ne publie ni ne dépublie la fiche et ne modifie aucune autre donnée.', 'wp-seed-content-kit') . '</p>';
+    echo '<hr>';
     wp_seed_content_directory_render_checkbox($post->ID, '_seed_directory_publication_authorized', __('La personne a autorisé la publication de ses informations', 'wp-seed-content-kit'));
     wp_seed_content_directory_render_field_error($post->ID, '_seed_directory_publication_authorized');
     echo '<p class="description">' . esc_html__('Cette autorisation est obligatoire pour publier la fiche. Elle ne rend aucune coordonnée publique automatiquement.', 'wp-seed-content-kit') . '</p>';
@@ -196,8 +214,12 @@ function wp_seed_content_directory_save_meta($post_id, $post)
     }
 
     $profile_panel_present = isset($_POST['wp_seed_content_directory_profile_present']);
+    $publication_panel_present = isset($_POST['wp_seed_content_directory_publication_present']);
     foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
         if (in_array($key, array('_seed_directory_profile_types', '_seed_directory_seeking_models'), true) && !$profile_panel_present) {
+            continue;
+        }
+        if ('_seed_directory_publicly_listed' === $key && !$publication_panel_present) {
             continue;
         }
         if ('profile_types' === $definition['type']) {
@@ -375,7 +397,7 @@ function wp_seed_content_directory_admin_styles()
     if (!$screen || 'seed_directory' !== $screen->post_type) {
         return;
     }
-    echo '<style>.seed-directory-field-group{min-width:0;max-width:100%;margin:0 0 20px;padding:0;border:0;box-sizing:border-box}.seed-directory-field-group legend{font-size:14px;margin-bottom:4px}.seed-directory-contact{min-width:0;max-width:100%;margin:14px 0;padding:12px;border-left:4px solid #c3c4c7;background:#f6f7f7;box-sizing:border-box}.seed-directory-contact legend{padding:0 4px}#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{display:block;width:100%;box-sizing:border-box}#wp_seed_content_directory_situation .regular-text{max-width:400px}#wp_seed_content_directory_contacts .regular-text{max-width:520px;margin:6px 0 10px}.seed-directory-visibility{display:inline-block;max-width:100%;overflow-wrap:anywhere}.seed-directory-secondary{margin-top:20px;padding-top:16px;border-top:1px solid #dcdcde}.seed-directory-field-error{color:#b32d2e;font-weight:600}.seed-directory-field-error .dashicons{font-size:18px;width:18px;height:18px}input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{border-color:#d63638;box-shadow:0 0 0 1px #d63638}@media(max-width:782px){#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{max-width:100%}.column-directory_photo,.column-directory_department{display:none}}</style>';
+    echo '<style>.seed-directory-editor-intro{margin:18px 0 8px}.seed-directory-editor-intro h2{margin-bottom:4px;padding:0}.seed-directory-field-group{min-width:0;max-width:100%;margin:0 0 20px;padding:0;border:0;box-sizing:border-box}.seed-directory-field-group legend{font-size:14px;margin-bottom:4px}.seed-directory-contact{min-width:0;max-width:100%;margin:14px 0;padding:12px;border-left:4px solid #c3c4c7;background:#f6f7f7;box-sizing:border-box}.seed-directory-contact legend{padding:0 4px}#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{display:block;width:100%;box-sizing:border-box}#wp_seed_content_directory_situation .regular-text{max-width:400px}#wp_seed_content_directory_contacts .regular-text{max-width:520px;margin:6px 0 10px}.seed-directory-visibility{display:inline-block;max-width:100%;overflow-wrap:anywhere}.seed-directory-secondary{margin-top:20px;padding-top:16px;border-top:1px solid #dcdcde}.seed-directory-field-error{color:#b32d2e;font-weight:600}.seed-directory-field-error .dashicons{font-size:18px;width:18px;height:18px}input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{border-color:#d63638;box-shadow:0 0 0 1px #d63638}@media(max-width:782px){#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{max-width:100%}.column-directory_photo,.column-directory_department{display:none}}</style>';
 }
 add_action('admin_head-post.php', 'wp_seed_content_directory_admin_styles');
 add_action('admin_head-post-new.php', 'wp_seed_content_directory_admin_styles');

@@ -43,7 +43,7 @@ function wp_seed_content_directory_register_post_type()
         'can_export' => true,
         'menu_position' => 20,
         'menu_icon' => 'dashicons-admin-users',
-        'supports' => array('title', 'excerpt', 'thumbnail', 'page-attributes', 'revisions'),
+        'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'page-attributes', 'revisions'),
         'capability_type' => array('seed_directory_entry', 'seed_directory_entries'),
         'capabilities' => wp_seed_content_directory_get_capability_map(),
         'map_meta_cap' => true,

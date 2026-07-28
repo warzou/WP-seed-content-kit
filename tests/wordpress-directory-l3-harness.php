@@ -45,6 +45,7 @@ function seed_l3_wp_create_entry($overrides = array())
             '_seed_directory_status' => 'practicing',
             '_seed_directory_country' => 'FR',
             '_seed_directory_publication_authorized' => '1',
+        '_seed_directory_publicly_listed' => '1',
         ),
     );
     $args = array_merge($defaults, $overrides);
@@ -83,7 +84,8 @@ try {
     seed_l3_wp_assert(post_type_exists('seed_directory'), 'Directory CPT registered');
     seed_l3_wp_same(false, get_post_type_object('seed_directory')->show_in_rest, 'Directory remains outside REST');
     seed_l3_wp_assert(post_type_supports('seed_directory', 'revisions'), 'Directory supports native revisions');
-    seed_l3_wp_same(21, count(wp_seed_content_directory_get_meta_definitions()), 'Exact business meta count');
+    seed_l3_wp_assert(post_type_supports('seed_directory', 'editor'), 'Directory supports native full presentation editor');
+    seed_l3_wp_same(22, count(wp_seed_content_directory_get_meta_definitions()), 'Exact RC2 business meta count');
 
     $draft_id = seed_l3_wp_create_entry(array(
         'post_title' => 'SEED L3 MINIMAL DRAFT',
