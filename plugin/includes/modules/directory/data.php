@@ -32,6 +32,24 @@ function wp_seed_content_directory_get_public_contacts($post_id)
     return $contacts;
 }
 
+function wp_seed_content_directory_render_full_presentation($content)
+{
+    $content = (string) $content;
+    if ('' === trim($content)) {
+        return '';
+    }
+
+    $rendered = apply_filters('the_content', $content);
+    if (function_exists('strip_shortcodes')) {
+        $rendered = strip_shortcodes($rendered);
+    }
+    if (function_exists('wp_kses_post')) {
+        $rendered = wp_kses_post($rendered);
+    }
+
+    return trim((string) $rendered);
+}
+
 function wp_seed_content_directory_get_admin_data($post_id)
 {
     $post_id = absint($post_id);
@@ -43,7 +61,10 @@ function wp_seed_content_directory_get_admin_data($post_id)
     $data = array(
         'id' => $post_id,
         'name' => (string) $post->post_title,
+        'summary' => (string) $post->post_excerpt,
         'presentation' => (string) $post->post_excerpt,
+        'full_presentation' => isset($post->post_content) ? (string) $post->post_content : '',
+        'publicly_listed' => '1' === get_post_meta($post_id, '_seed_directory_publicly_listed', true),
         'order' => (int) $post->menu_order,
         'wordpress_status' => (string) $post->post_status,
         'photo_id' => (int) get_post_thumbnail_id($post_id),
@@ -92,12 +113,19 @@ function wp_seed_content_directory_get_public_data($post_id)
             );
         }
     }
+    $summary = sanitize_textarea_field($post->post_excerpt);
+    $full_presentation = wp_seed_content_directory_render_full_presentation(
+        isset($post->post_content) ? $post->post_content : ''
+    );
 
     return array(
         'id' => $post_id,
         'name' => sanitize_text_field($post->post_title),
         'photo' => $photo,
-        'bio' => sanitize_textarea_field($post->post_excerpt),
+        'summary' => $summary,
+        'bio' => $summary,
+        'full_presentation' => $full_presentation,
+        'publicly_listed' => true,
         'status' => $status,
         'status_label' => isset($statuses[$status]) ? $statuses[$status] : '',
         'profile_types' => $profile_types,

@@ -26,7 +26,7 @@ ACF, Composer, npm et les services externes ne sont pas requis.
 
 Depuis la racine du depot, executer les harnais directory-l2, directory-l3, directory-l4, wordpress-directory-l2, wordpress-directory-l3 et wordpress-directory-l4.
 
-L4 controle la Data API publique, les Collections, les filtres et ordres, les deux shortcodes, les groupes, le HTML, les deux CSS, les quinze placeholders et tous les fallbacks. Il verifie aussi qu'une fiche sans photo ne rend aucun wrapper media ou placeholder et que la grille neutralise les marqueurs de liste herites du theme. Les sentinelles privees doivent etre absentes de la Data API, du contexte, des placeholders, du HTML natif ou template et des logs.
+L4 controle la Data API publique, les Collections, les filtres et ordres, les deux shortcodes, les groupes, le HTML, les deux CSS, les vingt et un placeholders et tous les fallbacks. Il verifie aussi qu'une fiche sans photo ne rend aucun wrapper media ou placeholder et que la grille neutralise les marqueurs de liste herites du theme. Les sentinelles privees doivent etre absentes de la Data API, du contexte, des placeholders, du HTML natif ou template et des logs.
 
 Le harnais WordPress L4 exige WP_SEED_WORDPRESS_LOAD vers un WordPress isole. Il charge les seize fiches fictives de tests/fixtures/directory-l4.json, teste 14 fiches eligibles, Gutenberg, Divi, theme classique, desactivation/reactivation et non-regression Citations/Temoignages. Il mesure Data API, Collection, shortcode natif, shortcode template, requetes et cache de resolution, puis supprime posts, templates, layouts et revisions.
 
@@ -272,3 +272,33 @@ WP_SEED_WORDPRESS_LOAD=/chemin/wp-load.php php tests/wordpress-directory-profile
 La matrice WordPress jetable couvre Alice (praticienne), Bruno (intervenant), Céline (les deux), David (praticien avec recherche active), Emma (intervenante avec recherche active), une fiche historique sans nouvelle méta et un brouillon. Elle vérifie les Collections exactes, la confidentialité, les shortcodes, les Templates, la sauvegarde Editor, le refus d'un utilisateur non autorisé, le nonce, la sauvegarde partielle et la migration idempotente.
 
 La recette Divi 5.9.0 doit utiliser un Layout de Template Annuaire, sans Loop Builder, puis vérifier frontend, Visual Builder, profil multi-type, valeur vide, fallback local et intégrité du Layout enregistré.
+
+
+## Annuaire 0.8.0-rc.2 — matrice de validation
+
+Les harnais couvrent la case listée/non listée, les sauvegardes partielles, les Collections et IDs explicites, les trois champs de présentation, le filtrage HTML, vingt profils fictifs aux types et statuts variés, ainsi que la migration par lots, sa reprise, ses erreurs, ses compteurs et sa seconde exécution sans effet. Les suites WordPress et Divi doivent confirmer la parité frontend/Visual Builder sans exposition privée.
+
+## Module Divi 5 Annuaire — 0.8.0-rc.2
+
+Exécuter sous PHP 7.0.33 et PHP 8.4 :
+
+```text
+php tests/divi-directory-collection-harness.php
+php tests/wordpress-divi-directory-collection-harness.php
+```
+
+Les harnais couvrent le chargement conditionnel Divi, les paramètres, la route GET, le nonce REST, `edit_pages`, les erreurs 400, les en-têtes sans cache, les Templates publiés et le renderer partagé. Rejouer ensuite tous les harnais historiques, CK-A6, les rôles, Template Extension, Témoignages et Citations.
+
+Dans WordPress 7.0.2 avec Divi 5.9.0 exact, créer uniquement des fixtures jetables couvrant :
+
+- Annuaire complet, Praticiens, Intervenants et Recherche de modèles ;
+- types OR et AND, ID inclus et exclu, ordre, limite et offset ;
+- fiche sans type, multi-type, non listée, brouillon, privée et protégée ;
+- `summary`, `bio`, `full_presentation`, paragraphes, liste, lien et valeur vide ;
+- Template natif, absent, brouillon, vide et erreur sur une carte intermédiaire.
+
+Comparer les IDs, l’ordre et le HTML fonctionnel entre frontend et Visual Builder. Tester les changements de réglages, le rerender, la sauvegarde, la fermeture et la réouverture, sans chargement permanent ni erreur réseau ou console.
+
+Vérifier 1440 × 1000, 820 × 1180, 390 × 844, 320 × 700, zoom 200 %, clavier, focus, mouvement réduit et frontend sans JavaScript. Supprimer ensuite WordPress, base, fixtures, captures brutes, profil navigateur et copie privée de Divi.
+
+Sans Divi, confirmer l’absence du module et de la route, sans fatal ni régression des shortcodes. Ne jamais tester cette capacité avec le Loop Builder natif ou un contournement DOM.

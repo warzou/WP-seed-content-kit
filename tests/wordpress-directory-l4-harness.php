@@ -60,6 +60,7 @@ function seed_l4_wp_create_entry($entry)
         '_seed_directory_country' => $entry['country'],
         '_seed_directory_featured' => !empty($entry['featured']) ? '1' : '',
         '_seed_directory_publication_authorized' => '1',
+        '_seed_directory_publicly_listed' => '1',
     );
     foreach (array('phone', 'email', 'website', 'facebook', 'instagram') as $contact) {
         if (isset($entry[$contact])) {
@@ -72,6 +73,7 @@ function seed_l4_wp_create_entry($entry)
         'post_status' => $entry['post_status'],
         'post_title' => $entry['name'],
         'post_excerpt' => 'Presentation strictement fictive pour la recette L4.',
+        'post_content' => '<p>Presentation complete fictive avec <a href="https://example.test">lien</a>.</p>',
         'menu_order' => (int) $entry['order'],
         'meta_input' => $meta,
     ));
@@ -158,9 +160,17 @@ try {
     seed_l4_wp_same(array(), wp_seed_content_directory_get_entries(array('ids' => array($entry_ids[9], $entry_ids[15]))), 'Draft IDs cannot bypass eligibility');
 
     $first = wp_seed_content_directory_get_public_data($entry_ids[0]);
-    seed_l4_wp_same(array('id', 'name', 'photo', 'bio', 'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label', 'seeking_models', 'seeking_models_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($first), 'Fixed public schema');
+    seed_l4_wp_same(array('id', 'name', 'photo', 'summary', 'bio', 'full_presentation', 'publicly_listed', 'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label', 'seeking_models', 'seeking_models_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($first), 'Fixed public schema');
     seed_l4_wp_same(array('city', 'postal_code', 'department', 'country'), array_keys($first['location']), 'Fixed location schema');
     seed_l4_wp_same(array('phone'), array_keys($first['contacts']), 'Only visible contact in public API');
+    seed_l4_wp_same($first['summary'], $first['bio'], 'Bio remains a strict summary alias');
+    seed_l4_wp_assert(false !== strpos($first['full_presentation'], '<p>Presentation complete fictive'), 'Full presentation is rendered from post_content');
+    seed_l4_wp_assert(false !== strpos($first['full_presentation'], '<a href="https://example.test">'), 'Full presentation keeps allowed public links');
+    seed_l4_wp_same(true, $first['publicly_listed'], 'Successful public projection is explicitly listed');
+    delete_post_meta($entry_ids[0], '_seed_directory_publicly_listed');
+    seed_l4_wp_same(false, wp_seed_content_directory_get_public_data($entry_ids[0]), 'Unlisted entry has no public projection');
+    seed_l4_wp_same(array(), wp_seed_content_directory_get_entries(array('ids' => array($entry_ids[0]))), 'Explicit ID cannot bypass public listing');
+    update_post_meta($entry_ids[0], '_seed_directory_publicly_listed', '1');
     seed_l4_wp_same(false, wp_seed_content_directory_get_public_data($entry_ids[9]), 'Draft has no public data');
     $private_data = wp_seed_content_directory_get_public_data($entry_ids[5]);
     seed_l4_wp_not_contains($private_sentinel, serialize($private_data), 'Masked sentinel absent from public data');
@@ -241,7 +251,7 @@ try {
     seed_l4_wp_assert(shortcode_exists('seed_testimonials'), 'Testimonials shortcode unchanged');
     seed_l4_wp_assert(shortcode_exists('seed_quotes'), 'Quotes shortcode unchanged');
     seed_l4_wp_same('1.0', wp_seed_content_kit_get_contract_version(), 'Template Extension contract unchanged');
-    seed_l4_wp_same(19, count(wp_seed_content_kit_get_registered_template_placeholders('directory')), 'Exactly nineteen Directory placeholders');
+    seed_l4_wp_same(21, count(wp_seed_content_kit_get_registered_template_placeholders('directory')), 'Exactly twenty-one Directory placeholders');
 
     wp_cache_flush();
     $performance['data_api'] = seed_l4_wp_measure(function () use ($public_ids) { return wp_seed_content_directory_get_public_data($public_ids[0]); });

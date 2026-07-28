@@ -265,6 +265,7 @@ function wp_seed_content_directory_migration_entry_fields($entry, $attachment_id
         '_seed_directory_facebook' => $entry['facebook'], '_seed_directory_facebook_visible' => $entry['facebook_public'] ? '1' : '',
         '_seed_directory_instagram' => $entry['instagram'], '_seed_directory_instagram_visible' => $entry['instagram_public'] ? '1' : '',
         '_seed_directory_publication_authorized' => $entry['publication_authorized'] ? '1' : '',
+        '_seed_directory_publicly_listed' => 'publish' === $entry['target_status'] ? '1' : '',
         '_seed_directory_internal_note' => $entry['internal_note'], '_seed_directory_last_verified' => $entry['last_verified_date'],
     );
     return array(

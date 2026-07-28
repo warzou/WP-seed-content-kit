@@ -341,3 +341,9 @@ En cas de contradiction future entre une proposition d'implémentation et ce doc
 Le module Annuaire possède une API publique fermée distincte de la Content Data API V1 Citation/Témoignage. `wp_seed_content_directory_get_public_data()` ne retourne une fiche qu'après le prédicat canonique d'éligibilité.
 
 En 0.8.0-rc.1, cette structure ajoute les types normalisés et le statut temporaire : tableau de slugs, tableau et chaîne de libellés, booléen `seeking_models` et libellé conditionnel. Aucun contact masqué, brouillon, fiche protégée ou sérialisation brute n'est exposé.
+
+## Annuaire 0.8.0-rc.2 — présentations publiques
+
+La projection Annuaire ajoute `summary`, `full_presentation` et `publicly_listed`. `bio` reste strictement égal à `summary`. `full_presentation` provient de `post_content`, suit le rendu WordPress puis le filtrage HTML public; une valeur absente devient `""`. `publicly_listed` vaut toujours `true` dans une projection obtenue avec succès, car une fiche non listée retourne `false` avant toute donnée.
+
+Aucune donnée privée nouvelle n’est exposée. La projection ne fournit ni note interne, valeur de consentement, coordonnées masquées ni méta brute de visibilité.

@@ -866,3 +866,9 @@ La fonction `wp_seed_content_directory_get_entries($args)` reste l'unique source
 Une valeur de type, d'opérateur ou de statut temporaire invalide échoue fermement avec une Collection vide. L'absence de filtre inclut les fiches historiques sans type. Un filtre explicite les exclut. Les filtres de profil et de recherche se combinent par intersection.
 
 Six configurations non persistantes sont fournies par `wp_seed_content_directory_get_predefined_collections()` : tous, praticiens, intervenants, recherche active et les deux combinaisons type + recherche.
+
+## 15. Visibilité publique Annuaire — 0.8.0-rc.2
+
+Toutes les Collections Annuaire sont fermées par défaut : une fiche sans `_seed_directory_publicly_listed=1` est exclue avant tout filtre métier. Ce garde vaut pour l’Annuaire complet, Praticiens, Intervenants, Recherche de modèles, les sélections par IDs, les exclusions et les combinaisons OR/AND. Aucun argument public ne peut demander les fiches non listées.
+
+La visibilité publique reste indépendante du consentement, du statut WordPress, des types, de Recherche de modèles et des coordonnées visibles. Ces conditions sont cumulatives lorsqu’elles participent à l’éligibilité; aucune n’active automatiquement les autres.

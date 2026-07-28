@@ -173,7 +173,7 @@ foreach (array('Contenus', 'Collections', 'Templates', 'Intégrations', 'Annuair
 
 $placeholders = wp_seed_content_kit_get_usage_template_placeholders();
 seed_admin_usage_same(3, count($placeholders), 'Three Template modules documented');
-seed_admin_usage_same(19, count($placeholders['Annuaire']), 'Nineteen Directory placeholders documented');
+seed_admin_usage_same(21, count($placeholders['Annuaire']), 'Twenty-one Directory placeholders documented');
 seed_admin_usage_assert(in_array('directory.phone', $placeholders['Annuaire'], true), 'Directory phone placeholder documented');
 
 ob_start();
@@ -236,10 +236,10 @@ seed_admin_usage_same(1, substr_count($subtabs_html, 'aria-selected="true"'), 'I
 $placeholder_catalog = wp_seed_content_kit_get_usage_template_placeholder_catalog();
 seed_admin_usage_same(7, count($placeholder_catalog['Témoignages']), 'Seven Testimonial placeholders described');
 seed_admin_usage_same(4, count($placeholder_catalog['Citations']), 'Four Quote placeholders described');
-seed_admin_usage_same(19, count($placeholder_catalog['Annuaire']), 'Nineteen Directory placeholders described');
+seed_admin_usage_same(21, count($placeholder_catalog['Annuaire']), 'Twenty-one Directory placeholders described');
 seed_admin_usage_same('directory.name', $placeholder_catalog['Annuaire'][0]['key'], 'Directory placeholder keys stay canonical');
 seed_admin_usage_same('text', $placeholder_catalog['Annuaire'][0]['type'], 'Directory placeholder type documented');
-seed_admin_usage_same('Publique si autorisée', $placeholder_catalog['Annuaire'][13]['visibility'], 'Directory contact visibility is conditional');
+seed_admin_usage_same('Publique si autorisée', $placeholder_catalog['Annuaire'][15]['visibility'], 'Directory contact visibility is conditional');
 foreach ($placeholder_catalog as $definitions) {
     foreach ($definitions as $definition) {
         seed_admin_usage_assert(false === strpos($definition['key'], 'private'), 'No private placeholder exposed: ' . $definition['key']);
@@ -247,7 +247,7 @@ foreach ($placeholder_catalog as $definitions) {
         seed_admin_usage_assert('' !== $definition['empty'], 'Empty behavior provided: ' . $definition['key']);
     }
 }
-seed_admin_usage_same(30, substr_count($templates_html, 'data-seed-usage-copy-value='), 'Every placeholder has a copy action');
+seed_admin_usage_same(32, substr_count($templates_html, 'data-seed-usage-copy-value='), 'Every placeholder has a copy action');
 seed_admin_usage_assert(false !== strpos($templates_html, 'Un Template présente un contenu'), 'Template and selection stay separate');
 seed_admin_usage_assert(false !== strpos($templates_html, 'sans association enregistrée'), 'No persistent Template Collection association');
 seed_admin_usage_assert(false !== strpos($templates_html, 'Seules les données de rendu publiques'), 'Private fields excluded from placeholder catalog');

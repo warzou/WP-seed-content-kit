@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.8.0-rc.1, Release Candidate en validation et non stable.
+Statut du package : 0.8.0-rc.2, Release Candidate en validation et non stable.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -37,9 +37,9 @@ Collections reste une API de sélection et un ensemble de paramètres. Aucun con
 
 ### Annuaire - sortie publique 0.6.0
 
-Le module natif Annuaire fournit son CPT administratif privé, vingt et une métas validées, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
+Le module natif Annuaire fournit son CPT administratif privé, vingt-deux métas validées, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
 
-Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, REST/AJAX, import métier automatique ou adaptateur inter-plugin. La seule mise à niveau runtime 0.8.0-rc.1 est additive : elle copie l'ancien statut de recherche vers le nouveau booléen sans attribuer de type.
+Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, REST/AJAX, import métier automatique ou adaptateur inter-plugin. Les mises à niveau runtime restent additives : RC.1 copie l'ancien statut de recherche vers le booléen dédié sans attribuer de type ; RC.2 initialise uniquement la visibilité publique des fiches déjà publiées et non protégées sans valeur explicite.
 
 CK-A3 fournit à Editor et Administrator une fiche désormais organisée en cinq panneaux avec nom affiché, profil multi-usages, statut historique, localisation, présentation/photo, coordonnées et autorisation. Les cinq visibilités sont désactivées par défaut. Une coordonnée peut rester privée en brouillon ; si elle est rendue publique, une valeur vide ou invalide bloque la publication avec un message lié au champ.
 
@@ -219,3 +219,20 @@ Une fiche Annuaire peut être praticien, intervenant, les deux ou ne pas encore 
 ```
 
 Sans ces attributs, `[seed_directory]` conserve son comportement historique et inclut les fiches existantes sans type. Les Collections restent non persistantes et aucun filtre n'est affiché aux visiteurs.
+
+
+## Annuaire — visibilité publique et présentation complète — 0.8.0-rc.2
+
+L’éditeur natif stocke la présentation complète dans `post_content`. La sortie publique sépare `summary`, `bio` (alias) et `full_presentation`. La case « Afficher cette personne dans les annuaires publics » est indépendante des autres statuts et ferme toutes les Collections lorsque sa méta exacte `1` est absente.
+
+La migration RC.2 est additive, reprenable et idempotente. Elle liste uniquement les fiches existantes publiées, non protégées et sans valeur explicite, sans modifier leur contenu ou leurs autres métadonnées.
+
+## Module Divi 5 Annuaire — 0.8.0-rc.2
+
+Divi 5 propose le module `WP Seed — Annuaire`. Il configure les Collections complètes, Praticiens, Intervenants, Recherche de modèles, les combinaisons OR/AND, les IDs et exclusions, la limite, l’offset, le tri et un Template facultatif.
+
+Le frontend et le Visual Builder utilisent le même renderer que `[seed_directory]`. L’aperçu est servi par une route REST privée qui exige un nonce valide et `edit_pages`, ne met pas sa réponse en cache public et ne permet aucun accès supplémentaire aux fiches.
+
+Une fiche non listée, brouillon, privée, protégée ou non autorisée reste absente même si son ID est saisi dans le module. Le fallback Template reste local à chaque carte.
+
+Le module est chargé uniquement lorsque Divi 5 est disponible. Sans Divi, le plugin et les shortcodes fonctionnent normalement. Le Loop Builder natif Divi n’est pas pris en charge.

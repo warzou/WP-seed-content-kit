@@ -10,6 +10,7 @@ function wp_seed_content_directory_get_meta_definitions()
         '_seed_directory_status' => array('type' => 'status'),
         '_seed_directory_profile_types' => array('type' => 'profile_types'),
         '_seed_directory_seeking_models' => array('type' => 'boolean'),
+        '_seed_directory_publicly_listed' => array('type' => 'boolean'),
         '_seed_directory_city' => array('type' => 'text'),
         '_seed_directory_postal_code' => array('type' => 'postal_code'),
         '_seed_directory_department' => array('type' => 'department'),
