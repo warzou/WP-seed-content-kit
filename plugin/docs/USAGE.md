@@ -452,3 +452,13 @@ Le Builder n’assouplit aucune règle publique. Une fiche non listée ou non pu
 Le shortcode `[seed_directory]` reste pris en charge. À réglages identiques, le shortcode, le frontend du module et l’aperçu utilisent le même renderer. Le fallback d’une carte en erreur reste local.
 
 Le module nécessite Divi 5. Sans Divi, aucune route ni module n’est enregistré. Le Loop Builder natif Divi reste non pris en charge.
+
+## Combiner `ids` et `exclude_ids` dans l'Annuaire
+
+`ids` restreint la population et `exclude_ids` retire toujours les fiches correspondantes, y compris lorsqu'elles figurent dans `ids`.
+
+```text
+[seed_directory ids="12,18,27" exclude_ids="18"]
+```
+
+La Collection conserve ici les fiches 12 et 27 si elles sont publiées, listées et éligibles. Elle applique ensuite les filtres métier, `orderby`/`order`, `offset`, puis `limit`. Si toutes les fiches sont exclues, l'état vide est rendu. L'ordre CSV des IDs ne remplace pas le tri canonique.

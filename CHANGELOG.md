@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0-rc.3] - 2026-07-29
+
+### Annuaire : combinaison `ids` et `exclude_ids`
+
+- Corrige le contrat canonique lorsque `ids` et `exclude_ids` sont fournis ensemble : les exclusions sont toujours soustraites de la sélection explicite avant la requête WordPress.
+- Un résultat dont tous les IDs sont exclus reste vide et ne retombe jamais sur la population complète.
+- L'éligibilité publique, les filtres métier, le tri canonique, l'offset et la limite restent appliqués dans cet ordre, sans migration de données.
+- Le shortcode canonique, son alias, le renderer partagé, le module Divi 5 et son aperçu utilisent la même Collection corrigée.
 ## [0.8.0-rc.2] - 2026-07-28
 
 ### Annuaire : présentation complète et visibilité publique

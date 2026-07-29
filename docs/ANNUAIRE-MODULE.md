@@ -138,3 +138,7 @@ Le contrôle `_seed_directory_publicly_listed=1` reste obligatoire avant toute s
 Le fallback d’un Template absent, brouillon, vide ou en erreur reste natif et limité à la carte concernée. Les autres cartes continuent leur rendu normal.
 
 Le module n’est pas un adaptateur Loop Builder. Il n’utilise aucun shortcode dans le canevas, aucune observation du DOM et aucune API interne Divi non contractuelle.
+
+## Ordre des filtres Collections en RC.3
+
+`ids` et `exclude_ids` sont normalisés et dédupliqués séparément. Quand les deux sont présents, la Collection calcule la différence avant toute pagination. Elle applique ensuite les règles publiques, les types et statuts, les autres filtres, le tri, l'offset et la limite. Une différence vide reste vide. Cette correction ne modifie aucune donnée et ne nécessite aucune migration depuis RC.2.

@@ -872,3 +872,9 @@ Six configurations non persistantes sont fournies par `wp_seed_content_directory
 Toutes les Collections Annuaire sont fermées par défaut : une fiche sans `_seed_directory_publicly_listed=1` est exclue avant tout filtre métier. Ce garde vaut pour l’Annuaire complet, Praticiens, Intervenants, Recherche de modèles, les sélections par IDs, les exclusions et les combinaisons OR/AND. Aucun argument public ne peut demander les fiches non listées.
 
 La visibilité publique reste indépendante du consentement, du statut WordPress, des types, de Recherche de modèles et des coordonnées visibles. Ces conditions sont cumulatives lorsqu’elles participent à l’éligibilité; aucune n’active automatiquement les autres.
+
+## Contrat Annuaire `ids` et `exclude_ids`
+
+Pour l'Annuaire, le pipeline public est strictement : normalisation et déduplication des IDs positifs, restriction facultative à `ids`, soustraction systématique de `exclude_ids`, éligibilité publique, filtres métier, tri canonique, offset, puis limite. Une intersection totale produit un résultat vide. Un ID inexistant est ignoré; un ID invalide fait échouer la sélection sans élargissement. Les fiches non listées, brouillons, privées, protégées ou autrement non éligibles ne sont jamais réintroduites.
+
+La liste `ids` définit une population admissible, pas un ordre d'affichage. `orderby` et `order` déterminent l'ordre final comme avant RC.3. Le shortcode, son alias, le renderer partagé, le module Divi et l'aperçu Builder consomment cette même API canonique.

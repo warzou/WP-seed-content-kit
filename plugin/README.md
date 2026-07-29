@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.8.0-rc.2, Release Candidate en validation et non stable.
+Statut du package : 0.8.0-rc.3, Release Candidate en validation et non stable.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -236,3 +236,7 @@ Le frontend et le Visual Builder utilisent le même renderer que `[seed_director
 Une fiche non listée, brouillon, privée, protégée ou non autorisée reste absente même si son ID est saisi dans le module. Le fallback Template reste local à chaque carte.
 
 Le module est chargé uniquement lorsque Divi 5 est disponible. Sans Divi, le plugin et les shortcodes fonctionnent normalement. Le Loop Builder natif Divi n’est pas pris en charge.
+
+### Annuaire RC.3
+
+La combinaison `ids` et `exclude_ids` est contractuelle : les exclusions sont soustraites de la sélection explicite avant éligibilité, filtres, tri, offset et limite. Une sélection entièrement exclue reste vide. Aucun changement de données ni migration n'est requis depuis 0.8.0-rc.2.

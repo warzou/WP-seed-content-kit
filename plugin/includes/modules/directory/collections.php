@@ -238,15 +238,18 @@ function wp_seed_content_directory_get_entries($args = array())
     );
     if (!empty($args['ids'])) {
         $query['post__in'] = $args['ids'];
-    }
-    if (!empty($args['exclude_ids'])) {
+    } elseif (!empty($args['exclude_ids'])) {
         $query['post__not_in'] = $args['exclude_ids'];
     }
 
+    $excluded_ids = array_fill_keys($args['exclude_ids'], true);
     $posts = get_posts($query);
     $selected = array();
     foreach ($posts as $post) {
         if (!$post instanceof WP_Post || !wp_seed_content_directory_is_publicly_eligible($post->ID)) {
+            continue;
+        }
+        if (isset($excluded_ids[(int) $post->ID])) {
             continue;
         }
 

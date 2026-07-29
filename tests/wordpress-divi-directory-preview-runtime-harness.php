@@ -277,6 +277,28 @@ try {
     seed_preview_wp_assert(false === strpos($explicit_html, 'SEED PREVIEW Private'), 'Explicit ID cannot bypass private status');
     seed_preview_wp_assert(false === strpos($explicit_html, 'SEED PREVIEW Protected'), 'Explicit ID cannot bypass password protection');
 
+    $intersection = array(
+        'ids' => implode(',', array($alice, $bruno, $celine)),
+        'exclude_ids' => implode(',', array($alice, $celine)),
+        'orderby' => 'display_order',
+        'order' => 'asc',
+        'limit' => '0',
+    );
+    $response = seed_preview_wp_request($intersection, $nonce);
+    $intersection_html = $response->get_data()['html'];
+    $intersection_frontend = wp_seed_content_render_normalized_directory_collection(
+        wp_seed_content_directory_normalize_shortcode_atts($intersection),
+        false
+    );
+    seed_preview_wp_same($intersection_frontend, $intersection_html, 'IDs plus exclusions match frontend and Builder preview');
+    seed_preview_wp_assert(false !== strpos($intersection_html, 'SEED PREVIEW Bruno'), 'Non-excluded explicit ID remains in preview');
+    seed_preview_wp_assert(false === strpos($intersection_html, 'SEED PREVIEW Alice'), 'Excluded explicit ID is absent from preview');
+    seed_preview_wp_assert(false === strpos($intersection_html, 'SEED PREVIEW Celine'), 'Every intersecting exclusion is absent from preview');
+
+    $response = seed_preview_wp_request(array('ids' => (string) $alice, 'exclude_ids' => (string) $alice), $nonce);
+    $empty_intersection_html = $response->get_data()['html'];
+    seed_preview_wp_assert(false === strpos($empty_intersection_html, 'SEED PREVIEW Alice'), 'All excluded IDs return the empty preview state');
+
     $response = seed_preview_wp_request(
         array(
             'profile_types' => 'praticien,intervenant',

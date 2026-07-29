@@ -95,6 +95,10 @@ try {
     $ids['emma'] = dpt_wp_create_entry('Emma', array('intervenant'), true);
     $ids['legacy'] = dpt_wp_create_entry('Historique', null, false);
     $ids['draft'] = dpt_wp_create_entry('Brouillon', array('praticien'), true, 'draft');
+    $ids['unlisted'] = dpt_wp_create_entry('Non liste', array('praticien'), false);
+    delete_post_meta($ids['unlisted'], '_seed_directory_publicly_listed');
+    $ids['private'] = dpt_wp_create_entry('Prive', array('praticien'), false, 'private');
+    $ids['protected'] = dpt_wp_create_entry('Protege', array('praticien'), false, 'publish', 'secret');
 
     dpt_wp_matrix('Tous les profils', array(), array($ids['alice'], $ids['bruno'], $ids['celine'], $ids['david'], $ids['emma'], $ids['legacy']));
     dpt_wp_matrix('Praticiens', array('profile_type' => 'praticien'), array($ids['alice'], $ids['celine'], $ids['david']));
@@ -113,7 +117,20 @@ try {
         'exclude_ids' => array($ids['emma']),
     )), 'Explicit exclusion');
     dpt_wp_same(array($ids['bruno'], $ids['celine']), wp_seed_content_directory_get_entries(array('offset' => 1, 'limit' => 2)), 'Pagination after stable sort');
-
+    dpt_wp_same(array($ids['bruno']), wp_seed_content_directory_get_entries(array('ids' => array($ids['alice'], $ids['bruno']), 'exclude_ids' => array($ids['alice']))), 'RC2 regression: intersecting exclusion wins over explicit IDs');
+    dpt_wp_same(array(), wp_seed_content_directory_get_entries(array('ids' => array($ids['alice']), 'exclude_ids' => array($ids['alice']))), 'All explicit IDs excluded remains empty');
+    dpt_wp_same(array($ids['alice'], $ids['bruno']), wp_seed_content_directory_get_entries(array('ids' => array($ids['alice'], $ids['alice'], $ids['bruno']), 'exclude_ids' => array($ids['emma'], $ids['emma']))), 'ID lists are deduplicated independently');
+    dpt_wp_same(array(), wp_seed_content_directory_get_entries(array('ids' => array('1'), 'exclude_ids' => array())), 'Invalid explicit ID types fail closed');
+    dpt_wp_same(array(), wp_seed_content_directory_get_entries(array('ids' => array($ids['unlisted'], $ids['alice']), 'exclude_ids' => array($ids['alice']))), 'Unlisted profile is not widened into an intersected selection');
+    dpt_wp_same(array(), wp_seed_content_directory_get_entries(array('ids' => array($ids['draft'], $ids['private'], $ids['protected'], $ids['alice']), 'exclude_ids' => array($ids['alice']))), 'Draft private and protected profiles remain excluded');
+    dpt_wp_same(array($ids['celine']), wp_seed_content_directory_get_entries(array('ids' => array($ids['alice'], $ids['celine'], $ids['bruno']), 'exclude_ids' => array($ids['alice']), 'profile_types' => array('praticien', 'intervenant'), 'profile_type_operator' => 'and')), 'AND type filter applies after ID intersection');
+    dpt_wp_same(array($ids['emma']), wp_seed_content_directory_get_entries(array('ids' => array($ids['david'], $ids['emma']), 'exclude_ids' => array($ids['david']), 'seeking_models' => '1')), 'Seeking filter applies after ID intersection');
+    dpt_wp_same(array($ids['celine']), wp_seed_content_directory_get_entries(array('ids' => array($ids['alice'], $ids['bruno'], $ids['celine']), 'exclude_ids' => array($ids['alice']), 'offset' => 1, 'limit' => 1)), 'Offset and limit apply after exclusion');
+    dpt_wp_same(array($ids['celine'], $ids['bruno']), wp_seed_content_directory_get_entries(array('ids' => array($ids['alice'], $ids['bruno'], $ids['celine']), 'exclude_ids' => array($ids['alice']), 'orderby' => 'id', 'order' => 'desc')), 'Canonical order applies after exclusion');
+    $canonical_html = do_shortcode('[seed_directory ids="' . $ids['alice'] . ',' . $ids['bruno'] . '" exclude_ids="' . $ids['alice'] . '"]');
+    $alias_html = do_shortcode('[wp_seed_directory ids="' . $ids['alice'] . ',' . $ids['bruno'] . '" exclude_ids="' . $ids['alice'] . '"]');
+    dpt_wp_same($canonical_html, $alias_html, 'Canonical shortcode and alias share the corrected contract');
+    dpt_wp_assert(false === strpos($canonical_html, 'SEED DPT Alice') && false !== strpos($canonical_html, 'SEED DPT Bruno'), 'Shortcode renderer excludes the intersecting explicit ID');
     $legacy_data = wp_seed_content_directory_get_public_data($ids['legacy']);
     dpt_wp_same(array(), $legacy_data['profile_types'], 'Legacy public profile remains visible with empty type list');
     dpt_wp_same('', $legacy_data['profile_types_label'], 'Legacy public type label is clean empty');

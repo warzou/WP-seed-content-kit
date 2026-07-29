@@ -302,3 +302,7 @@ Comparer les IDs, l’ordre et le HTML fonctionnel entre frontend et Visual Buil
 Vérifier 1440 × 1000, 820 × 1180, 390 × 844, 320 × 700, zoom 200 %, clavier, focus, mouvement réduit et frontend sans JavaScript. Supprimer ensuite WordPress, base, fixtures, captures brutes, profil navigateur et copie privée de Divi.
 
 Sans Divi, confirmer l’absence du module et de la route, sans fatal ni régression des shortcodes. Ne jamais tester cette capacité avec le Loop Builder natif ou un contournement DOM.
+
+## Régression RC.3 `ids` + `exclude_ids`
+
+Valider `ids` seul, exclusions seules, intersection nulle, partielle et totale, doublons, IDs invalides ou inexistants, fiches non listées/brouillons/privées/protégées, types OR/AND, Recherche de modèles, tri, offset et limite. Rejouer les mêmes paramètres via l'API Collections, `[seed_directory]`, `[wp_seed_directory]`, le renderer partagé, le module Divi 5 et la route privée d'aperçu. Frontend et Visual Builder doivent retourner les mêmes IDs dans le même ordre. La mise à niveau RC.2 vers RC.3 ne déclenche aucune migration métier.

@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 27 juillet 2026
-Statut : 0.8.0-rc.2 ; Release Candidate locale en validation, non stable
-Version courante du code : 0.8.0-rc.2
+Date : 29 juillet 2026
+Statut : 0.8.0-rc.3 ; Release Candidate locale en validation, non stable
+Version courante du code : 0.8.0-rc.3
 Version stable publiee de reference : 0.7.0
 Commit de base de preparation stable : 8a6fb735a729d4b14c753c78f5304fb59349b287
 Tag stable publie de reference : v0.7.0
@@ -592,3 +592,7 @@ L’aperçu est fourni par `GET /wp-seed-content-kit/v1/divi/directory-preview`.
 Les Collections restent fermées : une fiche non listée, brouillon, privée, protégée ou non autorisée ne peut être rendue, même par ID explicite. `directory.summary`, `directory.bio` et `directory.full_presentation` suivent le même contexte et le fallback reste local à la carte défaillante.
 
 Cette intégration ne prend pas en charge le Loop Builder natif Divi et n’utilise ni `MutationObserver`, ni remplacement DOM, ni API React/Webpack interne, ni délai arbitraire. Sans Divi, aucun module ni route n’est enregistré et les shortcodes historiques restent fonctionnels.
+
+## 25. Annuaire - contrat `ids` + `exclude_ids` - 0.8.0-rc.3
+
+La sélection publique normalise et déduplique séparément `ids` et `exclude_ids`. Si `ids` est fourni, la Collection calcule d'abord `ids - exclude_ids`; une intersection totale retourne immédiatement le résultat vide. Sans `ids`, `exclude_ids` filtre la population publique complète. Les règles d'éligibilité restent non contournables, puis viennent les filtres métier, le tri canonique, l'offset et la limite. L'ordre textuel de `ids` n'est pas un tri : `orderby` et `order` conservent le comportement historique. Aucun schéma, aucune méta et aucune donnée ne sont migrés entre RC.2 et RC.3.
