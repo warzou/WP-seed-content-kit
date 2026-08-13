@@ -11,7 +11,7 @@ class WP_Seed_Content_Divi_Dynamic_Content_Quote_Source extends WP_Seed_Content_
 {
     public function get_name(): string
     {
-        return 'wp_seed_content_quote_source';
+        return 'loop_wpsck_quote_source';
     }
 
     public function get_label(): string

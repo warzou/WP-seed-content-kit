@@ -120,6 +120,8 @@ namespace {
             : array(17, 19, 23);
     }
 
+    require dirname(__DIR__) . '/plugin/includes/integrations/divi/collection-query.php';
+    require dirname(__DIR__) . '/plugin/includes/integrations/divi/loop-context.php';
     require dirname(__DIR__) . '/plugin/includes/integrations/divi/testimonial-collection-query.php';
     require dirname(__DIR__) . '/plugin/includes/integrations/divi/class-dynamic-content-testimonial-base.php';
     require dirname(__DIR__) . '/plugin/includes/integrations/divi/class-dynamic-content-testimonial-loop-fields.php';

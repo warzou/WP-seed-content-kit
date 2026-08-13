@@ -41,11 +41,18 @@ abstract class WP_Seed_Content_Divi_Dynamic_Content_Quote_Base extends DynamicCo
             ? $data_args['name']
             : '';
 
-        if ($this->get_name() !== $name) {
+        if (!wp_seed_content_divi_dynamic_content_name_matches($this->get_name(), $name)) {
             return $value;
         }
 
-        $resolver_context = $this->get_resolver_context($data_args);
+        $resolver_context = wp_seed_content_divi_get_dynamic_content_context(
+            $data_args,
+            'seed_quote'
+        );
+
+        if (wp_seed_content_divi_should_defer_dynamic_content($value, $resolver_context)) {
+            return $value;
+        }
         $resolved_value = '';
 
         if (function_exists('wp_seed_content_resolve_dynamic_data')) {
@@ -66,55 +73,11 @@ abstract class WP_Seed_Content_Divi_Dynamic_Content_Quote_Base extends DynamicCo
         return DynamicContentElements::get_wrapper_element(
             array(
                 'name' => $name,
-                'post_id' => $this->get_wrapper_post_id($data_args),
+                'post_id' => wp_seed_content_divi_get_dynamic_content_wrapper_post_id($data_args),
                 'value' => $resolved_value,
                 'settings' => $settings,
             )
         );
     }
 
-    private function get_resolver_context(array $data_args): array
-    {
-        if (array_key_exists('loop_id', $data_args) && null !== $data_args['loop_id']) {
-            return $this->get_resolver_context_for_post_id($data_args['loop_id']);
-        }
-
-        $post_id = array_key_exists('post_id', $data_args) ? $data_args['post_id'] : 0;
-
-        return $this->get_resolver_context_for_post_id($post_id);
-    }
-
-    private function get_wrapper_post_id(array $data_args): int
-    {
-        if (
-            !array_key_exists('post_id', $data_args)
-            || !function_exists('_wp_seed_content_normalize_dynamic_data_post_id')
-        ) {
-            return 0;
-        }
-
-        return _wp_seed_content_normalize_dynamic_data_post_id($data_args['post_id']);
-    }
-
-    private function get_resolver_context_for_post_id($post_id): array
-    {
-        if (!function_exists('_wp_seed_content_normalize_dynamic_data_post_id')) {
-            return array('current_post_id' => 0);
-        }
-
-        $post_id = _wp_seed_content_normalize_dynamic_data_post_id($post_id);
-        if (!$post_id) {
-            return array('current_post_id' => 0);
-        }
-
-        $post = get_post($post_id);
-        if (!$post instanceof WP_Post || 'seed_quote' !== $post->post_type) {
-            return array('current_post_id' => 0);
-        }
-
-        return array(
-            'current_post_id' => (int) $post->ID,
-            'current_post_type' => 'seed_quote',
-        );
-    }
 }

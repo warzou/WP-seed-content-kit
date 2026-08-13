@@ -19,85 +19,46 @@ function wp_seed_content_quotes_shortcode($atts)
         return wp_seed_content_render_daily_quote_shortcode($atts);
     }
 
-    $limit_raw = isset($atts['limit']) ? sanitize_text_field((string) $atts['limit']) : '';
-    $limit_raw = trim($limit_raw);
+    $limit_raw = trim(sanitize_text_field((string) $atts['limit']));
     if ('' === $limit_raw) {
         $limit = 1;
         $orderby_default = 'random';
     } else {
         $limit = absint($limit_raw);
         $orderby_default = sanitize_key($atts['orderby']);
-        $orderby_default = in_array($orderby_default, array('random', 'author', 'date'), true) ? $orderby_default : 'random';
+        $orderby_default = in_array($orderby_default, array('random', 'author', 'date'), true)
+            ? $orderby_default
+            : 'random';
     }
 
     if ('0' === $limit_raw) {
-        $posts_per_page = -1;
-    } elseif ('' === $limit_raw) {
-        $posts_per_page = 1;
-    } elseif (0 === $limit) {
-        $posts_per_page = 1;
+        $collection_limit = 0;
+    } elseif ('' === $limit_raw || 0 === $limit) {
+        $collection_limit = 1;
     } else {
-        $posts_per_page = $limit;
+        $collection_limit = $limit;
     }
 
     $order = strtolower(sanitize_key($atts['order']));
-    $order = in_array($order, array('asc', 'desc'), true) ? strtoupper($order) : 'DESC';
+    $order = in_array($order, array('asc', 'desc'), true) ? $order : 'desc';
 
     $orderby = sanitize_key($atts['orderby']);
-    if ('' === $orderby_raw = $orderby) {
-        $orderby = $orderby_default;
-    }
-    $orderby = in_array($orderby, array('random', 'author', 'date', 'menu_order'), true) ? $orderby : $orderby_default;
-
+    $orderby = in_array($orderby, array('random', 'author', 'date', 'menu_order'), true)
+        ? $orderby
+        : $orderby_default;
     $template = sanitize_title($atts['template']);
-    $query_orderby = 'date';
-    $meta_query = array();
-    $meta_key = '';
-
-    if ('true' === strtolower((string) $atts['featured'])) {
-        $meta_query[] = array(
-            'key' => '_seed_quote_featured',
-            'value' => '1',
-            'compare' => '=',
-        );
-    }
-
-    if ('author' === $orderby) {
-        $query_orderby = 'meta_value';
-        $meta_key = '_seed_quote_author';
-    } elseif ('menu_order' === $orderby) {
-        $query_orderby = 'menu_order';
-    } elseif ('random' === $orderby) {
-        $query_orderby = 'rand';
-        $order = 'DESC';
-    } elseif ('date' === $orderby) {
-        $query_orderby = 'date';
-    }
+    $featured = 'true' === strtolower((string) $atts['featured']) ? 'only' : 'all';
 
     wp_seed_content_enqueue_assets();
 
-    $query_args = array(
-        'post_type' => 'seed_quote',
-        'post_status' => 'publish',
-        'has_password' => false,
-        'posts_per_page' => $posts_per_page,
-        'ignore_sticky_posts' => true,
-        'no_found_rows' => true,
-        'orderby' => $query_orderby,
+    $quote_ids = wp_seed_content_get_quotes(array(
+        'limit' => $collection_limit,
+        'featured' => $featured,
+        'orderby' => $orderby,
         'order' => $order,
-    );
+    ));
 
-    if ($meta_key) {
-        $query_args['meta_key'] = $meta_key;
-    }
-
-    if (!empty($meta_query)) {
-        $query_args['meta_query'] = $meta_query;
-    }
-
-    $query = new WP_Query($query_args);
-
-    if (!$query->have_posts()) {
+    if (empty($quote_ids)) {
         return '<p class="seed-quotes__empty">' . esc_html__('Aucune citation à afficher pour le moment.', 'wp-seed-content-kit') . '</p>';
     }
 
@@ -106,15 +67,22 @@ function wp_seed_content_quotes_shortcode($atts)
 
     ob_start();
     ?>
-    <section class="seed-quotes" data-orderby="<?php echo esc_attr($orderby); ?>" data-order="<?php echo esc_attr($order); ?>">
+    <section class="seed-quotes" data-orderby="<?php echo esc_attr($orderby); ?>" data-order="<?php echo esc_attr(strtoupper($order)); ?>">
         <div class="<?php echo esc_attr($collection_class); ?>">
             <?php
-            while ($query->have_posts()) {
-                $query->the_post();
+            global $post;
+            foreach ($quote_ids as $quote_id) {
+                $quote = get_post($quote_id);
+                if (!$quote instanceof WP_Post) {
+                    continue;
+                }
+
+                $post = $quote;
+                setup_postdata($post);
                 if ($is_template_mode) {
-                    echo wp_seed_content_render_quote_item(get_the_ID(), $template); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo wp_seed_content_render_quote_item($quote_id, $template); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 } else {
-                    echo wp_seed_content_render_quote_item(get_the_ID()); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo wp_seed_content_render_quote_item($quote_id); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 }
             }
             ?>

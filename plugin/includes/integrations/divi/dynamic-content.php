@@ -4,6 +4,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+$loop_context_file = __DIR__ . '/loop-context.php';
+if (file_exists($loop_context_file)) {
+    require_once $loop_context_file;
+}
+
 /**
  * Loads the experimental Divi 5 Dynamic Content quote sources when its API is available.
  */

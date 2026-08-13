@@ -101,11 +101,11 @@ function wp_seed_content_get_quote_data($post_id, $args = array())
     return array_merge(
         wp_seed_content_get_post_data_fields($post),
         array(
-            'quote' => (string) wp_seed_content_get_meta($post->ID, '_seed_quote_text'),
-            'author' => (string) wp_seed_content_get_meta($post->ID, '_seed_quote_author'),
-            'era' => (string) wp_seed_content_get_meta($post->ID, '_seed_quote_era'),
-            'source' => (string) wp_seed_content_get_meta($post->ID, '_seed_quote_source'),
-            'featured' => wp_seed_content_is_truthy_meta($post->ID, '_seed_quote_featured'),
+            'quote' => (string) wp_seed_content_get_quote_builder_meta($post->ID, 'seed_quote_text'),
+            'author' => (string) wp_seed_content_get_quote_builder_meta($post->ID, 'seed_quote_author'),
+            'era' => (string) wp_seed_content_get_quote_builder_meta($post->ID, 'seed_quote_era'),
+            'source' => (string) wp_seed_content_get_quote_builder_meta($post->ID, 'seed_quote_source'),
+            'featured' => wp_seed_content_quote_is_featured($post->ID),
             'display_order' => (int) $post->menu_order,
         )
     );

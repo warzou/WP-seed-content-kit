@@ -245,6 +245,7 @@ if (!is_string($root) || '' === $root) {
 
 require $root . '/plugin/includes/core/helpers.php';
 require $root . '/plugin/includes/modules/testimonials/builder-meta.php';
+require $root . '/plugin/includes/modules/quotes/builder-meta.php';
 require $root . '/plugin/includes/core/content-data.php';
 require $root . '/plugin/includes/core/dynamic-data.php';
 require $root . '/plugin/includes/core/collections.php';

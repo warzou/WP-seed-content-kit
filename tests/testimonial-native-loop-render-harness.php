@@ -18,7 +18,7 @@ $root = dirname(__DIR__);
 $css = file_get_contents($root . '/plugin/assets/css/testimonial-native-loop.css');
 $bootstrap = file_get_contents($root . '/plugin/wp-seed-content-kit.php');
 $assets = file_get_contents($root . '/plugin/includes/integrations/divi/testimonial-native-loop-assets.php');
-$context = file_get_contents($root . '/plugin/includes/integrations/divi/testimonial-loop-context.php');
+$context = file_get_contents($root . '/plugin/includes/integrations/divi/loop-context.php');
 
 wpsck_loop_render_assert(false !== strpos($css, '.wpsck-testimonial-loop--alternating:nth-child(odd)'), 'Odd row selector is missing.');
 wpsck_loop_render_assert(false !== strpos($css, '.wpsck-testimonial-loop--alternating:nth-child(even)'), 'Even row selector is missing.');
@@ -61,7 +61,7 @@ $sources = array(
 foreach ($sources as $source) {
     wpsck_loop_render_assert(
         false !== strpos($context, "'wpsck_testimonial_" . $source . "'"),
-        'Visual Builder query item key is missing: ' . $source
+        'Generic Visual Builder query item key is missing: ' . $source
     );
 }
 wpsck_loop_render_assert(false === strpos($context, 'wp_seed_content_testimonial_anchor_url'), 'Removed URL provider leaked into query results.');

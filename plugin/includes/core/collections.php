@@ -339,6 +339,138 @@ function wp_seed_content_get_testimonials($args = array())
     return _wp_seed_content_collections_apply_limit($ids, $args['limit']);
 }
 
+
+function _wp_seed_content_collections_normalize_quote_args($args)
+{
+    $args = is_array($args) ? $args : array();
+
+    $featured = isset($args['featured']) ? $args['featured'] : 'all';
+    if (is_bool($featured)) {
+        $featured = $featured ? 'only' : 'all';
+    } else {
+        $featured = strtolower((string) $featured);
+        if ('true' === $featured) {
+            $featured = 'only';
+        } elseif ('false' === $featured) {
+            $featured = 'all';
+        }
+    }
+    if (!in_array($featured, array('all', 'only', 'exclude'), true)) {
+        $featured = 'all';
+    }
+
+    $limit = isset($args['limit']) && is_int($args['limit']) && $args['limit'] > 0
+        ? $args['limit']
+        : 0;
+    $orderby = isset($args['orderby']) && is_string($args['orderby'])
+        ? strtolower($args['orderby'])
+        : 'menu_order';
+    if (!in_array($orderby, array('random', 'author', 'date', 'menu_order', 'id'), true)) {
+        $orderby = 'menu_order';
+    }
+    $order = isset($args['order']) && is_string($args['order'])
+        ? strtolower($args['order'])
+        : 'asc';
+    if (!in_array($order, array('asc', 'desc'), true)) {
+        $order = 'asc';
+    }
+    $random_seed = isset($args['random_seed']) && is_scalar($args['random_seed'])
+        ? trim((string) $args['random_seed'])
+        : '';
+
+    return array(
+        'featured' => $featured,
+        'limit' => $limit,
+        'orderby' => $orderby,
+        'order' => $order,
+        'random_seed' => $random_seed,
+    );
+}
+
+function _wp_seed_content_collections_compare_quotes($left, $right, $orderby, $order)
+{
+    $left_id = (int) $left->ID;
+    $right_id = (int) $right->ID;
+
+    if ('author' === $orderby) {
+        $comparison = strcmp(
+            (string) wp_seed_content_get_quote_builder_meta($left_id, 'seed_quote_author'),
+            (string) wp_seed_content_get_quote_builder_meta($right_id, 'seed_quote_author')
+        );
+    } elseif ('date' === $orderby) {
+        $comparison = strcmp((string) $left->post_date, (string) $right->post_date);
+    } elseif ('menu_order' === $orderby) {
+        $comparison = (int) $left->menu_order <=> (int) $right->menu_order;
+    } else {
+        $comparison = $left_id <=> $right_id;
+    }
+
+    if (0 !== $comparison) {
+        return 'desc' === $order ? -$comparison : $comparison;
+    }
+
+    return $left_id <=> $right_id;
+}
+
+function wp_seed_content_get_quotes($args = array())
+{
+    if (!wp_seed_content_kit_is_module_active('quotes')) {
+        return array();
+    }
+
+    $args = _wp_seed_content_collections_normalize_quote_args($args);
+    $posts = get_posts(array(
+        'post_type' => 'seed_quote',
+        'post_status' => 'publish',
+        'has_password' => false,
+        'posts_per_page' => -1,
+        'orderby' => 'ID',
+        'order' => 'ASC',
+        'ignore_sticky_posts' => true,
+        'no_found_rows' => true,
+        'suppress_filters' => true,
+        'update_post_meta_cache' => true,
+        'update_post_term_cache' => false,
+    ));
+
+    $posts = array_values(array_filter($posts, function ($post) use ($args) {
+        if (
+            !$post instanceof WP_Post
+            || 'seed_quote' !== $post->post_type
+            || 'publish' !== $post->post_status
+            || '' !== (string) $post->post_password
+        ) {
+            return false;
+        }
+
+        if ('all' === $args['featured']) {
+            return true;
+        }
+
+        $featured = wp_seed_content_quote_is_featured($post->ID);
+        return 'only' === $args['featured'] ? $featured : !$featured;
+    }));
+
+    usort($posts, function ($left, $right) use ($args) {
+        return _wp_seed_content_collections_compare_quotes(
+            $left,
+            $right,
+            'random' === $args['orderby'] ? 'id' : $args['orderby'],
+            $args['order']
+        );
+    });
+
+    $ids = array_map(function ($post) {
+        return (int) $post->ID;
+    }, $posts);
+
+    if ('random' === $args['orderby']) {
+        $ids = _wp_seed_content_collections_randomize_ids($ids, $args['random_seed']);
+    }
+
+    return _wp_seed_content_collections_apply_limit($ids, $args['limit']);
+}
+
 function _wp_seed_content_collections_get_local_date($timestamp = null, $timezone = null)
 {
     $timestamp = is_int($timestamp) ? $timestamp : time();

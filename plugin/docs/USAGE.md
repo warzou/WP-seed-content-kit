@@ -256,7 +256,7 @@ Si le slug d'un Template demandé est introuvable ou appartient à un autre modu
 
 ## Intégration dans les constructeurs
 
-Le shortcode est l'adaptateur canonique de collection. Le constructeur héberge le shortcode ; il ne reproduit pas la requête WP Seed.
+Les shortcodes restent des adaptateurs publics de collection. Divi 5 peut aussi consommer directement les collections Citations et Témoignages dans une Native Loop ; WPSCK fournit alors la sélection et les données, tandis que Divi conserve la présentation.
 
 ### Divi
 
@@ -325,12 +325,14 @@ L'interface éditeur native WP Seed reste différée. Aucun sélecteur WP Seed f
 
 Le provider Dynamic Content de Divi 5 enregistre côté serveur les sources métier.
 
-WP Seed — Citations :
+WPSCK — Citations :
 
 - Texte ;
 - Auteur ;
 - Époque ;
 - Source.
+
+Ces quatre providers résolvent les métas publiques canoniques, avec fallback historique seulement lorsque la clé publique n'existe pas. Ils fonctionnent dans une Native Loop `seed_quote`, y compris sur un Group répété dans un Group Carousel natif. Aucun rendu ou Carousel propriétaire n'est ajouté par WPSCK.
 
 Pour les Native Loops, le groupe « WPSCK — Témoignages » expose :
 

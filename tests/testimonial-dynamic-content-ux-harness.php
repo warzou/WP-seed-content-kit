@@ -78,6 +78,10 @@ namespace {
             return null;
         }
 
+        if ((int) $post_id >= 4001 && (int) $post_id <= 4003) {
+            return new WP_Post($post_id, 'seed_quote');
+        }
+
         return new WP_Post($post_id, WPSCK_TEST_FIXTURE_PAGE_ID === (int) $post_id ? 'page' : 'seed_testimonial');
     }
 
@@ -221,18 +225,72 @@ namespace {
         array(new WP_Seed_Content_Divi_Dynamic_Content_Quote_Era(), 'WPSCK — Citations — Époque'),
         array(new WP_Seed_Content_Divi_Dynamic_Content_Quote_Source(), 'WPSCK — Citations — Source'),
     );
+    $expected_quote_names = array(
+        'loop_wpsck_quote_text',
+        'loop_wpsck_quote_author',
+        'loop_wpsck_quote_era',
+        'loop_wpsck_quote_source',
+    );
+    wpsck_assert(
+        $expected_quote_names === array_map(function ($definition) {
+            return $definition[0]->get_name();
+        }, $quote_providers),
+        'Quote providers must use the native Divi Loop namespace.'
+    );
     foreach ($quote_providers as $definition) {
         list($provider, $label) = $definition;
         $options = $provider->register_option_callback(array(), 0, 'content');
         $option = $options[$provider->get_name()];
         wpsck_assert($label === $option['label'], 'Quote provider label differs.');
         wpsck_assert('text' === $option['type'], 'Quote provider type differs.');
+
+        $values = array();
+        foreach (array(4001, 4002, 4003) as $quote_id) {
+            $values[] = $provider->render_callback('', array(
+                'name' => $provider->get_name(),
+                'loop_id' => $quote_id,
+                'post_id' => WPSCK_TEST_FIXTURE_PAGE_ID,
+            ));
+        }
+        wpsck_assert(3 === count(array_unique($values)), 'Quote loop values must remain distinct.');
+        wpsck_assert(false === strpos(implode('', $values), '$variable('), 'Raw Quote token leaked.');
+
+        $object_value = $provider->render_callback('', array(
+            'name' => $provider->get_name(),
+            'loop_object' => new WP_Post(4001, 'seed_quote'),
+            'post_id' => WPSCK_TEST_FIXTURE_PAGE_ID,
+        ));
+        wpsck_assert('' !== $object_value, 'Nested Quote loop object did not resolve.');
+
+        $deferred = '$variable({"type":"content","value":{"name":"'
+            . $provider->get_name()
+            . '","settings":[]}})$';
+        wpsck_assert($deferred === $provider->render_callback($deferred, array(
+            'name' => $provider->get_name(),
+            'post_id' => WPSCK_TEST_FIXTURE_PAGE_ID,
+        )), 'Quote provider must remain deferred without loop context.');
     }
     wpsck_assert(
         4 === count(array_unique(array_map(function ($definition) {
             return $definition[0]->get_name();
         }, $quote_providers))),
         'Quote provider IDs must remain unique.'
+    );
+    foreach (wp_seed_content_divi_legacy_loop_provider_names() as $legacy_name => $canonical_name) {
+        if (0 !== strpos($canonical_name, 'loop_wpsck_quote_')) {
+            continue;
+        }
+        wpsck_assert(
+            wp_seed_content_divi_dynamic_content_name_matches($canonical_name, $legacy_name),
+            'Legacy Quote provider binding must remain renderable.'
+        );
+    }
+
+    $legacy_quote_token = '$variable({"type":"content","value":{"name":"wp_seed_content_quote_quote","settings":[]}})$';
+    $canonical_quote_token = wp_seed_content_divi_normalize_legacy_loop_provider_tokens($legacy_quote_token);
+    wpsck_assert(
+        false !== strpos($canonical_quote_token, '"name":"loop_wpsck_quote_text"'),
+        'Legacy Quote bindings must become native Loop bindings in the Builder response.'
     );
 
     $legacy_names = array(

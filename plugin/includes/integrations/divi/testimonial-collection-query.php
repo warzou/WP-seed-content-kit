@@ -138,10 +138,10 @@ function wp_seed_content_divi_extract_testimonial_collection_meta_query($meta_qu
  */
 function wp_seed_content_divi_is_testimonial_collection_query($query_args)
 {
-    $post_types = isset($query_args['post_type']) ? (array) $query_args['post_type'] : array();
-    $post_types = array_values(array_unique(array_map('sanitize_key', $post_types)));
-
-    return array('seed_testimonial') === $post_types;
+    return wp_seed_content_divi_is_single_post_type_query(
+        $query_args,
+        'seed_testimonial'
+    );
 }
 
 /**
@@ -236,39 +236,10 @@ function wp_seed_content_divi_apply_testimonial_collection_query(
         $testimonial_ids = array();
     }
 
-    $testimonial_ids = array_values(
-        array_filter(
-            array_map('absint', $testimonial_ids),
-            function ($testimonial_id) {
-                return $testimonial_id > 0;
-            }
-        )
+    return wp_seed_content_divi_apply_collection_ids(
+        $query_args,
+        $testimonial_ids
     );
-
-    if (!empty($query_args['post__in'])) {
-        $allowed = array_map('absint', (array) $query_args['post__in']);
-        $testimonial_ids = array_values(
-            array_filter(
-                $testimonial_ids,
-                function ($testimonial_id) use ($allowed) {
-                    return in_array($testimonial_id, $allowed, true);
-                }
-            )
-        );
-    }
-
-    if (!empty($query_args['post__not_in'])) {
-        $excluded = array_map('absint', (array) $query_args['post__not_in']);
-        $testimonial_ids = array_values(array_diff($testimonial_ids, $excluded));
-    }
-
-    $query_args['post__in'] = array() === $testimonial_ids
-        ? array(0)
-        : $testimonial_ids;
-    $query_args['orderby'] = 'post__in';
-    $query_args['order'] = 'ASC';
-
-    return $query_args;
 }
 
 /**

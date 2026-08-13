@@ -119,6 +119,8 @@ Il ne retourne pas de message d’aide, ne produit pas de HTML et ne tente aucun
 | `quote.featured` | Mise en avant | Citation | `seed_quote` | `boolean` | `featured` | `false` | Oui | Oui | Inclus | Peut être reporté |
 | `quote.display_order` | Position éditoriale | Citation | `seed_quote` | `number` | `display_order` | `0` | Oui | Oui | Inclus | Peut être reporté |
 
+Les champs éditoriaux Citations utilisent les métas publiques `seed_quote_text`, `seed_quote_author`, `seed_quote_era` et `seed_quote_source`. `seed_quote_featured` porte la mise en avant. Les anciennes clés préfixées par `_seed_quote_` sont conservées comme fallback de lecture uniquement lorsque la clé publique correspondante n'existe pas.
+
 `quote.featured` représente un état métier. Il ne désigne jamais une image mise en avant WordPress.
 
 `quote.display_order` expose une valeur éditoriale. Sa résolution ne déclenche aucune requête, aucun tri et aucune collection.

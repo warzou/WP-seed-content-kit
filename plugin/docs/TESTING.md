@@ -132,7 +132,7 @@ Relancer impérativement les harnais Collections et Adaptateurs afin de confirme
 
 ## Divi 5 Dynamic Content expérimental
 
-Exécuter `tests/divi-per-item-context-harness.php` sous PHP 7.0.33 et PHP 8.4.x. Il couvre la pile bornée, la récursion, le `finally`, les cinq noms autorisés, les blocs imbriqués, les payloads directs et sérialisés avec `\u0022`, la conservation des variables Citations/Annuaire/Divi, l'injection de `post_id`, le signal attendu/résolu, trois identités de cache distinctes et une exception sur la carte intermédiaire avec profondeur finale nulle.
+Exécuter `tests/divi-generic-loop-context-harness.php`, `tests/quote-builder-meta-contract-harness.php`, `tests/quote-builder-meta-migration-harness.php`, `tests/divi-quote-loop-collection-harness.php` et `tests/divi-per-item-context-harness.php` sous PHP 7.0.33 et PHP 8.4.x. Le harnais générique reproduit un binding historique sauvegardé, sa normalisation en mémoire sur `divi_visual_builder_settings_data_post_content`, l'appel sans contexte, la conservation du token différé, l'arrivée de `loop_id` ou `loop_object`, les clés QueryResults sans préfixe et la résolution distincte des clones Témoignages et Citations. Une source Annuaire synthétique vérifie le point d'extension sans annoncer de providers Annuaire existants.
 
 Exécuter ensuite `tests/wordpress-divi-per-item-context-harness.php` avec `WP_SEED_WORDPRESS_LOAD` vers un WordPress isolé sous PHP 8.4 et Divi 5.9.0. Le harnais crée puis supprime trois Témoignages, un Layout et un Template fictifs. Il vérifie :
 
@@ -146,14 +146,14 @@ Exécuter ensuite `tests/wordpress-divi-per-item-context-harness.php` avec `WP_S
 
 L'éditeur isolé du Layout peut rester sans contexte. Ne jamais enregistrer un ID fictif dans le Layout pour son aperçu. Supprimer le WordPress jetable, les médias, captures et copies privées de Divi après la recette.
 
-La recette prise en charge s'arrête aux Templates Content Kit utilisant un Layout Divi avec contexte par carte. Ne pas valider ni documenter comme supportée l'utilisation directe des providers Content Kit dans une boucle native Divi Loop Builder sous Divi 5.9.0.
+La recette Native Loop prise en charge couvre Témoignages et Citations, en boucle simple et dans un Group Carousel. Elle doit vérifier les valeurs distinctes par clone, le frontend, le vrai Visual Builder et deux cycles Save/Close/Reopen. L'Annuaire reste hors périmètre tant que ses providers et ses règles de visibilité ne sont pas implémentés.
 
-Note de supervision : Divi reconnaît les attributs de boucle préfixés par `loop_` via `getLoopedAttrs()`, mais `loopIndex` n'est disponible que pendant le clonage interne. Divi 5.9.0 n'expose aucun point d'interception public fiable avant ce clonage, et la résolution des médias ne peut pas être garantie dans le vrai Visual Builder. Ne pas reprendre de spike fondé sur les modules Webpack internes, l'arbre React, le DOM, `MutationObserver` ou un délai artificiel. Réouvrir uniquement si Elegant Themes publie un contrat officiel adapté.
+Note de supervision : Divi reconnaît les attributs de boucle préfixés par `loop_` via `getLoopedAttrs()` et retire ce préfixe pour lire la clé homologue dans QueryResults. Le contrat WPSCK s'appuie uniquement sur ce pipeline de données et sur les APIs REST/Provider existantes. Ne pas introduire de spike fondé sur les modules Webpack internes, l'arbre React, le DOM, `MutationObserver` ou un délai artificiel.
 
-Confirmer la présence unique des neuf options :
+Confirmer la présence unique des treize options :
 
 - Citations : Texte, Auteur, Époque, Source ;
-- Témoignages : Texte, Nom, Information complémentaire, Date du témoignage, Photo.
+- Témoignages : Visuel, Titre, Résumé, Témoignage complet, Nom, Contexte, Date, ID, Ancre.
 
 Tester :
 
@@ -167,7 +167,7 @@ Tester :
 - la valeur ISO de Date du témoignage et sa valeur vide en contexte incompatible ;
 - la résolution d'un contexte publié compatible lorsque le module Témoignages est désactivé.
 
-Pour Photo, vérifier l'URL, l'ID média reconstruit, les dimensions, `srcset`, `sizes` et l'absence de chaîne `Array` ou de variable brute. Consigner séparément le texte alternatif, qui n'est pas garanti dans tous les modules. Le Loop Builder natif reste hors du périmètre pris en charge.
+Pour Photo, vérifier l'URL, l'ID média reconstruit, les dimensions, `srcset`, `sizes` et l'absence de chaîne `Array` ou de variable brute. Consigner séparément le texte alternatif, qui n'est pas garanti dans tous les modules.
 
 ## Frontend et responsive
 

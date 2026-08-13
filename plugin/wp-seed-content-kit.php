@@ -20,6 +20,7 @@ define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
 
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/helpers.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/builder-meta.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/builder-meta.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/capabilities.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/render-context.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-contract.php';
@@ -41,6 +42,7 @@ if (file_exists($wp_seed_content_divi_testimonial_layout_context_file)) {
 }
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/modules.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/collections.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/collection-query.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/assets.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/manual-order.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/module-menu.php';
@@ -77,9 +79,11 @@ if (wp_seed_content_kit_is_module_active('quotes')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/post-type.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/meta-boxes.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/save-meta.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/migration.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/render.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/template-data.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/shortcode.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/quote-collection-query.php';
 }
 if (wp_seed_content_kit_is_module_active('directory')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/bootstrap.php';

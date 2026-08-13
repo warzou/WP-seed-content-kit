@@ -593,14 +593,13 @@ try {
 
     $GLOBALS['wp_seed_test_wp_query_count'] = 0;
     $default_quotes = wp_seed_content_quotes_shortcode(array());
-    wp_seed_test_same(1, $GLOBALS['wp_seed_test_wp_query_count'], 'quote historical default uses WP Query');
-    wp_seed_test_same('rand', $GLOBALS['wp_seed_test_last_wp_query']['orderby'], 'quote historical default remains random');
-    wp_seed_test_same(false, $GLOBALS['wp_seed_test_last_wp_query']['has_password'], 'quote historical query excludes protected');
-    wp_seed_adapter_contains('Citation 201', $default_quotes, 'quote historical renderer');
+    wp_seed_test_same(0, $GLOBALS['wp_seed_test_wp_query_count'], 'quote default uses canonical collection');
+    wp_seed_test_same('random', _wp_seed_content_collections_normalize_quote_args(array('orderby' => 'random'))['orderby'], 'quote historical default remains random');
+    wp_seed_adapter_contains('seed-card--quote', $default_quotes, 'quote historical renderer');
     wp_seed_adapter_not_contains('PROTECTED QUOTE', $default_quotes, 'quote historical output excludes protected');
 
     $random_quotes = wp_seed_content_quotes_shortcode(array('orderby' => 'random'));
-    wp_seed_test_same('rand', $GLOBALS['wp_seed_test_last_wp_query']['orderby'], 'quote explicit random remains random');
+    wp_seed_test_same(0, $GLOBALS['wp_seed_test_wp_query_count'], 'quote explicit random uses canonical collection');
     wp_seed_adapter_contains('data-orderby="random"', $random_quotes, 'quote random public attribute retained');
 
     $expected_daily_id = wp_seed_content_get_daily_quote();
@@ -618,8 +617,8 @@ try {
 
     $GLOBALS['wp_seed_test_wp_query_count'] = 0;
     $unknown_mode = wp_seed_content_quotes_shortcode(array('mode' => 'unknown'));
-    wp_seed_test_same(1, $GLOBALS['wp_seed_test_wp_query_count'], 'unknown quote mode uses historical WP Query');
-    wp_seed_test_same('rand', $GLOBALS['wp_seed_test_last_wp_query']['orderby'], 'unknown quote mode remains historically random');
+    wp_seed_test_same(0, $GLOBALS['wp_seed_test_wp_query_count'], 'unknown quote mode uses canonical collection');
+    wp_seed_adapter_contains('data-orderby="random"', $unknown_mode, 'unknown quote mode remains historically random');
 
     $daily_ignored_attributes = wp_seed_content_quotes_shortcode(
         array(

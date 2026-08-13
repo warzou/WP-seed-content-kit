@@ -520,7 +520,13 @@ Aucun nouveau shortcode n'est créé. Le mode quotidien ignore les arguments de 
 
 ## 19. Divi
 
-### 19.1 Native Loop Témoignages
+### 19.1 Native Loop Citations
+
+La collection canonique `wp_seed_content_get_quotes()` centralise les Citations publiées et non protégées. Elle prend en charge `limit`, `featured`, `orderby` (`random`, `author`, `date`, `menu_order`, `id`), `order` et une graine aléatoire facultative.
+
+L'adaptateur Divi 5 applique cette liste publique aux requêtes frontend et Visual Builder de `seed_quote` sans modifier la pagination ni la limite portées par Divi. Les inclusions et exclusions natives restent des bornes supplémentaires. Un Group Loop Citation peut être placé dans un Group Carousel natif ; WPSCK ne fournit ni HTML, ni CSS, ni JavaScript de présentation.
+
+### 19.2 Native Loop Témoignages
 
 La Native Loop Divi 5 est prise en charge pour les Témoignages. WPSCK adapte la requête à la Collection publique et fournit les neuf providers métier ; Divi conserve la structure, les modules, le responsive et le design.
 
@@ -528,7 +534,7 @@ Une Loop peut être placée sur une Row Detailed ou sur le Group représentant l
 
 Divi 5.9.0 n’expose aucune condition exploitable sur l’index du clone Loop pour inverser ses deux colonnes internes. L’alternance impair/pair Detailed repose donc sur les trois classes structurelles opt-in WPSCK ; elle ne définit aucun style éditorial.
 
-### 19.2 Autres parcours pris en charge
+### 19.3 Autres parcours pris en charge
 
 Le module `WP Seed — Témoignages`, le shortcode `[seed_testimonials]` et les Templates Content Kit utilisant un Layout Divi restent disponibles. Les classes Dynamic Content résolvent un item ; la sélection reste exclusivement dans Collections.
 

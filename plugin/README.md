@@ -189,7 +189,7 @@ Le plugin ne fournit pas :
 - de desinstallation destructive automatique des donnees ;
 - de module fonctionnel Créations sonores.
 
-Le provider Divi 5 Dynamic Content reste expérimental. Il est pris en charge sur un contenu courant individuel, dans un Template Content Kit avec contexte par carte et dans une Native Loop Témoignages. L’alternance gauche/droite des sous-colonnes exige le CSS structurel opt-in fourni par Content Kit, car Divi 5.9.0 ne peut pas conditionner leur ordre selon la parité du clone Loop parent.
+Le provider Divi 5 Dynamic Content reste expérimental. Il est pris en charge sur un contenu courant individuel, dans un Template Content Kit avec contexte par carte et dans les Native Loops Témoignages et Citations, y compris dans un Group Carousel natif. L’alternance gauche/droite des sous-colonnes exige le CSS structurel opt-in fourni par Content Kit, car Divi 5.9.0 ne peut pas conditionner leur ordre selon la parité du clone Loop parent.
 
 ## Documentation
 
