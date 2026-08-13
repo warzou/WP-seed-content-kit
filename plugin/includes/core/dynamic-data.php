@@ -61,6 +61,24 @@ function wp_seed_content_get_dynamic_data_fields()
             'data_key' => 'display_order',
             'empty_value' => 0,
         ),
+        'testimonial.title' => array(
+            'id' => 'testimonial.title',
+            'label' => __('Titre du témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'text',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'testimonial_title',
+            'empty_value' => '',
+        ),
+        'testimonial.summary' => array(
+            'id' => 'testimonial.summary',
+            'label' => __('Résumé / citation mise en avant', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'textarea',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'summary',
+            'empty_value' => '',
+        ),
         'testimonial.text' => array(
             'id' => 'testimonial.text',
             'label' => __('Témoignage', 'wp-seed-content-kit'),
@@ -68,6 +86,42 @@ function wp_seed_content_get_dynamic_data_fields()
             'type' => 'textarea',
             'post_type' => 'seed_testimonial',
             'data_key' => 'text',
+            'empty_value' => '',
+        ),
+        'testimonial.full_content' => array(
+            'id' => 'testimonial.full_content',
+            'label' => __('Témoignage complet', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'textarea',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'full_content',
+            'empty_value' => '',
+        ),
+        'testimonial.id' => array(
+            'id' => 'testimonial.id',
+            'label' => __('Identifiant du témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'text',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'id',
+            'empty_value' => '',
+        ),
+        'testimonial.anchor' => array(
+            'id' => 'testimonial.anchor',
+            'label' => __('Ancre du témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'text',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'anchor',
+            'empty_value' => '',
+        ),
+        'testimonial.anchor_url' => array(
+            'id' => 'testimonial.anchor_url',
+            'label' => __('Lien vers le témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'text',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'anchor_url',
             'empty_value' => '',
         ),
         'testimonial.name' => array(
@@ -99,7 +153,7 @@ function wp_seed_content_get_dynamic_data_fields()
         ),
         'testimonial.photo' => array(
             'id' => 'testimonial.photo',
-            'label' => __('Photo', 'wp-seed-content-kit'),
+            'label' => __('Création associée', 'wp-seed-content-kit'),
             'module' => 'testimonials',
             'type' => 'image',
             'post_type' => 'seed_testimonial',
@@ -229,6 +283,7 @@ function wp_seed_content_resolve_dynamic_data($field_id, $context = array())
         && true === $context['allow_unpublished'];
     $args = array(
         'allow_unpublished' => $allow_unpublished,
+        'allow_unconsented' => $allow_unpublished,
     );
 
     if ('quotes' === $definition['module']) {

@@ -351,17 +351,18 @@ for ($id = 101; $id <= 126; $id++) {
     );
     wp_seed_test_set_meta($id, '_seed_testimonial_text', 'Texte ' . $id);
     wp_seed_test_set_meta($id, '_seed_testimonial_name', 'Nom ' . $id);
+    wp_seed_test_set_meta($id, '_seed_testimonial_publication_consent', '1');
 }
 
 wp_seed_test_set_meta(101, '_seed_testimonial_text', "Texte 101 <script>alert('x')</script>\nÉté");
 wp_seed_test_set_meta(101, '_seed_testimonial_context', 'Accueil');
 wp_seed_test_set_meta(101, '_seed_testimonial_date', '2024-02-29');
-wp_seed_test_set_meta(101, '_seed_featured', '1');
+wp_seed_test_set_meta(101, '_seed_testimonial_featured', '1');
 wp_seed_test_set_meta(102, '_seed_testimonial_context', 'Accueil');
 wp_seed_test_set_meta(102, '_seed_testimonial_date', '2023-01-01');
-wp_seed_test_set_meta(102, '_seed_featured', '0');
+wp_seed_test_set_meta(102, '_seed_testimonial_featured', '0');
 wp_seed_test_set_meta(103, '_seed_testimonial_date', '2026-02-31');
-wp_seed_test_set_meta(103, '_seed_featured', '1');
+wp_seed_test_set_meta(103, '_seed_testimonial_featured', '1');
 
 wp_seed_adapter_add_post(127, 'seed_testimonial', 'publish', 27, '2024-01-27 10:00:00', 'protected');
 wp_seed_adapter_add_post(128, 'seed_testimonial', 'draft', 28, '2024-01-28 10:00:00');

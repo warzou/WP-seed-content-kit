@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Seed Content Kit
  * Description: Modular editorial content and reusable displays for WordPress.
- * Version: 0.8.0-rc.3
+ * Version: 0.8.0-rc.4
  * Requires at least: 6.5
  * Requires PHP: 7.0
  * Author: WP Seed Content Kit
@@ -13,12 +13,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_SEED_CONTENT_KIT_VERSION', '0.8.0-rc.3');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.8.0-rc.4');
 define('WP_SEED_CONTENT_KIT_FILE', __FILE__);
 define('WP_SEED_CONTENT_KIT_DIR', plugin_dir_path(__FILE__));
 define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
 
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/helpers.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/builder-meta.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/capabilities.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/render-context.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-contract.php';
@@ -62,11 +63,15 @@ if (wp_seed_content_kit_is_module_active('testimonials')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/post-type.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/meta-boxes.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/save-meta.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/migration.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/render.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/template-data.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/collection-renderer.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/shortcode.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-collection.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-collection-query.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-loop-context.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-native-loop-assets.php';
 }
 if (wp_seed_content_kit_is_module_active('quotes')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/post-type.php';

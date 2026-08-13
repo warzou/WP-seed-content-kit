@@ -25,7 +25,7 @@ abstract class WP_Seed_Content_Divi_Dynamic_Content_Quote_Base extends DynamicCo
 
         $options[$name] = array(
             'id' => $name,
-            'label' => $this->get_label(),
+            'label' => __('WPSCK — Citations — ', 'wp-seed-content-kit') . $this->get_label(),
             'type' => 'text',
             'custom' => false,
             'group' => __('WP Seed — Citations', 'wp-seed-content-kit'),

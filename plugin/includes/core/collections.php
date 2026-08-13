@@ -41,6 +41,13 @@ function _wp_seed_content_collections_normalize_testimonial_args($args)
         $featured = 'all';
     }
 
+    $selection_mode = isset($args['selection_mode']) && is_string($args['selection_mode'])
+        ? strtolower($args['selection_mode'])
+        : '';
+    if (!in_array($selection_mode, array('all', 'featured', 'random', 'featured_or_random'), true)) {
+        $selection_mode = 'only' === $featured ? 'featured' : 'all';
+    }
+
     $limit = isset($args['limit']) && is_int($args['limit']) && $args['limit'] > 0
         ? $args['limit']
         : 0;
@@ -48,8 +55,11 @@ function _wp_seed_content_collections_normalize_testimonial_args($args)
     $orderby = isset($args['orderby']) && is_string($args['orderby'])
         ? strtolower($args['orderby'])
         : 'display_order';
-    if (!in_array($orderby, array('display_order', 'date', 'testimonial_date', 'id'), true)) {
+    if (!in_array($orderby, array('display_order', 'date', 'testimonial_date', 'id', 'random'), true)) {
         $orderby = 'display_order';
+    }
+    if ('random' === $orderby && !isset($args['selection_mode'])) {
+        $selection_mode = 'random';
     }
 
     $order = isset($args['order']) && is_string($args['order'])
@@ -62,16 +72,21 @@ function _wp_seed_content_collections_normalize_testimonial_args($args)
     $context = isset($args['context']) && is_scalar($args['context'])
         ? trim((string) $args['context'])
         : '';
+    $random_seed = isset($args['random_seed']) && is_scalar($args['random_seed'])
+        ? trim((string) $args['random_seed'])
+        : '';
 
     return array(
         'ids' => _wp_seed_content_collections_normalize_ids($ids_value),
         'manual_selection' => $manual_selection,
         'invalid_manual_selection' => $invalid_manual_selection,
         'featured' => $featured,
+        'selection_mode' => $selection_mode,
         'context' => $context,
         'limit' => $limit,
         'orderby' => $orderby,
         'order' => $order,
+        'random_seed' => $random_seed,
     );
 }
 
@@ -82,6 +97,49 @@ function _wp_seed_content_collections_apply_limit($ids, $limit)
     }
 
     return array_slice($ids, 0, $limit);
+}
+
+function wp_seed_content_testimonial_publication_consent_meta_key()
+{
+    return '_seed_testimonial_publication_consent';
+}
+
+function wp_seed_content_testimonial_featured_meta_key()
+{
+    return '_seed_testimonial_featured';
+}
+
+function wp_seed_content_testimonial_is_publicly_visible($post_id)
+{
+    $post_id = absint($post_id);
+    $post = $post_id ? get_post($post_id) : null;
+    if (!$post instanceof WP_Post || 'seed_testimonial' !== $post->post_type || 'publish' !== $post->post_status || '' !== (string) $post->post_password) {
+        return false;
+    }
+
+    return '1' === (string) wp_seed_content_get_meta($post_id, wp_seed_content_testimonial_publication_consent_meta_key());
+}
+
+function wp_seed_content_testimonial_is_featured($post_id)
+{
+    return '1' === (string) wp_seed_content_get_meta(absint($post_id), wp_seed_content_testimonial_featured_meta_key());
+}
+
+function _wp_seed_content_collections_randomize_ids($ids, $seed = '')
+{
+    $ids = array_values($ids);
+    if (count($ids) < 2) {
+        return $ids;
+    }
+    if ('' === $seed) {
+        shuffle($ids);
+        return $ids;
+    }
+    usort($ids, function ($left, $right) use ($seed) {
+        $comparison = strcmp(hash('sha256', $seed . '|' . (int) $left), hash('sha256', $seed . '|' . (int) $right));
+        return 0 !== $comparison ? $comparison : (int) $left <=> (int) $right;
+    });
+    return $ids;
 }
 
 function _wp_seed_content_collections_get_manual_testimonials($ids)
@@ -101,7 +159,7 @@ function _wp_seed_content_collections_get_manual_testimonials($ids)
             'ignore_sticky_posts' => true,
             'no_found_rows' => true,
             'suppress_filters' => true,
-            'update_post_meta_cache' => false,
+            'update_post_meta_cache' => true,
             'update_post_term_cache' => false,
         )
     );
@@ -112,6 +170,7 @@ function _wp_seed_content_collections_get_manual_testimonials($ids)
             $post instanceof WP_Post
             && 'seed_testimonial' === $post->post_type
             && 'publish' === $post->post_status
+            && wp_seed_content_testimonial_is_publicly_visible($post->ID)
         ) {
             $published[(int) $post->ID] = true;
         }
@@ -136,7 +195,7 @@ function _wp_seed_content_collections_compare_testimonials($left, $right, $order
         return 'desc' === $order ? $right_id <=> $left_id : $left_id <=> $right_id;
     }
 
-    if ('display_order' === $orderby) {
+    if ('display_order' === $orderby || 'random' === $orderby) {
         $comparison = (int) $left->menu_order <=> (int) $right->menu_order;
     } elseif ('date' === $orderby) {
         $comparison = strcmp((string) $left->post_date, (string) $right->post_date);
@@ -189,7 +248,8 @@ function _wp_seed_content_collections_get_testimonial_posts()
             function ($post) {
                 return $post instanceof WP_Post
                     && 'seed_testimonial' === $post->post_type
-                    && 'publish' === $post->post_status;
+                    && 'publish' === $post->post_status
+                    && wp_seed_content_testimonial_is_publicly_visible($post->ID);
             }
         )
     );
@@ -215,14 +275,14 @@ function wp_seed_content_get_testimonials($args = array())
 
     $posts = _wp_seed_content_collections_get_testimonial_posts();
 
-    if ('all' !== $args['featured']) {
+    if ('featured' === $args['selection_mode'] || 'exclude' === $args['featured']) {
         $posts = array_values(
             array_filter(
                 $posts,
                 function ($post) use ($args) {
-                    $featured = wp_seed_content_is_truthy_meta($post->ID, '_seed_featured');
+                    $featured = wp_seed_content_testimonial_is_featured($post->ID);
 
-                    return 'only' === $args['featured'] ? $featured : !$featured;
+                    return 'featured' === $args['selection_mode'] ? $featured : !$featured;
                 }
             )
         );
@@ -233,9 +293,9 @@ function wp_seed_content_get_testimonials($args = array())
             array_filter(
                 $posts,
                 function ($post) use ($args) {
-                    return (string) wp_seed_content_get_meta(
+                    return wp_seed_content_get_testimonial_builder_meta(
                         $post->ID,
-                        '_seed_testimonial_context'
+                        'seed_testimonial_context'
                     ) === $args['context'];
                 }
             )
@@ -260,6 +320,21 @@ function wp_seed_content_get_testimonials($args = array())
         },
         $posts
     );
+
+    if ('random' === $args['selection_mode']) {
+        $ids = _wp_seed_content_collections_randomize_ids($ids, $args['random_seed']);
+    } elseif ('featured_or_random' === $args['selection_mode']) {
+        $featured_ids = array();
+        $other_ids = array();
+        foreach ($ids as $id) {
+            if (wp_seed_content_testimonial_is_featured($id)) {
+                $featured_ids[] = $id;
+            } else {
+                $other_ids[] = $id;
+            }
+        }
+        $ids = array_merge($featured_ids, _wp_seed_content_collections_randomize_ids($other_ids, $args['random_seed']));
+    }
 
     return _wp_seed_content_collections_apply_limit($ids, $args['limit']);
 }

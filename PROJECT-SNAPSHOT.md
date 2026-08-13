@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 29 juillet 2026
-Statut : 0.8.0-rc.3 ; Release Candidate locale en validation, non stable
-Version courante du code : 0.8.0-rc.3
+Date : 13 août 2026
+Statut : 0.8.0-rc.4 ; contrat Native Divi Loop Témoignages en validation, non stable
+Version courante du code : 0.8.0-rc.4
 Version stable publiee de reference : 0.7.0
 Commit de base de preparation stable : 8a6fb735a729d4b14c753c78f5304fb59349b287
 Tag stable publie de reference : v0.7.0
@@ -38,7 +38,7 @@ Il combine actuellement :
 
 Pour les Templates Témoignages fondés sur un Layout Divi Library, le renderer transmet désormais explicitement l'ID de chaque témoignage. `value.post_id` est injecté dans la représentation JSON directe ou sérialisée des cinq variables Dynamic Content autorisées avant le parsing frontend, puis le Layout est parsé et resérialisé uniquement en mémoire. Une pile interne bornée, restaurée dans `finally`, isole les cartes. Un signal attendu/résolu refuse les cartes dynamiques non résolues et laisse le fallback natif prendre le relais sur la seule carte en erreur. Le Layout, ses révisions et ses métadonnées restent inchangés.
 
-Sous Divi 5.9.0, les parcours pris en charge sont le module `WP Seed — Témoignages`, `[seed_testimonials]`, le Dynamic Content sur un témoignage individuel et les Templates Content Kit utilisant un Layout Divi avec contexte distinct par carte. L'utilisation directe des providers Content Kit dans une boucle native Divi Loop Builder n'est pas prise en charge : le frontend peut résoudre certaines valeurs alors que le Visual Builder laisse des champs non résolus, notamment les médias.
+Sous Divi 5.9.0, le groupe Dynamic Content « WPSCK — Témoignages » expose neuf champs compatibles avec une Native Loop et résolus par item dans le frontend et le Visual Builder. Les Grid Offset Rules de Divi ciblent seulement les enfants directs du conteneur courant ; elles ne peuvent pas inverser les colonnes internes selon la parité du clone Loop parent. L’alternance utilise donc un CSS structurel opt-in, sans style éditorial.
 
 Le plugin ne doit pas devenir un builder, un thème ou le registre central de l'écosystème WP Seed.
 
@@ -596,3 +596,15 @@ Cette intégration ne prend pas en charge le Loop Builder natif Divi et n’util
 ## 25. Annuaire - contrat `ids` + `exclude_ids` - 0.8.0-rc.3
 
 La sélection publique normalise et déduplique séparément `ids` et `exclude_ids`. Si `ids` est fourni, la Collection calcule d'abord `ids - exclude_ids`; une intersection totale retourne immédiatement le résultat vide. Sans `ids`, `exclude_ids` filtre la population publique complète. Les règles d'éligibilité restent non contournables, puis viennent les filtres métier, le tri canonique, l'offset et la limite. L'ordre textuel de `ids` n'est pas un tri : `orderby` et `order` conservent le comportement historique. Aucun schéma, aucune méta et aucune donnée ne sont migrés entre RC.2 et RC.3.
+
+## 26. Témoignages — Native Divi Loop — 0.8.0-rc.4
+
+Le contrat public exige désormais la valeur exacte `_seed_testimonial_publication_consent=1`. La mise en avant indépendante utilise `_seed_testimonial_featured=1`. La Collection prend en charge `all`, `featured`, `random` et `featured_or_random`, tandis que le Visual Builder reçoit un ordre aléatoire déterministe.
+
+Le stockage portable canonique utilise `post_title`, `post_excerpt`, l’image mise en avant, puis `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context`. La date métier reste optionnelle. Les anciennes métas `_seed_testimonial_*` ne sont lues qu’en fallback de compatibilité lorsqu’aucune valeur canonique n’existe.
+
+Divi 5 reste responsable de la présentation. Content Kit fournit les données, la requête publique, le consentement et les neuf providers « WPSCK — Témoignages ». Une Native Loop placée sur une Row ou sur le Group d’une slide de Group Carousel natif conserve son contexte par item : les providers utilisent `loop_id`, puis `loop_object`. Content Kit ne fournit aucun Carousel propriétaire.
+
+Cette architecture ne stocke aucune donnée propre à Divi et reste exploitable par Gutenberg, les custom fields et de futurs adaptateurs Spectra/Astra. Divi 5.9.0 n’expose pas de condition impair/pair sur l’index du clone Loop ; l’alternance Detailed utilise donc uniquement le support CSS structurel opt-in WPSCK, sans style éditorial.
+
+Le renderer et le module historiques restent disponibles. La migration des 22 témoignages historiques est un appel explicite ciblé et réversible, jamais une migration automatique.

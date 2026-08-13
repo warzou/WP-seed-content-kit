@@ -86,13 +86,17 @@ Le modèle cible comprend les données suivantes :
 
 | Identifiant métier | Type | Obligatoire | Valeur vide | Stockage actuel ou cible | Libellé utilisateur |
 | --- | --- | --- | --- | --- | --- |
-| `testimonial.text` | chaîne multiligne | Oui dans l'édition | `''` | `_seed_testimonial_text` | Témoignage |
-| `testimonial.name` | chaîne | Non | `''` | `_seed_testimonial_name` | Nom ou initiales |
+| titre | chaîne | Oui dans l'édition | `''` | `post_title` | Titre |
+| résumé | chaîne | Non | `''` | `post_excerpt` | Résumé |
+| `testimonial.text` | chaîne multiligne | Oui dans l'édition | `''` | `seed_testimonial_text` | Témoignage |
+| `testimonial.name` | chaîne | Non | `''` | `seed_testimonial_name` | Nom ou initiales |
 | `testimonial.photo` | objet média ou `null` | Non | `null` | image mise en avant WordPress | Photo |
 | `testimonial.testimonial_date` | chaîne ISO | Non | `''` | `_seed_testimonial_date` | Date du témoignage |
-| `testimonial.context` | chaîne | Non | `''` | `_seed_testimonial_context` | Information complémentaire |
+| `testimonial.context` | chaîne | Non | `''` | `seed_testimonial_context` | Information complémentaire |
 | `testimonial.featured` | booléen | Non | `false` | `_seed_featured` | Mis en avant |
 | `testimonial.display_order` | entier | Non | `0` | `menu_order` | Position éditoriale |
+
+Les métas privées historiques `_seed_testimonial_text`, `_seed_testimonial_name` et `_seed_testimonial_context` sont uniquement des fallbacks backward compatibility. Dès que la méta publique correspondante existe, elle est la source de vérité, y compris si les deux valeurs divergent. Ce stockage public est indépendant de Divi et accessible au contrat custom-fields/Gutenberg.
 
 Le titre WordPress reste une donnée WordPress native servant à l'identification éditoriale. Il ne remplace jamais `testimonial.text` ou `testimonial.name`.
 
@@ -158,7 +162,8 @@ Le lot Modèle Témoignage ajoute ce champ au contrat Content Data API V1 sans m
 Le besoin d'information complémentaire est couvert par le champ existant :
 
 - identifiant métier : `testimonial.context` ;
-- stockage : `_seed_testimonial_context` ;
+- stockage canonique : `seed_testimonial_context` ;
+- fallback historique : `_seed_testimonial_context` uniquement si la méta canonique n’existe pas ;
 - type : chaîne ;
 - valeur vide : `''` ;
 - obligatoire : non ;
@@ -515,27 +520,21 @@ Aucun nouveau shortcode n'est créé. Le mode quotidien ignore les arguments de 
 
 ## 19. Divi
 
-### 19.1 Cas simples
+### 19.1 Native Loop Témoignages
 
-L'utilisation directe des sources Dynamic Content WP Seed dans une boucle native Divi Loop Builder n'est pas prise en charge sous Divi 5.9.0. Le frontend peut résoudre certaines valeurs, mais le Visual Builder ne garantit pas tous les champs, notamment les médias.
+La Native Loop Divi 5 est prise en charge pour les Témoignages. WPSCK adapte la requête à la Collection publique et fournit les neuf providers métier ; Divi conserve la structure, les modules, le responsive et le design.
 
-Pour afficher une liste dans Divi, utiliser un parcours pris en charge :
+Une Loop peut être placée sur une Row Detailed ou sur le Group représentant la slide d’un Group Carousel natif Divi. Dans ce contexte imbriqué, les providers résolvent chaque témoignage par `loop_id`, puis `loop_object`. WPSCK ne fournit aucun Carousel propriétaire.
 
-- module `WP Seed — Témoignages` ;
-- shortcode `[seed_testimonials]` ;
-- Template Content Kit utilisant un Layout Divi avec contexte par carte.
+Divi 5.9.0 n’expose aucune condition exploitable sur l’index du clone Loop pour inverser ses deux colonnes internes. L’alternance impair/pair Detailed repose donc sur les trois classes structurelles opt-in WPSCK ; elle ne définit aucun style éditorial.
 
-### 19.2 Règles WP Seed garanties
+### 19.2 Autres parcours pris en charge
 
-Pour garantir exactement les priorités `ids`, `featured`, `limit`, `orderby` et `order`, le parcours recommandé reste :
+Le module `WP Seed — Témoignages`, le shortcode `[seed_testimonials]` et les Templates Content Kit utilisant un Layout Divi restent disponibles. Les classes Dynamic Content résolvent un item ; la sélection reste exclusivement dans Collections.
 
-- shortcode de collection ;
-- Template WP Seed ;
-- contenu du template ou Layout Divi Library pour la présentation.
+Le contrat de stockage reste builder-agnostic : aucun contenu ou paramètre métier n’est sérialisé pour Divi. Gutenberg, les custom fields et de futurs adaptateurs Spectra/Astra consomment les mêmes données publiques.
 
-La Citation quotidienne doit suivre le même principe tant qu'aucun adaptateur de requête Divi distinct n'est documenté.
-
-Le module `WP Seed — Témoignages` est l'adaptateur Divi de Collection pris en charge. Les classes Dynamic Content ne portent toujours aucune logique de requête.
+La Citation quotidienne suit son parcours existant tant qu’aucun adaptateur de requête Divi distinct n’est documenté.
 
 ## 20. Gutenberg
 
@@ -878,3 +877,17 @@ La visibilité publique reste indépendante du consentement, du statut WordPress
 Pour l'Annuaire, le pipeline public est strictement : normalisation et déduplication des IDs positifs, restriction facultative à `ids`, soustraction systématique de `exclude_ids`, éligibilité publique, filtres métier, tri canonique, offset, puis limite. Une intersection totale produit un résultat vide. Un ID inexistant est ignoré; un ID invalide fait échouer la sélection sans élargissement. Les fiches non listées, brouillons, privées, protégées ou autrement non éligibles ne sont jamais réintroduites.
 
 La liste `ids` définit une population admissible, pas un ordre d'affichage. `orderby` et `order` déterminent l'ordre final comme avant RC.3. Le shortcode, son alias, le renderer partagé, le module Divi et l'aperçu Builder consomment cette même API canonique.
+
+## 16. Témoignages — consentement et sélection Native Divi Loop
+
+Une fiche est publique uniquement si elle est publiée, non protégée par mot de passe et porte la valeur exacte `_seed_testimonial_publication_consent=1`. Une méta absente, `0` ou toute autre valeur échoue fermée, y compris avec `ids` explicites.
+
+La mise en avant utilise exclusivement `_seed_testimonial_featured=1`. Elle ne vaut jamais consentement. L’argument `selection_mode` accepte `all`, `featured`, `random` et `featured_or_random`. Ce dernier conserve d’abord les featured dans l’ordre canonique puis complète, sans doublon, avec les autres témoignages publics mélangés. `limit=0` signifie tous les résultats ; une limite positive tronque après sélection.
+
+`random_seed` est réservé aux intégrations qui nécessitent un échantillon stable. Le frontend Divi ne fournit pas de seed et obtient un vrai tirage ; le Visual Builder utilise `divi-loop-builder-preview` afin de ne pas changer les cartes à chaque rerender.
+
+Le Loop Builder Divi 5 consomme cette Collection via l’adaptateur officiel. Les champs virtuels de Meta Query sont `wp_seed_content_testimonial_selection_mode`, `wp_seed_content_testimonial_featured` et `wp_seed_content_testimonial_context`. Les choix d’ordre officiels incluent l’ordre éditorial, les dates, l’ID et l’aléatoire. Divi reste propriétaire de la structure, de la limite de posts, des colonnes et du design.
+
+Le contexte filtre d’abord `seed_testimonial_context`. `_seed_testimonial_context` intervient uniquement si la méta publique n’existe pas ; une divergence est toujours tranchée en faveur de la valeur publique.
+
+Dans un Group Carousel natif, la Loop appartient au Group/slide. Les providers WPSCK conservent l’item imbriqué via `loop_id` ou `loop_object` sans déplacer la requête ou le design dans Content Kit.

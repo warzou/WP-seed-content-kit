@@ -7,11 +7,12 @@ if (!defined('ABSPATH')) {
 function wp_seed_content_testimonial_meta_definitions()
 {
     return array(
-        '_seed_testimonial_name' => array('type' => 'text'),
-        '_seed_testimonial_text' => array('type' => 'textarea'),
+        'seed_testimonial_name' => array('type' => 'text', 'canonical_builder_meta' => true),
+        'seed_testimonial_text' => array('type' => 'textarea', 'canonical_builder_meta' => true),
         '_seed_testimonial_date' => array('type' => 'date'),
-        '_seed_testimonial_context' => array('type' => 'text'),
-        '_seed_featured' => array('type' => 'checkbox'),
+        'seed_testimonial_context' => array('type' => 'text', 'canonical_builder_meta' => true),
+        '_seed_testimonial_publication_consent' => array('type' => 'checkbox'),
+        '_seed_testimonial_featured' => array('type' => 'checkbox'),
     );
 }
 
@@ -65,6 +66,11 @@ function wp_seed_content_save_testimonial_meta($post_id, $post)
 
         if ('checkbox' === $type && !$value) {
             delete_post_meta($post_id, $key);
+            continue;
+        }
+
+        if ('' === $value && !empty($definition['canonical_builder_meta'])) {
+            update_post_meta($post_id, $key, '');
             continue;
         }
 

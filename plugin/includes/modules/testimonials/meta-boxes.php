@@ -97,6 +97,32 @@ function wp_seed_content_enqueue_testimonial_admin_assets($hook_suffix)
 }
 add_action('admin_enqueue_scripts', 'wp_seed_content_enqueue_testimonial_admin_assets');
 
+/**
+ * Whether the testimonial publication checkbox is selected.
+ *
+ * New auto-drafts start enabled. Existing testimonials always reflect the
+ * stored canonical value so legacy records are never authorized implicitly.
+ *
+ * @param WP_Post $post Testimonial being edited.
+ *
+ * @return bool
+ */
+function wp_seed_content_testimonial_publication_consent_is_checked($post)
+{
+    if (!$post instanceof WP_Post || 'seed_testimonial' !== $post->post_type) {
+        return false;
+    }
+
+    if ('auto-draft' === $post->post_status) {
+        return true;
+    }
+
+    return '1' === (string) wp_seed_content_get_meta(
+        $post->ID,
+        wp_seed_content_testimonial_publication_consent_meta_key()
+    );
+}
+
 function wp_seed_content_render_testimonial_meta_box($post)
 {
     wp_nonce_field('wp_seed_content_save_testimonial_meta', 'wp_seed_content_testimonial_nonce');
@@ -105,14 +131,15 @@ function wp_seed_content_render_testimonial_meta_box($post)
     $stored_date = (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_date');
     $testimonial_date = wp_seed_content_sanitize_iso_date($stored_date);
     $has_invalid_stored_date = '' !== $stored_date && '' === $testimonial_date;
+    $publication_authorized = wp_seed_content_testimonial_publication_consent_is_checked($post);
     ?>
     <p>
         <label for="wp_seed_content_testimonial_text"><strong><?php esc_html_e('Témoignage', 'wp-seed-content-kit'); ?></strong></label><br>
-        <textarea id="wp_seed_content_testimonial_text" name="_seed_testimonial_text" rows="8" class="widefat"><?php echo esc_textarea(wp_seed_content_get_meta($post->ID, '_seed_testimonial_text')); ?></textarea>
+        <textarea id="wp_seed_content_testimonial_text" name="seed_testimonial_text" rows="8" class="widefat"><?php echo esc_textarea(wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_text')); ?></textarea>
     </p>
     <p>
         <label for="wp_seed_content_testimonial_name"><strong><?php esc_html_e('Nom ou initiales', 'wp-seed-content-kit'); ?></strong></label><br>
-        <input type="text" id="wp_seed_content_testimonial_name" name="_seed_testimonial_name" value="<?php echo esc_attr(wp_seed_content_get_meta($post->ID, '_seed_testimonial_name')); ?>" class="widefat">
+        <input type="text" id="wp_seed_content_testimonial_name" name="seed_testimonial_name" value="<?php echo esc_attr(wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_name')); ?>" class="widefat">
     </p>
     <div class="seed-testimonial-photo-field">
         <p><strong><?php esc_html_e('Photo du témoignage', 'wp-seed-content-kit'); ?></strong></p>
@@ -143,14 +170,26 @@ function wp_seed_content_render_testimonial_meta_box($post)
     <?php endif; ?>
     <p>
         <label for="wp_seed_content_testimonial_context"><strong><?php esc_html_e('Information complémentaire', 'wp-seed-content-kit'); ?></strong></label><br>
-        <input type="text" id="wp_seed_content_testimonial_context" name="_seed_testimonial_context" value="<?php echo esc_attr(wp_seed_content_get_meta($post->ID, '_seed_testimonial_context')); ?>" class="widefat">
+        <input type="text" id="wp_seed_content_testimonial_context" name="seed_testimonial_context" value="<?php echo esc_attr(wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_context')); ?>" class="widefat">
     </p>
     <p class="description">
         <?php esc_html_e('Précision facultative affichée avec le témoignage, par exemple « En 3e année du parcours » ou « Après 2 ans de suivi ».', 'wp-seed-content-kit'); ?>
     </p>
+    <fieldset>
+        <legend><strong><?php esc_html_e('Publication du témoignage', 'wp-seed-content-kit'); ?></strong></legend>
+        <p>
+            <label>
+                <input type="checkbox" name="_seed_testimonial_publication_consent" value="1" <?php checked($publication_authorized); ?>>
+                <?php esc_html_e('Publication autorisée', 'wp-seed-content-kit'); ?>
+            </label>
+        </p>
+        <p class="description">
+            <?php esc_html_e('Décochez cette case pour retirer immédiatement ce témoignage de tous les affichages publics.', 'wp-seed-content-kit'); ?>
+        </p>
+    </fieldset>
     <p>
         <label>
-            <input type="checkbox" name="_seed_featured" value="1" <?php checked(wp_seed_content_is_truthy_meta($post->ID, '_seed_featured')); ?>>
+            <input type="checkbox" name="_seed_testimonial_featured" value="1" <?php checked('1' === (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_featured')); ?>>
             <?php esc_html_e('Mis en avant', 'wp-seed-content-kit'); ?>
         </label>
     </p>

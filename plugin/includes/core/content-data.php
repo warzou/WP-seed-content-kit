@@ -118,17 +118,47 @@ function wp_seed_content_get_testimonial_data($post_id, $args = array())
         return array();
     }
 
+    $allow_unconsented = is_array($args) && !empty($args['allow_unconsented'])
+        && is_user_logged_in()
+        && current_user_can('edit_post', $post->ID);
+    if (!$allow_unconsented && function_exists('wp_seed_content_testimonial_is_publicly_visible')
+        && !wp_seed_content_testimonial_is_publicly_visible($post->ID)) {
+        return array();
+    }
+
     $thumbnail_id = get_post_thumbnail_id($post->ID);
+    $text = function_exists('wp_seed_content_get_testimonial_builder_meta')
+        ? wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_text')
+        : (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_text');
+    $title = (string) $post->post_title;
+    if ('' === $title) {
+        $title = (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_title');
+    }
+    $summary = isset($post->post_excerpt) ? (string) $post->post_excerpt : '';
+    if ('' === $summary) {
+        $summary = (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_summary');
+    }
 
     return array_merge(
         wp_seed_content_get_post_data_fields($post),
         array(
-            'text' => (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_text'),
-            'name' => (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_name'),
+            'testimonial_title' => $title,
+            'summary' => $summary,
+            'text' => $text,
+            'full_content' => $text,
+            'name' => function_exists('wp_seed_content_get_testimonial_builder_meta')
+                ? wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_name')
+                : (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_name'),
             'testimonial_date' => wp_seed_content_sanitize_iso_date(wp_seed_content_get_meta($post->ID, '_seed_testimonial_date')),
-            'context' => (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_context'),
+            'context' => function_exists('wp_seed_content_get_testimonial_builder_meta')
+                ? wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_context')
+                : (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_context'),
             'photo' => wp_seed_content_get_media_data($thumbnail_id),
-            'featured' => wp_seed_content_is_truthy_meta($post->ID, '_seed_featured'),
+            'featured' => function_exists('wp_seed_content_testimonial_is_featured')
+                ? wp_seed_content_testimonial_is_featured($post->ID)
+                : '1' === (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_featured'),
+            'anchor' => 'temoignage-' . (int) $post->ID,
+            'anchor_url' => home_url('/temoignages/#temoignage-' . (int) $post->ID),
             'display_order' => (int) $post->menu_order,
         )
     );

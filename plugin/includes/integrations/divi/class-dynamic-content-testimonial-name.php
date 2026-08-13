@@ -11,7 +11,7 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Name extends WP_Seed_Cont
 {
     public function get_name(): string
     {
-        return 'wp_seed_content_testimonial_name';
+        return 'loop_wpsck_testimonial_name';
     }
 
     public function get_label(): string

@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.8.0-rc.3, Release Candidate en validation et non stable.
+Statut du package : 0.8.0-rc.4, contrat Native Divi Loop Témoignages en validation et non stable.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -24,6 +24,8 @@ Collections reste une API de sélection et un ensemble de paramètres. Aucun con
 - mise en avant ;
 - ordre manuel ;
 - templates réutilisables.
+
+Le stockage builder-compatible utilise `post_title`, `post_excerpt`, l’image mise en avant, `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context`. La date métier est optionnelle. Les anciennes métas `_seed_testimonial_*` restent uniquement des fallbacks de compatibilité.
 
 ### Citations
 
@@ -83,7 +85,11 @@ Sous Divi 5, le provider Dynamic Content enregistre quatre champs Citation (Text
 
 Ces sources dépendent du contenu courant ou du contexte explicite fourni par un Template Content Kit. Elles complètent les Templates WP Seed et les layouts Divi Library ; elles ne les remplacent pas.
 
-Sous Divi 5.9.0, leur utilisation directe dans une boucle native Loop Builder n'est pas prise en charge. Le frontend peut résoudre certaines valeurs alors que le Visual Builder ne résout pas contractuellement tous les champs, notamment la photo. Pour une liste de Témoignages, utiliser le module `WP Seed — Témoignages`, `[seed_testimonials]` ou un Template Content Kit utilisant un Layout Divi.
+Sous Divi 5.9.0, le groupe « WPSCK — Témoignages » regroupe Visuel, Titre, Résumé, Témoignage complet, Nom, Contexte, Date, ID et Ancre pour les boucles natives. Les valeurs sont résolues par item dans le frontend et le Visual Builder.
+
+La Loop peut également porter le Group/slide d’un Group Carousel natif Divi. Les providers récupèrent alors le contexte imbriqué par `loop_id` ou `loop_object` ; aucun Carousel propriétaire n’est ajouté par WPSCK. Divi contrôle présentation et responsive, tandis que WPSCK contrôle données, requête, consentement et providers.
+
+Le stockage reste builder-agnostic et compatible avec Gutenberg/custom-fields ainsi qu’avec de futurs adaptateurs Spectra/Astra. Faute de condition native Divi 5.9.0 sur la parité du clone Loop, seule l’alternance Detailed dispose d’un CSS structurel opt-in, sans style éditorial.
 
 ## Template Extension API
 
@@ -183,7 +189,7 @@ Le plugin ne fournit pas :
 - de desinstallation destructive automatique des donnees ;
 - de module fonctionnel Créations sonores.
 
-Le provider Divi 5 Dynamic Content reste expérimental. Il est pris en charge sur un contenu courant individuel et dans un Template Content Kit utilisant un Layout Divi avec contexte par carte. Son utilisation directe dans une boucle native Divi Loop Builder n'est pas prise en charge sous Divi 5.9.0 ; le texte alternatif d'une photo n'est pas garanti dans tous les modules.
+Le provider Divi 5 Dynamic Content reste expérimental. Il est pris en charge sur un contenu courant individuel, dans un Template Content Kit avec contexte par carte et dans une Native Loop Témoignages. L’alternance gauche/droite des sous-colonnes exige le CSS structurel opt-in fourni par Content Kit, car Divi 5.9.0 ne peut pas conditionner leur ordre selon la parité du clone Loop parent.
 
 ## Documentation
 

@@ -15,12 +15,12 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Photo extends DynamicCont
 {
     public function get_name(): string
     {
-        return 'wp_seed_content_testimonial_photo';
+        return 'loop_wpsck_testimonial_visual';
     }
 
     public function get_label(): string
     {
-        return __('Photo', 'wp-seed-content-kit');
+        return __('Visuel', 'wp-seed-content-kit');
     }
 
     public function register_option_callback(array $options, int $post_id, string $context): array
@@ -33,10 +33,10 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Photo extends DynamicCont
 
         $options[$name] = array(
             'id' => $name,
-            'label' => $this->get_label(),
+            'label' => wp_seed_content_divi_testimonial_dynamic_content_label($this->get_label()),
             'type' => 'image',
             'custom' => false,
-            'group' => __('WP Seed — Témoignages', 'wp-seed-content-kit'),
+            'group' => wp_seed_content_divi_testimonial_dynamic_content_group_label(),
             'fields' => array(),
         );
 
@@ -49,11 +49,20 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Photo extends DynamicCont
             ? $data_args['name']
             : '';
 
-        if ($this->get_name() !== $name) {
+        if (!wp_seed_content_divi_testimonial_dynamic_content_name_matches($this->get_name(), $name)) {
             return $value;
         }
 
         $resolver_context = $this->get_resolver_context($data_args);
+
+        if (
+            empty($resolver_context['current_post_id'])
+            && is_string($value)
+            && false !== strpos($value, '$variable(')
+        ) {
+            return $value;
+        }
+
         $resolved_value = null;
 
         if (function_exists('wp_seed_content_resolve_dynamic_data')) {
@@ -102,6 +111,23 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Photo extends DynamicCont
     {
         if (array_key_exists('loop_id', $data_args) && null !== $data_args['loop_id']) {
             return $this->get_resolver_context_for_post_id($data_args['loop_id']);
+        }
+
+        if (isset($data_args['loop_object'])) {
+            $loop_object = $data_args['loop_object'];
+            if ($loop_object instanceof WP_Post) {
+                return $this->get_resolver_context_for_post_id($loop_object->ID);
+            }
+            if (is_object($loop_object) && isset($loop_object->ID)) {
+                return $this->get_resolver_context_for_post_id($loop_object->ID);
+            }
+            if (is_array($loop_object)) {
+                $loop_post_id = isset($loop_object['ID'])
+                    ? $loop_object['ID']
+                    : (isset($loop_object['id']) ? $loop_object['id'] : 0);
+
+                return $this->get_resolver_context_for_post_id($loop_post_id);
+            }
         }
 
         $post_id = array_key_exists('post_id', $data_args) ? $data_args['post_id'] : 0;

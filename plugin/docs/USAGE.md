@@ -108,6 +108,10 @@ Cards n'ajoute pas de type de contenu métier. Il utilise les articles WordPress
 
 ## Témoignages
 
+Le stockage portable canonique associe le titre à `post_title`, le résumé à `post_excerpt`, le visuel à l’image mise en avant, puis le texte complet, le nom et le contexte à `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context`. La date métier est optionnelle et reste vide lorsqu’elle est inconnue.
+
+Les anciennes métas `_seed_testimonial_text`, `_seed_testimonial_name` et `_seed_testimonial_context` ne sont que des fallbacks backward compatibility. Elles ne remplacent jamais une méta publique présente.
+
 `[seed_testimonials]` affiche les témoignages publiés.
 
 Exemples :
@@ -154,7 +158,7 @@ Champs d'édition actuels :
 
 La date du témoignage est facultative, indépendante de la date d'ajout dans WordPress et stockée au format civil strict `YYYY-MM-DD`. Une date impossible n'est pas enregistrée et ne remplace pas une ancienne valeur. Laisser volontairement le champ vide puis enregistrer supprime la date stockée, même si une ancienne valeur était invalide. La date reste brute dans Content Data et Dynamic Data ; seuls les rendus de présentation la localisent selon les réglages WordPress, sans changer le jour métier.
 
-Le champ Information complémentaire conserve l'identifiant technique historique `context` et la méta `_seed_testimonial_context`. Le consentement de publication n'est pas réintroduit.
+Le champ Information complémentaire conserve l'identifiant métier `testimonial.context`. Son stockage canonique est `seed_testimonial_context` ; `_seed_testimonial_context` reste uniquement un fallback historique. Le consentement de publication reste un contrat séparé.
 
 ## Citations
 
@@ -319,7 +323,7 @@ L'interface éditeur native WP Seed reste différée. Aucun sélecteur WP Seed f
 
 ## Divi 5 Dynamic Content expérimental
 
-Le provider Dynamic Content de Divi 5 enregistre côté serveur les sources regroupées ainsi :
+Le provider Dynamic Content de Divi 5 enregistre côté serveur les sources métier.
 
 WP Seed — Citations :
 
@@ -328,27 +332,29 @@ WP Seed — Citations :
 - Époque ;
 - Source.
 
-WP Seed — Témoignages :
+Pour les Native Loops, le groupe « WPSCK — Témoignages » expose :
 
-- Texte ;
+- Visuel ;
+- Titre ;
+- Résumé ;
+- Témoignage complet ;
 - Nom ;
-- Information complémentaire ;
-- Date du témoignage ;
-- Photo.
+- Contexte ;
+- Date ;
+- ID ;
+- Ancre.
 
 Aucun shortcode ni identifiant fixe n'est nécessaire sur un témoignage courant individuel. Dans un Template Content Kit utilisant un Layout Divi, Content Kit fournit explicitement le contexte de la carte. Une page ordinaire ou un mauvais type de contenu produit une valeur vide sans fallback arbitraire.
 
-Dans un Layout utilisé comme Template de collection, le contexte explicite par carte complète ce comportement : seuls les cinq identifiants ci-dessus reçoivent `value.post_id`. L'injection intervient dans la représentation exacte consommée par le frontend avant que WordPress et Divi ne parsèrent puis resérialisent la copie en mémoire. La clé de cache Divi est ainsi différenciée par témoignage et le Layout enregistré reste bit à bit inchangé.
+Dans un Layout utilisé comme Template de collection, le contexte explicite par carte est injecté en mémoire avant le parsing Divi. Dans une Native Loop, y compris sur le Group/slide d’un Group Carousel natif, les providers résolvent l’item imbriqué via `loop_id`, puis `loop_object`. Le Layout enregistré reste inchangé et WPSCK ne fournit aucun Carousel propriétaire.
 
 Une erreur de parsing, un contexte invalide, un Layout indisponible, une résolution dynamique incomplète ou un rendu vide ne remplace pas toute la Collection : la carte concernée reprend son rendu natif et la pile de contexte, limitée à 16 niveaux, est restaurée avant la carte suivante. Un Layout statique non vide reste accepté.
 
-La source Date du témoignage retourne la valeur ISO canonique. Sa sélection et sa persistance visuelles ont été validées sous Divi 5.9.0 ; les Templates utilisent `{{date}}` pour une présentation localisée.
+La source Date retourne la valeur métier canonique lorsqu’elle existe et une chaîne vide sinon, sans fallback sur `post_date`. Les Templates utilisent `{{date}}` pour une présentation localisée.
 
 Photo est prioritairement compatible avec la propriété source du module Image. Divi peut reconstruire l'ID média, les dimensions, `srcset` et `sizes` à partir d'une URL locale. Le texte alternatif n'est pas garanti dans tous les modules.
 
-L'utilisation directe de ces sources dans une boucle native Divi Loop Builder n'est pas prise en charge sous Divi 5.9.0. Le frontend peut résoudre certaines valeurs, mais le Visual Builder ne garantit pas la résolution de tous les champs, notamment les médias. Utiliser le module `WP Seed — Témoignages`, le shortcode ou un Template Content Kit avec Layout Divi pour rendre une Collection.
-
-Ce provider cible Divi 5. Divi 4 n'est pas pris en charge. Les layouts Divi Library avec placeholders restent officiellement pris en charge et complémentaires de Dynamic Content.
+Ce provider cible Divi 5. Divi 4 n'est pas pris en charge. Le module `WP Seed — Témoignages`, les shortcodes et les layouts Divi Library avec placeholders restent officiellement pris en charge et complémentaires du Native Loop.
 
 ## Styles
 
@@ -462,3 +468,17 @@ Le module nécessite Divi 5. Sans Divi, aucune route ni module n’est enregistr
 ```
 
 La Collection conserve ici les fiches 12 et 27 si elles sont publiées, listées et éligibles. Elle applique ensuite les filtres métier, `orderby`/`order`, `offset`, puis `limit`. Si toutes les fiches sont exclues, l'état vide est rendu. L'ordre CSV des IDs ne remplace pas le tri canonique.
+
+## Native Divi Loop — Témoignages
+
+Dans Divi 5, activer la boucle sur le type Témoignages. La requête est automatiquement bornée par la Collection publique Content Kit. Pour choisir la population, ajouter au besoin une Meta Query virtuelle sur `wp_seed_content_testimonial_selection_mode` avec `all`, `featured`, `random` ou `featured_or_random`. Le nombre de posts de la boucle constitue la limite.
+
+Le groupe unique « WPSCK — Témoignages » expose exactement Visuel, Titre, Résumé, Témoignage complet, Nom, Contexte, Date, ID et Ancre. La date est vide lorsqu’aucune date métier n’est connue. Les neuf valeurs sont résolues par item dans le frontend et le Visual Builder. Le design reste entièrement dans Divi.
+
+Pour un Group Carousel, utiliser le module natif Divi et placer la Loop sur le Group qui représente la slide. Les providers conservent le contexte de chaque clone via `loop_id` ou `loop_object`. WPSCK ne fournit ni module Carousel, ni structure, ni style de présentation Carousel.
+
+Le frontend aléatoire varie réellement. Le Visual Builder conserve un échantillon stable. Le module « WP Seed — Témoignages », les shortcodes et les Templates existants restent disponibles comme fallback.
+
+Divi 5.9.0 ne sait pas appliquer l’ordre des deux colonnes internes selon la parité du clone Loop parent : ses Grid Offset Rules produisent uniquement des sélecteurs sur les enfants directs du conteneur courant. Pour une alternance opt-in, ajouter `wpsck-testimonial-loop--alternating` à la Row bouclée, `wpsck-testimonial-loop__media` à la colonne média et `wpsck-testimonial-loop__content` à la colonne contenu. Le CSS fourni inverse seulement les colonnes paires sur desktop et restaure toujours média puis contenu à 980 px et moins.
+
+Le contrat de données est builder-agnostic : WPSCK fournit données, requête, consentement et providers ; Divi fournit présentation et responsive. Les mêmes métas publiques restent disponibles pour Gutenberg/custom-fields et de futurs adaptateurs Spectra/Astra, sans stockage spécifique à Divi.

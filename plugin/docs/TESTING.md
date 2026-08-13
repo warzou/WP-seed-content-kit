@@ -306,3 +306,15 @@ Sans Divi, confirmer l’absence du module et de la route, sans fatal ni régres
 ## Régression RC.3 `ids` + `exclude_ids`
 
 Valider `ids` seul, exclusions seules, intersection nulle, partielle et totale, doublons, IDs invalides ou inexistants, fiches non listées/brouillons/privées/protégées, types OR/AND, Recherche de modèles, tri, offset et limite. Rejouer les mêmes paramètres via l'API Collections, `[seed_directory]`, `[wp_seed_directory]`, le renderer partagé, le module Divi 5 et la route privée d'aperçu. Frontend et Visual Builder doivent retourner les mêmes IDs dans le même ordre. La mise à niveau RC.2 vers RC.3 ne déclenche aucune migration métier.
+
+## Témoignages Native Divi Loop — 0.8.0-rc.4
+
+Exécuter les harnais Collections, stockage portable, migration de consentement, adaptateur Loop et contexte Loop sous PHP 7.0 et PHP 8.4. Ils couvrent le fail-closed, featured sans consentement, les quatre modes, la limite, l’absence de doublons, le seed Builder, les alias par item et le rollback exact. Le filtre de contexte doit couvrir explicitement priorité de `seed_testimonial_context`, divergence avec `_seed_testimonial_context`, fallback legacy seul et valeurs identiques.
+
+Dans WordPress avec Divi 5.9.0 exact, vérifier le groupe unique « WPSCK — Témoignages » et ses neuf champs dans l’ordre Visuel, Titre, Résumé, Témoignage complet, Nom, Contexte, Date, ID et Ancre. Contrôler leurs vraies valeurs sur les items 1, 2 et 3, sans valeur brute, puis effectuer deux cycles sauvegarde/fermeture/réouverture.
+
+Vérifier ensuite une recette Detailed et un Group Carousel natif dont la Loop est portée par le Group/slide : frontend, Visual Builder, tailles 0/1/3/22/23 et contexte imbriqué distinct via `loop_id` puis `loop_object`. Les modules du Carousel et tout leur design restent natifs Divi ; WPSCK ne fournit aucun Carousel ni CSS de présentation Carousel.
+
+Pour Detailed, vérifier alternance desktop via les classes opt-in, média en premier sur mobile et zoom 200 %. Les Grid Offset Rules natives ciblent les enfants directs du conteneur et ne remplacent pas la règle paire/impaire du clone Loop.
+
+Confirmer enfin que `post_title`, `post_excerpt`, l’image mise en avant et les métas publiques `seed_testimonial_text`, `seed_testimonial_name`, `seed_testimonial_context` restent accessibles au contrat builder-agnostic. La date absente demeure vide. Aucun test permanent ne doit contenir d’ID ou d’URL de recette DEV.

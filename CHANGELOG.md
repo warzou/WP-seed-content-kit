@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.0-rc.4] - 2026-08-13
+
+### Témoignages : contrat Native Divi Loop
+
+- Ferme toutes les Collections publiques par `_seed_testimonial_publication_consent=1`, y compris les sélections explicites et le Visual Builder.
+- Ajoute le champ indépendant `_seed_testimonial_featured=1` et les modes `all`, `featured`, `random` et `featured_or_random`, avec limite et tirage Builder déterministe.
+- Regroupe sous « WPSCK — Témoignages » les neuf sources Loop officielles : Visuel, Titre, Résumé, Témoignage complet, Nom, Contexte, Date, ID et Ancre.
+- Rend `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context` publics et canoniques pour les builders ; les anciennes métas privées restent des fallbacks de compatibilité.
+- Prend en charge les Native Loops Témoignages, y compris une Loop placée sur une slide de Group Carousel natif Divi avec résolution imbriquée par `loop_id` ou `loop_object`.
+- Maintient un stockage builder-agnostic compatible avec les custom fields et Gutenberg : WPSCK fournit données, requête, providers et consentement, tandis que Divi fournit structure et design.
+- Limite le CSS WPSCK au support structurel opt-in de l’alternance Detailed, Divi 5.9.0 n’exposant aucune condition impair/pair utilisable sur l’index du clone Loop.
+- Ajoute une migration explicite, ciblée, idempotente et réversible du consentement, sans exécution automatique.
+- Conserve le module et le renderer Témoignages existants comme parcours compatibles en complément du Native Loop Builder.
 ## [0.8.0-rc.3] - 2026-07-29
 
 ### Annuaire : combinaison `ids` et `exclude_ids`
