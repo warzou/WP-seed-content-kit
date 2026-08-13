@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.8.0-rc.4, contrat Native Divi Loop Témoignages en validation et non stable.
+Statut du package : 0.8.0-rc.5, contrats Native Divi Loop Témoignages et Citations validés, non stable.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 

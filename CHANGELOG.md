@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.0-rc.5] - 2026-08-13
+
+### Citations : contrat Native Divi Loop
+
+- Rend `seed_quote_text`, `seed_quote_author`, `seed_quote_era`, `seed_quote_source` et `seed_quote_featured` publics et canoniques pour les builders, avec fallback de lecture sur les anciennes métas privées.
+- Ajoute une migration privée vers publique explicite, non destructive et réversible ; toute valeur publique existante reste autoritaire.
+- Centralise les Citations publiées et non protégées dans une Collection canonique avec limite, mise en avant, hasard déterministe et tris par auteur, date, ordre éditorial ou ID.
+- Conserve `[seed_quotes]`, son HTML historique, ses Templates et son mode quotidien.
+- Expose quatre providers `loop_wpsck_quote_*` et hydrate chaque clone Native Loop via QueryResults, `loop_id` ou `loop_object`, y compris dans un Group Carousel natif Divi.
+- Normalise les anciens bindings uniquement dans les réponses remises à Divi, sans réécrire le contenu stocké.
+- Généralise le transport du contexte Divi pour Témoignages, Citations et les futurs adaptateurs, sans ajouter de provider Annuaire.
+- Valide frontend, Visual Builder, Group Carousel, deux cycles Save/Close/Reopen, Gutenberg, REST et les régressions Témoignages.
+
 ## [0.8.0-rc.4] - 2026-08-13
 
 ### Témoignages : contrat Native Divi Loop

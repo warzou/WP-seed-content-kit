@@ -1,8 +1,8 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 13 août 2026
-Statut : 0.8.0-rc.4 ; contrat Native Divi Loop Témoignages en validation, non stable
-Version courante du code : 0.8.0-rc.4
+Statut : 0.8.0-rc.5 ; contrats Native Divi Loop Témoignages et Citations validés, non stable
+Version courante du code : 0.8.0-rc.5
 Version stable publiee de reference : 0.7.0
 Commit de base de preparation stable : 8a6fb735a729d4b14c753c78f5304fb59349b287
 Tag stable publie de reference : v0.7.0
