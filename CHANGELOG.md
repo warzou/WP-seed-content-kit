@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.8.0-rc.6] - 2026-08-17
+
+### Annuaire : modèle portable et Native Loop
+
+- Remplace les classifications historiques par des registres extensibles de statuts et types de profil, avec projections taxonomiques natives, ordre stable et suppression sûre des valeurs personnalisées inutilisées.
+- Ajoute le filtrage Annuaire des Native Loops Divi par statut, types, IDs, exclusions, limite, offset et ordre canonique, sans stockage métier propre à Divi.
+- Expose l’intitulé professionnel, le résumé, la présentation complète et le découpage portable WordPress `<!--more-->` aux builders, à la Content Data API et aux Block Bindings.
+- Ajoute des conditions Divi clone-aware pour la suite de présentation et la présence de chaque coordonnée publique dans une Native Loop.
+- Remplace les champs de contact fixes par des lignes répétables ordonnées, privées par défaut, avec libellé facultatif et lien complet validé (`tel:`, `mailto:` ou HTTP(S)).
+- Génère depuis le registre les providers individuels d’affichage, de lien et de présence, y compris pour les futurs types personnalisés compatibles ; Divi conserve la responsabilité des icônes, du layout et du style.
+- Rend les liens compatibles avec les champs URL et modules Link Divi tout en conservant les mêmes projections pour Gutenberg, Spectra/Astra et les autres consommateurs builder-agnostic.
+- Améliore la validation éditoriale : première nouvelle erreur corrigible signalée sans dépublication, seconde sauvegarde identique placée en brouillon, publication invalide bloquée et correction publiable en un cycle Gutenberg.
+- Protège les registres contre la suppression de types utilisés ou système, tout en autorisant désactivation, retrait des lignes neuves et suppression confirmée des valeurs personnalisées inutilisées.
+- Supprime le rendu composite des coordonnées, ses profils d’affichage et le stockage d’icônes personnalisées ; les anciens champs de contacts restent disponibles uniquement comme fallbacks de lecture et sources de migration non destructive.
+
+### Notes pour les testeurs RC
+
+- Vérifier les fiches Annuaire existantes, les conditions de présence par clone et les liens téléphone/e-mail/web dans les Native Loops Divi.
+- Tester le cycle Gutenberg avertissement, correction et republication, ainsi que les contrôles de suppression/désactivation des registres.
+- Les bindings individuels, slugs de taxonomies et métas canoniques restent stables. Aucun binding composite actif n’a été trouvé sur le DEV validé.
+
 ## [0.8.0-rc.5] - 2026-08-13
 
 ### Citations : contrat Native Divi Loop

@@ -131,7 +131,10 @@ function wp_seed_content_render_normalized_directory_collection($normalized, $en
         update_meta_cache('post', $ids);
     }
 
-    $groups = array('practicing' => array(), 'seeking_models' => array());
+    $labels = function_exists('wp_seed_content_directory_classification_options')
+        ? wp_seed_content_directory_classification_options('status', false)
+        : wp_seed_content_directory_get_statuses();
+    $groups = array_fill_keys(array_keys($labels), array());
     $native_rendered = false;
     foreach ($ids as $id) {
         $data = wp_seed_content_directory_get_public_data($id);
@@ -146,7 +149,7 @@ function wp_seed_content_render_normalized_directory_collection($normalized, $en
         $native_rendered = $native_rendered || $rendered['native'];
     }
 
-    if (empty($groups['practicing']) && empty($groups['seeking_models'])) {
+    if (!array_filter($groups)) {
         if ($enqueue_assets) {
             wp_seed_content_directory_enqueue_structure_assets();
         }
@@ -159,11 +162,6 @@ function wp_seed_content_render_normalized_directory_collection($normalized, $en
             wp_seed_content_directory_enqueue_native_card_assets();
         }
     }
-
-    $labels = array(
-        'practicing' => __('En exercice', 'wp-seed-content-kit'),
-        'seeking_models' => __('En recherche de modèles', 'wp-seed-content-kit'),
-    );
 
     ob_start();
     ?>

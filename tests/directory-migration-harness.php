@@ -35,7 +35,7 @@ ck_a6_same('native-directory-demo:ck-a6-v1', $manifest['batch_id'], 'Batch ID');
 ck_a6_same('native-directory-demo', $manifest['source_system'], 'Source system');
 ck_a6_same(16, count($manifest['entries']), 'Sixteen entries');
 ck_a6_same(13, count($manifest['media']), 'Thirteen media');
-ck_a6_same(22, count(wp_seed_content_directory_get_meta_definitions()), 'Exactly twenty-two native meta definitions');
+ck_a6_same(23, count(wp_seed_content_directory_get_meta_definitions()), 'Exactly twenty-three native and legacy meta definitions');
 
 $statuses = array_count_values(array_column($manifest['entries'], 'professional_status'));
 $targets = array_count_values(array_column($manifest['entries'], 'target_status'));

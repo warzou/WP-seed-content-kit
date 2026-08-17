@@ -178,13 +178,14 @@ foreach ($expected_primitives as $capability) {
 wp_seed_content_directory_register_post_type();
 seed_l2_assert(isset($GLOBALS['seed_l2_post_types']['seed_directory']), 'seed_directory CPT registered');
 $cpt = $GLOBALS['seed_l2_post_types']['seed_directory'];
-foreach (array('public', 'publicly_queryable', 'show_in_rest', 'has_archive', 'rewrite', 'query_var') as $key) {
+foreach (array('public', 'publicly_queryable', 'has_archive', 'rewrite', 'query_var') as $key) {
     seed_l2_same(false, $cpt[$key], $key . ' disabled');
 }
+seed_l2_same(true, $cpt['show_in_rest'], 'REST editor enabled');
 seed_l2_same(true, $cpt['exclude_from_search'], 'Excluded from public search');
 seed_l2_same(true, $cpt['show_ui'], 'Admin UI enabled');
 seed_l2_same('wp-seed-content-kit', $cpt['show_in_menu'], 'Nested under Content Kit');
-seed_l2_same(array('title', 'editor', 'excerpt', 'thumbnail', 'page-attributes', 'revisions'), $cpt['supports'], 'RC2 adds the native editor and keeps revisions');
+seed_l2_same(array('title', 'editor', 'excerpt', 'thumbnail', 'page-attributes', 'revisions', 'custom-fields'), $cpt['supports'], 'Portable custom fields enabled');
 seed_l2_same(array('seed_directory_entry', 'seed_directory_entries'), $cpt['capability_type'], 'Capability type');
 seed_l2_same(true, $cpt['map_meta_cap'], 'Meta capability mapping enabled');
 seed_l2_same($map, $cpt['capabilities'], 'Explicit capability map attached');

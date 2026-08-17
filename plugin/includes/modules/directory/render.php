@@ -4,25 +4,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function wp_seed_content_directory_get_location_label($location)
-{
-    if (!is_array($location)) {
-        return '';
-    }
-
-    $locality = trim(implode(' ', array_filter(array(
-        isset($location['postal_code']) ? $location['postal_code'] : '',
-        isset($location['city']) ? $location['city'] : '',
-    ))));
-    $parts = array_filter(array(
-        $locality,
-        isset($location['department']) ? $location['department'] : '',
-        isset($location['country']) ? $location['country'] : '',
-    ));
-
-    return implode(' · ', $parts);
-}
-
 function wp_seed_content_directory_get_safe_tel_href($phone)
 {
     $phone = wp_seed_content_directory_sanitize_phone($phone);

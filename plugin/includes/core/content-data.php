@@ -4,6 +4,43 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+function wp_seed_content_split_wordpress_more($content)
+{
+    $content = (string) $content;
+    $content = preg_replace(
+        '/<!--\s+\/?wp:(?:core\/)?more(?:\s+.*?)?\s*-->/s',
+        '',
+        $content
+    );
+    $content = str_replace('<!--noteaser-->', '', $content);
+
+    if (!preg_match('/<!--more(?:\s+.*?)?-->/s', $content, $matches, PREG_OFFSET_CAPTURE)) {
+        $full = trim(preg_replace('/<!--more(?:\s+.*?)?-->/s', '', $content));
+        return array(
+            'full' => $full,
+            'intro' => $full,
+            'more' => '',
+            'has_more' => false,
+        );
+    }
+
+    $marker = $matches[0][0];
+    $offset = $matches[0][1];
+    $intro = substr($content, 0, $offset);
+    $more = substr($content, $offset + strlen($marker));
+
+    $intro = trim(preg_replace('/<!--more(?:\s+.*?)?-->/s', '', $intro));
+    $more = trim(preg_replace('/<!--more(?:\s+.*?)?-->/s', '', $more));
+    $full = trim(preg_replace('/<!--more(?:\s+.*?)?-->/s', '', $content));
+
+    return array(
+        'full' => $full,
+        'intro' => $intro,
+        'more' => $more,
+        'has_more' => true,
+    );
+}
+
 function wp_seed_content_resolve_data_post($post_id, $expected_post_type, $args = array())
 {
     $post_id = absint($post_id);
@@ -162,4 +199,14 @@ function wp_seed_content_get_testimonial_data($post_id, $args = array())
             'display_order' => (int) $post->menu_order,
         )
     );
+}
+
+function wp_seed_content_get_directory_data($post_id, $args = array())
+{
+    if (!function_exists('wp_seed_content_directory_get_public_data')) {
+        return array();
+    }
+
+    $data = wp_seed_content_directory_get_public_data($post_id);
+    return is_array($data) ? $data : array();
 }

@@ -26,7 +26,7 @@ ACF, Composer, npm et les services externes ne sont pas requis.
 
 Depuis la racine du depot, executer les harnais directory-l2, directory-l3, directory-l4, wordpress-directory-l2, wordpress-directory-l3 et wordpress-directory-l4.
 
-L4 controle la Data API publique, les Collections, les filtres et ordres, les deux shortcodes, les groupes, le HTML, les deux CSS, les vingt et un placeholders et tous les fallbacks. Il verifie aussi qu'une fiche sans photo ne rend aucun wrapper media ou placeholder et que la grille neutralise les marqueurs de liste herites du theme. Les sentinelles privees doivent etre absentes de la Data API, du contexte, des placeholders, du HTML natif ou template et des logs.
+L4 controle la Data API publique, les Collections, les filtres et ordres, les deux shortcodes, les groupes, le HTML, les deux CSS, les vingt-cinq placeholders et tous les fallbacks. Il verifie aussi qu'une fiche sans photo ne rend aucun wrapper media ou placeholder et que la grille neutralise les marqueurs de liste herites du theme. Les sentinelles privees doivent etre absentes de la Data API, du contexte, des placeholders, du HTML natif ou template et des logs.
 
 Le harnais WordPress L4 exige WP_SEED_WORDPRESS_LOAD vers un WordPress isole. Il charge les seize fiches fictives de tests/fixtures/directory-l4.json, teste 14 fiches eligibles, Gutenberg, Divi, theme classique, desactivation/reactivation et non-regression Citations/Temoignages. Il mesure Data API, Collection, shortcode natif, shortcode template, requetes et cache de resolution, puis supprime posts, templates, layouts et revisions.
 
@@ -212,13 +212,13 @@ Retirer puis restaurer l’attribution Editor module par module. Désactiver un 
 
 Exécuter `tests/directory-l3-harness.php` sous PHP 7.0 et PHP 8.4, puis `tests/wordpress-directory-l3-harness.php` avec `WP_SEED_WORDPRESS_LOAD` vers un WordPress isolé.
 
-Vérifier brouillon vide, publication valide, autorisation absente, photo sans alt, fiche sans photo et les cinq coordonnées en modes privé, public valide, public vide et public invalide. Un contact privé reste absent de la Data API, du contexte Template et du shortcode ; un contact public invalide rend la fiche inéligible et la publication revient en brouillon.
+Vérifier brouillon vide, publication valide, autorisation absente, photo sans alt, fiche sans photo et les coordonnées en modes privé, public valide, public vide et public invalide. Sur une fiche publiée valide, tester pour site, e-mail, téléphone et nouvel alt manquant : sauvegarde invalide 1 maintenue publiée avec avertissement persistant et marqueur privé, sauvegarde 2 identique en brouillon, correction intermédiaire sans dépublication et nouvelle valeur invalide ouvrant un nouveau cycle. Reproduire aussi l’ordre Gutenberg réel : tentative REST de publication d’un brouillon encore invalide, sauvegarde séparée de la métaboxe corrigée, rafraîchissement REST propre, puis finalisation par le store Core Data dans le même clic utilisateur. Vérifier que l’état final est `publish`, que le marqueur et la notice disparaissent immédiatement, et qu’un simple enregistrement ne peut jamais déclencher cette finalisation. Exécuter `tests/directory-editor-validation-harness.js` avec Node pour contrôler l’intention Publier, l’unique finalisation Core Data, la disparition de la notice et l’absence d’auto-publication lors d’un simple Enregistrer. Vérifier aussi le grandfathering d’une erreur antérieure, le retrait d’autorisation strict, le blocage draft vers publish et la projection REST `wpsck_directory_validation` utilisée par Gutenberg. Un contact privé ou invalide reste absent de la Data API, du contexte Template et du shortcode.
 
 Avec Editor, vérifier création, publication valide, modification d’une fiche d’un autre éditeur, dépublication, corbeille et restauration. Confirmer l’absence de Configuration, Utilisation, Templates, Collections et outils techniques. Avec Administrator, confirmer la même fiche métier et les écrans avancés séparés. Tester les libellés, liens d’erreur, labels, fieldsets, clavier, focus, mobile, filtre de statut administratif, Quick Edit absent et publication en masse absente.
 
 ## CK-A4 - Templates, Collections et guidage
 
-Exécuter tests/admin-usage-harness.php sous PHP 7.0 et PHP 8.4, puis les harnais historiques. Vérifier les quatre onglets, les quatre sous-onglets, les relations aria-selected/aria-controls, les flèches, Home/End, le focus visible, la copie des shortcodes et des 26 placeholders, ainsi que les tables mobiles.
+Exécuter tests/admin-usage-harness.php sous PHP 7.0 et PHP 8.4, puis les harnais historiques. Vérifier les quatre onglets, les quatre sous-onglets, les relations aria-selected/aria-controls, les flèches, Home/End, le focus visible, la copie des shortcodes et des 36 placeholders, ainsi que les tables mobiles.
 
 Contrôler les trois exemples Fonctionnement et les catalogues Collections. Annuaire doit exposer exactement status, department, country, featured, ids, limit, orderby et order. Générer au moins un shortcode Annuaire, Témoignages et Citations, avec et sans Template, puis tester attribut invalide, résultat vide, module désactivé et alias Annuaire déprécié.
 
@@ -271,7 +271,7 @@ WP_SEED_WORDPRESS_LOAD=/chemin/wp-load.php php tests/wordpress-directory-profile
 
 La matrice WordPress jetable couvre Alice (praticienne), Bruno (intervenant), Céline (les deux), David (praticien avec recherche active), Emma (intervenante avec recherche active), une fiche historique sans nouvelle méta et un brouillon. Elle vérifie les Collections exactes, la confidentialité, les shortcodes, les Templates, la sauvegarde Editor, le refus d'un utilisateur non autorisé, le nonce, la sauvegarde partielle et la migration idempotente.
 
-La recette Divi 5.9.0 doit utiliser un Layout de Template Annuaire, sans Loop Builder, puis vérifier frontend, Visual Builder, profil multi-type, valeur vide, fallback local et intégrité du Layout enregistré.
+La recette historique doit continuer à vérifier le Layout de Template Annuaire, frontend, Visual Builder, profil multi-type, valeur vide, fallback local et intégrité du Layout enregistré. Une recette Native Loop séparée vérifie le nouveau contrat sans altérer ce workflow.
 
 
 ## Annuaire 0.8.0-rc.2 — matrice de validation
@@ -301,7 +301,31 @@ Comparer les IDs, l’ordre et le HTML fonctionnel entre frontend et Visual Buil
 
 Vérifier 1440 × 1000, 820 × 1180, 390 × 844, 320 × 700, zoom 200 %, clavier, focus, mouvement réduit et frontend sans JavaScript. Supprimer ensuite WordPress, base, fixtures, captures brutes, profil navigateur et copie privée de Divi.
 
-Sans Divi, confirmer l’absence du module et de la route, sans fatal ni régression des shortcodes. Ne jamais tester cette capacité avec le Loop Builder natif ou un contournement DOM.
+Sans Divi, confirmer l’absence du module et de la route, sans fatal ni régression des shortcodes. Ne jamais utiliser de contournement DOM ou sérialiser manuellement les tokens Dynamic Content.
+
+## Annuaire / Intervenants Native Divi Loop
+
+Exécuter `tests/directory-builder-meta-contract-harness.php`, `tests/directory-builder-meta-migration-harness.php`, `tests/directory-native-loop-harness.php` et `tests/divi-generic-loop-context-harness.php` sous PHP 7.0 et PHP 8.4, puis rejouer les régressions Témoignages et Citations.
+
+Dans WordPress 7.0.2 avec Divi 5.9.0 exact, créer des fiches jetables couvrant tous, praticiens, intervenants, multi-types, Recherche de modèles, types OR/AND, mise en avant, IDs/exclusions, ordre/limite/offset, fiche sans photo, contact masqué, non listée, non autorisée, brouillon, privée et protégée. La Native Loop doit utiliser le post type Annuaire et le QueryResults canonique, jamais une liste parallèle.
+
+Vérifier le groupe `WPSCK — Annuaire` et ses providers métier individuels. Le provider composite `Coordonnées`, son réglage `Profil de coordonnées` et leurs anciennes options ne doivent plus être proposés. Chaque type actif compatible expose séparément sa valeur, son lien éventuel et sa condition de présence, sans renderer HTML WPSCK.
+
+Pour les briques individuelles, vérifier séparément affichage et cible : Téléphone / `tel:`, E-mail / `mailto:`, Site et réseaux / URL HTTP(S). Le provider d'affichage retourne le libellé facultatif lorsqu'il existe, sinon une représentation lisible du lien complet. Les providers `— Lien` sont de type URL, retournent le href validé sans doubler son schéma et ne créent aucun stockage supplémentaire. Dans une Native Loop, appliquer les conditions `WPSCK — Annuaire — … renseigné` à des groupes Icône + Texte et confirmer leur évaluation clone par clone, leur persistance après deux cycles Save/Close/Reopen et l'absence complète du groupe lorsque le lien public est vide ou invalide. Un libellé sans lien reste absent.
+
+Dans le registre, vérifier que seuls Téléphone et E-mail sont marqués `Système`, ne proposent aucune suppression et restent protégés contre une requête forgée. Supprimer un type configurable inutilisé doit retirer son option, son provider individuel et sa condition ; un type utilisé par une ligne canonique doit rester enregistré, y compris si la ligne est privée ou invalide, et doit pouvoir être désactivé. Une ligne neuve vide se retire sans confirmation, tandis qu'une suppression enregistrée exige une confirmation. Site internet, Facebook et Instagram ne doivent afficher aucun badge `Système` : leur suppression avec usages est bloquée, leur désactivation est autorisée et leurs IDs historiques restent inchangés via le registre de contrats. Vérifier aussi qu'ils utilisent tous `Lien web`, acceptent toute URL HTTP(S) valide et rejettent `javascript:`, `data:` et les URL invalides.
+
+Contrôler trois clones distincts au frontend et dans le Visual Builder, puis un Group Carousel natif avec Loop portée par le Group/slide. Plusieurs lignes du même type conservent leur ordre. Une ligne privée, invalide, rattachée à un type inactif ou appartenant à une fiche inéligible ne doit jamais atteindre le HTML. Vérifier les `href` sûrs, la compatibilité de lecture des anciens formats phone/e-mail, le dry-run de migration vers les liens complets, l'absence de stockage d'icône, de CSS éditorial, de token brut et de fuite REST.
+
+Tester deux designs sur la même donnée canonique : Annuaire détaillé et Intervenants compact avec `profile_type=intervenant`. Aucun `presentation_mode` n'est stocké et aucun provider Profession ne doit exister. L'ancre vaut `annuaire-{ID}`. Les métas publiques sont accessibles via REST authentifié et Block Bindings, tandis que l'autorisation, le listing, les notes et contacts bruts restent privés.
+
+Vérifier aussi le contrat portable de contenu : `post_excerpt` alimente uniquement `directory.summary`, `post_content` alimente uniquement `directory.presentation`/`full_presentation`, et les deux valeurs restent distinctes dans REST, Block Bindings, Dynamic Content et Native Loop. Exécuter `tests/directory-more-marker-harness.php` sous PHP 7.0 et PHP 8.4. Il couvre contenu vide, absence de marqueur, `<!--more-->`, libellé personnalisé, bloc Gutenberg `core/more`, `<!--noteaser-->`, marqueurs multiples, marqueur en début/fin, espaces, HTML, shortcodes et accents. Le premier marqueur définit la frontière; aucun marqueur technique ne subsiste dans les vues publiques.
+
+Confirmer que `directory.presentation_intro`, `directory.presentation_more` et `directory.has_more` sont dérivés à la lecture sans méta ni migration. Sans marqueur, introduction et présentation complète sont identiques, la suite est vide et `has_more` est faux. Aucun champ `read_more_open`, `accordion_state` ou stockage équivalent ne doit exister. Tester résumé vide, présentation vide, valeurs identiques, résumé préfixe et valeurs distinctes ; le composant « Lire la suite » reste une recette du builder, jamais une transformation WPSCK.
+
+Vérifier `seed_directory_professional_label` comme méta publique simple, facultative et REST-enabled. Tester la sanitization texte, la priorité canonique (y compris vide), le fallback et la migration non destructive depuis `_seed_directory_profession`, puis `directory.professional_label` dans la Data API, les Templates, Gutenberg Block Bindings, QueryResults et le provider Divi `loop_wpsck_directory_professional_label`.
+
+Dans Gutenberg, connecter les deux champs à des blocs Core compatibles et utiliser le bloc Details Core lorsqu'il est disponible. Dans Divi, utiliser des modules natifs et, si souhaité, un Toggle ou un Accordion. Documenter Spectra/Astra comme consommateurs possibles des mêmes données via blocs Core, Templates ou adaptateur, sans dépendance ni provider propriétaire. Toute recette repliable doit rester utilisable au clavier et reposer sur `<details>/<summary>` ou un bouton dont `aria-expanded` reflète l'état réel.
 
 ## Régression RC.3 `ids` + `exclude_ids`
 
@@ -318,3 +342,11 @@ Vérifier ensuite une recette Detailed et un Group Carousel natif dont la Loop e
 Pour Detailed, vérifier alternance desktop via les classes opt-in, média en premier sur mobile et zoom 200 %. Les Grid Offset Rules natives ciblent les enfants directs du conteneur et ne remplacent pas la règle paire/impaire du clone Loop.
 
 Confirmer enfin que `post_title`, `post_excerpt`, l’image mise en avant et les métas publiques `seed_testimonial_text`, `seed_testimonial_name`, `seed_testimonial_context` restent accessibles au contrat builder-agnostic. La date absente demeure vide. Aucun test permanent ne doit contenir d’ID ou d’URL de recette DEV.
+
+## Modèle éditorial Annuaire
+
+Exécuter `tests/directory-editorial-model-harness.php` sous PHP 7.0.33 et PHP 8.4.23. Il couvre les registries Statuts/Types, le renommage sans changement de slug, l'ajout, la désactivation sûre, la suppression explicite d'une valeur custom inutilisée, le blocage d'une valeur utilisée ou système, la priorité canonique, les fallbacks `practicing` et `seeking_models`, le multi-profile, la projection idempotente, le rebuild, l'audit d'écart, les filtres Collection, les tris simples/composés, l'adaptateur taxonomy Divi et le cycle synthétique dry-run/apply/rollback.
+
+Dans WordPress, vérifier que l'admin utilise `post_title` comme « Nom de la personne », l'image mise en avant comme « Photo de la personne » et un unique bloc Classement pour Types, Statut et `menu_order`. La case legacy Recherche de modèles ne doit plus être éditable. La Configuration Annuaire affiche uniquement Types de profil, Statuts et Types de coordonnées. Les trois registres proposent le retrait immédiat d'une ligne neuve, la suppression confirmée d'une valeur custom inutilisée, le blocage avec comptage d'usage et la désactivation non destructive.
+
+Avant toute migration réelle, exécuter uniquement `wp_seed_content_directory_classification_migration_dry_run()` et conserver son rapport. Confirmer les populations et avertissements fiche par fiche. Ne lancer `apply` qu'après autorisation séparée ; tester auparavant sur données jetables que le rollback restaure exactement les metas publiques/privées, les termes et `menu_order`.

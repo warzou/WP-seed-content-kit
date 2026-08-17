@@ -1,0 +1,60 @@
+@media (min-width: 981px) {
+    .wpsck-testimonial-loop--alternating:nth-child(odd) > .wpsck-testimonial-loop__media,
+    .wpsck-loop--alternating:nth-child(odd) > .wpsck-loop__media,
+    .wpsck-loop--alternating:nth-child(odd) > .wpsck-loop__layout > .wpsck-loop__media {
+        order: 1;
+    }
+
+    .wpsck-testimonial-loop--alternating:nth-child(odd) > .wpsck-testimonial-loop__content,
+    .wpsck-loop--alternating:nth-child(odd) > .wpsck-loop__content,
+    .wpsck-loop--alternating:nth-child(odd) > .wpsck-loop__layout > .wpsck-loop__content {
+        order: 2;
+    }
+
+    .wpsck-testimonial-loop--alternating:nth-child(even) > .wpsck-testimonial-loop__media,
+    .wpsck-loop--alternating:nth-child(even) > .wpsck-loop__media,
+    .wpsck-loop--alternating:nth-child(even) > .wpsck-loop__layout > .wpsck-loop__media {
+        order: 2;
+    }
+
+    .wpsck-testimonial-loop--alternating:nth-child(even) > .wpsck-testimonial-loop__content,
+    .wpsck-loop--alternating:nth-child(even) > .wpsck-loop__content,
+    .wpsck-loop--alternating:nth-child(even) > .wpsck-loop__layout > .wpsck-loop__content {
+        order: 1;
+    }
+}
+
+@media (max-width: 980px) {
+    .wpsck-testimonial-loop--alternating,
+    .wpsck-loop--alternating,
+    .wpsck-loop--alternating > .wpsck-loop__layout {
+        display: flex !important;
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .wpsck-testimonial-loop--alternating > .wpsck-testimonial-loop__media,
+    .wpsck-testimonial-loop--alternating > .wpsck-testimonial-loop__content,
+    .wpsck-loop--alternating > .wpsck-loop__media,
+    .wpsck-loop--alternating > .wpsck-loop__content,
+    .wpsck-loop--alternating > .wpsck-loop__layout > .wpsck-loop__media,
+    .wpsck-loop--alternating > .wpsck-loop__layout > .wpsck-loop__content {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        flex: 0 0 100% !important;
+        grid-column: 1 / -1 !important;
+    }
+
+    .wpsck-testimonial-loop--alternating > .wpsck-testimonial-loop__media,
+    .wpsck-loop--alternating > .wpsck-loop__media,
+    .wpsck-loop--alternating > .wpsck-loop__layout > .wpsck-loop__media {
+        order: 1;
+    }
+
+    .wpsck-testimonial-loop--alternating > .wpsck-testimonial-loop__content,
+    .wpsck-loop--alternating > .wpsck-loop__content,
+    .wpsck-loop--alternating > .wpsck-loop__layout > .wpsck-loop__content {
+        order: 2;
+    }
+}

@@ -38,15 +38,37 @@ add_action('init', 'wp_seed_content_register_gutenberg_block_bindings_source', 1
 function wp_seed_content_get_gutenberg_binding_value($source_args, $block_instance, $attribute_name)
 {
     static $allowed_fields = array(
-        'quote.quote',
-        'quote.author',
-        'quote.era',
-        'quote.source',
-        'testimonial.text',
-        'testimonial.name',
-        'testimonial.context',
-        'testimonial.testimonial_date',
+        'quote.quote' => 'text',
+        'quote.author' => 'text',
+        'quote.era' => 'text',
+        'quote.source' => 'text',
+        'testimonial.text' => 'text',
+        'testimonial.name' => 'text',
+        'testimonial.context' => 'text',
+        'testimonial.testimonial_date' => 'text',
+        'directory.photo' => 'image',
+        'directory.name' => 'text',
+        'directory.professional_label' => 'text',
+        'directory.summary' => 'text',
+        'directory.presentation' => 'text',
+        'directory.presentation_intro' => 'text',
+        'directory.presentation_more' => 'text',
+        'directory.status' => 'text',
+        'directory.profile_types' => 'text',
+        'directory.seeking_models' => 'text',
+        'directory.location' => 'text',
+        'directory.id' => 'text',
+        'directory.anchor' => 'text',
     );
+
+    if (function_exists('wp_seed_content_directory_individual_contact_provider_definitions')) {
+        foreach (wp_seed_content_directory_individual_contact_provider_definitions() as $definition) {
+            $allowed_fields[$definition['display_field_id']] = 'text';
+            if (!empty($definition['has_href'])) {
+                $allowed_fields[$definition['href_field_id']] = 'url';
+            }
+        }
+    }
 
     if (!is_array($source_args) || !array_key_exists('field_id', $source_args)) {
         return null;
@@ -57,7 +79,7 @@ function wp_seed_content_get_gutenberg_binding_value($source_args, $block_instan
     }
 
     $field_id = trim($source_args['field_id']);
-    if ('' === $field_id || !in_array($field_id, $allowed_fields, true)) {
+    if ('' === $field_id || !isset($allowed_fields[$field_id])) {
         return null;
     }
 
@@ -77,11 +99,20 @@ function wp_seed_content_get_gutenberg_binding_value($source_args, $block_instan
         $block_name = $block_instance->block_type->name;
     }
 
-    if (!in_array($block_name, array('core/paragraph', 'core/heading'), true)) {
-        return null;
-    }
-
-    if (!is_string($attribute_name) || 'content' !== $attribute_name) {
+    $field_type = $allowed_fields[$field_id];
+    $valid_target = 'text' === $field_type
+        && in_array($block_name, array('core/paragraph', 'core/heading'), true)
+        && is_string($attribute_name)
+        && 'content' === $attribute_name;
+    $valid_target = $valid_target || ('url' === $field_type
+        && 'core/button' === $block_name
+        && is_string($attribute_name)
+        && 'url' === $attribute_name);
+    $valid_target = $valid_target || ('image' === $field_type
+        && 'core/image' === $block_name
+        && is_string($attribute_name)
+        && in_array($attribute_name, array('id', 'url', 'alt'), true));
+    if (!$valid_target) {
         return null;
     }
 
@@ -113,6 +144,18 @@ function wp_seed_content_get_gutenberg_binding_value($source_args, $block_instan
 
     if (is_wp_error($value)) {
         return null;
+    }
+
+    if ('image' === $field_type) {
+        if (!is_array($value)) {
+            return null;
+        }
+        if ('id' === $attribute_name) {
+            return isset($value['id']) ? absint($value['id']) : 0;
+        }
+        return isset($value[$attribute_name]) && is_string($value[$attribute_name])
+            ? $value[$attribute_name]
+            : '';
     }
 
     return is_string($value) ? $value : null;

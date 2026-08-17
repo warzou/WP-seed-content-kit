@@ -174,6 +174,34 @@ function wp_seed_content_directory_is_publicly_eligible($post_id)
 {
     return !empty($GLOBALS['seed_l4_eligible'][$post_id]);
 }
+function wp_seed_content_directory_individual_contact_provider_definitions()
+{
+    $slugs = array('phone', 'email', 'website', 'facebook', 'instagram', 'linkedin', 'whatsapp', 'address');
+    $definitions = array();
+    foreach ($slugs as $slug) {
+        $has_href = 'address' !== $slug;
+        $definitions[$slug] = array(
+            'slug' => $slug,
+            'display_field_id' => 'directory.' . $slug,
+            'href_field_id' => $has_href ? 'directory.' . $slug . '_href' : '',
+            'has_href' => $has_href,
+        );
+    }
+    return $definitions;
+}
+function wp_seed_content_directory_get_public_contact_rows($post_id)
+{
+    $rows = array();
+    $phone = get_post_meta($post_id, '_seed_directory_phone', true);
+    if ('1' === get_post_meta($post_id, '_seed_directory_phone_visible', true) && '' !== $phone) {
+        $rows[] = array('type' => 'phone', 'value' => $phone, 'href' => 'tel:' . preg_replace('/[^0-9+]/', '', $phone));
+    }
+    $email = get_post_meta($post_id, '_seed_directory_email', true);
+    if ('1' === get_post_meta($post_id, '_seed_directory_email_visible', true) && '' !== $email) {
+        $rows[] = array('type' => 'email', 'value' => $email, 'href' => 'mailto:' . $email);
+    }
+    return $rows;
+}
 function current_user_can($capability, $post_id = 0)
 {
     return false;
@@ -209,6 +237,7 @@ function wp_seed_content_sanitize_iso_date($value)
 
 require WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-render-result.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/fields.php';
+require WP_SEED_CONTENT_KIT_DIR . 'includes/core/content-data.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/data.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/collections.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/assets.php';
@@ -239,10 +268,23 @@ $GLOBALS['seed_l4_meta'][1]['_seed_directory_phone_visible'] = '1';
 $GLOBALS['seed_l4_meta'][1]['_seed_directory_email'] = 'PRIVATE-L4@example.test';
 $GLOBALS['seed_l4_meta'][1]['_seed_directory_email_visible'] = '';
 $GLOBALS['seed_l4_meta'][1]['_seed_directory_internal_note'] = 'PRIVATE-L4-NOTE';
+$GLOBALS['seed_l4_meta'][1]['_seed_directory_profession'] = 'Psychopraticienne';
 
 $data = wp_seed_content_directory_get_public_data(1);
-seed_l4_same(array('id', 'name', 'photo', 'summary', 'bio', 'full_presentation', 'publicly_listed', 'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label', 'seeking_models', 'seeking_models_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($data), 'Fixed public schema');
+seed_l4_same(array(
+    'id', 'name', 'professional_label', 'photo', 'summary', 'bio', 'presentation', 'full_presentation',
+    'presentation_intro', 'presentation_more', 'has_more', 'publicly_listed',
+    'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label',
+    'seeking_models', 'seeking_models_label', 'location', 'location_label', 'featured',
+    'display_order', 'contacts', 'contact_rows', 'phone', 'email', 'website', 'facebook', 'instagram',
+    'linkedin', 'whatsapp', 'address',
+    'phone_href', 'email_href', 'website_href', 'facebook_href', 'instagram_href',
+    'linkedin_href', 'whatsapp_href', 'anchor',
+), array_keys($data), 'Fixed public schema');
 seed_l4_same(array('phone' => '+33 1 00 00 00 01'), $data['contacts'], 'Only visible contact returned');
+seed_l4_same('tel:+33100000001', $data['phone_href'], 'Public phone href is derived independently from its display value');
+seed_l4_same('', $data['email_href'], 'Private e-mail never reaches the href projection');
+seed_l4_same('Psychopraticienne', $data['professional_label'], 'Legacy profession reaches the professional label projection');
 seed_l4_assert(false === strpos(serialize($data), 'PRIVATE-L4'), 'Public data excludes private sentinels');
 seed_l4_same(false, wp_seed_content_directory_get_public_data(4), 'Ineligible entry returns false');
 seed_l4_same(array('city', 'postal_code', 'department', 'country'), array_keys($data['location']), 'Location schema');
@@ -334,7 +376,9 @@ wp_seed_content_directory_register_template_module();
 seed_l4_same('directory', $GLOBALS['seed_l4_template_module'][0], 'Directory template module registered');
 $definitions = $GLOBALS['seed_l4_template_module'][1]['placeholders'];
 $expected_placeholders = array(
-    'directory.name', 'directory.photo', 'directory.summary', 'directory.bio', 'directory.full_presentation', 'directory.status', 'directory.status_label',
+    'directory.name', 'directory.photo', 'directory.summary', 'directory.bio', 'directory.professional_label', 'directory.full_presentation',
+    'directory.presentation', 'directory.presentation_intro', 'directory.presentation_more', 'directory.has_more',
+    'directory.status', 'directory.status_label',
     'directory.profile_types', 'directory.profile_type_slugs', 'directory.seeking_models', 'directory.seeking_models_active',
     'directory.city', 'directory.postal_code', 'directory.department', 'directory.country',
     'directory.phone', 'directory.email', 'directory.website', 'directory.facebook',

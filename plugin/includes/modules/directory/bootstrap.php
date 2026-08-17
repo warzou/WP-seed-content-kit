@@ -5,10 +5,17 @@ if (!defined('ABSPATH')) {
 }
 
 require_once __DIR__ . '/capabilities.php';
+require_once __DIR__ . '/classification-registry.php';
 require_once __DIR__ . '/fields.php';
+require_once __DIR__ . '/contact-registry.php';
+require_once __DIR__ . '/contacts.php';
+require_once __DIR__ . '/builder-meta.php';
+require_once __DIR__ . '/builder-meta-migration.php';
+require_once __DIR__ . '/contact-migration.php';
 require_once __DIR__ . '/profile-upgrade.php';
 require_once __DIR__ . '/public-listing-upgrade.php';
 require_once __DIR__ . '/post-type.php';
+require_once __DIR__ . '/classification-taxonomies.php';
 require_once __DIR__ . '/validation.php';
 require_once __DIR__ . '/data.php';
 require_once __DIR__ . '/admin.php';
@@ -19,7 +26,10 @@ require_once __DIR__ . '/render.php';
 require_once __DIR__ . '/collection-renderer.php';
 require_once __DIR__ . '/shortcode.php';
 require_once __DIR__ . '/migration.php';
+require_once __DIR__ . '/classification-migration.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/directory-collection.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/directory-collection-query.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/directory-has-more-condition.php';
 
 function wp_seed_content_directory_filter_row_actions($actions, $post)
 {

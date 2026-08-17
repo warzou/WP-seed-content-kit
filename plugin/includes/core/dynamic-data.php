@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 
 function wp_seed_content_get_dynamic_data_fields()
 {
-    return array(
+    $fields = array(
         'quote.quote' => array(
             'id' => 'quote.quote',
             'label' => __('Citation', 'wp-seed-content-kit'),
@@ -178,7 +178,93 @@ function wp_seed_content_get_dynamic_data_fields()
             'data_key' => 'display_order',
             'empty_value' => 0,
         ),
+        'directory.photo' => array(
+            'id' => 'directory.photo', 'label' => __('Visuel', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'image', 'post_type' => 'seed_directory', 'data_key' => 'photo', 'empty_value' => null,
+        ),
+        'directory.name' => array(
+            'id' => 'directory.name', 'label' => __('Nom', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'name', 'empty_value' => '',
+        ),
+        'directory.professional_label' => array(
+            'id' => 'directory.professional_label', 'label' => __('Intitulé professionnel', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'professional_label', 'empty_value' => '',
+        ),
+        'directory.summary' => array(
+            'id' => 'directory.summary', 'label' => __('Résumé', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'textarea', 'post_type' => 'seed_directory', 'data_key' => 'summary', 'empty_value' => '',
+        ),
+        'directory.presentation' => array(
+            'id' => 'directory.presentation', 'label' => __('Présentation', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'textarea', 'post_type' => 'seed_directory', 'data_key' => 'presentation', 'empty_value' => '',
+        ),
+        'directory.presentation_intro' => array(
+            'id' => 'directory.presentation_intro', 'label' => __('Introduction', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'textarea', 'post_type' => 'seed_directory', 'data_key' => 'presentation_intro', 'empty_value' => '',
+        ),
+        'directory.presentation_more' => array(
+            'id' => 'directory.presentation_more', 'label' => __('Suite de présentation', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'textarea', 'post_type' => 'seed_directory', 'data_key' => 'presentation_more', 'empty_value' => '',
+        ),
+        'directory.has_more' => array(
+            'id' => 'directory.has_more', 'label' => __('A une suite', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'boolean', 'post_type' => 'seed_directory', 'data_key' => 'has_more', 'empty_value' => false,
+        ),
+        'directory.status' => array(
+            'id' => 'directory.status', 'label' => __('Statut', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'status_label', 'empty_value' => '',
+        ),
+        'directory.profile_types' => array(
+            'id' => 'directory.profile_types', 'label' => __('Types de profil', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'profile_types_label', 'empty_value' => '',
+        ),
+        'directory.seeking_models' => array(
+            'id' => 'directory.seeking_models', 'label' => __('Recherche de modèles', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'seeking_models_label', 'empty_value' => '',
+        ),
+        'directory.location' => array(
+            'id' => 'directory.location', 'label' => __('Localisation', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'location_label', 'empty_value' => '',
+        ),
+        'directory.id' => array(
+            'id' => 'directory.id', 'label' => __('ID', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'id', 'empty_value' => '',
+        ),
+        'directory.anchor' => array(
+            'id' => 'directory.anchor', 'label' => __('Ancre', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'anchor', 'empty_value' => '',
+        ),
     );
+
+    if (function_exists('wp_seed_content_directory_individual_contact_provider_definitions')) {
+        $provider_definitions = wp_seed_content_directory_individual_contact_provider_definitions();
+        foreach ($provider_definitions as $definition) {
+            $fields[$definition['display_field_id']] = array(
+                'id' => $definition['display_field_id'],
+                'label' => $definition['label'],
+                'module' => 'directory',
+                'type' => 'text',
+                'post_type' => 'seed_directory',
+                'data_key' => $definition['slug'],
+                'empty_value' => '',
+            );
+        }
+        foreach ($provider_definitions as $definition) {
+            if (!empty($definition['has_href'])) {
+                $fields[$definition['href_field_id']] = array(
+                    'id' => $definition['href_field_id'],
+                    'label' => $definition['label'] . ' — Lien',
+                    'module' => 'directory',
+                    'type' => 'url',
+                    'post_type' => 'seed_directory',
+                    'data_key' => $definition['slug'] . '_href',
+                    'empty_value' => '',
+                );
+            }
+        }
+    }
+
+    return $fields;
 }
 
 function wp_seed_content_get_dynamic_data_field($field_id)
@@ -231,7 +317,7 @@ function _wp_seed_content_get_dynamic_data_context_post_id($context)
 
 function _wp_seed_content_normalize_dynamic_data_value($value, $type)
 {
-    if ('text' === $type || 'textarea' === $type) {
+    if ('text' === $type || 'textarea' === $type || 'url' === $type) {
         return is_scalar($value) ? (string) $value : '';
     }
 
@@ -290,6 +376,8 @@ function wp_seed_content_resolve_dynamic_data($field_id, $context = array())
         $data = wp_seed_content_get_quote_data($post_id, $args);
     } elseif ('testimonials' === $definition['module']) {
         $data = wp_seed_content_get_testimonial_data($post_id, $args);
+    } elseif ('directory' === $definition['module']) {
+        $data = wp_seed_content_get_directory_data($post_id, $args);
     } else {
         return $empty_value;
     }

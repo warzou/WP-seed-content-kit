@@ -59,6 +59,7 @@ function wp_parse_url($value) { return parse_url($value); }
 function absint($value) { return abs((int) $value); }
 function remove_accents($value) { return strtr($value, array('é' => 'e', 'É' => 'E')); }
 function add_action($hook, $callback, $priority = 10, $accepted_args = 1) {}
+function add_filter($hook, $callback, $priority = 10, $accepted_args = 1) { $GLOBALS['dpt_filters'][$hook][] = $callback; }
 function apply_filters($hook, $value) { return $value; }
 function add_shortcode($tag, $callback) { $GLOBALS['dpt_shortcodes'][$tag] = $callback; }
 function shortcode_atts($defaults, $atts, $tag = '') { return array_merge($defaults, is_array($atts) ? $atts : array()); }
@@ -136,6 +137,7 @@ function wp_seed_content_directory_is_publicly_eligible($post_id)
 }
 
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/fields.php';
+require WP_SEED_CONTENT_KIT_DIR . 'includes/core/content-data.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/data.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/collections.php';
 require WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/templates.php';
@@ -208,7 +210,7 @@ dpt_same(false, wp_seed_content_directory_get_public_data(16), 'Protected profil
 $GLOBALS['dpt_posts'][16]->post_password = '';
 
 wp_seed_content_directory_register_template_module();
-dpt_same(21, count($GLOBALS['dpt_template_module'][1]['placeholders']), 'Twenty-one public Directory placeholders');
+dpt_same(26, count($GLOBALS['dpt_template_module'][1]['placeholders']), 'Twenty-six public Directory placeholders');
 dpt_same($celine['summary'], $celine['bio'], 'Historical bio remains a strict summary alias');
 dpt_same('', $celine['full_presentation'], 'Missing long presentation is a clean empty value');
 $celine_context = wp_seed_content_directory_get_template_context($celine);
@@ -301,9 +303,85 @@ $full = wp_seed_content_directory_get_public_data(20);
 dpt_same('Resume court 20', $full['summary'], 'Summary remains sourced from post_excerpt');
 dpt_same('Resume court 20', $full['bio'], 'Bio remains the strict summary alias');
 dpt_same('<p>Presentation complete 20</p>', $full['full_presentation'], 'Full presentation remains independently sourced from post_content');
+dpt_same($full['full_presentation'], $full['presentation'], 'Canonical presentation and legacy alias match');
+dpt_same($full['presentation'], $full['presentation_intro'], 'No marker uses full presentation as intro');
+dpt_same('', $full['presentation_more'], 'No marker has an empty continuation');
+dpt_same(false, $full['has_more'], 'No marker has false continuation flag');
+$GLOBALS['dpt_posts'][20]->post_content = '<p>Introduction 20</p><!--more--><p>Suite 20</p>';
+$split = wp_seed_content_directory_get_public_data(20);
+dpt_same('<p>Introduction 20</p><p>Suite 20</p>', $split['presentation'], 'Marker removed from full public presentation');
+dpt_same('<p>Introduction 20</p>', $split['presentation_intro'], 'Public intro rendered before marker');
+dpt_same('<p>Suite 20</p>', $split['presentation_more'], 'Public continuation rendered after marker');
+dpt_same(true, $split['has_more'], 'Marker has true continuation flag');
+$GLOBALS['dpt_posts'][20]->post_content = '<p>Presentation complete 20</p>';
 $full_context = wp_seed_content_directory_get_template_context($full);
 dpt_same($full['summary'], $full_context['directory.summary'], 'Template summary is available');
 dpt_same($full['full_presentation'], $full_context['directory.full_presentation'], 'Template full presentation is available');
+
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/collection-query.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/directory-collection-query.php';
+
+dpt_same(
+    array('post', 'seed_directory'),
+    wp_seed_content_divi_directory_loop_post_types(array('post'), '/divi/v1/loop/query-types'),
+    'Directory Loop post type is exposed to the Divi query-types request'
+);
+dpt_same(
+    array('post', 'seed_directory'),
+    wp_seed_content_divi_directory_loop_post_types(array('post'), '/divi/v1/loop/query-results'),
+    'Directory Loop post type is exposed to the Divi query-results request'
+);
+dpt_same(
+    array('post'),
+    wp_seed_content_divi_directory_loop_post_types(array('post'), '/divi/v1/layouts'),
+    'Directory Loop post type is not globally allowlisted'
+);
+$directory_loop_request = new class {
+    public function get_route()
+    {
+        return '/divi/v1/loop/query-results';
+    }
+};
+$GLOBALS['wp_post_types']['seed_directory'] = (object) array('publicly_queryable' => false);
+wp_seed_content_divi_directory_open_loop_results_request(null, null, $directory_loop_request);
+dpt_same(true, $GLOBALS['wp_post_types']['seed_directory']->publicly_queryable, 'Directory is queryable during the Divi results callback only');
+wp_seed_content_divi_directory_close_loop_results_request(null, null, $directory_loop_request);
+dpt_same(false, $GLOBALS['wp_post_types']['seed_directory']->publicly_queryable, 'Directory privacy is restored after the Divi results callback');
+$directory_loop_query = array(
+    'post_type' => array('seed_directory'),
+    'posts_per_page' => 3,
+    'orderby' => 'wp_seed_content_directory_name',
+    'order' => 'ASC',
+    'meta_query' => array(array('key' => 'wp_seed_content_directory_profile_type', 'value' => 'intervenant')),
+);
+$directory_loop_expected = wp_seed_content_directory_get_entries(array('profile_type' => 'intervenant', 'orderby' => 'name', 'order' => 'asc'));
+$directory_loop_adapted = wp_seed_content_divi_apply_directory_collection_query($directory_loop_query);
+dpt_same($directory_loop_expected, $directory_loop_adapted['post__in'], 'Divi frontend uses canonical Directory collection');
+dpt_same('post__in', $directory_loop_adapted['orderby'], 'Divi preserves canonical collection order');
+dpt_same(3, $directory_loop_adapted['posts_per_page'], 'Divi owns Loop pagination');
+dpt_same(false, isset($directory_loop_adapted['meta_query']), 'Virtual Directory filter removed before WordPress query');
+$directory_loop_rest = wp_seed_content_divi_filter_directory_collection_rest_query_args(
+    $directory_loop_query,
+    array('order_by' => 'wp_seed_content_directory_name')
+);
+dpt_same($directory_loop_adapted['post__in'], $directory_loop_rest['post__in'], 'Visual Builder collection matches frontend');
+
+$directory_loop_query_object = new class($directory_loop_query) {
+    public $query_vars;
+
+    public function __construct($query_vars)
+    {
+        $this->query_vars = $query_vars;
+    }
+
+    public function set($key, $value)
+    {
+        $this->query_vars[$key] = $value;
+    }
+};
+wp_seed_content_divi_filter_directory_collection_wp_query($directory_loop_query_object);
+dpt_same($directory_loop_expected, $directory_loop_query_object->query_vars['post__in'], 'Final WP_Query fallback preserves the canonical Directory collection');
+dpt_same(array(), $directory_loop_query_object->query_vars['meta_query'], 'Final WP_Query fallback removes virtual Directory fields');
 
 if (!empty($GLOBALS['dpt_failures'])) {
     fwrite(STDERR, 'FAIL ' . count($GLOBALS['dpt_failures']) . ' / ' . $GLOBALS['dpt_assertions'] . PHP_EOL);

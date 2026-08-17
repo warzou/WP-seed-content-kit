@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.8.0-rc.5, contrats Native Divi Loop Témoignages et Citations validés, non stable.
+Statut du package : 0.8.0-rc.6, contrat Annuaire portable et Native Divi Loop validé, non stable.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -41,9 +41,9 @@ Le stockage builder-compatible utilise `post_title`, `post_excerpt`, l’image m
 
 Le module natif Annuaire fournit son CPT administratif privé, vingt-deux métas validées, autorisation explicite et garde de publication. L4 ajoute une Data API publique fermee, des Collections par IDs, [seed_directory], deux groupes automatiques, une carte native responsive et des Templates Content Kit.
 
-Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, REST/AJAX, import métier automatique ou adaptateur inter-plugin. Les mises à niveau runtime restent additives : RC.1 copie l'ancien statut de recherche vers le booléen dédié sans attribuer de type ; RC.2 initialise uniquement la visibilité publique des fiches déjà publiées et non protégées sans valeur explicite.
+Seuls les contacts valides et explicitement visibles sont publics. Il n'existe aucune page individuelle, archive, recherche, AJAX public, import métier automatique ou adaptateur inter-plugin. Le CPT privé dispose d'une route REST authentifiée et de métas publiques builder-compatible pour Gutenberg et les constructeurs. Les mises à niveau runtime restent additives : RC.1 copie l'ancien statut de recherche vers le booléen dédié sans attribuer de type ; RC.2 initialise uniquement la visibilité publique des fiches déjà publiées et non protégées sans valeur explicite.
 
-CK-A3 fournit à Editor et Administrator une fiche désormais organisée en cinq panneaux avec nom affiché, profil multi-usages, statut historique, localisation, présentation/photo, coordonnées et autorisation. Les cinq visibilités sont désactivées par défaut. Une coordonnée peut rester privée en brouillon ; si elle est rendue publique, une valeur vide ou invalide bloque la publication avec un message lié au champ.
+CK-A3 fournit à Editor et Administrator une fiche organisée en cinq panneaux avec nom affiché, profil multi-usages, statut historique, localisation, présentation/photo, coordonnées et autorisation. Les coordonnées sont des lignes répétables, ordonnées et privées par défaut. Le registry administratif propose Téléphone et E-mail sur une installation neuve, puis accepte des types supplémentaires à slug stable et comportement de lien contrôlé. Les builders consomment séparément les valeurs, liens et conditions de présence registry-driven afin de conserver la maîtrise du design. Une coordonnée peut rester privée en brouillon ; si elle est rendue publique, une valeur vide ou invalide bloque la publication avec un message lié au champ.
 
 ### Cards
 
@@ -89,7 +89,9 @@ Sous Divi 5.9.0, le groupe « WPSCK — Témoignages » regroupe Visuel, Titre, 
 
 La Loop peut également porter le Group/slide d’un Group Carousel natif Divi. Les providers récupèrent alors le contexte imbriqué par `loop_id` ou `loop_object` ; aucun Carousel propriétaire n’est ajouté par WPSCK. Divi contrôle présentation et responsive, tandis que WPSCK contrôle données, requête, consentement et providers.
 
-Le stockage reste builder-agnostic et compatible avec Gutenberg/custom-fields ainsi qu’avec de futurs adaptateurs Spectra/Astra. Faute de condition native Divi 5.9.0 sur la parité du clone Loop, seule l’alternance Detailed dispose d’un CSS structurel opt-in, sans style éditorial.
+Le stockage reste builder-agnostic et compatible avec Gutenberg/custom-fields ainsi qu’avec de futurs adaptateurs Spectra/Astra. Annuaire réutilise les champs WordPress natifs et neuf métas publiques `seed_directory_*`, dont l'intitulé professionnel facultatif ; les métas privées historiques restent uniquement des fallbacks. Son groupe `WPSCK — Annuaire` expose les providers métier, dont les vues complète, introduction et suite dérivées du bloc More WordPress, dans les Native Loops et les Group Carousels natifs. L'intitulé professionnel reste une donnée éditoriale distincte des types de profil Praticien et Intervenant.
+
+Faute de condition native Divi 5.9.0 sur la parité du clone Loop, seule l’alternance Detailed Témoignages dispose d’un CSS structurel opt-in, sans style éditorial.
 
 ## Template Extension API
 
@@ -241,7 +243,7 @@ Le frontend et le Visual Builder utilisent le même renderer que `[seed_director
 
 Une fiche non listée, brouillon, privée, protégée ou non autorisée reste absente même si son ID est saisi dans le module. Le fallback Template reste local à chaque carte.
 
-Le module est chargé uniquement lorsque Divi 5 est disponible. Sans Divi, le plugin et les shortcodes fonctionnent normalement. Le Loop Builder natif Divi n’est pas pris en charge.
+Le module est chargé uniquement lorsque Divi 5 est disponible. Sans Divi, le plugin et les shortcodes fonctionnent normalement. Le Loop Builder natif consomme la même Collection Annuaire via les providers `loop_wpsck_directory_*`, sans remplacer le module de Collection historique.
 
 ### Annuaire RC.3
 

@@ -95,7 +95,42 @@ function wp_seed_content_divi_loop_dynamic_data_sources()
             'wpsck_quote_era' => array('field_id' => 'quote.era', 'type' => 'text'),
             'wpsck_quote_source' => array('field_id' => 'quote.source', 'type' => 'text'),
         ),
+        'seed_directory' => array(
+            'wpsck_directory_visual' => array('field_id' => 'directory.photo', 'type' => 'image'),
+            'wpsck_directory_name' => array('field_id' => 'directory.name', 'type' => 'text'),
+            'wpsck_directory_professional_label' => array('field_id' => 'directory.professional_label', 'type' => 'text'),
+            'wpsck_directory_summary' => array('field_id' => 'directory.summary', 'type' => 'text'),
+            'wpsck_directory_presentation' => array('field_id' => 'directory.presentation', 'type' => 'text'),
+            'wpsck_directory_presentation_intro' => array('field_id' => 'directory.presentation_intro', 'type' => 'text'),
+            'wpsck_directory_presentation_more' => array('field_id' => 'directory.presentation_more', 'type' => 'text'),
+            'wpsck_directory_status' => array('field_id' => 'directory.status', 'type' => 'text'),
+            'wpsck_directory_profile_types' => array('field_id' => 'directory.profile_types', 'type' => 'text'),
+            'wpsck_directory_seeking_models' => array('field_id' => 'directory.seeking_models', 'type' => 'text'),
+            'wpsck_directory_location' => array('field_id' => 'directory.location', 'type' => 'text'),
+            'wpsck_directory_id' => array('field_id' => 'directory.id', 'type' => 'text'),
+            'wpsck_directory_anchor' => array('field_id' => 'directory.anchor', 'type' => 'text'),
+        ),
     );
+
+    if (function_exists('wp_seed_content_directory_individual_contact_provider_definitions')) {
+        $provider_definitions = wp_seed_content_directory_individual_contact_provider_definitions();
+        foreach ($provider_definitions as $definition) {
+            $display_name = substr($definition['display_provider_id'], strlen('loop_'));
+            $sources['seed_directory'][$display_name] = array(
+                'field_id' => $definition['display_field_id'],
+                'type' => 'text',
+            );
+        }
+        foreach ($provider_definitions as $definition) {
+            if (!empty($definition['has_href'])) {
+                $href_name = substr($definition['href_provider_id'], strlen('loop_'));
+                $sources['seed_directory'][$href_name] = array(
+                    'field_id' => $definition['href_field_id'],
+                    'type' => 'url',
+                );
+            }
+        }
+    }
 
     return function_exists('apply_filters')
         ? apply_filters('wp_seed_content_divi_loop_dynamic_data_sources', $sources)
@@ -118,6 +153,7 @@ function wp_seed_content_divi_legacy_loop_provider_names()
         'wp_seed_content_quote_author' => 'loop_wpsck_quote_author',
         'wp_seed_content_quote_era' => 'loop_wpsck_quote_era',
         'wp_seed_content_quote_source' => 'loop_wpsck_quote_source',
+        'wpsck_directory_presentation_more' => 'loop_wpsck_directory_presentation_more',
     );
 }
 
@@ -184,6 +220,10 @@ function wp_seed_content_divi_loop_item_is_public($post_type, $post_id)
     if ('seed_testimonial' === $post_type) {
         return function_exists('wp_seed_content_testimonial_is_publicly_visible')
             && wp_seed_content_testimonial_is_publicly_visible($post_id);
+    }
+    if ('seed_directory' === $post_type) {
+        return function_exists('wp_seed_content_directory_is_publicly_eligible')
+            && wp_seed_content_directory_is_publicly_eligible($post_id);
     }
 
     $post = get_post($post_id);
@@ -271,6 +311,8 @@ function wp_seed_content_divi_add_loop_dynamic_data($response, $server, $request
     return $response;
 }
 if (function_exists('add_filter')) {
+    add_filter('the_content', 'wp_seed_content_divi_normalize_legacy_loop_provider_tokens', 7);
+    add_filter('et_builder_render_layout', 'wp_seed_content_divi_normalize_legacy_loop_provider_tokens', 7);
     add_filter('rest_post_dispatch', 'wp_seed_content_divi_add_loop_dynamic_data', 10, 3);
     add_filter(
         'divi_visual_builder_settings_data_post_content',

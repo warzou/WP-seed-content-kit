@@ -344,6 +344,16 @@ En 0.8.0-rc.1, cette structure ajoute les types normalisés et le statut tempora
 
 ## Annuaire 0.8.0-rc.2 — présentations publiques
 
-La projection Annuaire ajoute `summary`, `full_presentation` et `publicly_listed`. `bio` reste strictement égal à `summary`. `full_presentation` provient de `post_content`, suit le rendu WordPress puis le filtrage HTML public; une valeur absente devient `""`. `publicly_listed` vaut toujours `true` dans une projection obtenue avec succès, car une fiche non listée retourne `false` avant toute donnée.
+La projection Annuaire ajoute `summary`, `presentation`, `full_presentation`, `presentation_intro`, `presentation_more`, `has_more` et `publicly_listed`. `bio` reste strictement égal à `summary`, et `full_presentation` reste un alias rétrocompatible de `presentation`. Les vues de présentation proviennent uniquement de `post_content`, suivent le rendu WordPress puis le filtrage HTML public; une valeur absente devient `""`. `publicly_listed` vaut toujours `true` dans une projection obtenue avec succès, car une fiche non listée retourne `false` avant toute donnée.
 
 Aucune donnée privée nouvelle n’est exposée. La projection ne fournit ni note interne, valeur de consentement, coordonnées masquées ni méta brute de visibilité.
+
+Le contrat Native Loop réutilise cette projection fermée par `wp_seed_content_get_directory_data()` et le résolveur Dynamic Data partagé. Il ajoute uniquement des vues normalisées pour la localisation, les contacts publics, l'ID et l'ancre `annuaire-{ID}`. Les métas privées brutes ne deviennent jamais une Content Data API générale.
+
+`summary` et `presentation` sont deux sources de vérité distinctes. La première reste `post_excerpt`; la seconde reste le rendu public filtré de `post_content`. Le premier marqueur WordPress `<!--more-->`, y compris sa forme avec libellé ou le bloc Gutenberg `core/more`, dérive `presentation_intro`, `presentation_more` et le booléen `has_more`. Tous les marqueurs More résiduels et `<!--noteaser-->` sont retirés des vues publiques, sans perdre le contenu qui les entoure. Sans marqueur, `presentation_intro === presentation`, `presentation_more === ""` et `has_more === false`.
+
+`directory.summary`, `directory.presentation`, `directory.presentation_intro`, `directory.presentation_more` et `directory.has_more` projettent ces valeurs dans Dynamic Data, tandis que REST expose aussi les champs WordPress `excerpt` et `content` du CPT authentifié. Aucun état de Toggle, Accordion ou « Lire la suite » n'appartient à cette API, et aucune méta ne duplique la frontière native WordPress.
+
+`directory.professional_label` expose l'intitulé professionnel facultatif stocké dans `seed_directory_professional_label`. Cette donnée éditoriale est indépendante des types de profil servant au classement. La méta historique `_seed_directory_profession` reste uniquement un fallback et une source de migration non destructive ; une valeur canonique, y compris vide, reste prioritaire.
+
+Le rendu évite les doublons : lorsque résumé et présentation sont identiques, un consommateur ne les affiche pas simultanément. Lorsque le résumé est vide, le consommateur décide d’afficher directement la présentation ou de ne rien rendre. Cette règle de composition reste extérieure aux données et portable entre Gutenberg, Divi, Spectra/Astra et de futurs builders.

@@ -16,6 +16,7 @@ function wp_seed_content_directory_get_meta_definitions()
         '_seed_directory_department' => array('type' => 'department'),
         '_seed_directory_country' => array('type' => 'country', 'default' => 'FR'),
         '_seed_directory_featured' => array('type' => 'boolean'),
+        '_seed_directory_profession' => array('type' => 'text'),
         '_seed_directory_phone' => array('type' => 'phone'),
         '_seed_directory_phone_visible' => array('type' => 'boolean'),
         '_seed_directory_email' => array('type' => 'email'),
@@ -34,10 +35,9 @@ function wp_seed_content_directory_get_meta_definitions()
 
 function wp_seed_content_directory_get_profile_types()
 {
-    return array(
-        'praticien' => __('Praticien', 'wp-seed-content-kit'),
-        'intervenant' => __('Intervenant', 'wp-seed-content-kit'),
-    );
+    return function_exists('wp_seed_content_directory_classification_options')
+        ? wp_seed_content_directory_classification_options('profile_type', true)
+        : array('praticien' => __('Praticien', 'wp-seed-content-kit'), 'intervenant' => __('Intervenant', 'wp-seed-content-kit'));
 }
 
 function wp_seed_content_directory_normalize_profile_types($value)
@@ -60,20 +60,18 @@ function wp_seed_content_directory_normalize_profile_types($value)
         }
     }
 
-    $normalized = array();
-    foreach (wp_seed_content_directory_get_profile_types() as $profile_type => $label) {
-        if (isset($requested[$profile_type])) {
-            $normalized[] = $profile_type;
-        }
+    if (function_exists('wp_seed_content_directory_normalize_profile_slugs')) {
+        return wp_seed_content_directory_normalize_profile_slugs(array_keys($requested), true);
     }
-
-    return $normalized;
+    return array_values(array_intersect(array_keys(wp_seed_content_directory_get_profile_types()), array_keys($requested)));
 }
 
 function wp_seed_content_directory_get_profile_type_labels($profile_types)
 {
     $labels = array();
-    $registered = wp_seed_content_directory_get_profile_types();
+    $registered = function_exists('wp_seed_content_directory_classification_options')
+        ? wp_seed_content_directory_classification_options('profile_type', false)
+        : wp_seed_content_directory_get_profile_types();
     foreach (wp_seed_content_directory_normalize_profile_types($profile_types) as $profile_type) {
         if (isset($registered[$profile_type])) {
             $labels[] = $registered[$profile_type];
@@ -85,10 +83,9 @@ function wp_seed_content_directory_get_profile_type_labels($profile_types)
 
 function wp_seed_content_directory_get_statuses()
 {
-    return array(
-        'practicing' => __('En exercice', 'wp-seed-content-kit'),
-        'seeking_models' => __('En recherche de modèles', 'wp-seed-content-kit'),
-    );
+    return function_exists('wp_seed_content_directory_classification_options')
+        ? wp_seed_content_directory_classification_options('status', true)
+        : array('en_exercice' => __('En exercice', 'wp-seed-content-kit'), 'recherche_modeles' => __('En recherche de modèles', 'wp-seed-content-kit'));
 }
 
 function wp_seed_content_directory_get_contact_definitions()
@@ -212,12 +209,6 @@ function wp_seed_content_directory_normalize_contact_value($key, $value)
     if ('url' === $type) {
         return wp_seed_content_directory_sanitize_http_url($value);
     }
-    if ('facebook' === $type) {
-        return wp_seed_content_directory_sanitize_http_url($value, 'facebook.com');
-    }
-    if ('instagram' === $type) {
-        return wp_seed_content_directory_sanitize_http_url($value, 'instagram.com');
-    }
     return '';
 }
 function wp_seed_content_directory_sanitize_meta_value($key, $value)
@@ -237,9 +228,12 @@ function wp_seed_content_directory_sanitize_meta_value($key, $value)
         return sanitize_textarea_field($value);
     }
     if ('status' === $type) {
+        if (function_exists('wp_seed_content_directory_normalize_status_slug')) {
+            return wp_seed_content_directory_normalize_status_slug($value, true);
+        }
+        $legacy = array('practicing' => 'en_exercice', 'seeking_models' => 'recherche_modeles');
         $value = sanitize_key($value);
-        $statuses = wp_seed_content_directory_get_statuses();
-        return isset($statuses[$value]) ? $value : '';
+        return isset($legacy[$value]) ? $legacy[$value] : (isset(wp_seed_content_directory_get_statuses()[$value]) ? $value : '');
     }
     if ('postal_code' === $type || 'department' === $type) {
         $value = strtoupper(sanitize_text_field($value));
@@ -266,7 +260,33 @@ function wp_seed_content_directory_get_meta_value($post_id, $key)
     if (!isset($definitions[$key])) {
         return '';
     }
+    if ('_seed_directory_status' === $key && function_exists('wp_seed_content_directory_resolve_status')) {
+        return wp_seed_content_directory_resolve_status($post_id);
+    }
+    if ('_seed_directory_profile_types' === $key && function_exists('wp_seed_content_directory_resolve_profile_types')) {
+        return wp_seed_content_directory_resolve_profile_types($post_id);
+    }
+    if ('_seed_directory_seeking_models' === $key && function_exists('wp_seed_content_directory_resolve_status')) {
+        return 'recherche_modeles' === wp_seed_content_directory_resolve_status($post_id) ? '1' : '';
+    }
+    $public_key = function_exists('wp_seed_content_directory_builder_meta_public_key')
+        ? wp_seed_content_directory_builder_meta_public_key($key)
+        : '';
+    if ('' !== $public_key) {
+        $value = wp_seed_content_directory_get_builder_meta($post_id, $public_key);
+        if ('boolean' === $definitions[$key]['type']) {
+            return $value ? '1' : '';
+        }
+        if ('status' === $definitions[$key]['type']) {
+            return wp_seed_content_directory_sanitize_meta_value($key, $value);
+        }
+        return $value;
+    }
+
     $value = get_post_meta($post_id, $key, true);
+    if ('status' === $definitions[$key]['type']) {
+        return wp_seed_content_directory_sanitize_meta_value($key, $value);
+    }
     if ('profile_types' === $definitions[$key]['type']) {
         return wp_seed_content_directory_normalize_profile_types($value);
     }

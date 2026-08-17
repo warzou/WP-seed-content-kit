@@ -3,24 +3,17 @@
 define('ABSPATH', __DIR__ . '/');
 
 $GLOBALS['wpsck_generic_filters'] = array();
+$GLOBALS['wpsck_generic_filter_priorities'] = array();
 $GLOBALS['wpsck_generic_assertions'] = 0;
 $GLOBALS['wpsck_generic_failures'] = array();
 
 function add_filter($hook, $callback, $priority = 10, $accepted_args = 1)
 {
     $GLOBALS['wpsck_generic_filters'][$hook][] = $callback;
+    $GLOBALS['wpsck_generic_filter_priorities'][$hook][] = $priority;
 }
 
-function apply_filters($hook, $value)
-{
-    if ('wp_seed_content_divi_loop_dynamic_data_sources' === $hook) {
-        $value['seed_directory'] = array(
-            'wpsck_directory_name' => array('field_id' => 'directory.name', 'type' => 'text'),
-        );
-    }
-
-    return $value;
-}
+function apply_filters($hook, $value) { return $value; }
 
 function absint($value)
 {
@@ -65,6 +58,11 @@ function get_post($post_id)
 function wp_seed_content_testimonial_is_publicly_visible($post_id)
 {
     return in_array((int) $post_id, array(101, 102), true);
+}
+
+function wp_seed_content_directory_is_publicly_eligible($post_id)
+{
+    return 301 === (int) $post_id;
 }
 
 function wp_seed_content_resolve_dynamic_data($field_id, $context)
@@ -186,6 +184,10 @@ wpsck_generic_same('quote.quote:201', $items[2]['wpsck_quote_text'], 'Quote item
 wpsck_generic_same('quote.quote:202', $items[3]['wpsck_quote_text'], 'Quote item two');
 wpsck_generic_same(false, isset($items[4]['wpsck_quote_text']), 'Draft Quote excluded');
 wpsck_generic_same('directory.name:301', $items[5]['wpsck_directory_name'], 'Synthetic Directory source');
+wpsck_generic_same('directory.professional_label:301', $items[5]['wpsck_directory_professional_label'], 'Directory professional label uses generic QueryResults hydration');
+wpsck_generic_same('directory.presentation:301', $items[5]['wpsck_directory_presentation'], 'Directory uses generic QueryResults hydration');
+wpsck_generic_same('directory.presentation_intro:301', $items[5]['wpsck_directory_presentation_intro'], 'Directory intro uses generic QueryResults hydration');
+wpsck_generic_same('directory.presentation_more:301', $items[5]['wpsck_directory_presentation_more'], 'Directory continuation uses generic QueryResults hydration');
 
 $legacy = '$variable({"type":"content","value":{"name":"wp_seed_content_quote_quote","settings":[]}})$';
 $canonical = wp_seed_content_divi_normalize_legacy_loop_provider_tokens($legacy);
@@ -200,6 +202,38 @@ wpsck_generic_same(
     true,
     wp_seed_content_divi_dynamic_content_name_matches('loop_wpsck_testimonial_full', 'wp_seed_content_testimonial_text'),
     'Legacy Testimonial provider name remains compatible'
+);
+$stored_condition_token = '$variable({"type":"content","value":{"name":"wpsck_directory_presentation_more"}})$';
+$canonical_condition_token = wp_seed_content_divi_normalize_legacy_loop_provider_tokens($stored_condition_token);
+wpsck_generic_same(
+    true,
+    false !== strpos($canonical_condition_token, 'loop_wpsck_directory_presentation_more'),
+    'Stored Directory has_more condition token normalized without storage write'
+);
+wpsck_generic_same(
+    'directory.presentation_more:301',
+    wpsck_generic_loop_value($canonical_condition_token, $items[5]),
+    'Normalized Directory has_more condition resolves in clone context'
+);
+$escaped_condition_token = '$variable({\\u0022type\\u0022:\\u0022content\\u0022,\\u0022value\\u0022:{\\u0022name\\u0022:\\u0022wpsck_directory_presentation_more\\u0022}})$';
+wpsck_generic_same(
+    true,
+    false !== strpos(
+        wp_seed_content_divi_normalize_legacy_loop_provider_tokens($escaped_condition_token),
+        'loop_wpsck_directory_presentation_more'
+    ),
+    'Escaped stored Directory condition token receives the canonical provider name'
+);
+wpsck_generic_same(
+    true,
+    isset($GLOBALS['wpsck_generic_filters']['the_content'])
+        && isset($GLOBALS['wpsck_generic_filters']['et_builder_render_layout']),
+    'Frontend Divi render filters normalize provider aliases before block parsing'
+);
+wpsck_generic_same(
+    7,
+    $GLOBALS['wpsck_generic_filter_priorities']['the_content'][0],
+    'Frontend provider normalization runs before WordPress do_blocks priority 9'
 );
 wpsck_generic_same('quote.quote:201', wpsck_generic_loop_value($canonical, $items[2]), 'Quote clone one resolved');
 wpsck_generic_same('quote.quote:202', wpsck_generic_loop_value($canonical, $items[3]), 'Quote clone two resolved');

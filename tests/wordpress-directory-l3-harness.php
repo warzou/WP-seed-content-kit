@@ -82,10 +82,10 @@ try {
     $plugin_headers = get_file_data(WP_SEED_CONTENT_KIT_FILE, array('Version' => 'Version'), 'plugin');
     seed_l3_wp_same($plugin_headers['Version'], WP_SEED_CONTENT_KIT_VERSION, 'Plugin version matches header');
     seed_l3_wp_assert(post_type_exists('seed_directory'), 'Directory CPT registered');
-    seed_l3_wp_same(false, get_post_type_object('seed_directory')->show_in_rest, 'Directory remains outside REST');
+    seed_l3_wp_same(true, get_post_type_object('seed_directory')->show_in_rest, 'Directory editor REST enabled');
     seed_l3_wp_assert(post_type_supports('seed_directory', 'revisions'), 'Directory supports native revisions');
     seed_l3_wp_assert(post_type_supports('seed_directory', 'editor'), 'Directory supports native full presentation editor');
-    seed_l3_wp_same(22, count(wp_seed_content_directory_get_meta_definitions()), 'Exact RC2 business meta count');
+    seed_l3_wp_same(23, count(wp_seed_content_directory_get_meta_definitions()), 'Exact current business meta count');
 
     $draft_id = seed_l3_wp_create_entry(array(
         'post_title' => 'SEED L3 MINIMAL DRAFT',
@@ -160,6 +160,66 @@ try {
     seed_l3_wp_same('publish', get_post_status($photo_alt_id), 'Photo with alt permits publication');
     seed_l3_wp_same(true, wp_seed_content_directory_is_publicly_eligible($photo_alt_id), 'Photo entry eligible');
 
+    $grandfathered_id = seed_l3_wp_create_entry(array(
+        'post_title' => 'SEED L3 GRANDFATHERED PUBLISHED',
+        'post_status' => 'publish',
+        'meta_input' => array('_thumbnail_id' => $attachment_id),
+    ));
+    delete_post_meta($attachment_id, '_wp_attachment_image_alt');
+    wp_update_post(array('ID' => $grandfathered_id, 'meta_input' => array('_seed_directory_phone' => '+33 1 98 76 54 32')));
+    seed_l3_wp_same('publish', get_post_status($grandfathered_id), 'Published entry with preexisting missing alt survives phone edit');
+    seed_l3_wp_same(array('missing_photo_alt'), wp_seed_content_directory_get_validation_warning($grandfathered_id), 'Phone edit stores persistent warning');
+    wp_update_post(array('ID' => $grandfathered_id, 'post_excerpt' => 'Résumé grandfathered modifié.'));
+    seed_l3_wp_same('publish', get_post_status($grandfathered_id), 'Published entry with preexisting missing alt survives summary edit');
+    wp_update_post(array('ID' => $grandfathered_id, 'meta_input' => array('seed_directory_professional_label' => 'Praticienne')));
+    seed_l3_wp_same('publish', get_post_status($grandfathered_id), 'Published entry with preexisting missing alt survives professional label edit');
+
+    do_action('rest_api_init');
+    $request = new WP_REST_Request('PUT', '/wp/v2/seed_directory/' . $grandfathered_id);
+    $request->set_param('excerpt', 'Résumé modifié via REST.');
+    $response = rest_do_request($request);
+    seed_l3_wp_same(200, $response->get_status(), 'Gutenberg REST update succeeds for grandfathered published entry');
+    seed_l3_wp_same('publish', get_post_status($grandfathered_id), 'Gutenberg REST update preserves published status');
+    seed_l3_wp_same(array('missing_photo_alt'), wp_seed_content_directory_get_validation_warning($grandfathered_id), 'REST flow preserves persistent warning');
+
+    update_post_meta($attachment_id, '_wp_attachment_image_alt', 'Portrait fictif accessible');
+    wp_update_post(array('ID' => $grandfathered_id, 'post_excerpt' => 'Résumé après correction.'));
+    seed_l3_wp_same('publish', get_post_status($grandfathered_id), 'Fixing missing alt keeps entry published');
+    seed_l3_wp_same(array(), wp_seed_content_directory_get_validation_warning($grandfathered_id), 'Fixing missing alt clears persistent warning');
+
+    $_POST = array(
+        'wp_seed_content_directory_nonce' => wp_create_nonce('wp_seed_content_directory_save'),
+        '_seed_directory_photo_alt' => '',
+        '_seed_directory_publication_authorized' => '1',
+    );
+    wp_update_post(array('ID' => $grandfathered_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('publish', get_post_status($grandfathered_id), 'First new missing alt save keeps valid published entry online');
+    seed_l3_wp_same('pending', wp_seed_content_directory_get_pending_validation($grandfathered_id)['status'], 'First new missing alt save stores private pending state');
+    $state_request = new WP_REST_Request('GET', '/wp/v2/seed_directory/' . $grandfathered_id);
+    $state_request->set_param('context', 'edit');
+    $state_response = rest_do_request($state_request);
+    $state_data = $state_response->get_data();
+    seed_l3_wp_same('pending', $state_data['wpsck_directory_validation']['state'], 'REST edit response exposes persistent Gutenberg warning state');
+    seed_l3_wp_assert(false !== strpos($state_data['wpsck_directory_validation']['summary'], 'reste publi'), 'REST warning explains temporary publication grace');
+
+    $_POST['_seed_directory_photo_alt'] = 'Portrait corrigé avant seconde sauvegarde';
+    wp_update_post(array('ID' => $grandfathered_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('publish', get_post_status($grandfathered_id), 'Correction between saves preserves publication');
+    seed_l3_wp_same(array(), wp_seed_content_directory_get_pending_validation($grandfathered_id), 'Correction clears pending marker');
+
+    $_POST['_seed_directory_photo_alt'] = '';
+    wp_update_post(array('ID' => $grandfathered_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('publish', get_post_status($grandfathered_id), 'Later new missing alt starts a fresh warning cycle');
+    wp_update_post(array('ID' => $grandfathered_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('draft', get_post_status($grandfathered_id), 'Second unchanged missing alt save moves entry to draft');
+    seed_l3_wp_same('drafted', wp_seed_content_directory_get_pending_validation($grandfathered_id)['status'], 'Draft reason persists for Gutenberg');
+
+    $_POST['_seed_directory_photo_alt'] = 'Portrait corrigé pour republication';
+    wp_update_post(array('ID' => $grandfathered_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('publish', get_post_status($grandfathered_id), 'Draft republishes after correction');
+    seed_l3_wp_same(array(), wp_seed_content_directory_get_pending_validation($grandfathered_id), 'Successful republish clears draft validation state');
+    $_POST = array();
+
     update_post_meta($valid_id, '_seed_directory_phone', '+33 (0)1 23 45 67 89');
     update_post_meta($valid_id, '_seed_directory_phone_visible', '1');
     update_post_meta($valid_id, '_seed_directory_email', 'private@example.test');
@@ -193,6 +253,125 @@ try {
         seed_l3_wp_same($case[0], get_post_meta($contact_id, $meta_key, true), 'Invalid contact value retained privately in draft: ' . $meta_key);
         seed_l3_wp_same(array(), wp_seed_content_directory_get_public_contacts($contact_id), 'Invalid contact never exposed: ' . $meta_key);
     }
+
+    $repeatable_id = seed_l3_wp_create_entry(array(
+        'post_title' => 'SEED L3 TWO STEP CONTACT',
+        'post_status' => 'publish',
+    ));
+    $invalid_repeatable = array(array(
+        'row_id' => 'website-primary',
+        'type' => 'website',
+        'label' => 'Site principal',
+        'value' => 'htps://example.test',
+        'public' => '1',
+        'order' => 10,
+        'format' => 'full_link_v1',
+    ));
+    $_POST = array(
+        'wp_seed_content_directory_nonce' => wp_create_nonce('wp_seed_content_directory_save'),
+        'wp_seed_content_directory_contacts_present' => '1',
+        'seed_directory_contacts' => $invalid_repeatable,
+        '_seed_directory_publication_authorized' => '1',
+    );
+    wp_update_post(array('ID' => $repeatable_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('publish', get_post_status($repeatable_id), 'Invalid repeatable website save #1 remains published');
+    $repeatable_pending = wp_seed_content_directory_get_pending_validation($repeatable_id);
+    seed_l3_wp_same('pending', $repeatable_pending['status'], 'Invalid repeatable website stores pending state');
+    seed_l3_wp_same('website', $repeatable_pending['errors'][0]['type'], 'Repeatable warning identifies website type');
+    seed_l3_wp_same('website-primary', $repeatable_pending['errors'][0]['row_id'], 'Repeatable warning identifies exact row');
+    seed_l3_wp_assert(false === strpos(serialize($repeatable_pending), 'htps://example.test'), 'Pending state does not copy invalid private value');
+
+    $invalid_repeatable[0]['value'] = 'still-invalid';
+    $_POST['seed_directory_contacts'] = $invalid_repeatable;
+    wp_update_post(array('ID' => $repeatable_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('publish', get_post_status($repeatable_id), 'Different invalid website starts a fresh warning cycle');
+    wp_update_post(array('ID' => $repeatable_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('draft', get_post_status($repeatable_id), 'Same changed invalid website save #2 becomes draft');
+
+    $invalid_repeatable[0]['value'] = 'https://example.test';
+    $_POST['seed_directory_contacts'] = $invalid_repeatable;
+    wp_update_post(array('ID' => $repeatable_id, 'post_status' => 'publish'));
+    seed_l3_wp_same('publish', get_post_status($repeatable_id), 'Corrected repeatable website republishes draft');
+    seed_l3_wp_same(array(), wp_seed_content_directory_get_pending_validation($repeatable_id), 'Corrected repeatable website clears pending state');
+    $_POST = array();
+
+    $split_id = seed_l3_wp_create_entry(array(
+        'post_title' => 'SEED L3 GUTENBERG SPLIT SAVE',
+        'post_status' => 'publish',
+    ));
+    $split_contacts = array(array(
+        'row_id' => 'website-split',
+        'type' => 'website',
+        'label' => 'Site internet',
+        'value' => 'www.example.test',
+        'public' => '1',
+        'order' => 10,
+        'format' => 'full_link_v1',
+    ));
+    $split_meta_post = array(
+        'wp_seed_content_directory_nonce' => wp_create_nonce('wp_seed_content_directory_save'),
+        'wp_seed_content_directory_contacts_present' => '1',
+        'seed_directory_contacts' => $split_contacts,
+        '_seed_directory_publication_authorized' => '1',
+    );
+    $_POST = array();
+    $split_rest_first = new WP_REST_Request('PUT', '/wp/v2/seed_directory/' . $split_id);
+    $split_rest_first->set_param('status', 'publish');
+    $split_rest_first_response = rest_do_request($split_rest_first);
+    seed_l3_wp_same(200, $split_rest_first_response->get_status(), 'Gutenberg REST save #1 succeeds before separate metabox update');
+    seed_l3_wp_same('publish', $split_rest_first_response->get_data()['status'], 'Gutenberg REST save #1 returns published status');
+    $_POST = $split_meta_post;
+    wp_seed_content_directory_save_meta($split_id, get_post($split_id));
+    wp_seed_content_directory_after_insert_post($split_id, get_post($split_id), true, get_post($split_id));
+    seed_l3_wp_same('publish', get_post_status($split_id), 'Separate Gutenberg metabox save #1 keeps DB status published');
+    seed_l3_wp_same('pending', wp_seed_content_directory_get_pending_validation($split_id)['status'], 'Separate Gutenberg metabox save #1 stores pending warning');
+    $_POST = array();
+    $split_get_first = new WP_REST_Request('GET', '/wp/v2/seed_directory/' . $split_id);
+    $split_get_first->set_param('context', 'edit');
+    $split_get_first_response = rest_do_request($split_get_first);
+    $split_get_first_data = $split_get_first_response->get_data();
+    seed_l3_wp_same('publish', $split_get_first_data['status'], 'Post-save REST refresh returns published status after warning-first save');
+    seed_l3_wp_same('pending', $split_get_first_data['wpsck_directory_validation']['state'], 'Post-save REST refresh returns warning state');
+    seed_l3_wp_assert(false !== strpos(implode(' ', $split_get_first_data['wpsck_directory_validation']['messages']), 'Site'), 'Post-save REST warning identifies website field');
+
+    $split_rest_second = new WP_REST_Request('PUT', '/wp/v2/seed_directory/' . $split_id);
+    $split_rest_second->set_param('status', 'publish');
+    $split_rest_second_response = rest_do_request($split_rest_second);
+    $split_rest_second_data = $split_rest_second_response->get_data();
+    seed_l3_wp_same(200, $split_rest_second_response->get_status(), 'Gutenberg REST save #2 returns a controlled response');
+    seed_l3_wp_same('draft', $split_rest_second_data['status'], 'Gutenberg REST save #2 returns draft status for unchanged invalid value');
+    seed_l3_wp_same('drafted', $split_rest_second_data['wpsck_directory_validation']['state'], 'Gutenberg REST save #2 returns explicit depublication reason');
+    seed_l3_wp_same('draft', get_post_status($split_id), 'Gutenberg REST save #2 drafts unchanged invalid entry in DB');
+
+    $split_rest_blocked = new WP_REST_Request('PUT', '/wp/v2/seed_directory/' . $split_id);
+    $split_rest_blocked->set_param('status', 'publish');
+    $split_rest_blocked_response = rest_do_request($split_rest_blocked);
+    $split_rest_blocked_data = $split_rest_blocked_response->get_data();
+    seed_l3_wp_same('draft', $split_rest_blocked_data['status'], 'Invalid draft remains draft when Gutenberg requests publication');
+    seed_l3_wp_same('blocked', $split_rest_blocked_data['wpsck_directory_validation']['state'], 'Invalid draft publication returns explicit blocking state');
+    seed_l3_wp_assert(false !== strpos(implode(' ', $split_rest_blocked_data['wpsck_directory_validation']['messages']), 'Site'), 'Publication block identifies website field');
+
+    $split_contacts[0]['value'] = 'https://example.test';
+    $split_meta_post['seed_directory_contacts'] = $split_contacts;
+    $_POST = $split_meta_post;
+    wp_seed_content_directory_save_meta($split_id, get_post($split_id));
+    wp_seed_content_directory_after_insert_post($split_id, get_post($split_id), true, get_post($split_id));
+    seed_l3_wp_same('draft', get_post_status($split_id), 'Corrected metabox save remains draft until the captured publish intent is finalized');
+    seed_l3_wp_same(array(), wp_seed_content_directory_get_pending_validation($split_id), 'Corrected metabox save clears the pending or blocked marker immediately');
+    $split_get_corrected = new WP_REST_Request('GET', '/wp/v2/seed_directory/' . $split_id);
+    $split_get_corrected->set_param('context', 'edit');
+    $split_get_corrected_response = rest_do_request($split_get_corrected);
+    $split_get_corrected_data = $split_get_corrected_response->get_data();
+    seed_l3_wp_same('draft', $split_get_corrected_data['status'], 'Post-metabox REST refresh sees the corrected draft before finalization');
+    seed_l3_wp_same('none', $split_get_corrected_data['wpsck_directory_validation']['state'], 'Post-metabox REST refresh is clean and permits same-click finalization');
+    $split_rest_fixed = new WP_REST_Request('PUT', '/wp/v2/seed_directory/' . $split_id);
+    $split_rest_fixed->set_param('status', 'publish');
+    $split_rest_fixed_response = rest_do_request($split_rest_fixed);
+    $split_rest_fixed_data = $split_rest_fixed_response->get_data();
+    seed_l3_wp_same('publish', $split_rest_fixed_data['status'], 'Same-click Core Data finalization publishes the corrected fixture');
+    seed_l3_wp_same('none', $split_rest_fixed_data['wpsck_directory_validation']['state'], 'Same-click publication response remains validation-clean');
+    seed_l3_wp_same('publish', get_post_status($split_id), 'Same-click publication finalization persists published status in DB');
+    $_POST = array();
 
     $_POST = array(
         'wp_seed_content_directory_nonce' => wp_create_nonce('wp_seed_content_directory_save'),
@@ -358,7 +537,7 @@ try {
     $directory_routes = array_filter(array_keys($routes), function ($route) {
         return false !== strpos($route, 'seed_directory');
     });
-    seed_l3_wp_same(array(), array_values($directory_routes), 'No Directory REST route');
+    seed_l3_wp_assert(in_array('/wp/v2/seed_directory', array_values($directory_routes), true), 'Core Directory REST route registered');
 } catch (Throwable $error) {
     $failures[] = $error->getMessage();
 } catch (Exception $error) {

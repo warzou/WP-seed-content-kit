@@ -56,7 +56,7 @@ try {
     seed_l2_wp_same(false, $object->public, 'CPT private');
     seed_l2_wp_same(false, $object->publicly_queryable, 'CPT not publicly queryable');
     seed_l2_wp_same(true, $object->exclude_from_search, 'CPT excluded from search');
-    seed_l2_wp_same(false, $object->show_in_rest, 'CPT absent from REST');
+    seed_l2_wp_same(true, $object->show_in_rest, 'CPT available to the editor REST API');
     seed_l2_wp_same(false, $object->has_archive, 'CPT has no archive');
     seed_l2_wp_same(false, $object->rewrite, 'CPT has no rewrite');
     seed_l2_wp_same(false, $object->query_var, 'CPT has no query var');
@@ -118,7 +118,7 @@ try {
     $directory_routes = array_filter(array_keys($routes), function ($route) {
         return false !== strpos($route, 'seed_directory');
     });
-    seed_l2_wp_same(array(), array_values($directory_routes), 'No Directory REST route');
+    seed_l2_wp_assert(in_array('/wp/v2/seed_directory', array_values($directory_routes), true), 'Core Directory REST route registered');
 
     $search = new WP_Query(array(
         's' => 'SEED L2 ISOLATED TEST',

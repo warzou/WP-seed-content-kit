@@ -38,7 +38,7 @@ function wp_seed_content_kit_register_modules_page()
 {
     $menu_capability = wp_seed_content_kit_get_admin_menu_capability();
 
-    add_menu_page(
+    $parent_hook = add_menu_page(
         __('WP Seed Content Kit', 'wp-seed-content-kit'),
         __('WP Seed Content Kit', 'wp-seed-content-kit'),
         $menu_capability,
@@ -48,7 +48,7 @@ function wp_seed_content_kit_register_modules_page()
         58
     );
 
-    add_submenu_page(
+    $configuration_hook = add_submenu_page(
         'wp-seed-content-kit',
         __('Configuration', 'wp-seed-content-kit'),
         __('Configuration', 'wp-seed-content-kit'),
@@ -57,6 +57,11 @@ function wp_seed_content_kit_register_modules_page()
         'wp_seed_content_kit_render_modules_page',
         1
     );
+    if ($parent_hook && $parent_hook === $configuration_hook) {
+        remove_action($parent_hook, 'wp_seed_content_kit_render_admin_landing');
+        remove_action($configuration_hook, 'wp_seed_content_kit_render_modules_page');
+        add_action($parent_hook, 'wp_seed_content_kit_render_admin_landing');
+    }
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_testimonial');
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_quote');
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_directory');
@@ -180,6 +185,7 @@ function wp_seed_content_kit_handle_modules_form()
     update_option('wp_seed_content_kit_module_menu_visibility', $menu_visibility);
     update_option('wp_seed_content_kit_module_roles', $assignments);
     wp_seed_content_kit_synchronize_role_capabilities($assignments);
+    do_action('wp_seed_content_kit_save_configuration_sections');
 
     if ($previous !== $next) {
         wp_seed_content_kit_refresh_module_rewrite_rules($next);
@@ -470,6 +476,8 @@ function wp_seed_content_kit_render_configuration_tab()
 
         <h2><?php echo esc_html__('Où l’utiliser ?', 'wp-seed-content-kit'); ?></h2>
         <?php wp_seed_content_kit_render_usage_help(array('usage' => wp_seed_content_kit_get_builder_usage_help())); ?>
+
+        <?php do_action('wp_seed_content_kit_render_configuration_sections'); ?>
 
         <?php submit_button(__('Enregistrer la configuration', 'wp-seed-content-kit')); ?>
     </form>

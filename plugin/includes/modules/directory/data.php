@@ -4,31 +4,55 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+function wp_seed_content_directory_get_location_label($location)
+{
+    if (!is_array($location)) {
+        return '';
+    }
+
+    $locality = trim(implode(' ', array_filter(array(
+        isset($location['postal_code']) ? $location['postal_code'] : '',
+        isset($location['city']) ? $location['city'] : '',
+    ))));
+    $parts = array_filter(array(
+        $locality,
+        isset($location['department']) ? $location['department'] : '',
+        isset($location['country']) ? $location['country'] : '',
+    ));
+
+    return implode(' · ', $parts);
+}
+
+function wp_seed_content_directory_get_professional_label($post_id)
+{
+    if (function_exists('wp_seed_content_directory_get_builder_meta')) {
+        return (string) wp_seed_content_directory_get_builder_meta($post_id, 'seed_directory_professional_label');
+    }
+
+    return sanitize_text_field(get_post_meta($post_id, '_seed_directory_profession', true));
+}
+
 function wp_seed_content_directory_get_public_contacts($post_id)
 {
-    $post_id = absint($post_id);
-    if (!wp_seed_content_directory_is_publicly_eligible($post_id)) {
-        return array();
+    $contacts = array();
+    if (function_exists('wp_seed_content_directory_get_public_contact_rows')) {
+        foreach (wp_seed_content_directory_get_public_contact_rows(absint($post_id)) as $contact) {
+            if (!isset($contacts[$contact['type']])) {
+                $contacts[$contact['type']] = $contact['value'];
+            }
+        }
+        return $contacts;
     }
 
-    $contacts = array();
-    $keys = array(
-        'phone' => '_seed_directory_phone',
-        'email' => '_seed_directory_email',
-        'website' => '_seed_directory_website',
-        'facebook' => '_seed_directory_facebook',
-        'instagram' => '_seed_directory_instagram',
-    );
-    foreach ($keys as $public_key => $meta_key) {
-        if ('1' !== get_post_meta($post_id, $meta_key . '_visible', true)) {
+    foreach (wp_seed_content_directory_get_contact_definitions() as $type => $contact) {
+        if ('1' !== get_post_meta($post_id, $contact['visible_key'], true)) {
             continue;
         }
-        $value = wp_seed_content_directory_normalize_contact_value($meta_key, get_post_meta($post_id, $meta_key, true));
+        $value = wp_seed_content_directory_normalize_contact_value($contact['key'], get_post_meta($post_id, $contact['key'], true));
         if ('' !== $value) {
-            $contacts[$public_key] = $value;
+            $contacts[$type] = $value;
         }
     }
-
     return $contacts;
 }
 
@@ -62,6 +86,7 @@ function wp_seed_content_directory_get_admin_data($post_id)
         'id' => $post_id,
         'name' => (string) $post->post_title,
         'summary' => (string) $post->post_excerpt,
+        'professional_label' => wp_seed_content_directory_get_professional_label($post_id),
         'presentation' => (string) $post->post_excerpt,
         'full_presentation' => isset($post->post_content) ? (string) $post->post_content : '',
         'publicly_listed' => '1' === get_post_meta($post_id, '_seed_directory_publicly_listed', true),
@@ -88,16 +113,17 @@ function wp_seed_content_directory_get_public_data($post_id)
     }
 
     $status = wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_status');
-    $statuses = wp_seed_content_directory_get_statuses();
+    $statuses = function_exists('wp_seed_content_directory_classification_options')
+        ? wp_seed_content_directory_classification_options('status', false)
+        : wp_seed_content_directory_get_statuses();
     $profile_types = wp_seed_content_directory_get_meta_value(
         $post_id,
         '_seed_directory_profile_types'
     );
     $profile_type_labels = wp_seed_content_directory_get_profile_type_labels($profile_types);
-    $seeking_models = '1' === get_post_meta(
+    $seeking_models = '1' === wp_seed_content_directory_get_meta_value(
         $post_id,
-        '_seed_directory_seeking_models',
-        true
+        '_seed_directory_seeking_models'
     );
     $photo = null;
     $thumbnail_id = (int) get_post_thumbnail_id($post_id);
@@ -114,17 +140,44 @@ function wp_seed_content_directory_get_public_data($post_id)
         }
     }
     $summary = sanitize_textarea_field($post->post_excerpt);
-    $full_presentation = wp_seed_content_directory_render_full_presentation(
+    $presentation_parts = wp_seed_content_split_wordpress_more(
         isset($post->post_content) ? $post->post_content : ''
     );
+    $presentation = wp_seed_content_directory_render_full_presentation($presentation_parts['full']);
+    $presentation_intro = wp_seed_content_directory_render_full_presentation($presentation_parts['intro']);
+    $presentation_more = wp_seed_content_directory_render_full_presentation($presentation_parts['more']);
 
-    return array(
+    $location = array(
+        'city' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_city'),
+        'postal_code' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_postal_code'),
+        'department' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_department'),
+        'country' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_country'),
+    );
+    $contact_rows = function_exists('wp_seed_content_directory_get_public_contact_rows')
+        ? wp_seed_content_directory_get_public_contact_rows($post_id)
+        : array();
+    $contacts = wp_seed_content_directory_get_public_contacts($post_id);
+    $contact_hrefs = array();
+    foreach ($contact_rows as $contact_row) {
+        if (!isset($contact_hrefs[$contact_row['type']])) {
+            $contact_hrefs[$contact_row['type']] = isset($contact_row['href'])
+                ? (string) $contact_row['href']
+                : '';
+        }
+    }
+
+    $data = array(
         'id' => $post_id,
         'name' => sanitize_text_field($post->post_title),
+        'professional_label' => wp_seed_content_directory_get_professional_label($post_id),
         'photo' => $photo,
         'summary' => $summary,
         'bio' => $summary,
-        'full_presentation' => $full_presentation,
+        'presentation' => $presentation,
+        'full_presentation' => $presentation,
+        'presentation_intro' => $presentation_intro,
+        'presentation_more' => $presentation_more,
+        'has_more' => $presentation_parts['has_more'],
         'publicly_listed' => true,
         'status' => $status,
         'status_label' => isset($statuses[$status]) ? $statuses[$status] : '',
@@ -135,14 +188,28 @@ function wp_seed_content_directory_get_public_data($post_id)
         'seeking_models_label' => $seeking_models
             ? __('Recherche de modèles', 'wp-seed-content-kit')
             : '',
-        'location' => array(
-            'city' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_city'),
-            'postal_code' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_postal_code'),
-            'department' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_department'),
-            'country' => wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_country'),
-        ),
-        'featured' => '1' === get_post_meta($post_id, '_seed_directory_featured', true),
+        'location' => $location,
+        'location_label' => wp_seed_content_directory_get_location_label($location),
+        'featured' => '1' === wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_featured'),
         'display_order' => max(0, (int) $post->menu_order),
-        'contacts' => wp_seed_content_directory_get_public_contacts($post_id),
+        'contacts' => $contacts,
+        'contact_rows' => $contact_rows,
     );
+
+    if (function_exists('wp_seed_content_directory_individual_contact_provider_definitions')) {
+        $provider_definitions = wp_seed_content_directory_individual_contact_provider_definitions();
+        foreach ($provider_definitions as $definition) {
+            $slug = $definition['slug'];
+            $data[$slug] = isset($contacts[$slug]) ? $contacts[$slug] : '';
+        }
+        foreach ($provider_definitions as $definition) {
+            $slug = $definition['slug'];
+            if (!empty($definition['has_href'])) {
+                $data[$slug . '_href'] = isset($contact_hrefs[$slug]) ? $contact_hrefs[$slug] : '';
+            }
+        }
+    }
+    $data['anchor'] = 'annuaire-' . $post_id;
+
+    return $data;
 }

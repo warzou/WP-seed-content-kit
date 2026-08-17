@@ -58,7 +58,15 @@ Elle retourne un ID de Citation publiée non protégée, stable pour la date civ
 
 Dans Annuaire, Editor et Administrator utilisent la même fiche en cinq panneaux. Saisir le nom dans « Nom affiché », classer si nécessaire le profil comme praticien et/ou intervenant, indiquer séparément une recherche actuelle de modèles, puis compléter librement localisation et présentation. La photo reste facultative ; si elle est choisie, son texte alternatif devient obligatoire avant publication.
 
-Chaque coordonnée possède une case « Afficher … dans l’annuaire », décochée par défaut. Une valeur peut rester enregistrée en privé, même dans un brouillon incomplet. Cocher sa visibilité exige une valeur publiable valide. L’autorisation « La personne a autorisé la publication de ses informations » est obligatoire mais ne rend aucune coordonnée publique automatiquement.
+Chaque coordonnée est une ligne répétable avec type, libellé facultatif, lien complet, visibilité publique et ordre. Une personne peut posséder plusieurs lignes du même type. Le lien utilise directement `tel:`, `mailto:` ou HTTP(S) selon le type ; Adresse reste une valeur texte sans href. Le libellé facultatif remplace le lien comme texte affiché. Une valeur peut rester enregistrée en privé, même dans un brouillon incomplet. Cocher sa visibilité exige un lien publiable valide. L’autorisation « La personne a autorisé la publication de ses informations » est obligatoire mais ne rend aucune coordonnée publique automatiquement.
+
+Sur une fiche déjà publiée et jusque-là valide, la première sauvegarde d’une nouvelle erreur de format corrigible conserve temporairement la publication et affiche un avertissement persistant dans l’éditeur. Corrigez-la avant la sauvegarde suivante : le même état invalide enregistré une seconde fois place la fiche en brouillon. Une autre valeur invalide ouvre un nouveau cycle de correction. Le retrait d’autorisation reste immédiat, et une fiche en brouillon ne peut jamais être publiée avec une erreur.
+
+Administrator configure les types dans Configuration → Annuaire — Types de coordonnées. Téléphone et E-mail sont présents par défaut ; les types système ont un slug et un comportement protégés mais restent désactivables. Les types ajoutés utilisent un slug immuable, un comportement sûr fourni par Content Kit et un ordre. Désactiver un type conserve ses lignes et ses anciens bindings, mais le retire des nouvelles options Divi et du rendu public. Un type personnalisé inutilisé peut être supprimé après confirmation ; toute ligne canonique existante, même privée ou invalide, bloque cette suppression côté serveur. Les icônes et tout leur design appartiennent exclusivement au builder.
+
+`Lien web` accepte les URL HTTP(S) valides sans imposer de domaine et rejette tout autre schéma. Site internet, Facebook et Instagram conservent leurs types, providers et conditions distincts, mais utilisent ce comportement générique : le contrat d'affichage reste `libellé facultatif, sinon lien lisible`. Ils ne sont pas marqués `Système` : ils peuvent être désactivés, et supprimés seulement en l'absence de toute coordonnée canonique. Leurs IDs publiés restent réservés indépendamment de cette protection administrative. Téléphone et E-mail sont les seuls types protégés. Recréer le même slug restaure les mêmes IDs déterministes ; vérifier les anciens bindings avant de le faire.
+
+Les registres Types de profil et Statuts appliquent la même sécurité : une valeur système n'est jamais supprimable, une valeur personnalisée inutilisée peut être supprimée après confirmation, et toute fiche qui l'utilise bloque l'opération tout en laissant la désactivation disponible. Les providers individuels, la Content Data API et les Block Bindings Gutenberg consomment directement les coordonnées canoniques. Aucun profil d'affichage ni renderer composite n'intervient : le builder choisit chaque champ, son ordre et sa présentation.
 
 La liste propose un filtre administratif de statut. Quick Edit et la publication en masse sont neutralisés. Editor peut publier, dépublier, modifier les personnes d’autres éditeurs, mettre à la corbeille et restaurer, sans voir Configuration, Utilisation, Templates ou Collections.
 
@@ -70,7 +78,7 @@ Exemples : [seed_directory], [seed_directory status="practicing" department="75"
 
 Les valeurs invalides produisent une sortie vide. Il n'existe aucun parametre GET, formulaire ou filtre visible. Les groupes vides sont omis. Sans fiche, le message public est stable.
 
-Sans template, une carte native est rendue. Un Template publie du module Annuaire peut utiliser vingt et un placeholders directory.*. Un echec de template produit un fallback natif fiche par fiche ; les autres cartes restent personnalisees. Les contacts masques ou invalides sont absents de la Data API, du contexte, des placeholders et du HTML.
+Sans template, une carte native est rendue. Un Template publie du module Annuaire peut utiliser vingt-cinq placeholders directory.*. Un echec de template produit un fallback natif fiche par fiche ; les autres cartes restent personnalisees. Les contacts masques ou invalides sont absents de la Data API, du contexte, des placeholders et du HTML.
 
 Gutenberg utilise le bloc Shortcode. Divi 5 propose le module natif « WP Seed — Témoignages » ; Texte ou Code restent supportés pour les shortcodes historiques, et un Layout Divi Library peut servir de source à un Template. Aucun bloc Gutenberg dédié n’est fourni. Désactiver Annuaire rend ses shortcodes et Collections vides, sans supprimer les données.
 
@@ -389,14 +397,14 @@ Une Collection n’est jamais enregistrée et ne choisit aucun Template durablem
 
 Pour Annuaire, le générateur couvre status, department, country, featured, ids, limit, orderby, order et template. Il produit le shortcode canonique [seed_directory]. L’alias [wp_seed_directory] est conservé uniquement pour compatibilité temporaire.
 
-Le catalogue de Templates affiche sept placeholders Témoignages, quatre Citations et quinze Annuaire. Seules les données publiques sont proposées. Un contact Annuaire masqué, invalide ou non autorisé reste vide et n’est jamais transmis au Template.
+Le catalogue de Templates affiche sept placeholders Témoignages, quatre Citations et vingt-cinq Annuaire. Seules les données publiques sont proposées. Un contact Annuaire masqué, invalide ou non autorisé reste vide et n’est jamais transmis au Template.
 
 ### Intégrations
 
 - **Shortcodes — Fonctionnel** : méthode canonique dans tout emplacement WordPress compatible.
-- **Gutenberg — Fonctionnel** : bloc Shortcode Core ; les Block Bindings restent indirects et ne couvrent pas Annuaire.
+- **Gutenberg — Fonctionnel** : bloc Shortcode Core et champs Annuaire publics compatibles avec les Block Bindings Core.
 - **Spectra — Indirect** : bloc Shortcode Core dans une page ou un Container, ou blocs Spectra dans un Template ; aucun provider natif.
-- **Divi — Fonctionnel/Indirect** : modules natifs Témoignages et Annuaire sous Divi 5, shortcodes dans Texte ou Code pour compatibilité, ou Layout Divi Library comme source d’un Template ; Dynamic Content reste expérimental et son usage direct dans Loop Builder n'est pas pris en charge.
+- **Divi — Fonctionnel/Indirect** : modules natifs Témoignages et Annuaire sous Divi 5, Native Loops avec providers WPSCK, shortcodes dans Texte ou Code pour compatibilité, ou Layout Divi Library comme source d’un Template.
 
 Les filtres de Collection sont choisis par Administrator lors de l’intégration. Aucun champ de recherche ni filtre n’est présenté au visiteur.
 
@@ -436,7 +444,19 @@ Gutenberg et Spectra utilisent le shortcode canonique. Divi 5 utilise de préfé
 
 Renseignez la présentation courte dans l’extrait et la présentation complète dans l’éditeur WordPress. Cochez « Afficher cette personne dans les annuaires publics » seulement lorsque la fiche doit apparaître dans les Collections. Cette case ne change ni le statut WordPress, ni le consentement, ni les coordonnées affichées.
 
-Dans un Template Annuaire, utilisez `directory.summary` ou son alias `directory.bio` pour le texte court et `directory.full_presentation` pour le texte long. Le Layout reste libre de ne pas afficher le texte long.
+Dans un Template Annuaire, utilisez `directory.summary` ou son alias `directory.bio` pour le résumé indépendant, et `directory.presentation` ou son alias historique `directory.full_presentation` pour la présentation complète. Un bloc More WordPress facultatif dans la présentation fournit aussi `directory.presentation_intro`, `directory.presentation_more` et `directory.has_more`. Sans bloc More, l’introduction reprend la présentation complète, la suite est vide et `has_more` vaut faux.
+
+`directory.professional_label` fournit l'« Intitulé professionnel » facultatif, destiné à être affiché sous le nom. Il ne remplace ni le nom WordPress ni les types de profil utilisés pour filtrer les Collections. Divi l'expose avec le provider `WPSCK — Annuaire — Intitulé professionnel`; Gutenberg utilise le même identifiant avec la source Block Bindings commune.
+
+Dans Gutenberg, insérez le bloc More à l’endroit voulu entre deux blocs de contenu. La forme code `<!--more-->` et sa variante avec libellé sont également reconnues. Placez toujours la coupure entre blocs ou paragraphes : WPSCK ne répare pas une balise HTML coupée. WPSCK retire les marqueurs techniques des valeurs publiques et ne crée aucune méta, aucun bouton ni aucun état d’ouverture.
+
+Ces deux valeurs restent indépendantes de la présentation : WPSCK ne stocke aucun état « Lire la suite », Toggle ou Accordion. Si les deux valeurs existent et diffèrent, le builder peut afficher le résumé puis révéler la présentation complète. Si le résumé est vide, il peut afficher directement la présentation. Si les deux valeurs sont identiques, ne les affichez pas simultanément.
+
+- **Divi** : connecter `WPSCK — Annuaire — Introduction` et `WPSCK — Annuaire — Suite de présentation` à des modules natifs, avec un Toggle ou un Accordion si un contenu repliable est souhaité. Le provider `Présentation` fournit toujours le contenu complet. Divi 5.9 ne reçoit pas de faux provider booléen `has_more`; la condition reste un contrat de données générique.
+- **Gutenberg** : utiliser la source Block Bindings `wp-seed-content-kit/dynamic-data` avec `directory.presentation_intro` et `directory.presentation_more` sur des blocs Core texte compatibles. Un bloc Details Core peut fournir le disclosure si la version WordPress ciblée le propose.
+- **Spectra / Astra** : utiliser les mêmes données via les blocs Core, les Templates ou un adaptateur compatible. WPSCK ne charge ni Spectra ni Astra et ne promet pas de provider propriétaire.
+
+Pour l’accessibilité, préférer `<details>/<summary>` ou un vrai bouton pilotant `aria-expanded`, utilisable au clavier. Ne pas simuler l’ouverture avec un lien sans état ni ajouter de JavaScript WPSCK lorsque le builder sait déjà gérer ce composant.
 
 ## Module Divi 5 « WP Seed — Annuaire »
 
@@ -481,6 +501,8 @@ Pour un Group Carousel, utiliser le module natif Divi et placer la Loop sur le G
 
 Le frontend aléatoire varie réellement. Le Visual Builder conserve un échantillon stable. Le module « WP Seed — Témoignages », les shortcodes et les Templates existants restent disponibles comme fallback.
 
-Divi 5.9.0 ne sait pas appliquer l’ordre des deux colonnes internes selon la parité du clone Loop parent : ses Grid Offset Rules produisent uniquement des sélecteurs sur les enfants directs du conteneur courant. Pour une alternance opt-in, ajouter `wpsck-testimonial-loop--alternating` à la Row bouclée, `wpsck-testimonial-loop__media` à la colonne média et `wpsck-testimonial-loop__content` à la colonne contenu. Le CSS fourni inverse seulement les colonnes paires sur desktop et restaure toujours média puis contenu à 980 px et moins.
+Divi 5.9.0 ne sait pas appliquer l’ordre des deux colonnes internes selon la parité du clone Loop parent : ses Grid Offset Rules produisent uniquement des sélecteurs sur les enfants directs du conteneur courant. Le contrat structurel partagé permet une alternance opt-in sans stocker de présentation dans les données.
+
+Pour une Row directement bouclée, ajouter `wpsck-loop--alternating` à la Row, `wpsck-loop__media` à la colonne média et `wpsck-loop__content` à la colonne contenu. Pour une Loop portée par un Group, ajouter `wpsck-loop--alternating` au Group, `wpsck-loop__layout` à sa Row interne, puis les mêmes classes média et contenu aux colonnes. Le CSS inverse seulement les colonnes paires sur desktop et restaure toujours média puis contenu à 980 px et moins. Les anciennes classes `wpsck-testimonial-loop--*` restent compatibles.
 
 Le contrat de données est builder-agnostic : WPSCK fournit données, requête, consentement et providers ; Divi fournit présentation et responsive. Les mêmes métas publiques restent disponibles pour Gutenberg/custom-fields et de futurs adaptateurs Spectra/Astra, sans stockage spécifique à Divi.

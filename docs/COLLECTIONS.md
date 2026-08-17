@@ -884,6 +884,8 @@ Pour l'Annuaire, le pipeline public est strictement : normalisation et déduplic
 
 La liste `ids` définit une population admissible, pas un ordre d'affichage. `orderby` et `order` déterminent l'ordre final comme avant RC.3. Le shortcode, son alias, le renderer partagé, le module Divi et l'aperçu Builder consomment cette même API canonique.
 
+La Native Loop Annuaire et Intervenants consomme également cette fonction, sans seconde requête métier. Ses paramètres virtuels `status`, `profile_type`, `profile_type_operator`, `seeking_models`, `department`, `country`, `featured`, `ids`, `exclude_ids`, `limit`, `offset`, `orderby` et `order` sont normalisés avant d'injecter les IDs éligibles dans QueryResults. Le rendu Annuaire détaillé et le rendu Intervenants compact sont des choix de design ; ils ne modifient ni la Collection ni le stockage.
+
 ## 16. Témoignages — consentement et sélection Native Divi Loop
 
 Une fiche est publique uniquement si elle est publiée, non protégée par mot de passe et porte la valeur exacte `_seed_testimonial_publication_consent=1`. Une méta absente, `0` ou toute autre valeur échoue fermée, y compris avec `ids` explicites.
@@ -897,3 +899,11 @@ Le Loop Builder Divi 5 consomme cette Collection via l’adaptateur officiel. Le
 Le contexte filtre d’abord `seed_testimonial_context`. `_seed_testimonial_context` intervient uniquement si la méta publique n’existe pas ; une divergence est toujours tranchée en faveur de la valeur publique.
 
 Dans un Group Carousel natif, la Loop appartient au Group/slide. Les providers WPSCK conservent l’item imbriqué via `loop_id` ou `loop_object` sans déplacer la requête ou le design dans Content Kit.
+
+## 17. Classifications Annuaire configurables
+
+Les filtres canoniques Annuaire sont `status=<slug>`, `profile_type=<slug>` et `profile_types=<liste>` avec opérateur OR/AND. Les slugs viennent des registries WPSCK, y compris les valeurs inactives encore utilisées. Les valeurs historiques `practicing` et `seeking_models` sont traduites en lecture vers `en_exercice` et `recherche_modeles`; l'argument `seeking_models` reste un alias compatible pour les intégrations existantes.
+
+Les taxonomies `wp_seed_directory_status` et `wp_seed_directory_profile_type` sont des projections reconstruisibles. L'adaptateur Native Loop traduit les sélections taxonomy Divi en arguments de la Collection, supprime ces clauses techniques de la requête finale, puis applique toutes les règles d'éligibilité avant `post__in`. Les Meta Query virtuelles historiques restent prises en charge mais ne sont plus recommandées pour les nouveaux designs.
+
+Les tris `menu_order`, `name`, `status` et `profile_type` peuvent être combinés, par exemple `profile_type,status,menu_order,name`. Le statut suit l'ordre de son registry. Le profil suit le rang le plus élevé parmi les types assignés à la fiche, ce qui rend le comportement multi-profile stable. L'ID conclut toujours les égalités.

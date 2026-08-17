@@ -13,6 +13,19 @@ $GLOBALS['seed_l3_caps'] = true;
 $GLOBALS['seed_l3_hooks'] = array('actions' => array(), 'filters' => array());
 $GLOBALS['seed_l3_meta_boxes'] = array();
 $GLOBALS['seed_l3_registered_meta'] = array();
+$GLOBALS['seed_l3_rest_fields'] = array();
+$GLOBALS['seed_l3_options'] = array(
+    'wp_seed_content_directory_contact_type_settings' => array(
+        array(
+            'slug' => 'website',
+            'label' => 'Site internet',
+            'behavior' => 'url',
+            'active' => true,
+            'order' => 30,
+            'individual_provider' => true,
+        ),
+    ),
+);
 
 class WP_Error
 {
@@ -105,9 +118,17 @@ function get_post($post_id)
 {
     return isset($GLOBALS['seed_l3_posts'][$post_id]) ? $GLOBALS['seed_l3_posts'][$post_id] : null;
 }
+function get_option($key, $default = false)
+{
+    return array_key_exists($key, $GLOBALS['seed_l3_options']) ? $GLOBALS['seed_l3_options'][$key] : $default;
+}
 function get_post_meta($post_id, $key, $single = false)
 {
     return isset($GLOBALS['seed_l3_meta'][$post_id][$key]) ? $GLOBALS['seed_l3_meta'][$post_id][$key] : '';
+}
+function metadata_exists($type, $post_id, $key)
+{
+    return isset($GLOBALS['seed_l3_meta'][$post_id]) && array_key_exists($key, $GLOBALS['seed_l3_meta'][$post_id]);
 }
 function get_post_thumbnail_id($post_id)
 {
@@ -173,6 +194,10 @@ function register_post_meta($post_type, $key, $args)
 {
     $GLOBALS['seed_l3_registered_meta'][$key] = $args;
 }
+function register_rest_field($post_type, $field, $args)
+{
+    $GLOBALS['seed_l3_rest_fields'][$post_type][$field] = $args;
+}
 function register_post_type($post_type, $args)
 {
     return (object) $args;
@@ -218,6 +243,7 @@ $expected_keys = array(
     '_seed_directory_department',
     '_seed_directory_country',
     '_seed_directory_featured',
+    '_seed_directory_profession',
     '_seed_directory_phone',
     '_seed_directory_phone_visible',
     '_seed_directory_email',
@@ -233,11 +259,11 @@ $expected_keys = array(
     '_seed_directory_last_verified',
 );
 seed_l3_same($expected_keys, array_keys(wp_seed_content_directory_get_meta_definitions()), 'Exact canonical meta definitions');
-seed_l3_same(22, count(wp_seed_content_directory_get_meta_definitions()), 'Exact RC2 business meta count');
-seed_l3_same(array('practicing', 'seeking_models'), array_keys(wp_seed_content_directory_get_statuses()), 'Exact statuses');
+seed_l3_same(23, count(wp_seed_content_directory_get_meta_definitions()), 'Exact Directory private and legacy meta count');
+seed_l3_same(array('en_exercice', 'recherche_modeles'), array_keys(wp_seed_content_directory_get_statuses()), 'Exact statuses');
 
 $cases = array(
-    array('_seed_directory_status', 'practicing', 'practicing'),
+    array('_seed_directory_status', 'practicing', 'en_exercice'),
     array('_seed_directory_status', 'other', ''),
     array('_seed_directory_profile_types', array('intervenant', 'invalid', 'praticien', 'intervenant'), array('praticien', 'intervenant')),
     array('_seed_directory_seeking_models', 1, '1'),
@@ -360,6 +386,260 @@ $GLOBALS['seed_l3_images'][90] = false;
 seed_l3_assert(in_array('invalid_photo', wp_seed_content_directory_get_publication_errors($post_id), true), 'Non-image rejected');
 $GLOBALS['seed_l3_images'][90] = true;
 
+$GLOBALS['seed_l3_posts'][$post_id]->post_status = 'draft';
+unset($GLOBALS['seed_l3_meta'][90]['_wp_attachment_image_alt']);
+$filtered_publish = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory',
+    'post_status' => 'publish',
+    'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('draft', $filtered_publish['post_status'], 'Draft publication with missing photo alt remains blocked');
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+wp_seed_content_directory_sync_pending_validation($post_id);
+
+$GLOBALS['seed_l3_posts'][$post_id]->post_status = 'publish';
+$grandfathered_edits = array(
+    'phone' => array('meta_input' => array('_seed_directory_phone' => '+33 1 99 88 77 66')),
+    'summary' => array(),
+    'professional label' => array('meta_input' => array('seed_directory_professional_label' => 'Praticienne')),
+);
+foreach ($grandfathered_edits as $edit_label => $postarr) {
+    $postarr['ID'] = $post_id;
+    $filtered_update = wp_seed_content_directory_filter_insert_post_data(array(
+        'post_type' => 'seed_directory',
+        'post_status' => 'publish',
+        'post_title' => 'Fiche fictive',
+        'post_excerpt' => 'Résumé modifié',
+    ), $postarr);
+    seed_l3_same('publish', $filtered_update['post_status'], 'Published entry keeps status for grandfathered ' . $edit_label . ' edit');
+    wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+    seed_l3_same(array('missing_photo_alt'), wp_seed_content_directory_get_validation_warning($post_id), 'Persistent warning stored after ' . $edit_label . ' edit');
+}
+
+$GLOBALS['seed_l3_meta'][90]['_wp_attachment_image_alt'] = 'Portrait fictif';
+wp_seed_content_directory_sync_validation_warning($post_id, array());
+wp_seed_content_directory_sync_pending_validation($post_id);
+$_POST = array(
+    'wp_seed_content_directory_nonce' => 'valid',
+    '_seed_directory_photo_alt' => '',
+    '_seed_directory_publication_authorized' => '1',
+);
+$filtered_new_error = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory',
+    'post_status' => 'publish',
+    'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('publish', $filtered_new_error['post_status'], 'First new missing photo alt save keeps valid published entry online');
+$GLOBALS['seed_l3_meta'][90]['_wp_attachment_image_alt'] = '';
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+seed_l3_same('pending', wp_seed_content_directory_get_pending_validation($post_id)['status'], 'First correctable error stores a private pending marker');
+seed_l3_same('pending', wp_seed_content_directory_get_validation_editor_state($post_id)['state'], 'Persistent editor state exposes first warning');
+seed_l3_assert(false === strpos(serialize(wp_seed_content_directory_get_pending_validation($post_id)), 'Portrait'), 'Pending marker stores no submitted value');
+
+$_POST = array('wp_seed_content_directory_nonce' => 'valid', '_seed_directory_photo_alt' => 'Portrait corrigé', '_seed_directory_publication_authorized' => '1');
+$filtered_corrected = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory',
+    'post_status' => 'publish',
+    'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('publish', $filtered_corrected['post_status'], 'Correction between saves preserves publication');
+$GLOBALS['seed_l3_meta'][90]['_wp_attachment_image_alt'] = 'Portrait corrigé';
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+seed_l3_same(array(), wp_seed_content_directory_get_pending_validation($post_id), 'Correction clears pending marker');
+
+$_POST = array('wp_seed_content_directory_nonce' => 'valid', '_seed_directory_photo_alt' => '', '_seed_directory_publication_authorized' => '1');
+$filtered_first_again = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory', 'post_status' => 'publish', 'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('publish', $filtered_first_again['post_status'], 'A later new correctable error starts a fresh warning cycle');
+$GLOBALS['seed_l3_meta'][90]['_wp_attachment_image_alt'] = '';
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+$filtered_second_same = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory', 'post_status' => 'publish', 'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('draft', $filtered_second_same['post_status'], 'Second unchanged invalid save moves entry to draft');
+$GLOBALS['seed_l3_posts'][$post_id]->post_status = 'draft';
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+seed_l3_same('drafted', wp_seed_content_directory_get_validation_editor_state($post_id)['state'], 'Draft transition remains visible persistently in editor state');
+
+$GLOBALS['seed_l3_posts'][$post_id]->post_status = 'publish';
+$_POST = array(
+    'wp_seed_content_directory_nonce' => 'valid',
+    'wp_seed_content_directory_publication_present' => '1',
+    '_seed_directory_photo_alt' => 'Portrait fictif',
+);
+$filtered_revocation = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory',
+    'post_status' => 'publish',
+    'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('draft', $filtered_revocation['post_status'], 'Authorization revocation keeps strict guard');
+$GLOBALS['seed_l3_posts'][$post_id]->post_status = 'draft';
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+
+$GLOBALS['seed_l3_posts'][$post_id]->post_status = 'publish';
+$GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_publication_authorized'] = '1';
+wp_seed_content_directory_sync_pending_validation($post_id);
+unset($GLOBALS['seed_l3_meta'][90]['_wp_attachment_image_alt']);
+$_POST = array();
+$filtered_grandfathered = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory',
+    'post_status' => 'publish',
+    'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('publish', $filtered_grandfathered['post_status'], 'Preexisting photo alt error is grandfathered');
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+$_POST = array('wp_seed_content_directory_nonce' => 'valid', '_seed_directory_photo_alt' => 'Portrait corrigé', '_seed_directory_publication_authorized' => '1');
+$filtered_fixed = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory',
+    'post_status' => 'publish',
+    'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('publish', $filtered_fixed['post_status'], 'Fixing preexisting error keeps published status');
+$GLOBALS['seed_l3_meta'][90]['_wp_attachment_image_alt'] = 'Portrait corrigé';
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+seed_l3_same(array(), wp_seed_content_directory_get_validation_warning($post_id), 'Persistent warning clears after error is fixed');
+$_POST = array();
+
+$contact_key = wp_seed_content_directory_contacts_meta_key();
+$GLOBALS['seed_l3_meta'][$post_id][$contact_key] = array();
+$GLOBALS['seed_l3_meta'][90]['_wp_attachment_image_alt'] = 'Portrait corrigé';
+$invalid_contact = array(array('row_id' => 'site-main', 'type' => 'website', 'value' => 'not-a-url', 'public' => '1', 'order' => 10, 'format' => 'full_link_v1'));
+$_POST = array(
+    'wp_seed_content_directory_nonce' => 'valid',
+    'wp_seed_content_directory_contacts_present' => '1',
+    'seed_directory_contacts' => $invalid_contact,
+    '_seed_directory_publication_authorized' => '1',
+);
+$filtered_contact_first = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory', 'post_status' => 'publish', 'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('publish', $filtered_contact_first['post_status'], 'Invalid repeatable website gets warning-first treatment');
+$GLOBALS['seed_l3_meta'][$post_id][$contact_key] = wp_seed_content_directory_sanitize_contacts($invalid_contact);
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+$pending_contact = wp_seed_content_directory_get_pending_validation($post_id);
+seed_l3_same('website', $pending_contact['errors'][0]['type'], 'Pending repeatable contact identifies its type');
+seed_l3_same('site-main', $pending_contact['errors'][0]['row_id'], 'Pending repeatable contact identifies its row');
+seed_l3_assert(false === strpos(serialize($pending_contact), 'not-a-url'), 'Private marker fingerprints invalid website without copying it');
+
+$changed_contact = array(array('row_id' => 'site-main', 'type' => 'website', 'value' => 'still-not-a-url', 'public' => '1', 'order' => 10, 'format' => 'full_link_v1'));
+$_POST['seed_directory_contacts'] = $changed_contact;
+$filtered_contact_changed = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory', 'post_status' => 'publish', 'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('publish', $filtered_contact_changed['post_status'], 'Different invalid value starts a new correction attempt');
+$GLOBALS['seed_l3_meta'][$post_id][$contact_key] = wp_seed_content_directory_sanitize_contacts($changed_contact);
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+$filtered_contact_same = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory', 'post_status' => 'publish', 'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('draft', $filtered_contact_same['post_status'], 'Second save of the same invalid repeatable website drafts entry');
+$GLOBALS['seed_l3_posts'][$post_id]->post_status = 'draft';
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+$filtered_contact_republish = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory', 'post_status' => 'publish', 'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('draft', $filtered_contact_republish['post_status'], 'Draft cannot republish with invalid website');
+
+$valid_contact = array(array('row_id' => 'site-main', 'type' => 'website', 'value' => 'https://example.test', 'public' => '1', 'order' => 10, 'format' => 'full_link_v1'));
+$_POST['seed_directory_contacts'] = $valid_contact;
+$filtered_contact_fixed_publish = wp_seed_content_directory_filter_insert_post_data(array(
+    'post_type' => 'seed_directory', 'post_status' => 'publish', 'post_title' => 'Fiche fictive',
+), array('ID' => $post_id));
+seed_l3_same('publish', $filtered_contact_fixed_publish['post_status'], 'Draft publishes after website correction');
+$GLOBALS['seed_l3_meta'][$post_id][$contact_key] = wp_seed_content_directory_sanitize_contacts($valid_contact);
+$GLOBALS['seed_l3_posts'][$post_id]->post_status = 'publish';
+wp_seed_content_directory_after_insert_post($post_id, $GLOBALS['seed_l3_posts'][$post_id], true, $GLOBALS['seed_l3_posts'][$post_id]);
+seed_l3_same(array(), wp_seed_content_directory_get_pending_validation($post_id), 'Successful republish clears pending validation state');
+$_POST = array();
+
+$format_cases = array(
+    46 => array('email', 'broken-email'),
+    47 => array('phone', 'letters-only'),
+);
+foreach ($format_cases as $case_id => $format_case) {
+    $GLOBALS['seed_l3_posts'][$case_id] = (object) array(
+        'ID' => $case_id, 'post_type' => 'seed_directory', 'post_status' => 'publish',
+        'post_password' => '', 'post_title' => 'Format fixture', 'post_excerpt' => '', 'menu_order' => 0,
+    );
+    $GLOBALS['seed_l3_meta'][$case_id] = array(
+        '_seed_directory_status' => 'practicing',
+        '_seed_directory_country' => 'FR',
+        '_seed_directory_publication_authorized' => '1',
+        $contact_key => array(),
+    );
+    $format_contacts = array(array(
+        'row_id' => 'row-' . $format_case[0], 'type' => $format_case[0],
+        'value' => $format_case[1], 'public' => '1', 'order' => 10, 'format' => 'full_link_v1',
+    ));
+    $_POST = array(
+        'wp_seed_content_directory_nonce' => 'valid',
+        'wp_seed_content_directory_contacts_present' => '1',
+        'seed_directory_contacts' => $format_contacts,
+        '_seed_directory_publication_authorized' => '1',
+    );
+    $format_first = wp_seed_content_directory_filter_insert_post_data(array(
+        'post_type' => 'seed_directory', 'post_status' => 'publish', 'post_title' => 'Format fixture',
+    ), array('ID' => $case_id));
+    seed_l3_same('publish', $format_first['post_status'], 'Invalid ' . $format_case[0] . ' gets warning-first treatment');
+    $GLOBALS['seed_l3_meta'][$case_id][$contact_key] = wp_seed_content_directory_sanitize_contacts($format_contacts);
+    wp_seed_content_directory_after_insert_post($case_id, $GLOBALS['seed_l3_posts'][$case_id], true, $GLOBALS['seed_l3_posts'][$case_id]);
+    $format_second = wp_seed_content_directory_filter_insert_post_data(array(
+        'post_type' => 'seed_directory', 'post_status' => 'publish', 'post_title' => 'Format fixture',
+    ), array('ID' => $case_id));
+    seed_l3_same('draft', $format_second['post_status'], 'Unchanged invalid ' . $format_case[0] . ' drafts on second save');
+}
+$_POST = array();
+
+$split_id = 48;
+$GLOBALS['seed_l3_posts'][$split_id] = (object) array(
+    'ID' => $split_id, 'post_type' => 'seed_directory', 'post_status' => 'publish',
+    'post_password' => '', 'post_title' => 'Gutenberg split fixture', 'post_excerpt' => '', 'menu_order' => 0,
+);
+$GLOBALS['seed_l3_meta'][$split_id] = array(
+    '_seed_directory_status' => 'practicing',
+    '_seed_directory_country' => 'FR',
+    '_seed_directory_publication_authorized' => '1',
+    $contact_key => array(),
+);
+$split_contacts = array(array(
+    'row_id' => 'website-split', 'type' => 'website', 'value' => 'www.example.test',
+    'public' => '1', 'order' => 10, 'format' => 'full_link_v1',
+));
+$_POST = array(
+    'wp_seed_content_directory_nonce' => 'valid',
+    'wp_seed_content_directory_contacts_present' => '1',
+    'seed_directory_contacts' => $split_contacts,
+    '_seed_directory_publication_authorized' => '1',
+);
+$split_context = wp_seed_content_directory_prepare_meta_save_validation($split_id, $GLOBALS['seed_l3_posts'][$split_id]);
+seed_l3_same('warning_first', $split_context['action'], 'Separate Gutenberg metabox save computes warning before contact write');
+$GLOBALS['seed_l3_meta'][$split_id][$contact_key] = wp_seed_content_directory_sanitize_contacts($split_contacts);
+wp_seed_content_directory_after_insert_post($split_id, $GLOBALS['seed_l3_posts'][$split_id], true, $GLOBALS['seed_l3_posts'][$split_id]);
+seed_l3_same('pending', wp_seed_content_directory_get_pending_validation($split_id)['status'], 'Separate Gutenberg metabox save persists warning state');
+$split_second = wp_seed_content_directory_prepare_meta_save_validation($split_id, $GLOBALS['seed_l3_posts'][$split_id]);
+seed_l3_same('drafted', $split_second['action'], 'Second separate Gutenberg metabox save detects unchanged error');
+wp_seed_content_directory_validation_request_context($split_id, null, true);
+$_POST = array();
+
+wp_seed_content_directory_register_validation_rest_field();
+seed_l3_assert(isset($GLOBALS['seed_l3_rest_fields']['seed_directory']['wpsck_directory_validation']), 'Private validation state has an edit-context REST projection');
+seed_l3_assert(!isset($GLOBALS['seed_l3_registered_meta'][wp_seed_content_directory_pending_validation_meta_key()]), 'Private pending marker is not registered as public post meta');
+$editor_script = file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'assets/js/directory-editor-validation.js');
+seed_l3_assert(false !== strpos($editor_script, 'PluginPostStatusInfo'), 'Gutenberg displays persistent validation state in post status UI');
+seed_l3_assert(false !== strpos($editor_script, 'isDismissible: false'), 'Gutenberg warning cannot disappear as a transient dismissal');
+seed_l3_assert(false !== strpos($editor_script, 'wp.apiFetch'), 'Gutenberg refreshes validation state after the real save cycle');
+seed_l3_assert(false !== strpos($editor_script, 'isSavingPost'), 'Gutenberg refresh waits for post save completion');
+seed_l3_assert(false !== strpos($editor_script, "addFilter('editor.preSavePost'"), 'Gutenberg records the explicit publish intent before the REST save resets editor state');
+seed_l3_assert(false !== strpos($editor_script, "addAction('editor.savePost'"), 'Gutenberg finalizes corrected publication after metabox saves');
+seed_l3_assert(false !== strpos($editor_script, '}, 20);'), 'Corrected publication runs after the Core metabox save action');
+seed_l3_assert(false !== strpos($editor_script, "'blocked' === validation.state || 'drafted' === validation.state"), 'Only a blocked WPSCK publication can enter corrected publish finalization');
+seed_l3_assert(false !== strpos($editor_script, "'none' !== record.wpsck_directory_validation.state"), 'Gutenberg refuses final publication until the post-save validation state is clean');
+seed_l3_assert(false !== strpos($editor_script, "dispatch('core').saveEntityRecord("), 'Corrected publish finalization uses the native WordPress Core Data store');
+seed_l3_assert(false !== strpos($editor_script, "'postType',\n                'seed_directory'"), 'Corrected publish finalization targets the directory post type');
+seed_l3_assert(false !== strpos(file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/admin.php'), "'wp-core-data'"), 'Gutenberg validation declares its Core Data dependency');
+seed_l3_assert(false !== strpos(file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/admin.php'), "'wp-hooks'"), 'Gutenberg validation declares its Hooks dependency');
+
 $GLOBALS['seed_l3_caps'] = true;
 $admin_data = wp_seed_content_directory_get_admin_data($post_id);
 seed_l3_same('Strictement interne', $admin_data['internal_note'], 'Authorized admin receives internal note');
@@ -387,9 +667,10 @@ seed_l3_same(array('cb', 'directory_photo', 'title', 'directory_status', 'direct
 wp_seed_content_directory_add_meta_boxes();
 seed_l3_same(5, count($GLOBALS['seed_l3_meta_boxes']), 'Exactly five custom panels');
 wp_seed_content_directory_register_post_type();
-seed_l3_same(22, count($GLOBALS['seed_l3_registered_meta']), 'All canonical RC2 meta registered');
-foreach ($GLOBALS['seed_l3_registered_meta'] as $registered) {
-    seed_l3_same(false, $registered['show_in_rest'], 'Registered meta remains private');
+seed_l3_same(33, count($GLOBALS['seed_l3_registered_meta']), 'Private workflow, repeatable contacts and portable public meta registered');
+foreach ($GLOBALS['seed_l3_registered_meta'] as $key => $registered) {
+    $expected_rest = '_' !== substr($key, 0, 1) && 'seed_directory_contacts' !== $key;
+    seed_l3_same($expected_rest, (bool) $registered['show_in_rest'], $key . ' REST visibility');
 }
 seed_l3_assert(isset($GLOBALS['seed_l3_hooks']['filters']['wp_insert_post_data']), 'Pre-write publication guard registered');
 seed_l3_assert(isset($GLOBALS['seed_l3_hooks']['actions']['wp_after_insert_post']), 'Post-write publication guard registered');
@@ -402,14 +683,15 @@ seed_l3_assert(false !== strpos($admin_source, 'wp_verify_nonce'), 'Save require
 seed_l3_assert(false !== strpos($admin_source, 'DOING_AUTOSAVE'), 'Save ignores autosave');
 seed_l3_assert(false !== strpos($admin_source, 'wp_is_post_revision'), 'Save ignores revision rows');
 seed_l3_assert(false !== strpos($admin_source, "current_user_can('edit_seed_directory_entry'"), 'Save requires object capability');
-seed_l3_assert(false !== strpos($admin_source, "Profil dans l’annuaire"), 'Profile panel title is explicit');
+seed_l3_assert(false !== strpos($admin_source, "Classement"), 'Classification panel title is explicit');
 seed_l3_assert(false !== strpos($admin_source, "_seed_directory_profile_types[]"), 'Profile panel supports multiple types');
-seed_l3_assert(false !== strpos($admin_source, "_seed_directory_seeking_models"), 'Profile panel exposes temporary seeking status');
+seed_l3_assert(false === strpos($admin_source, "Recherche actuellement des modèles"), 'Classification panel hides legacy seeking control');
 seed_l3_assert(false !== strpos($admin_source, "wp_seed_content_directory_profile_present"), 'Profile panel has a partial-save marker');
-seed_l3_assert(false !== strpos($admin_source, '&& !$profile_panel_present'), 'Partial saves preserve the new fields');
+seed_l3_assert(false !== strpos($admin_source, 'if ($profile_panel_present)'), 'Partial saves protect canonical classification fields');
 seed_l3_assert(false !== strpos($admin_source, "current_user_can('edit_seed_directory_entry'"), 'Editor capability protects profile fields');
 seed_l3_assert(false !== strpos($admin_source, 'La personne a autorisé la publication de ses informations'), 'Exact authorization label');
 seed_l3_assert(false !== strpos($admin_source, 'Cette autorisation est obligatoire pour publier la fiche'), 'Authorization help text');
+seed_l3_assert(false !== strpos($admin_source, 'wp_seed_content_directory_get_validation_editor_state'), 'Persistent two-step and grandfathered state is rendered in the editor');
 seed_l3_assert(false !== strpos($admin_source, '#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{display:block;width:100%;box-sizing:border-box}'), 'Directory text inputs use scoped fluid sizing');
 seed_l3_assert(false !== strpos($admin_source, '#wp_seed_content_directory_situation .regular-text{max-width:400px}'), 'Situation fields preserve the desktop width cap');
 seed_l3_assert(false !== strpos($admin_source, '@media(max-width:782px){#wp_seed_content_directory_situation .regular-text,#wp_seed_content_directory_contacts .regular-text{max-width:100%}'), 'Directory text inputs become fluid at the WordPress mobile breakpoint');
