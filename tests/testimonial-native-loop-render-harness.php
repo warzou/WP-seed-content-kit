@@ -22,10 +22,14 @@ $assets = file_get_contents($root . '/plugin/includes/integrations/divi/testimon
 $structural_assets = file_get_contents($root . '/plugin/includes/integrations/divi/native-loop-structural-assets.php');
 $context = file_get_contents($root . '/plugin/includes/integrations/divi/loop-context.php');
 
-wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-testimonial-loop--alternating:nth-child(odd)'), 'Legacy testimonial odd row selector is missing.');
-wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-testimonial-loop--alternating:nth-child(even)'), 'Legacy testimonial even row selector is missing.');
-wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-loop--alternating:nth-child(odd)'), 'Shared odd Loop selector is missing.');
-wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-loop--alternating:nth-child(even)'), 'Shared even Loop selector is missing.');
+wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-testimonial-loop--alternating:nth-child(odd of .wpsck-testimonial-loop--alternating)'), 'Legacy testimonial odd clone selector is missing.');
+wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-testimonial-loop--alternating:nth-child(even of .wpsck-testimonial-loop--alternating)'), 'Legacy testimonial even clone selector is missing.');
+wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-loop--alternating:nth-child(odd of .wpsck-loop--alternating)'), 'Shared odd Loop clone selector is missing.');
+wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-loop--alternating:nth-child(even of .wpsck-loop--alternating)'), 'Shared even Loop clone selector is missing.');
+wpsck_loop_render_assert(false === strpos($structural_css, '.wpsck-testimonial-loop--alternating:nth-child(odd)'), 'Legacy testimonial selector must not count Divi overlay siblings.');
+wpsck_loop_render_assert(false === strpos($structural_css, '.wpsck-testimonial-loop--alternating:nth-child(even)'), 'Legacy testimonial selector must not count Divi overlay siblings.');
+wpsck_loop_render_assert(false === strpos($structural_css, '.wpsck-loop--alternating:nth-child(odd)'), 'Shared Loop selector must not count Divi overlay siblings.');
+wpsck_loop_render_assert(false === strpos($structural_css, '.wpsck-loop--alternating:nth-child(even)'), 'Shared Loop selector must not count Divi overlay siblings.');
 wpsck_loop_render_assert(false !== strpos($structural_css, '> .wpsck-loop__layout > .wpsck-loop__media'), 'Nested Loop media selector is missing.');
 wpsck_loop_render_assert(false !== strpos($structural_css, '> .wpsck-loop__layout > .wpsck-loop__content'), 'Nested Loop content selector is missing.');
 wpsck_loop_render_assert(false !== strpos($css, 'scroll-margin-top: 7rem'), 'Sticky header anchor offset is missing.');
@@ -42,6 +46,7 @@ wpsck_loop_render_assert(false !== strpos($structural_css, 'max-width: 100% !imp
 wpsck_loop_render_assert(false !== strpos($structural_css, 'min-width: 0 !important'), 'Narrow columns are not protected from intrinsic overflow.');
 wpsck_loop_render_assert(false !== strpos($structural_css, 'flex: 0 0 100% !important'), 'Inherited Divi flex sizing is not neutralized.');
 wpsck_loop_render_assert(false !== strpos($structural_css, 'grid-column: 1 / -1 !important'), 'Desktop grid placement is not neutralized on narrow screens.');
+wpsck_loop_render_assert(false === strpos($structural_css, 'row-reverse'), 'Alternation must not change semantic DOM order.');
 wpsck_loop_render_assert(false === strpos($structural_css, 'font-'), 'Structural CSS must not set typography.');
 wpsck_loop_render_assert(false === strpos($structural_css, 'color:'), 'Structural CSS must not set colors.');
 wpsck_loop_render_assert(false === strpos($structural_css, 'background'), 'Structural CSS must not set backgrounds.');
@@ -79,6 +84,28 @@ wpsck_loop_render_assert(false === strpos($assets, 'MutationObserver'), 'DOM obs
 wpsck_loop_render_assert(false === strpos($assets, '<script'), 'Inline script workaround is forbidden.');
 wpsck_loop_render_assert(false === strpos($structural_assets, 'MutationObserver'), 'Shared DOM observer workaround is forbidden.');
 wpsck_loop_render_assert(false === strpos($structural_assets, '<script'), 'Shared inline script workaround is forbidden.');
+
+$builder_states = array(
+    'frontend' => array('clone', 'clone', 'clone'),
+    'builder_no_hover' => array('clone', 'clone', 'clone'),
+    'builder_row_hover' => array('overlay', 'clone', 'overlay', 'clone', 'overlay', 'clone'),
+    'builder_row_selected' => array('portal', 'overlay', 'clone selected', 'overlay', 'clone', 'overlay', 'clone'),
+    'builder_child_selected' => array('portal', 'clone child-selected', 'overlay', 'clone', 'overlay', 'clone'),
+);
+foreach ($builder_states as $state => $siblings) {
+    $positions = array();
+    $raw_positions = array();
+    foreach ($siblings as $raw_index => $sibling) {
+        if (0 === strpos($sibling, 'clone')) {
+            $positions[] = count($positions) + 1;
+            $raw_positions[] = $raw_index + 1;
+        }
+    }
+    wpsck_loop_render_assert(array(1, 2, 3) === $positions, 'Filtered clone parity changed in state: ' . $state);
+    if (0 === strpos($state, 'builder_') && 'builder_no_hover' !== $state) {
+        wpsck_loop_render_assert($raw_positions !== $positions, 'Builder overlays did not reproduce raw nth-child instability: ' . $state);
+    }
+}
 
 if ($failures) {
     fwrite(STDERR, 'FAIL ' . count($failures) . '/' . $assertions . ': ' . implode(', ', $failures) . PHP_EOL);

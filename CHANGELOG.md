@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.8.0-rc.7] - 2026-08-17
+
+### Fixed
+
+- Stabilise les layouts alternés des Native Loops dans le Visual Builder Divi.
+- Les overlays de l'éditeur ne modifient plus la parité impair/pair des clones lors du survol ou de la sélection des Rows et modules.
+- Le frontend et le comportement responsive media-first restent inchangés.
+- Correctif validé visuellement sur Témoignages et Annuaire/Intervenants.
+
 ## [0.8.0-rc.6] - 2026-08-17
 
 ### Annuaire : modèle portable et Native Loop

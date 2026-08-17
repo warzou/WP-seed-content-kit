@@ -1,25 +1,25 @@
 @media (min-width: 981px) {
-    .wpsck-testimonial-loop--alternating:nth-child(odd) > .wpsck-testimonial-loop__media,
-    .wpsck-loop--alternating:nth-child(odd) > .wpsck-loop__media,
-    .wpsck-loop--alternating:nth-child(odd) > .wpsck-loop__layout > .wpsck-loop__media {
+    .wpsck-testimonial-loop--alternating:nth-child(odd of .wpsck-testimonial-loop--alternating) > .wpsck-testimonial-loop__media,
+    .wpsck-loop--alternating:nth-child(odd of .wpsck-loop--alternating) > .wpsck-loop__media,
+    .wpsck-loop--alternating:nth-child(odd of .wpsck-loop--alternating) > .wpsck-loop__layout > .wpsck-loop__media {
         order: 1;
     }
 
-    .wpsck-testimonial-loop--alternating:nth-child(odd) > .wpsck-testimonial-loop__content,
-    .wpsck-loop--alternating:nth-child(odd) > .wpsck-loop__content,
-    .wpsck-loop--alternating:nth-child(odd) > .wpsck-loop__layout > .wpsck-loop__content {
+    .wpsck-testimonial-loop--alternating:nth-child(odd of .wpsck-testimonial-loop--alternating) > .wpsck-testimonial-loop__content,
+    .wpsck-loop--alternating:nth-child(odd of .wpsck-loop--alternating) > .wpsck-loop__content,
+    .wpsck-loop--alternating:nth-child(odd of .wpsck-loop--alternating) > .wpsck-loop__layout > .wpsck-loop__content {
         order: 2;
     }
 
-    .wpsck-testimonial-loop--alternating:nth-child(even) > .wpsck-testimonial-loop__media,
-    .wpsck-loop--alternating:nth-child(even) > .wpsck-loop__media,
-    .wpsck-loop--alternating:nth-child(even) > .wpsck-loop__layout > .wpsck-loop__media {
+    .wpsck-testimonial-loop--alternating:nth-child(even of .wpsck-testimonial-loop--alternating) > .wpsck-testimonial-loop__media,
+    .wpsck-loop--alternating:nth-child(even of .wpsck-loop--alternating) > .wpsck-loop__media,
+    .wpsck-loop--alternating:nth-child(even of .wpsck-loop--alternating) > .wpsck-loop__layout > .wpsck-loop__media {
         order: 2;
     }
 
-    .wpsck-testimonial-loop--alternating:nth-child(even) > .wpsck-testimonial-loop__content,
-    .wpsck-loop--alternating:nth-child(even) > .wpsck-loop__content,
-    .wpsck-loop--alternating:nth-child(even) > .wpsck-loop__layout > .wpsck-loop__content {
+    .wpsck-testimonial-loop--alternating:nth-child(even of .wpsck-testimonial-loop--alternating) > .wpsck-testimonial-loop__content,
+    .wpsck-loop--alternating:nth-child(even of .wpsck-loop--alternating) > .wpsck-loop__content,
+    .wpsck-loop--alternating:nth-child(even of .wpsck-loop--alternating) > .wpsck-loop__layout > .wpsck-loop__content {
         order: 1;
     }
 }
