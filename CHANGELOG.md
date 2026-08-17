@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.8.0] - 2026-08-17
+
+### Annuaire portable et intégrations builder-agnostic
+
+- Ajoute le support Annuaire dans les Native Loops Divi avec filtres taxonomiques pour les statuts et types de profil, ordre stable et intitulé professionnel facultatif.
+- Expose le résumé, la présentation complète et le découpage portable WordPress `<!--more-->` sans stockage propre à un builder.
+- Remplace les contacts fixes par des coordonnées individuelles à lien complet, avec providers d'affichage, de lien et de présence générés depuis un registre extensible.
+- Conserve la maîtrise de la structure, des icônes et du design dans les builders, avec compatibilité Divi Link, Gutenberg, Block Bindings et Content Data API pour les intégrations Spectra/Astra.
+- Sécurise l'édition des registres : suppression des valeurs personnalisées inutilisées, blocage des valeurs utilisées ou système et désactivation non destructive.
+- Améliore la validation de publication en deux étapes : avertissement initial, protection contre une erreur persistante et republication en un cycle après correction.
+- Supprime le rendu composite des coordonnées et le stockage d'icônes personnalisées devenus sans consommateur actif.
+
+### Native Loops Divi
+
+- Stabilise l'alternance gauche/droite dans le Visual Builder en excluant les overlays Divi du calcul impair/pair des clones.
+- Conserve l'ordre sémantique du DOM, le rendu frontend desktop et le comportement media-first sur tablette et téléphone.
+- Valide les contrats Native Loop, Dynamic Content et Group Carousel pour Témoignages, Citations et Annuaire/Intervenants.
+
 ## [0.8.0-rc.7] - 2026-08-17
 
 ### Fixed

@@ -1,11 +1,11 @@
 # Project Snapshot - WP Seed Content Kit
 
 Date : 13 août 2026
-Statut : 0.8.0-rc.6 ; contrat Annuaire portable et Native Divi Loop validé, non stable
-Version courante du code : 0.8.0-rc.6
-Version stable publiee de reference : 0.7.0
-Commit de base de preparation stable : 8a6fb735a729d4b14c753c78f5304fb59349b287
-Tag stable publie de reference : v0.7.0
+Statut : 0.8.0 stable ; contrats Annuaire portable et Native Divi Loop validés
+Version courante du code : 0.8.0
+Version stable publiee de reference : 0.8.0
+Commit de base de preparation stable : commit portant le tag v0.8.0
+Tag stable publie de reference : v0.8.0
 WordPress minimum : 6.5
 PHP minimum : 7.0
 
