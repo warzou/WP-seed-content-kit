@@ -1,11 +1,11 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 13 août 2026
-Statut : 0.8.0 stable ; contrats Annuaire portable et Native Divi Loop validés
-Version courante du code : 0.8.0
-Version stable publiee de reference : 0.8.0
-Commit de base de preparation stable : commit portant le tag v0.8.0
-Tag stable publie de reference : v0.8.0
+Date : 18 août 2026
+Statut : 0.8.1 stable ; contrats Testimonials, Annuaire portable et Native Divi Loop validés
+Version courante du code : 0.8.1
+Version stable publiee de reference : 0.8.1
+Commit de base de preparation stable : commit portant le tag v0.8.1
+Tag stable publie de reference : v0.8.1
 WordPress minimum : 6.5
 PHP minimum : 7.0
 
@@ -38,7 +38,7 @@ Il combine actuellement :
 
 Pour les Templates Témoignages fondés sur un Layout Divi Library, le renderer transmet désormais explicitement l'ID de chaque témoignage. `value.post_id` est injecté dans la représentation JSON directe ou sérialisée des cinq variables Dynamic Content autorisées avant le parsing frontend, puis le Layout est parsé et resérialisé uniquement en mémoire. Une pile interne bornée, restaurée dans `finally`, isole les cartes. Un signal attendu/résolu refuse les cartes dynamiques non résolues et laisse le fallback natif prendre le relais sur la seule carte en erreur. Le Layout, ses révisions et ses métadonnées restent inchangés.
 
-Sous Divi 5.9.0, le groupe Dynamic Content « WPSCK — Témoignages » expose neuf champs compatibles avec une Native Loop et résolus par item dans le frontend et le Visual Builder. Les Grid Offset Rules de Divi ciblent seulement les enfants directs du conteneur courant ; elles ne peuvent pas inverser les colonnes internes selon la parité du clone Loop parent. L’alternance utilise donc un CSS structurel opt-in, sans style éditorial.
+Sous Divi 5.9.0, le groupe Dynamic Content « WPSCK — Témoignages » expose douze champs compatibles avec une Native Loop et résolus par item dans le frontend et le Visual Builder. Le contrat inclut le résumé court, le texte complet et les projections WordPress More `intro`, `more` et `has_more`. La condition `WPSCK — Témoignages — Témoignage avec suite` utilise le provider canonique `loop_wpsck_testimonial_has_more`. Les Grid Offset Rules de Divi ciblent seulement les enfants directs du conteneur courant ; elles ne peuvent pas inverser les colonnes internes selon la parité du clone Loop parent. L’alternance utilise donc un CSS structurel opt-in, sans style éditorial. Son owner peut être une Section, une Row ou un Group. Le responsive historique reste média puis contenu ; les classes génériques `wpsck-loop--mobile-content-first` et `wpsck-loop--mobile-media-first` permettent un choix explicite par recette.
 
 Le plugin ne doit pas devenir un builder, un thème ou le registre central de l'écosystème WP Seed.
 
@@ -66,8 +66,11 @@ Témoignages :
 
 - CPT `seed_testimonial` ;
 - module activable, actif par défaut ;
-- nom ou initiales ;
-- texte ;
+- nom ou initiales canonique dans `seed_testimonial_name` ;
+- titre WordPress technique synchronisé depuis le nom ;
+- résumé court canonique dans `post_excerpt` ;
+- texte canonique dans `seed_testimonial_text` avec marqueur WordPress More facultatif ;
+- projections texte complet, introduction, suite et `has_more` ;
 - photo via l'image mise en avant WordPress ;
 - mise en avant ;
 - ordre manuel ;
@@ -311,7 +314,7 @@ Le socle PHP Dynamic Data V1 est implémenté dans :
 
 Il est chargé globalement après `core/content-data.php` et avant `core/modules.php`, indépendamment des modules actifs et des builders.
 
-Le registre V1 comprend exactement treize champs :
+Le registre Dynamic Data conserve les champs Citations et Annuaire existants et expose le contrat Témoignages consolidé :
 
 - `quote.quote` ;
 - `quote.author` ;
@@ -319,7 +322,16 @@ Le registre V1 comprend exactement treize champs :
 - `quote.source` ;
 - `quote.featured` ;
 - `quote.display_order` ;
+- `testimonial.title` ;
+- `testimonial.summary` ;
 - `testimonial.text` ;
+- `testimonial.full_content` ;
+- `testimonial.intro` ;
+- `testimonial.more` ;
+- `testimonial.has_more` ;
+- `testimonial.id` ;
+- `testimonial.anchor` ;
+- `testimonial.anchor_url` ;
 - `testimonial.name` ;
 - `testimonial.context` ;
 - `testimonial.testimonial_date` ;
@@ -359,16 +371,17 @@ Il est chargé globalement après `core/dynamic-data.php` et avant `core/modules
 
 La source publique est `wp-seed-content-kit/dynamic-data`. Elle est enregistrée sur `init` à la priorité 10 par `wp_seed_content_register_gutenberg_block_bindings_source()` et résolue par `wp_seed_content_get_gutenberg_binding_value()`. Elle utilise les contextes `postId` et `postType`.
 
-Le provider texte V1 expose uniquement huit champs, annoncés comme `string` côté Gutenberg :
+Le provider texte expose une allowlist explicite, annoncée comme `string` côté Gutenberg. Pour les Témoignages, elle contient :
 
-- `quote.quote` ;
-- `quote.author` ;
-- `quote.era` ;
-- `quote.source` ;
+- `testimonial.summary` ;
 - `testimonial.text` ;
+- `testimonial.intro` ;
+- `testimonial.more` ;
 - `testimonial.name` ;
 - `testimonial.context` ;
 - `testimonial.testimonial_date`.
+
+Les quatre champs texte Citation et les champs Annuaire documentés restent disponibles. `testimonial.has_more` demeure un booléen métier hors des bindings texte Core ; Divi le transporte séparément en `1` ou chaîne vide pour sa condition clone-aware.
 
 Les cibles V1 sont `core/paragraph.content` et `core/heading.content`. Les arguments serveur sont `field_id`, obligatoire, et `post_id`, facultatif et autoritaire. Un `post_id` explicite ne retombe jamais sur le contexte courant après un échec.
 

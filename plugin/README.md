@@ -1,6 +1,6 @@
 # WP Seed Content Kit
 
-Statut du package : 0.8.0 stable, contrats Annuaire portable et Native Divi Loop validés.
+Statut du package : 0.8.1 stable, contrats Testimonials, Annuaire portable et Native Divi Loop validés.
 
 WP Seed Content Kit est un plugin WordPress de contenus éditoriaux structurés et de présentations réutilisables.
 
@@ -25,7 +25,7 @@ Collections reste une API de sélection et un ensemble de paramètres. Aucun con
 - ordre manuel ;
 - templates réutilisables.
 
-Le stockage builder-compatible utilise `post_title`, `post_excerpt`, l’image mise en avant, `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context`. La date métier est optionnelle. Les anciennes métas `_seed_testimonial_*` restent uniquement des fallbacks de compatibilité.
+Le stockage builder-compatible utilise `post_excerpt`, l’image mise en avant, `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context`. `post_title` est un identifiant technique synchronisé au format `Témoignage — {Nom}` et n'est pas une seconde source éditoriale. Le texte accepte le marqueur WordPress More et projette le contenu complet, l'introduction, la suite et `has_more`. La date métier est optionnelle. Les anciennes métas de nom, texte et contexte restent des fallbacks de compatibilité ; `_seed_testimonial_summary` reste le fallback transitionnel de `post_excerpt`.
 
 ### Citations
 
@@ -69,11 +69,11 @@ Collections V1 sélectionne des Témoignages publics ordonnés et une Citation q
 
 ### Dynamic Data
 
-Dynamic Data expose 13 champs normalisés à des intégrations de présentation. Le résolveur utilise un contenu explicite ou le contexte WordPress courant, applique les permissions de lecture et retourne des valeurs vides typées lorsque le contexte n'est pas compatible.
+Dynamic Data expose les champs normalisés aux intégrations de présentation. Le résolveur utilise un contenu explicite ou le contexte WordPress courant, applique les permissions de lecture et retourne des valeurs vides typées lorsque le contexte n'est pas compatible.
 
 ### Gutenberg Block Bindings
 
-Un provider serveur permet de lier huit champs texte WP Seed à l'attribut `content` des blocs Paragraphe et Titre Core. L'interface éditeur native WP Seed n'est pas finalisée : aucun sélecteur dédié n'est annoncé dans Gutenberg.
+Un provider serveur permet de lier les champs texte WP Seed autorisés à l'attribut `content` des blocs Paragraphe et Titre Core. Pour les Témoignages, il inclut le résumé court, le texte complet, l'introduction, la suite, le nom, le contexte et la date. `testimonial.has_more` reste un booléen métier et n'est pas converti en faux texte pour les blocs Core. L'interface éditeur native WP Seed n'est pas finalisée : aucun sélecteur dédié n'est annoncé dans Gutenberg.
 
 ### Divi 5 Dynamic Content expérimental
 
@@ -81,13 +81,13 @@ Lorsqu'un Layout Divi Library sert de Template Témoignage, Content Kit injecte 
 
 L'édition isolée du Layout ne possède pas de témoignage courant et peut donc afficher ces champs vides. Aucun ID de démonstration n'est persisté pour fabriquer cet aperçu.
 
-Sous Divi 5, le provider Dynamic Content enregistre quatre champs Citation (Texte, Auteur, Époque, Source) et cinq champs Témoignage (Texte, Nom, Information complémentaire, Date du témoignage, Photo). Leur sélection et leur persistance visuelles ont été validées sous Divi 5.9.0.
+Sous Divi 5, le provider Dynamic Content enregistre quatre champs Citation et douze champs Témoignage. Leur sélection et leur persistance visuelles ont été validées sous Divi 5.9.0.
 
 Ces sources dépendent du contenu courant ou du contexte explicite fourni par un Template Content Kit. Elles complètent les Templates WP Seed et les layouts Divi Library ; elles ne les remplacent pas.
 
-Sous Divi 5.9.0, le groupe « WPSCK — Témoignages » regroupe Visuel, Titre, Résumé, Témoignage complet, Nom, Contexte, Date, ID et Ancre pour les boucles natives. Les valeurs sont résolues par item dans le frontend et le Visual Builder.
+Sous Divi 5.9.0, le groupe « WPSCK — Témoignages » regroupe Visuel, Titre technique, Résumé, Témoignage complet, Introduction, Suite du témoignage, Témoignage avec suite, Nom, Contexte, Date, ID et Ancre pour les boucles natives. Les valeurs sont résolues par item dans le frontend et le Visual Builder. La condition `WPSCK — Témoignages — Témoignage avec suite` consomme le provider canonique `loop_wpsck_testimonial_has_more` clone par clone.
 
-La Loop peut également porter le Group/slide d’un Group Carousel natif Divi. Les providers récupèrent alors le contexte imbriqué par `loop_id` ou `loop_object` ; aucun Carousel propriétaire n’est ajouté par WPSCK. Divi contrôle présentation et responsive, tandis que WPSCK contrôle données, requête, consentement et providers.
+La Loop peut également porter une Section, une Row ou le Group/slide d’un Group Carousel natif Divi. La classe `wpsck-loop--alternating` se place toujours sur l'élément réellement cloné ; `wpsck-loop--mobile-content-first` et `wpsck-loop--mobile-media-first` permettent de choisir l'ordre responsive sans modifier l'alternance desktop. Les providers récupèrent le contexte imbriqué par `loop_id` ou `loop_object` ; aucun Carousel propriétaire n’est ajouté par WPSCK. Divi contrôle présentation et responsive, tandis que WPSCK contrôle données, requête, consentement et providers.
 
 Le stockage reste builder-agnostic et compatible avec Gutenberg/custom-fields ainsi qu’avec de futurs adaptateurs Spectra/Astra. Annuaire réutilise les champs WordPress natifs et neuf métas publiques `seed_directory_*`, dont l'intitulé professionnel facultatif ; les métas privées historiques restent uniquement des fallbacks. Son groupe `WPSCK — Annuaire` expose les providers métier, dont les vues complète, introduction et suite dérivées du bloc More WordPress, dans les Native Loops et les Group Carousels natifs. L'intitulé professionnel reste une donnée éditoriale distincte des types de profil Praticien et Intervenant.
 

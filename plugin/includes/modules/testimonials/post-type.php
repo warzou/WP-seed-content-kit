@@ -40,7 +40,7 @@ function wp_seed_content_register_testimonial_post_type()
         'show_in_rest' => true,
         'menu_position' => 20,
         'menu_icon' => 'dashicons-format-quote',
-        'supports' => array('title', 'excerpt', 'thumbnail', 'revisions', 'page-attributes', 'custom-fields'),
+        'supports' => array('excerpt', 'thumbnail', 'revisions', 'page-attributes', 'custom-fields'),
         'has_archive' => true,
         'rewrite' => array(
             'slug' => 'testimonials',

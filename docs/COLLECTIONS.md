@@ -86,9 +86,12 @@ Le modèle cible comprend les données suivantes :
 
 | Identifiant métier | Type | Obligatoire | Valeur vide | Stockage actuel ou cible | Libellé utilisateur |
 | --- | --- | --- | --- | --- | --- |
-| titre | chaîne | Oui dans l'édition | `''` | `post_title` | Titre |
-| résumé | chaîne | Non | `''` | `post_excerpt` | Résumé |
+| titre technique | chaîne | Non éditorial | `''` | `post_title` | Généré depuis le nom |
+| résumé court | chaîne | Non | `''` | `post_excerpt` | Résumé court |
 | `testimonial.text` | chaîne multiligne | Oui dans l'édition | `''` | `seed_testimonial_text` | Témoignage |
+| `testimonial.intro` | chaîne multiligne | Non | `''` | projection de `seed_testimonial_text` | Introduction |
+| `testimonial.more` | chaîne multiligne | Non | `''` | projection de `seed_testimonial_text` | Suite du témoignage |
+| `testimonial.has_more` | booléen | Non | `false` | projection de `seed_testimonial_text` | Témoignage avec suite |
 | `testimonial.name` | chaîne | Non | `''` | `seed_testimonial_name` | Nom ou initiales |
 | `testimonial.photo` | objet média ou `null` | Non | `null` | image mise en avant WordPress | Photo |
 | `testimonial.testimonial_date` | chaîne ISO | Non | `''` | `_seed_testimonial_date` | Date du témoignage |
@@ -96,9 +99,9 @@ Le modèle cible comprend les données suivantes :
 | `testimonial.featured` | booléen | Non | `false` | `_seed_featured` | Mis en avant |
 | `testimonial.display_order` | entier | Non | `0` | `menu_order` | Position éditoriale |
 
-Les métas privées historiques `_seed_testimonial_text`, `_seed_testimonial_name` et `_seed_testimonial_context` sont uniquement des fallbacks backward compatibility. Dès que la méta publique correspondante existe, elle est la source de vérité, y compris si les deux valeurs divergent. Ce stockage public est indépendant de Divi et accessible au contrat custom-fields/Gutenberg.
+Les métas privées historiques `_seed_testimonial_text`, `_seed_testimonial_name` et `_seed_testimonial_context` sont uniquement des fallbacks backward compatibility. `_seed_testimonial_summary` reste le fallback transitionnel de `post_excerpt`. Dès que la source canonique correspondante existe, elle est la source de vérité, y compris si les valeurs divergent. Ce stockage public est indépendant de Divi et accessible au contrat custom-fields/Gutenberg.
 
-Le titre WordPress reste une donnée WordPress native servant à l'identification éditoriale. Il ne remplace jamais `testimonial.text` ou `testimonial.name`.
+Le titre WordPress est une donnée technique synchronisée au format `Témoignage — {Nom}`. Il n'est pas édité comme une donnée métier et ne remplace jamais `testimonial.text`, `testimonial.summary` ou `testimonial.name`.
 
 L'obligation de `testimonial.text` est une règle d'interface et de qualité éditoriale. Les couches de lecture doivent continuer à tolérer une chaîne vide pour les données historiques ou incomplètes.
 

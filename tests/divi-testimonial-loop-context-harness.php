@@ -9,6 +9,9 @@ function absint($value) { return abs((int) $value); }
 function is_wp_error($value) { return false; }
 function wp_seed_content_testimonial_is_publicly_visible($id) { return 2 !== (int) $id; }
 function wp_seed_content_resolve_dynamic_data($field, $context) {
+    if ('testimonial.has_more' === $field) {
+        return 3 !== (int) $context['current_post_id'];
+    }
     return 'testimonial.photo' === $field
         ? array('url' => 'photo-' . $context['current_post_id'] . '.jpg')
         : $field . ':' . $context['current_post_id'];
@@ -29,11 +32,17 @@ $data = $response->get_data(); $items = $data['data']['items'];
 $failures = array(); $assertions = 0;
 function same($expected, $actual, $label) { global $failures, $assertions; $assertions++; if ($expected !== $actual) { $failures[] = $label; } }
 $sources = wp_seed_content_divi_testimonial_loop_sources();
-same(9, count($sources), 'nine custom testimonial loop sources');
+same(12, count($sources), 'twelve custom testimonial loop sources');
 foreach ($sources as $source => $field) {
-    $expected_one = 'testimonial.photo' === $field ? 'photo-1.jpg' : $field . ':1';
-    $expected_two = 'testimonial.photo' === $field ? 'photo-3.jpg' : $field . ':3';
-    $expected_three = 'testimonial.photo' === $field ? 'photo-5.jpg' : $field . ':5';
+    if ('testimonial.has_more' === $field) {
+        $expected_one = '1';
+        $expected_two = '';
+        $expected_three = '1';
+    } else {
+        $expected_one = 'testimonial.photo' === $field ? 'photo-1.jpg' : $field . ':1';
+        $expected_two = 'testimonial.photo' === $field ? 'photo-3.jpg' : $field . ':3';
+        $expected_three = 'testimonial.photo' === $field ? 'photo-5.jpg' : $field . ':5';
+    }
     same($expected_one, $items[0][$source], $source . ' item one');
     same($expected_two, $items[1][$source], $source . ' item two');
     same($expected_three, $items[2][$source], $source . ' item three');

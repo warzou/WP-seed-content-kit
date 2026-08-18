@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.8.1] - 2026-08-18
+
+### Testimonials admin, summaries and More improvements
+
+- Uses the canonical testimonial name as the primary admin identity and keeps `post_title` as a generated technical label only.
+- Adds a clean WordPress editor for testimonial text and preserves native `<!--more-->`, custom More labels and `<!--noteaser-->` through sanitization and save paths.
+- Makes `post_excerpt` the canonical Short Summary while retaining historical `_seed_testimonial_summary` values as a non-destructive compatibility fallback.
+- Exposes testimonial summary, introduction, continuation and `has_more` consistently through Content Data, Dynamic Data, Block Bindings and Divi Native Loops.
+- Adds the clone-aware Divi condition `WPSCK — Témoignages — Témoignage avec suite` without frontend JavaScript or builder-specific business storage.
+- Stabilizes generic alternating Native Loops in the Divi Visual Builder and adds opt-in responsive content-first and media-first ordering classes while preserving the historical media-first default.
+
+### Compatibility
+
+- Keeps the historical testimonial name, text, context and summary fallbacks for upgrades and imports.
+- Removes the obsolete combined title/summary migration and the `_seed_testimonial_title` read fallback.
+- No testimonial, page or Directory data migration is run automatically by this release.
+
 ## [0.8.0] - 2026-08-17
 
 ### Annuaire portable et intégrations builder-agnostic

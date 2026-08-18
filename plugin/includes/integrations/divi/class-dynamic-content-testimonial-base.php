@@ -68,8 +68,12 @@ abstract class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base extends Dyn
             );
         }
 
-        if (is_wp_error($resolved_value) || !is_string($resolved_value)) {
+        if (is_wp_error($resolved_value) || !is_scalar($resolved_value)) {
             $resolved_value = '';
+        } elseif (is_bool($resolved_value)) {
+            $resolved_value = $resolved_value ? '1' : '';
+        } else {
+            $resolved_value = (string) $resolved_value;
         }
 
         $settings = isset($data_args['settings']) && is_array($data_args['settings'])

@@ -168,6 +168,21 @@ function wp_seed_content_load_divi_dynamic_content_testimonial_fields()
             'base' => $base_class_name,
         ),
         array(
+            'file' => __DIR__ . '/class-dynamic-content-testimonial-loop-fields.php',
+            'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Intro',
+            'base' => $base_class_name,
+        ),
+        array(
+            'file' => __DIR__ . '/class-dynamic-content-testimonial-loop-fields.php',
+            'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_More',
+            'base' => $base_class_name,
+        ),
+        array(
+            'file' => __DIR__ . '/class-dynamic-content-testimonial-loop-fields.php',
+            'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Has_More',
+            'base' => $base_class_name,
+        ),
+        array(
             'file' => __DIR__ . '/class-dynamic-content-testimonial-name.php',
             'class' => 'WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Name',
             'base' => $base_class_name,

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Seed Content Kit
  * Description: Modular editorial content and reusable displays for WordPress.
- * Version: 0.8.0
+ * Version: 0.8.1
  * Requires at least: 6.5
  * Requires PHP: 7.0
  * Author: WP Seed Content Kit
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_SEED_CONTENT_KIT_VERSION', '0.8.0');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.8.1');
 define('WP_SEED_CONTENT_KIT_FILE', __FILE__);
 define('WP_SEED_CONTENT_KIT_DIR', plugin_dir_path(__FILE__));
 define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
@@ -66,6 +66,7 @@ if (wp_seed_content_kit_is_module_active('testimonials')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/post-type.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/meta-boxes.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/save-meta.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/editorial-identity.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/migration.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/render.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/template-data.php';
@@ -75,6 +76,7 @@ if (wp_seed_content_kit_is_module_active('testimonials')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-collection-query.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-loop-context.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-native-loop-assets.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-has-more-condition.php';
 }
 if (wp_seed_content_kit_is_module_active('quotes')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/post-type.php';

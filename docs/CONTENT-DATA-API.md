@@ -79,7 +79,7 @@ Les consommateurs doivent pouvoir distinguer simplement une valeur absente d'un 
 | Champ | Type | État vide ou règle |
 | --- | --- | --- |
 | `id` | entier | Un objet sans identifiant valide n'est pas retourné comme Citation valide. |
-| `title` | chaîne | Chaîne vide autorisée. Le titre reste une donnée WordPress. |
+| `title` | chaîne | Identifiant WordPress technique synchronisé depuis `name`, jamais une seconde source éditoriale. |
 | `slug` | chaîne | Chaîne vide si aucun identifiant d'URL exploitable n'est disponible. |
 | `status` | chaîne | Statut WordPress normalisé du contenu. |
 | `permalink` | chaîne | Chaîne vide si aucun permalien n'est disponible. Conservé tant que le CPT reste public. |
@@ -122,6 +122,10 @@ Les consommateurs doivent pouvoir distinguer simplement une valeur absente d'un 
 | Champ | Type | État vide ou règle |
 | --- | --- | --- |
 | `text` | chaîne | Valeur métier principale. Chaîne vide si absente. |
+| `full_content` | chaîne | Contenu complet sans marqueur technique More. Alias explicite de `text`. |
+| `intro` | chaîne | Partie avant le premier marqueur WordPress More, ou contenu complet sans marqueur. |
+| `more` | chaîne | Partie après le premier marqueur WordPress More, vide sans marqueur. |
+| `has_more` | booléen | `true` lorsqu'un marqueur WordPress More est présent. |
 | `name` | chaîne | Nom ou initiales. Chaîne vide si absent. |
 | `context` | chaîne | Information complémentaire. Chaîne vide si absente. |
 | `photo` | objet média ou `null` | `null` si aucune photo n'est associée. |
@@ -131,8 +135,11 @@ Les consommateurs doivent pouvoir distinguer simplement une valeur absente d'un 
 
 ### 5.3 Règles propres à Témoignage
 
-- `text` est la valeur métier principale ;
-- `title` ne remplace jamais `text` ;
+- `text` est la valeur métier principale et reste stocké une seule fois dans `seed_testimonial_text` ;
+- `summary` est stocké uniquement dans `post_excerpt` ; `_seed_testimonial_summary` reste un fallback transitionnel de lecture pour les installations non migrées ;
+- le premier `<!--more-->`, y compris avec libellé personnalisé ou enveloppe Gutenberg Core More, définit la séparation ;
+- aucun marqueur More ou `noteaser` n'est exposé dans `text`, `full_content`, `intro` ou `more` ;
+- `title` ne remplace jamais `name`, `summary` ou `text`, et l'ancien `_seed_testimonial_title` n'est plus consommé ;
 - `name`, `context` et `testimonial_date` peuvent être vides ;
 - `context` reste dans le contrat stable, conserve son stockage historique et porte le libellé utilisateur « Information complémentaire » ;
 - `testimonial_date` est une date civile stricte, sans heure ni conversion de fuseau ; une valeur historique invalide est normalisée en `''` sans réécriture ;
@@ -250,13 +257,17 @@ Le moteur de templates reçoit des valeurs préparées par ses fournisseurs de p
 
 ## 11. Compatibilités historiques
 
-### 11.1 Contexte du témoignage
+### 11.1 Champs éditoriaux historiques
+
+Les métas privées `_seed_testimonial_name`, `_seed_testimonial_text` et `_seed_testimonial_context` restent des fallbacks de lecture pour les installations existantes. Une méta canonique publique présente, y compris vide, reste toujours prioritaire. `_seed_testimonial_summary` joue le même rôle transitionnel derrière `post_excerpt` jusqu'à l'exécution de la migration explicite et non destructive. `_seed_testimonial_title` n'est plus lu : `post_title` est un identifiant technique dérivé du nom canonique.
+
+### 11.2 Contexte du témoignage
 
 Le contexte du témoignage fait partie du contrat stable V1.
 
 Son stockage historique actuel est `_seed_testimonial_context`. Cette clé est un détail interne et ne doit pas être exposée aux consommateurs. Le contrat public utilise `context`.
 
-### 11.2 Date du témoignage
+### 11.3 Date du témoignage
 
 La donnée stockée sous `_seed_testimonial_date` alimente le champ stable `testimonial_date`.
 
@@ -266,13 +277,13 @@ La donnée stockée sous `_seed_testimonial_date` alimente le champ stable `test
 - une valeur historique invalide n'est ni réécrite ni supprimée au chargement ;
 - la localisation appartient uniquement aux renderers et placeholders de présentation.
 
-### 11.3 Consentement historique
+### 11.4 Consentement historique
 
 La donnée historique `_seed_testimonial_consent` est écartée du contrat V1.
 
 Elle n'est plus utilisée par le comportement actuel. Les éventuelles valeurs encore stockées ne doivent toutefois pas être supprimées automatiquement.
 
-### 11.4 Principe de conservation
+### 11.5 Principe de conservation
 
 La normalisation en lecture ne constitue jamais une autorisation de réécrire, migrer ou supprimer les données existantes.
 

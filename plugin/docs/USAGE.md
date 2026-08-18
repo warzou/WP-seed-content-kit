@@ -1,6 +1,6 @@
 # Usage - WP Seed Content Kit
 
-Statut : WP Seed Content Kit 0.8.0-rc.2. Cette Release Candidate est en validation et n'est pas une version stable.
+Statut : WP Seed Content Kit 0.8.1 stable.
 
 WP Seed Content Kit fournit des contenus éditoriaux structurés, des shortcodes et des templates réutilisables dans WordPress.
 
@@ -116,9 +116,11 @@ Cards n'ajoute pas de type de contenu métier. Il utilise les articles WordPress
 
 ## Témoignages
 
-Le stockage portable canonique associe le titre à `post_title`, le résumé à `post_excerpt`, le visuel à l’image mise en avant, puis le texte complet, le nom et le contexte à `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context`. La date métier est optionnelle et reste vide lorsqu’elle est inconnue.
+Le stockage portable canonique associe le résumé à `post_excerpt`, le visuel à l’image mise en avant, puis le texte complet, le nom et le contexte à `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context`. `post_title` est un identifiant WordPress technique synchronisé sous la forme `Témoignage — {Nom}` ; il n'est pas une seconde donnée éditoriale. La date métier est optionnelle et reste vide lorsqu’elle est inconnue.
 
-Les anciennes métas `_seed_testimonial_text`, `_seed_testimonial_name` et `_seed_testimonial_context` ne sont que des fallbacks backward compatibility. Elles ne remplacent jamais une méta publique présente.
+Les anciennes métas `_seed_testimonial_text`, `_seed_testimonial_name` et `_seed_testimonial_context` ne sont que des fallbacks backward compatibility. `_seed_testimonial_summary` reste le fallback transitionnel de `post_excerpt` pour les installations qui n'ont pas encore exécuté la migration explicite. Ces valeurs ne remplacent jamais une source canonique présente. L'ancien `_seed_testimonial_title` n'est plus consommé : le titre est exclusivement technique et dérivé du nom.
+
+Le champ Témoignage utilise l'éditeur WordPress natif avec les onglets Visuel et Code, la barre standard et le bouton More. Sa configuration reprend le pattern générique de WP Seed Events sans dépendance entre plugins. Les anciens boutons de shortcodes injectés globalement par Divi sont retirés uniquement de cette instance ; Articles, Pages, Events et les autres CPT restent inchangés. Le premier `<!--more-->` sépare `testimonial.intro` de `testimonial.more` sans créer de second stockage. `testimonial.text` et `testimonial.full_content` restituent le contenu complet sans marqueur, et `testimonial.has_more` indique si une suite existe. Le bloc Gutenberg Core More produit le même contrat portable.
 
 `[seed_testimonials]` affiche les témoignages publiés.
 
@@ -321,6 +323,8 @@ Le provider serveur Gutenberg expose les champs texte suivants :
 - `quote.era` ;
 - `quote.source` ;
 - `testimonial.text` ;
+- `testimonial.intro` ;
+- `testimonial.more` ;
 - `testimonial.name` ;
 - `testimonial.context` ;
 - `testimonial.testimonial_date`.
@@ -348,6 +352,8 @@ Pour les Native Loops, le groupe « WPSCK — Témoignages » expose :
 - Titre ;
 - Résumé ;
 - Témoignage complet ;
+- Introduction ;
+- Suite du témoignage ;
 - Nom ;
 - Contexte ;
 - Date ;
@@ -495,7 +501,9 @@ La Collection conserve ici les fiches 12 et 27 si elles sont publiées, listées
 
 Dans Divi 5, activer la boucle sur le type Témoignages. La requête est automatiquement bornée par la Collection publique Content Kit. Pour choisir la population, ajouter au besoin une Meta Query virtuelle sur `wp_seed_content_testimonial_selection_mode` avec `all`, `featured`, `random` ou `featured_or_random`. Le nombre de posts de la boucle constitue la limite.
 
-Le groupe unique « WPSCK — Témoignages » expose exactement Visuel, Titre, Résumé, Témoignage complet, Nom, Contexte, Date, ID et Ancre. La date est vide lorsqu’aucune date métier n’est connue. Les neuf valeurs sont résolues par item dans le frontend et le Visual Builder. Le design reste entièrement dans Divi.
+Le groupe unique « WPSCK — Témoignages » expose Visuel, Titre, Résumé, Témoignage complet, Introduction, Suite du témoignage, Nom, Contexte, Date, ID et Ancre. La date est vide lorsqu’aucune date métier n’est connue. Toutes les valeurs sont résolues par item dans le frontend et le Visual Builder. Le design reste entièrement dans Divi.
+
+La condition `WPSCK — Témoignages — Témoignage avec suite` masque un module ou un groupe clone par clone lorsque `testimonial.has_more` vaut faux. Le modèle peut rester visible dans le canevas du Visual Builder afin de rester éditable ; le frontend est la source de vérité pour la visibilité conditionnelle. La condition transporte la valeur avec le provider canonique enregistré `loop_wpsck_testimonial_has_more`, qui retourne `1` ou une chaîne vide dans le contexte du clone courant.
 
 Pour un Group Carousel, utiliser le module natif Divi et placer la Loop sur le Group qui représente la slide. Les providers conservent le contexte de chaque clone via `loop_id` ou `loop_object`. WPSCK ne fournit ni module Carousel, ni structure, ni style de présentation Carousel.
 
@@ -503,6 +511,10 @@ Le frontend aléatoire varie réellement. Le Visual Builder conserve un échanti
 
 Divi 5.9.0 ne sait pas appliquer l’ordre des deux colonnes internes selon la parité du clone Loop parent : ses Grid Offset Rules produisent uniquement des sélecteurs sur les enfants directs du conteneur courant. Le contrat structurel partagé permet une alternance opt-in sans stocker de présentation dans les données.
 
-Pour une Row directement bouclée, ajouter `wpsck-loop--alternating` à la Row, `wpsck-loop__media` à la colonne média et `wpsck-loop__content` à la colonne contenu. Pour une Loop portée par un Group, ajouter `wpsck-loop--alternating` au Group, `wpsck-loop__layout` à sa Row interne, puis les mêmes classes média et contenu aux colonnes. Le CSS inverse seulement les colonnes paires sur desktop et restaure toujours média puis contenu à 980 px et moins. La parité compte uniquement les vrais clones portant la classe d'alternance, afin que les frères d'overlay du Visual Builder ne changent jamais l'ordre. Les anciennes classes `wpsck-testimonial-loop--*` restent compatibles.
+Placer `wpsck-loop--alternating` sur l'élément réellement cloné par la Native Loop : Section, Row ou Group. Pour une Row directement bouclée, ajouter `wpsck-loop__media` à la colonne média et `wpsck-loop__content` à la colonne contenu. Pour une Section ou un Group, ajouter `wpsck-loop__layout` à la Row interne, puis les mêmes classes média et contenu aux colonnes. Le CSS inverse seulement les colonnes paires sur desktop. La parité compte uniquement les vrais clones portant la classe d'alternance, afin que les frères d'overlay du Visual Builder ne changent jamais l'ordre.
+
+À 980 px et moins, le comportement historique reste média puis contenu. Ajouter `wpsck-loop--mobile-content-first` sur l'élément cloné pour afficher contenu puis média, ou `wpsck-loop--mobile-media-first` pour rendre explicitement l'ordre historique. Si les deux classes sont présentes par erreur, `wpsck-loop--mobile-content-first` est prioritaire. Ces classes ne changent jamais l'ordre DOM. Les anciennes classes `wpsck-testimonial-loop--*` restent compatibles.
 
 Le contrat de données est builder-agnostic : WPSCK fournit données, requête, consentement et providers ; Divi fournit présentation et responsive. Les mêmes métas publiques restent disponibles pour Gutenberg/custom-fields et de futurs adaptateurs Spectra/Astra, sans stockage spécifique à Divi.
+
+L’éditeur Témoignage expose `post_excerpt` sous le libellé **Résumé court**. Les métaboxes WordPress génériques Extrait et Champs personnalisés sont masquées sur cet écran, sans retirer les supports `excerpt` et `custom-fields` nécessaires aux contrats REST et builder-agnostic. Aucun résumé n’est généré depuis le texte complet.

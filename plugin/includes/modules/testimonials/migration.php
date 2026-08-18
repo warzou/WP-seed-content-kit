@@ -61,28 +61,33 @@ function wp_seed_content_rollback_testimonial_publication_consent($migration_res
 }
 
 /**
- * Copy legacy testimonial title and summary fields into native WordPress fields.
+ * Preflight or apply the legacy short-summary migration.
  *
- * The migration is explicit and reversible. Legacy metadata is retained as a
- * compatibility fallback, while post_title and post_excerpt become canonical
- * for new edits and Divi Loop Dynamic Data.
+ * Only post_excerpt can be written. A divergent pair aborts the complete
+ * batch before any write so an editor can choose the authoritative value.
  *
- * @param array $testimonial_ids Testimonial IDs to migrate.
+ * @param array $testimonial_ids Testimonial IDs to inspect.
+ * @param bool  $apply           Whether to apply the safe migration plan.
  *
- * @return array Migration result and exact previous native values.
+ * @return array Migration plan/result and exact previous excerpts.
  */
-function wp_seed_content_migrate_testimonial_native_loop_fields($testimonial_ids)
+function wp_seed_content_migrate_testimonial_summaries($testimonial_ids, $apply = false)
 {
     $ids = function_exists('_wp_seed_content_collections_normalize_ids')
         ? _wp_seed_content_collections_normalize_ids($testimonial_ids)
         : array();
     $result = array(
         'updated' => array(),
-        'unchanged' => array(),
+        'planned' => array(),
+        'preserved' => array(),
+        'empty' => array(),
         'skipped' => array(),
         'errors' => array(),
         'previous' => array(),
+        'aborted' => false,
+        'applied' => false,
     );
+    $plans = array();
 
     foreach ($ids as $id) {
         $post = get_post($id);
@@ -91,28 +96,41 @@ function wp_seed_content_migrate_testimonial_native_loop_fields($testimonial_ids
             continue;
         }
 
-        $current_title = isset($post->post_title) ? (string) $post->post_title : '';
-        $current_excerpt = isset($post->post_excerpt) ? (string) $post->post_excerpt : '';
-        $legacy_title = (string) get_post_meta($id, '_seed_testimonial_title', true);
-        $legacy_summary = (string) get_post_meta($id, '_seed_testimonial_summary', true);
-        $target_title = '' !== $legacy_title ? $legacy_title : $current_title;
-        $target_excerpt = '' !== $legacy_summary ? $legacy_summary : $current_excerpt;
+        $excerpt = isset($post->post_excerpt) ? (string) $post->post_excerpt : '';
+        $legacy = (string) get_post_meta($id, '_seed_testimonial_summary', true);
+        $result['previous'][(string) $id] = $excerpt;
 
-        $result['previous'][(string) $id] = array(
-            'post_title' => $current_title,
-            'post_excerpt' => $current_excerpt,
-        );
-
-        if ($target_title === $current_title && $target_excerpt === $current_excerpt) {
-            $result['unchanged'][] = $id;
+        if ('' !== $excerpt && '' !== $legacy && $excerpt !== $legacy) {
+            $result['errors'][(string) $id] = 'summary_values_differ';
+            continue;
+        }
+        if ('' !== $excerpt) {
+            $result['preserved'][] = $id;
+            continue;
+        }
+        if ('' === $legacy) {
+            $result['empty'][] = $id;
             continue;
         }
 
+        $plans[(string) $id] = $legacy;
+        $result['planned'][] = $id;
+    }
+
+    if (!empty($result['errors'])) {
+        $result['aborted'] = true;
+        return $result;
+    }
+    if (!$apply) {
+        return $result;
+    }
+
+    foreach ($plans as $raw_id => $summary) {
+        $id = absint($raw_id);
         $updated = wp_update_post(
             wp_slash(array(
                 'ID' => $id,
-                'post_title' => $target_title,
-                'post_excerpt' => $target_excerpt,
+                'post_excerpt' => $summary,
             )),
             true
         );
@@ -122,37 +140,29 @@ function wp_seed_content_migrate_testimonial_native_loop_fields($testimonial_ids
         }
         $result['updated'][] = $id;
     }
+    $result['applied'] = empty($result['errors']);
 
     return $result;
 }
 
-/**
- * Restore native WordPress fields captured by the testimonial Loop migration.
- *
- * @param array $migration_result Result from the native Loop field migration.
- *
- * @return array Rollback result.
- */
-function wp_seed_content_rollback_testimonial_native_loop_fields($migration_result)
+function wp_seed_content_rollback_testimonial_summaries($migration_result)
 {
     $result = array('restored' => array(), 'skipped' => array(), 'errors' => array());
     $previous = is_array($migration_result) && isset($migration_result['previous']) && is_array($migration_result['previous'])
         ? $migration_result['previous']
         : array();
 
-    foreach ($previous as $raw_id => $state) {
+    foreach ($previous as $raw_id => $excerpt) {
         $id = absint($raw_id);
         $post = $id ? get_post($id) : null;
-        if (!$post instanceof WP_Post || 'seed_testimonial' !== $post->post_type || !is_array($state)) {
+        if (!$post instanceof WP_Post || 'seed_testimonial' !== $post->post_type) {
             $result['skipped'][] = $id;
             continue;
         }
-
         $updated = wp_update_post(
             wp_slash(array(
                 'ID' => $id,
-                'post_title' => isset($state['post_title']) ? (string) $state['post_title'] : '',
-                'post_excerpt' => isset($state['post_excerpt']) ? (string) $state['post_excerpt'] : '',
+                'post_excerpt' => (string) $excerpt,
             )),
             true
         );

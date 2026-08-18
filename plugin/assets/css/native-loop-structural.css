@@ -57,4 +57,24 @@
     .wpsck-loop--alternating > .wpsck-loop__layout > .wpsck-loop__content {
         order: 2;
     }
+
+    .wpsck-loop--alternating.wpsck-loop--mobile-media-first > .wpsck-loop__media,
+    .wpsck-loop--alternating.wpsck-loop--mobile-media-first > .wpsck-loop__layout > .wpsck-loop__media {
+        order: 1;
+    }
+
+    .wpsck-loop--alternating.wpsck-loop--mobile-media-first > .wpsck-loop__content,
+    .wpsck-loop--alternating.wpsck-loop--mobile-media-first > .wpsck-loop__layout > .wpsck-loop__content {
+        order: 2;
+    }
+
+    .wpsck-loop--alternating.wpsck-loop--mobile-content-first > .wpsck-loop__media,
+    .wpsck-loop--alternating.wpsck-loop--mobile-content-first > .wpsck-loop__layout > .wpsck-loop__media {
+        order: 2;
+    }
+
+    .wpsck-loop--alternating.wpsck-loop--mobile-content-first > .wpsck-loop__content,
+    .wpsck-loop--alternating.wpsck-loop--mobile-content-first > .wpsck-loop__layout > .wpsck-loop__content {
+        order: 1;
+    }
 }

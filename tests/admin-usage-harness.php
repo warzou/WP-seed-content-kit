@@ -208,7 +208,8 @@ $gutenberg_html = ob_get_clean();
 seed_admin_usage_assert(false !== strpos($gutenberg_html, 'Fonctionnel'), 'Gutenberg Shortcode marked functional');
 seed_admin_usage_assert(false !== strpos($gutenberg_html, 'Indirect'), 'Gutenberg Block Bindings marked indirect');
 seed_admin_usage_assert(false !== strpos($gutenberg_html, 'Non disponible'), 'Missing Gutenberg UI disclosed');
-seed_admin_usage_assert(false !== strpos($gutenberg_html, 'ne couvrent pas encore Annuaire'), 'Directory Block Bindings limitation disclosed');
+seed_admin_usage_assert(false !== strpos($gutenberg_html, 'Citations, Témoignages et Annuaire'), 'Supported Block Bindings modules disclosed');
+seed_admin_usage_assert(false !== strpos($gutenberg_html, 'champs booléens'), 'Boolean text-binding limitation disclosed');
 
 ob_start();
 wp_seed_content_kit_render_usage_spectra();

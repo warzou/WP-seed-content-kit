@@ -32,22 +32,57 @@ function wp_seed_content_sanitize_testimonial_builder_meta($value, $meta_key)
         return '';
     }
 
+    if (isset($definitions[$meta_key]['sanitize_callback'])
+        && is_callable($definitions[$meta_key]['sanitize_callback'])) {
+        return call_user_func($definitions[$meta_key]['sanitize_callback'], $value);
+    }
+
     return wp_seed_content_sanitize_meta_value($value, $definitions[$meta_key]);
 }
 
 function wp_seed_content_sanitize_testimonial_text_meta($value)
 {
-    return wp_seed_content_sanitize_testimonial_builder_meta($value, 'seed_testimonial_text');
+    if (!is_scalar($value)) {
+        return '';
+    }
+
+    $parts = preg_split(
+        '/(<!--more(?:\s+.*?)?-->|<!--noteaser-->)/s',
+        (string) $value,
+        -1,
+        PREG_SPLIT_DELIM_CAPTURE
+    );
+    if (!is_array($parts)) {
+        return '';
+    }
+
+    foreach ($parts as $index => $part) {
+        if (preg_match('/^<!--(?:more(?:\s+.*?)?|noteaser)-->$/s', $part)) {
+            continue;
+        }
+
+        $part = preg_replace(
+            '/<!--\s+\/?wp:(?:core\/)?more(?:\s+.*?)?\s*-->/s',
+            '',
+            $part
+        );
+        $part = preg_replace('/<!--[\s\S]*?-->/', '', $part);
+        $parts[$index] = function_exists('wp_kses_post')
+            ? wp_kses_post($part)
+            : sanitize_textarea_field($part);
+    }
+
+    return implode('', $parts);
 }
 
 function wp_seed_content_sanitize_testimonial_name_meta($value)
 {
-    return wp_seed_content_sanitize_testimonial_builder_meta($value, 'seed_testimonial_name');
+    return wp_seed_content_sanitize_meta_value($value, array('type' => 'text'));
 }
 
 function wp_seed_content_sanitize_testimonial_context_meta($value)
 {
-    return wp_seed_content_sanitize_testimonial_builder_meta($value, 'seed_testimonial_context');
+    return wp_seed_content_sanitize_meta_value($value, array('type' => 'text'));
 }
 
 function wp_seed_content_testimonial_builder_meta_auth($allowed, $meta_key, $post_id)

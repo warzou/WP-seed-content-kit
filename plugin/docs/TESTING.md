@@ -54,6 +54,9 @@ Vérifier les filtres, limites, tris, contenus mis en avant, ordres manuels, pla
 - vérifier qu'une date valide au format exact `YYYY-MM-DD` remplace une ancienne valeur valide ou invalide ;
 - confirmer que la date ISO reste inchangée dans Content Data et Dynamic Data, puis qu'elle est localisée uniquement dans le rendu et le placeholder `{{date}}` ;
 - confirmer que `{{context}}` restitue Information complémentaire et qu'aucune clé `testimonial.information` n'est créée.
+- insérer un marqueur More depuis l'éditeur natif, puis vérifier `text`/`full_content`, `intro`, `more` et `has_more` sans second champ de stockage ;
+- vérifier aussi un bloc Gutenberg Core More, un libellé personnalisé, `noteaser`, plusieurs marqueurs et l'absence totale de marqueur brut dans les projections publiques.
+- exécuter `tests/testimonial-clean-editor-harness.php`, puis contrôler dans WordPress les onglets Visuel/Code, paragraphes, gras, italique, listes, citation, liens, More et undo/redo ; les boutons Divi historiques `one_half`, `slider`, `digg`, `stumble`, `facebook` et `retweet` doivent être absents uniquement de l'éditeur Témoignage.
 
 ## Content Data et Dynamic Data
 
@@ -335,13 +338,21 @@ Valider `ids` seul, exclusions seules, intersection nulle, partielle et totale, 
 
 Exécuter les harnais Collections, stockage portable, migration de consentement, adaptateur Loop et contexte Loop sous PHP 7.0 et PHP 8.4. Ils couvrent le fail-closed, featured sans consentement, les quatre modes, la limite, l’absence de doublons, le seed Builder, les alias par item et le rollback exact. Le filtre de contexte doit couvrir explicitement priorité de `seed_testimonial_context`, divergence avec `_seed_testimonial_context`, fallback legacy seul et valeurs identiques.
 
-Dans WordPress avec Divi 5.9.0 exact, vérifier le groupe unique « WPSCK — Témoignages » et ses neuf champs dans l’ordre Visuel, Titre, Résumé, Témoignage complet, Nom, Contexte, Date, ID et Ancre. Contrôler leurs vraies valeurs sur les items 1, 2 et 3, sans valeur brute, puis effectuer deux cycles sauvegarde/fermeture/réouverture.
+Dans WordPress avec Divi 5.9.0 exact, vérifier le groupe unique « WPSCK — Témoignages » et ses champs Visuel, Titre, Résumé, Témoignage complet, Introduction, Suite du témoignage, Nom, Contexte, Date, ID et Ancre. Contrôler leurs vraies valeurs sur trois items, sans valeur brute, puis effectuer deux cycles sauvegarde/fermeture/réouverture.
+
+Exécuter `tests/testimonial-more-marker-harness.php`, `tests/testimonial-more-admin-save-harness.php` et `tests/divi-testimonial-has-more-condition-harness.php` sous PHP 7.0 et PHP 8.4. Le harnais de sauvegarde admin doit confirmer que `<!--more-->`, son texte personnalisé et `<!--noteaser-->` survivent à la métabox, tandis que les autres commentaires et le HTML dangereux sont supprimés. Dans une Native Loop réelle, vérifier successivement avec marqueur, sans marqueur, puis avec marqueur : la condition `WPSCK — Témoignages — Témoignage avec suite` doit produire visible/masqué/visible sans fuite entre clones. Le module modèle peut rester visible dans le Visual Builder ; la persistance de la condition et le frontend clone par clone sont les critères obligatoires.
+
+La condition transporte strictement le booléen `testimonial.has_more` avec le provider Dynamic Content canonique `loop_wpsck_testimonial_has_more`. Ce provider doit être enregistré dans le pipeline Divi afin que la valeur soit résolue clone par clone en `1` ou chaîne vide avant l'évaluation frontend.
+
+Pour l'alternance générique, placer `wpsck-loop--alternating` sur l'élément réellement cloné et tester les propriétaires Section, Row et Group. La structure interne utilise `wpsck-loop__layout`, `wpsck-loop__media` et `wpsck-loop__content`. À 980, 820, 768, 390 et 320 px, `wpsck-loop--mobile-content-first` doit imposer contenu puis média et `wpsck-loop--mobile-media-first` média puis contenu, sans modifier le DOM. Sans classe responsive, l'ordre historique média puis contenu reste conservé. Si les deux classes sont présentes, content-first gagne de façon déterministe. Rejouer aussi les états Builder sans hover, owner survolé, clone sélectionné et enfant sélectionné pour confirmer que seuls les clones `.wpsck-loop--alternating` participent à la parité.
 
 Vérifier ensuite une recette Detailed et un Group Carousel natif dont la Loop est portée par le Group/slide : frontend, Visual Builder, tailles 0/1/3/22/23 et contexte imbriqué distinct via `loop_id` puis `loop_object`. Les modules du Carousel et tout leur design restent natifs Divi ; WPSCK ne fournit aucun Carousel ni CSS de présentation Carousel.
 
 Pour Detailed, vérifier alternance desktop via les classes opt-in, média en premier sur mobile et zoom 200 %. Les Grid Offset Rules natives ciblent les enfants directs du conteneur et ne remplacent pas la règle paire/impaire du clone Loop.
 
 Confirmer enfin que `post_title`, `post_excerpt`, l’image mise en avant et les métas publiques `seed_testimonial_text`, `seed_testimonial_name`, `seed_testimonial_context` restent accessibles au contrat builder-agnostic. La date absente demeure vide. Aucun test permanent ne doit contenir d’ID ou d’URL de recette DEV.
+
+Exécuter `tests/testimonial-summary-admin-harness.php` et `tests/testimonial-summary-migration-harness.php` sous PHP 7.0 et PHP 8.4. Vérifier que Résumé court écrit uniquement `post_excerpt`, que les métaboxes natives Extrait et Champs personnalisés sont masquées sans retrait de leurs supports, et que `testimonial.summary` reste disponible dans Content Data, Divi et Block Bindings. `wp_seed_content_migrate_testimonial_summaries()` doit être lancé d'abord en dry-run, copier les fallbacks historiques uniquement vers un extrait vide, ne jamais écrire le titre et s'arrêter avant toute écriture si deux valeurs non vides divergent. L'ancienne migration combinée titre/résumé ne fait plus partie du contrat : `post_title` reste exclusivement synchronisé depuis le nom canonique.
 
 ## Modèle éditorial Annuaire
 

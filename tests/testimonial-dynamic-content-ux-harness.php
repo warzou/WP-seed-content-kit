@@ -110,6 +110,9 @@ namespace {
                 ? $GLOBALS['wpsck_testimonial_dates'][$post_id]
                 : '';
         }
+        if ('testimonial.has_more' === $field_id) {
+            return 2912 !== $post_id;
+        }
 
         return $post_id > 0 ? $field_id . ':' . $post_id : '';
     }
@@ -139,13 +142,16 @@ namespace {
         'loop_wpsck_testimonial_title',
         'loop_wpsck_testimonial_summary',
         'loop_wpsck_testimonial_full',
+        'loop_wpsck_testimonial_intro',
+        'loop_wpsck_testimonial_more',
+        'loop_wpsck_testimonial_has_more',
         'loop_wpsck_testimonial_name',
         'loop_wpsck_testimonial_context',
         'loop_wpsck_testimonial_date',
         'loop_wpsck_testimonial_id',
         'loop_wpsck_testimonial_anchor',
     );
-    wpsck_assert($expected_names === $GLOBALS['wpsck_loaded_providers'], 'Exactly nine WPSCK providers must load.');
+    wpsck_assert($expected_names === $GLOBALS['wpsck_loaded_providers'], 'Exactly twelve WPSCK providers must load.');
     wpsck_assert(!in_array('wp_seed_content_testimonial_anchor_url', $GLOBALS['wpsck_loaded_providers'], true), 'URL provider must not load.');
 
     $providers = array(
@@ -153,6 +159,9 @@ namespace {
         array(new WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Title(), 'WPSCK — Témoignages — Titre', 'text'),
         array(new WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Summary(), 'WPSCK — Témoignages — Résumé', 'text'),
         array(new WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Text(), 'WPSCK — Témoignages — Témoignage complet', 'text'),
+        array(new WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Intro(), 'WPSCK — Témoignages — Introduction', 'text'),
+        array(new WP_Seed_Content_Divi_Dynamic_Content_Testimonial_More(), 'WPSCK — Témoignages — Suite du témoignage', 'text'),
+        array(new WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Has_More(), 'WPSCK — Témoignages — Témoignage avec suite', 'text'),
         array(new WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Name(), 'WPSCK — Témoignages — Nom', 'text'),
         array(new WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Context(), 'WPSCK — Témoignages — Contexte', 'text'),
         array(new WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Date(), 'WPSCK — Témoignages — Date', 'text'),
@@ -175,7 +184,10 @@ namespace {
                 'loop_id' => $post_id,
                 'post_id' => WPSCK_TEST_FIXTURE_PAGE_ID,
             ));
-            if ('loop_wpsck_testimonial_date' === $provider->get_name()) {
+            if ('loop_wpsck_testimonial_has_more' === $provider->get_name()) {
+                $expected_has_more = 2912 !== $post_id ? '1' : '';
+                wpsck_assert($expected_has_more === $value, 'Loop-aware has_more value differs.');
+            } elseif ('loop_wpsck_testimonial_date' === $provider->get_name()) {
                 $expected_date = isset($GLOBALS['wpsck_testimonial_dates'][$post_id])
                     ? $GLOBALS['wpsck_testimonial_dates'][$post_id]
                     : '';
@@ -187,7 +199,7 @@ namespace {
             $preview_values[] = $value;
         }
 
-        if ('loop_wpsck_testimonial_date' !== $provider->get_name()) {
+        if (!in_array($provider->get_name(), array('loop_wpsck_testimonial_date', 'loop_wpsck_testimonial_has_more'), true)) {
             wpsck_assert(3 === count(array_unique($preview_values)), 'Loop preview values for items 1, 2 and 3 must be distinct.');
         }
 

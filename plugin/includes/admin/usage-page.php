@@ -448,9 +448,9 @@ function wp_seed_content_kit_render_usage_gutenberg()
     </ol>
     <?php wp_seed_content_kit_render_usage_example('seed-usage-gutenberg-directory', __('Exemple Annuaire', 'wp-seed-content-kit'), '[seed_directory]'); ?>
     <?php wp_seed_content_kit_render_usage_status('indirect', __('Block Bindings', 'wp-seed-content-kit')); ?>
-    <p><?php esc_html_e('Le provider serveur couvre huit champs texte Citations et Témoignages dans les blocs Core Paragraphe et Titre. Une Query Loop doit fournir le contenu courant.', 'wp-seed-content-kit'); ?></p>
+    <p><?php esc_html_e('Le provider serveur couvre les champs texte autorisés des modules Citations, Témoignages et Annuaire dans les blocs Core Paragraphe et Titre. Une Query Loop doit fournir le contenu courant.', 'wp-seed-content-kit'); ?></p>
     <?php wp_seed_content_kit_render_usage_status('unavailable', __('Interface dédiée', 'wp-seed-content-kit')); ?>
-    <p><?php esc_html_e('Aucun bloc WP Seed ni sélecteur finalisé n’est fourni. Les Block Bindings ne couvrent pas encore Annuaire.', 'wp-seed-content-kit'); ?></p>
+    <p><?php esc_html_e('Aucun bloc WP Seed ni sélecteur finalisé n’est fourni. Les champs booléens restent hors des bindings texte Core.', 'wp-seed-content-kit'); ?></p>
     <?php
 }
 

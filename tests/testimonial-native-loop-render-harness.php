@@ -14,6 +14,26 @@ function wpsck_loop_render_assert($condition, $message)
     }
 }
 
+function wpsck_loop_css_order($css, $selector)
+{
+    $offset = 0;
+    while (false !== ($selector_position = strpos($css, $selector, $offset))) {
+        $opening_brace = strpos($css, '{', $selector_position);
+        $closing_brace = false === $opening_brace ? false : strpos($css, '}', $opening_brace);
+        if (false === $opening_brace || false === $closing_brace) {
+            return null;
+        }
+
+        $body = substr($css, $opening_brace + 1, $closing_brace - $opening_brace - 1);
+        if (preg_match('/\border:\s*([12]);/', $body, $matches)) {
+            return (int) $matches[1];
+        }
+        $offset = $selector_position + strlen($selector);
+    }
+
+    return null;
+}
+
 $root = dirname(__DIR__);
 $css = file_get_contents($root . '/plugin/assets/css/testimonial-native-loop.css');
 $structural_css = file_get_contents($root . '/plugin/assets/css/native-loop-structural.css');
@@ -35,8 +55,6 @@ wpsck_loop_render_assert(false !== strpos($structural_css, '> .wpsck-loop__layou
 wpsck_loop_render_assert(false !== strpos($css, 'scroll-margin-top: 7rem'), 'Sticky header anchor offset is missing.');
 wpsck_loop_render_assert(false !== strpos($structural_css, '> .wpsck-testimonial-loop__media'), 'Direct media column selector is missing.');
 wpsck_loop_render_assert(false !== strpos($structural_css, '> .wpsck-testimonial-loop__content'), 'Direct content column selector is missing.');
-wpsck_loop_render_assert(3 === substr_count($structural_css, 'order: 1;'), 'Media-first orders differ.');
-wpsck_loop_render_assert(3 === substr_count($structural_css, 'order: 2;'), 'Content-second orders differ.');
 wpsck_loop_render_assert(false !== strpos($structural_css, '@media (min-width: 981px)'), 'Desktop breakpoint is missing.');
 wpsck_loop_render_assert(false !== strpos($structural_css, '@media (max-width: 980px)'), 'Narrow breakpoint is missing.');
 wpsck_loop_render_assert(false !== strpos($structural_css, 'flex-direction: column !important'), 'Narrow layout does not stack the Loop row.');
@@ -51,6 +69,15 @@ wpsck_loop_render_assert(false === strpos($structural_css, 'font-'), 'Structural
 wpsck_loop_render_assert(false === strpos($structural_css, 'color:'), 'Structural CSS must not set colors.');
 wpsck_loop_render_assert(false === strpos($structural_css, 'background'), 'Structural CSS must not set backgrounds.');
 wpsck_loop_render_assert(false === strpos($structural_css, 'border'), 'Structural CSS must not set borders.');
+wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-loop--alternating.wpsck-loop--mobile-content-first > .wpsck-loop__media'), 'Direct content-first media selector is missing.');
+wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-loop--alternating.wpsck-loop--mobile-content-first > .wpsck-loop__layout > .wpsck-loop__content'), 'Nested content-first content selector is missing.');
+wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-loop--alternating.wpsck-loop--mobile-media-first > .wpsck-loop__media'), 'Direct media-first media selector is missing.');
+wpsck_loop_render_assert(false !== strpos($structural_css, '.wpsck-loop--alternating.wpsck-loop--mobile-media-first > .wpsck-loop__layout > .wpsck-loop__content'), 'Nested media-first content selector is missing.');
+wpsck_loop_render_assert(
+    strpos($structural_css, '.wpsck-loop--alternating.wpsck-loop--mobile-media-first')
+        < strpos($structural_css, '.wpsck-loop--alternating.wpsck-loop--mobile-content-first'),
+    'Content-first rules must follow media-first rules and win an accidental class conflict.'
+);
 wpsck_loop_render_assert(false !== strpos($assets, 'enqueue_app_window'), 'Visual Builder stylesheet registration is missing.');
 wpsck_loop_render_assert(false !== strpos($assets, "add_action('wp_enqueue_scripts'"), 'Frontend stylesheet enqueue is missing.');
 wpsck_loop_render_assert(false !== strpos($assets, "hash_file('sha256'"), 'Structural stylesheet URL is not content-versioned.');
@@ -105,6 +132,40 @@ foreach ($builder_states as $state => $siblings) {
     if (0 === strpos($state, 'builder_') && 'builder_no_hover' !== $state) {
         wpsck_loop_render_assert($raw_positions !== $positions, 'Builder overlays did not reproduce raw nth-child instability: ' . $state);
     }
+}
+
+$owners = array(
+    'section' => 'nested',
+    'row' => 'direct',
+    'group' => 'nested',
+);
+foreach ($owners as $owner => $structure) {
+    $needle = 'direct' === $structure
+        ? '> .wpsck-loop__media'
+        : '> .wpsck-loop__layout > .wpsck-loop__media';
+    wpsck_loop_render_assert(false !== strpos($structural_css, $needle), ucfirst($owner) . ' Loop owner is not supported.');
+}
+
+$narrow_css = substr($structural_css, strpos($structural_css, '@media (max-width: 980px)'));
+$responsive_orders = array(
+    'default' => array(
+        'media' => wpsck_loop_css_order($narrow_css, '.wpsck-loop--alternating > .wpsck-loop__media'),
+        'content' => wpsck_loop_css_order($narrow_css, '.wpsck-loop--alternating > .wpsck-loop__content'),
+    ),
+    'content_first' => array(
+        'media' => wpsck_loop_css_order($narrow_css, '.wpsck-loop--alternating.wpsck-loop--mobile-content-first > .wpsck-loop__media'),
+        'content' => wpsck_loop_css_order($narrow_css, '.wpsck-loop--alternating.wpsck-loop--mobile-content-first > .wpsck-loop__content'),
+    ),
+    'media_first' => array(
+        'media' => wpsck_loop_css_order($narrow_css, '.wpsck-loop--alternating.wpsck-loop--mobile-media-first > .wpsck-loop__media'),
+        'content' => wpsck_loop_css_order($narrow_css, '.wpsck-loop--alternating.wpsck-loop--mobile-media-first > .wpsck-loop__content'),
+    ),
+);
+foreach (array(980, 820, 768, 390, 320) as $viewport) {
+    wpsck_loop_render_assert($viewport <= 980, 'Responsive fixture escaped the narrow breakpoint.');
+    wpsck_loop_render_assert(array('media' => 2, 'content' => 1) === $responsive_orders['content_first'], 'Content-first order differs at ' . $viewport . 'px.');
+    wpsck_loop_render_assert(array('media' => 1, 'content' => 2) === $responsive_orders['media_first'], 'Media-first order differs at ' . $viewport . 'px.');
+    wpsck_loop_render_assert(array('media' => 1, 'content' => 2) === $responsive_orders['default'], 'Historical default order differs at ' . $viewport . 'px.');
 }
 
 if ($failures) {

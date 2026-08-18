@@ -40,6 +40,27 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Summary extends WP_Seed_C
     protected $field_id = 'testimonial.summary';
 }
 
+class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Intro extends WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Loop_Text
+{
+    protected $source_name = 'loop_wpsck_testimonial_intro';
+    protected $label = 'Introduction';
+    protected $field_id = 'testimonial.intro';
+}
+
+class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_More extends WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Loop_Text
+{
+    protected $source_name = 'loop_wpsck_testimonial_more';
+    protected $label = 'Suite du témoignage';
+    protected $field_id = 'testimonial.more';
+}
+
+class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Has_More extends WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Loop_Text
+{
+    protected $source_name = 'loop_wpsck_testimonial_has_more';
+    protected $label = 'Témoignage avec suite';
+    protected $field_id = 'testimonial.has_more';
+}
+
 class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Id extends WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Loop_Text
 {
     protected $source_name = 'loop_wpsck_testimonial_id';

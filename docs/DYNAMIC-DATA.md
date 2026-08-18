@@ -71,7 +71,7 @@ Le registre et le résolveur restent chargés globalement. La désactivation d'u
 
 ## 3. Périmètre V1
 
-La V1 couvre exactement treize champs.
+Le registre stable couvre les champs Citation, Témoignage et Annuaire documentés par leurs contrats respectifs. Les ajouts restent explicites : aucun builder ne peut étendre silencieusement le registre métier.
 
 Citation :
 
@@ -84,7 +84,16 @@ Citation :
 
 Témoignage :
 
+- `testimonial.title` ;
+- `testimonial.summary` ;
 - `testimonial.text` ;
+- `testimonial.full_content` ;
+- `testimonial.intro` ;
+- `testimonial.more` ;
+- `testimonial.has_more` ;
+- `testimonial.id` ;
+- `testimonial.anchor` ;
+- `testimonial.anchor_url` ;
 - `testimonial.name` ;
 - `testimonial.context` ;
 - `testimonial.testimonial_date` ;
@@ -129,7 +138,16 @@ Les champs éditoriaux Citations utilisent les métas publiques `seed_quote_text
 
 | Identifiant stable | Libellé utilisateur | Module | Type de contenu compatible | Type | Clé Content Data API | Valeur vide | Contexte courant | ID explicite | Registre V1 | Exposition par les providers |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `testimonial.title` | Titre technique | Témoignage | `seed_testimonial` | `text` | `testimonial_title` | Chaîne vide | Oui | Oui | Inclus | Divi |
+| `testimonial.summary` | Résumé court | Témoignage | `seed_testimonial` | `textarea` | `summary` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
 | `testimonial.text` | Témoignage | Témoignage | `seed_testimonial` | `textarea` | `text` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.full_content` | Témoignage complet | Témoignage | `seed_testimonial` | `textarea` | `full_content` | Chaîne vide | Oui | Oui | Inclus | API interne |
+| `testimonial.intro` | Introduction | Témoignage | `seed_testimonial` | `textarea` | `intro` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.more` | Suite du témoignage | Témoignage | `seed_testimonial` | `textarea` | `more` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.has_more` | Témoignage avec suite | Témoignage | `seed_testimonial` | `boolean` | `has_more` | `false` | Oui | Oui | Inclus | Divi condition |
+| `testimonial.id` | Identifiant | Témoignage | `seed_testimonial` | `text` | `id` | Chaîne vide | Oui | Oui | Inclus | Divi |
+| `testimonial.anchor` | Ancre | Témoignage | `seed_testimonial` | `text` | `anchor` | Chaîne vide | Oui | Oui | Inclus | Divi |
+| `testimonial.anchor_url` | Lien vers le témoignage | Témoignage | `seed_testimonial` | `text` | `anchor_url` | Chaîne vide | Oui | Oui | Inclus | API interne |
 | `testimonial.name` | Nom ou initiales | Témoignage | `seed_testimonial` | `text` | `name` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
 | `testimonial.context` | Information complémentaire | Témoignage | `seed_testimonial` | `text` | `context` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
 | `testimonial.testimonial_date` | Date du témoignage | Témoignage | `seed_testimonial` | `text` | `testimonial_date` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
@@ -138,6 +156,8 @@ Les champs éditoriaux Citations utilisent les métas publiques `seed_quote_text
 | `testimonial.display_order` | Position éditoriale | Témoignage | `seed_testimonial` | `number` | `display_order` | `0` | Oui | Oui | Inclus | Peut être reporté |
 
 `testimonial.featured` est un booléen métier distinct de l’image mise en avant WordPress.
+
+`testimonial.summary` provient uniquement de `post_excerpt`, avec `_seed_testimonial_summary` comme fallback de lecture transitionnel. `testimonial.text`, `testimonial.intro` et `testimonial.more` dérivent du même `seed_testimonial_text`; `testimonial.has_more` reste un booléen strict. Le titre est une identité WordPress technique générée depuis `seed_testimonial_name`, et non un second champ éditorial.
 
 `testimonial.display_order` ne constitue pas une API de tri ou de collection.
 

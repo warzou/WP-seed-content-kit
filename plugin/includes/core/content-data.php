@@ -167,10 +167,8 @@ function wp_seed_content_get_testimonial_data($post_id, $args = array())
     $text = function_exists('wp_seed_content_get_testimonial_builder_meta')
         ? wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_text')
         : (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_text');
+    $text_parts = wp_seed_content_split_wordpress_more($text);
     $title = (string) $post->post_title;
-    if ('' === $title) {
-        $title = (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_title');
-    }
     $summary = isset($post->post_excerpt) ? (string) $post->post_excerpt : '';
     if ('' === $summary) {
         $summary = (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_summary');
@@ -181,8 +179,11 @@ function wp_seed_content_get_testimonial_data($post_id, $args = array())
         array(
             'testimonial_title' => $title,
             'summary' => $summary,
-            'text' => $text,
-            'full_content' => $text,
+            'text' => $text_parts['full'],
+            'full_content' => $text_parts['full'],
+            'intro' => $text_parts['intro'],
+            'more' => $text_parts['more'],
+            'has_more' => $text_parts['has_more'],
             'name' => function_exists('wp_seed_content_get_testimonial_builder_meta')
                 ? wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_name')
                 : (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_name'),
