@@ -101,7 +101,8 @@ require $root . 'includes/modules/directory/classification-migration.php';
 require $root . 'includes/integrations/divi/directory-collection-query.php';
 
 dem_same(array('praticien', 'intervenant'), array_keys(wp_seed_content_directory_get_classification_registry('profile_type', true)), 'default profiles');
-dem_same(array('en_exercice', 'recherche_modeles'), array_keys(wp_seed_content_directory_get_classification_registry('status', true)), 'default statuses');
+dem_same(array('en_exercice', 'recherche_modeles', 'autre'), array_keys(wp_seed_content_directory_get_classification_registry('status', true)), 'default statuses');
+dem_same('Autre', wp_seed_content_directory_classification_options('status', true)['autre'], 'other status is registry-driven');
 $status_rows = wp_seed_content_directory_get_classification_registry('status', false);
 $status_rows['en_exercice']['label'] = 'Actif';
 $status_rows['recherche_modeles']['active'] = false;
@@ -197,6 +198,13 @@ $post_type_source = file_get_contents($root . 'includes/modules/directory/post-t
 $builder_meta_source = file_get_contents($root . 'includes/modules/directory/builder-meta.php');
 dem_same(true, false !== strpos($admin_source, 'Nom de la personne'), 'name admin UX');
 dem_same(true, false !== strpos($admin_source, 'Ce nom est utilisé dans les affichages publics'), 'name help');
+dem_same(true, false !== strpos($admin_source, 'name="wp_seed_content_directory_name"'), 'canonical name input is present');
+dem_same(true, false !== strpos($admin_source, 'value="<?php echo esc_attr($post->post_title); ?>"'), 'canonical name input loads post title');
+dem_same(true, false !== strpos($admin_source, 'Affichage et classement'), 'profile box has clearer title');
+dem_same(true, false !== strpos($admin_source, 'Affichage du profil'), 'profile destination group is explicit');
+dem_same(true, false !== strpos($admin_source, 'Afficher dans l’annuaire des praticiens'), 'practitioner destination label');
+dem_same(true, false !== strpos($admin_source, 'Afficher parmi les intervenants'), 'speaker destination label');
+dem_same(true, false !== strpos($admin_source, 'Plusieurs choix sont possibles.'), 'multiple profile selection help');
 dem_same(true, false !== strpos($admin_source, 'Intitulé professionnel'), 'professional label admin UX');
 dem_same(true, false !== strpos($admin_source, 'Intitulé affichable sous le nom de la personne'), 'professional label help');
 dem_same(false, false !== strpos($admin_source, 'name="seed_directory_professional_label" required'), 'professional label remains optional');

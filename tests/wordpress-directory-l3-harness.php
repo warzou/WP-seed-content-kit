@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 }
 
 $root = dirname(__DIR__);
-$plugin_file = $root . '/plugin/wp-seed-content-kit.php';
+$plugin_file = getenv('WP_SEED_CONTENT_KIT_TEST_PLUGIN') ?: $root . '/plugin/wp-seed-content-kit.php';
 $assertions = 0;
 $failures = array();
 $created_posts = array();
@@ -79,6 +79,14 @@ try {
     wp_set_current_user((int) $administrators[0]);
     do_action('init');
 
+    // Website is configurable and absent from a fresh registry by design.
+    $contact_key = wp_seed_content_directory_contact_type_option_key();
+    $contact_fixture = function () {
+        return array('website' => array('slug' => 'website', 'label' => 'Site internet', 'behavior' => 'url', 'active' => true));
+    };
+    add_filter('pre_option_' . $contact_key, $contact_fixture);
+    seed_l3_wp_same(true, wp_seed_content_directory_is_contact_type_active('website'), 'Fixture Website contact type is active');
+
     $plugin_headers = get_file_data(WP_SEED_CONTENT_KIT_FILE, array('Version' => 'Version'), 'plugin');
     seed_l3_wp_same($plugin_headers['Version'], WP_SEED_CONTENT_KIT_VERSION, 'Plugin version matches header');
     seed_l3_wp_assert(post_type_exists('seed_directory'), 'Directory CPT registered');
@@ -116,7 +124,10 @@ try {
     $invalid_status_id = seed_l3_wp_create_entry(array(
         'post_title' => 'SEED L3 INVALID STATUS',
         'post_status' => 'publish',
-        'meta_input' => array('_seed_directory_status' => 'invalid'),
+        'meta_input' => array(
+            '_seed_directory_status' => 'invalid',
+            '_seed_directory_profile_types' => array('praticien'),
+        ),
     ));
     seed_l3_wp_same('draft', get_post_status($invalid_status_id), 'Invalid business status blocks publication');
     seed_l3_wp_same('', get_post_meta($invalid_status_id, '_seed_directory_status', true), 'Invalid status not stored');
@@ -239,8 +250,8 @@ try {
         '_seed_directory_phone' => array('letters only', 'invalid_public_phone'),
         '_seed_directory_email' => array('invalid', 'invalid_public_email'),
         '_seed_directory_website' => array('ftp://example.test', 'invalid_public_website'),
-        '_seed_directory_facebook' => array('https://example.test/facebook', 'invalid_public_facebook'),
-        '_seed_directory_instagram' => array('https://example.test/instagram', 'invalid_public_instagram'),
+        '_seed_directory_facebook' => array('ftp://example.test/facebook', 'invalid_public_facebook'),
+        '_seed_directory_instagram' => array('ftp://example.test/instagram', 'invalid_public_instagram'),
     );
     foreach ($invalid_contacts as $meta_key => $case) {
         $contact_id = seed_l3_wp_create_entry(array(
@@ -545,6 +556,9 @@ try {
 }
 
 $_POST = array();
+if (isset($contact_key, $contact_fixture)) {
+    remove_filter('pre_option_' . $contact_key, $contact_fixture);
+}
 wp_set_current_user((int) $previous_user_id);
 foreach (array_reverse($created_posts) as $post_id) {
     wp_delete_post($post_id, true);

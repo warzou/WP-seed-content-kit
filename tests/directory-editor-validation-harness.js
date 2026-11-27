@@ -2,7 +2,7 @@
 
 var fs = require('fs');
 var vm = require('vm');
-var source = fs.readFileSync('plugin/assets/js/directory-editor-validation.js', 'utf8');
+var source = fs.readFileSync(require('path').join(__dirname, '../plugin/assets/js/directory-editor-validation.js'), 'utf8');
 var assertions = 0;
 
 function assert(condition, message) {
@@ -21,13 +21,21 @@ async function runScenario(options) {
     var filters = {};
     var actions = {};
     var saveCalls = 0;
+    var editPostCalls = 0;
     var latestNotice = null;
+    var subscriptions = [];
+    var documentListeners = {};
+    var nameField = {
+        value: options.initialName || '',
+        id: 'wp_seed_content_directory_name'
+    };
     var editorState = {
         id: 900001,
         validation: { state: 'blocked', summary: 'Blocked', messages: ['Site internet invalide'] },
         saving: false,
         autosaving: false,
-        editedStatus: options.editedStatus || 'draft'
+        editedStatus: options.editedStatus || 'draft',
+        editedTitle: options.editedTitle || ''
     };
     var serverRecord = {
         id: 900001,
@@ -82,10 +90,21 @@ async function runScenario(options) {
                     getCurrentPost: function () {
                         return { id: editorState.id, wpsck_directory_validation: editorState.validation };
                     },
-                    getEditedPostAttribute: function () { return editorState.editedStatus; }
+                    getEditedPostAttribute: function (attribute) {
+                        return 'title' === attribute ? editorState.editedTitle : editorState.editedStatus;
+                    }
                 };
             },
-            dispatch: function () {
+            dispatch: function (store) {
+                if ('core/editor' === store) {
+                    return {
+                        editPost: function (edits) {
+                            editPostCalls += 1;
+                            editorState.editedTitle = edits.title;
+                            subscriptions.forEach(function (callback) { callback(); });
+                        }
+                    };
+                }
                 return {
                     saveEntityRecord: function (kind, name, record) {
                         saveCalls += 1;
@@ -101,6 +120,7 @@ async function runScenario(options) {
                     }
                 };
             },
+            subscribe: function (callback) { subscriptions.push(callback); },
             useSelect: function (selector) {
                 return selector(function () {
                     return {
@@ -130,7 +150,22 @@ async function runScenario(options) {
         }
     };
 
-    vm.runInNewContext(source, { window: { wp: wp } });
+    var fieldMounted = false !== options.fieldMounted;
+    var document = {
+        activeElement: null,
+        readyState: 'complete',
+        getElementById: function (id) {
+            return fieldMounted && 'wp_seed_content_directory_name' === id ? nameField : null;
+        },
+        addEventListener: function (name, callback) { documentListeners[name] = callback; }
+    };
+    vm.runInNewContext(source, { window: { wp: wp, document: document } });
+
+    if (Object.prototype.hasOwnProperty.call(options, 'enteredName')) {
+        fieldMounted = true;
+        nameField.value = options.enteredName;
+        documentListeners.input({ target: nameField });
+    }
 
     filters['editor.preSavePost']({ status: options.requestedStatus });
     await actions['editor.savePost'](
@@ -154,7 +189,26 @@ async function runScenario(options) {
     await render();
     await render();
 
-    return { saveCalls: saveCalls, notice: latestNotice };
+    return {
+        saveCalls: saveCalls,
+        editPostCalls: editPostCalls,
+        editedTitle: editorState.editedTitle,
+        notice: latestNotice,
+        nameField: nameField,
+        subscriptions: subscriptions,
+        getEditPostCalls: function () { return editPostCalls; },
+        getEditedTitle: function () { return editorState.editedTitle; },
+        mountField: function () { fieldMounted = true; },
+        enterName: function (name) {
+            fieldMounted = true;
+            nameField.value = name;
+            documentListeners.input({ target: nameField });
+        },
+        setEditedTitle: function (title) {
+            editorState.editedTitle = title;
+            subscriptions.forEach(function (callback) { callback(); });
+        }
+    };
 }
 
 (async function () {
@@ -173,6 +227,28 @@ async function runScenario(options) {
 
     var autosaveResult = await runScenario({ requestedStatus: 'publish', autosave: true });
     assert(0 === autosaveResult.saveCalls, 'An autosave never finalizes publication');
+
+    var newPersonResult = await runScenario({
+        requestedStatus: 'draft',
+        initialName: '',
+        editedTitle: '',
+        enteredName: 'Personne Test'
+    });
+    assert(1 === newPersonResult.editPostCalls, 'New person name updates the Core Editor exactly once');
+    assert('Personne Test' === newPersonResult.editedTitle, 'New person name becomes the canonical edited title');
+    assert(1 === newPersonResult.subscriptions.length, 'Name field subscribes to canonical title changes');
+
+    newPersonResult.setEditedTitle('Personne Test renommée');
+    assert('Personne Test renommée' === newPersonResult.nameField.value, 'Canonical title rehydrates the name field');
+
+    var lateFieldResult = await runScenario({
+        requestedStatus: 'draft',
+        fieldMounted: false,
+        editedTitle: ''
+    });
+    lateFieldResult.enterName('Personne montée tardivement');
+    assert(1 === lateFieldResult.getEditPostCalls(), 'A name field mounted after script startup still updates Core Editor');
+    assert('Personne montée tardivement' === lateFieldResult.getEditedTitle(), 'Late-mounted field supplies the canonical title');
 
     process.stdout.write('PASS ' + assertions + ' Gutenberg validation JS assertions\n');
 }()).catch(function (error) {

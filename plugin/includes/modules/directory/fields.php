@@ -14,7 +14,7 @@ function wp_seed_content_directory_get_meta_definitions()
         '_seed_directory_city' => array('type' => 'text'),
         '_seed_directory_postal_code' => array('type' => 'postal_code'),
         '_seed_directory_department' => array('type' => 'department'),
-        '_seed_directory_country' => array('type' => 'country', 'default' => 'FR'),
+        '_seed_directory_country' => array('type' => 'country', 'default' => ''),
         '_seed_directory_featured' => array('type' => 'boolean'),
         '_seed_directory_profession' => array('type' => 'text'),
         '_seed_directory_phone' => array('type' => 'phone'),
@@ -85,7 +85,11 @@ function wp_seed_content_directory_get_statuses()
 {
     return function_exists('wp_seed_content_directory_classification_options')
         ? wp_seed_content_directory_classification_options('status', true)
-        : array('en_exercice' => __('En exercice', 'wp-seed-content-kit'), 'recherche_modeles' => __('En recherche de modèles', 'wp-seed-content-kit'));
+        : array(
+            'en_exercice' => __('En exercice', 'wp-seed-content-kit'),
+            'recherche_modeles' => __('En recherche de modèles', 'wp-seed-content-kit'),
+            'autre' => __('Autre', 'wp-seed-content-kit'),
+        );
 }
 
 function wp_seed_content_directory_get_contact_definitions()
@@ -206,7 +210,7 @@ function wp_seed_content_directory_normalize_contact_value($key, $value)
         $value = sanitize_email($value);
         return $value && is_email($value) ? $value : '';
     }
-    if ('url' === $type) {
+    if (in_array($type, array('url', 'facebook', 'instagram'), true)) {
         return wp_seed_content_directory_sanitize_http_url($value);
     }
     return '';

@@ -450,7 +450,7 @@ Gutenberg et Spectra utilisent le shortcode canonique. Divi 5 utilise de préfé
 
 Renseignez la présentation courte dans l’extrait et la présentation complète dans l’éditeur WordPress. Cochez « Afficher cette personne dans les annuaires publics » seulement lorsque la fiche doit apparaître dans les Collections. Cette case ne change ni le statut WordPress, ni le consentement, ni les coordonnées affichées.
 
-Dans un Template Annuaire, utilisez `directory.summary` ou son alias `directory.bio` pour le résumé indépendant, et `directory.presentation` ou son alias historique `directory.full_presentation` pour la présentation complète. Un bloc More WordPress facultatif dans la présentation fournit aussi `directory.presentation_intro`, `directory.presentation_more` et `directory.has_more`. Sans bloc More, l’introduction reprend la présentation complète, la suite est vide et `has_more` vaut faux.
+Dans un Template Annuaire, utilisez `directory.summary` ou son alias `directory.bio` pour le résumé indépendant, et `directory.presentation` ou son alias historique `directory.full_presentation` pour la présentation complète. Un bloc More WordPress facultatif dans la présentation fournit aussi `directory.presentation_intro`, `directory.presentation_more` et `directory.has_more`. Une nouvelle Personne reçoit ce bloc comme contenu initial, mais WPSCK ne le réinsère jamais après suppression et ne modifie aucune fiche existante. Sans suite réelle après More, la suite est vide et `has_more` vaut faux afin de ne pas afficher de contrôle vide.
 
 `directory.professional_label` fournit l'« Intitulé professionnel » facultatif, destiné à être affiché sous le nom. Il ne remplace ni le nom WordPress ni les types de profil utilisés pour filtrer les Collections. Divi l'expose avec le provider `WPSCK — Annuaire — Intitulé professionnel`; Gutenberg utilise le même identifiant avec la source Block Bindings commune.
 
@@ -516,5 +516,11 @@ Placer `wpsck-loop--alternating` sur l'élément réellement cloné par la Nativ
 À 980 px et moins, le comportement historique reste média puis contenu. Ajouter `wpsck-loop--mobile-content-first` sur l'élément cloné pour afficher contenu puis média, ou `wpsck-loop--mobile-media-first` pour rendre explicitement l'ordre historique. Si les deux classes sont présentes par erreur, `wpsck-loop--mobile-content-first` est prioritaire. Ces classes ne changent jamais l'ordre DOM. Les anciennes classes `wpsck-testimonial-loop--*` restent compatibles.
 
 Le contrat de données est builder-agnostic : WPSCK fournit données, requête, consentement et providers ; Divi fournit présentation et responsive. Les mêmes métas publiques restent disponibles pour Gutenberg/custom-fields et de futurs adaptateurs Spectra/Astra, sans stockage spécifique à Divi.
+
+## Parcours & calendrier
+
+Le module **Parcours & calendrier** est désactivé par défaut. Lorsqu'il est activé, Programmes et Thèmes disposent d'écrans WordPress dédiés; les Sections sont gérées dans le Programme et les Programmations depuis **Parcours & calendrier — Calendrier annuel**.
+
+Le shortcode [seed_program_schedule] accepte program, year et un mode structure, grouped ou calendar. Il n'affiche jamais les programmations annulées par défaut. Les mêmes données scalaires sont disponibles sous les identifiants formation.* dans Content Data et Gutenberg Block Bindings. Aucune dépendance WP Seed Events ou donnée de présentation Divi n'est enregistrée.
 
 L’éditeur Témoignage expose `post_excerpt` sous le libellé **Résumé court**. Les métaboxes WordPress génériques Extrait et Champs personnalisés sont masquées sur cet écran, sans retirer les supports `excerpt` et `custom-fields` nécessaires aux contrats REST et builder-agnostic. Aucun résumé n’est généré depuis le texte complet.

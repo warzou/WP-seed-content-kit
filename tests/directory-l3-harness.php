@@ -260,7 +260,7 @@ $expected_keys = array(
 );
 seed_l3_same($expected_keys, array_keys(wp_seed_content_directory_get_meta_definitions()), 'Exact canonical meta definitions');
 seed_l3_same(23, count(wp_seed_content_directory_get_meta_definitions()), 'Exact Directory private and legacy meta count');
-seed_l3_same(array('en_exercice', 'recherche_modeles'), array_keys(wp_seed_content_directory_get_statuses()), 'Exact statuses');
+seed_l3_same(array('en_exercice', 'recherche_modeles', 'autre'), array_keys(wp_seed_content_directory_get_statuses()), 'Exact statuses');
 
 $cases = array(
     array('_seed_directory_status', 'practicing', 'en_exercice'),
@@ -307,7 +307,7 @@ $filtered_draft = wp_seed_content_directory_filter_insert_post_data(array(
     'menu_order' => -8,
 ), array());
 seed_l3_same('Nom', $filtered_draft['post_title'], 'Native title sanitized');
-seed_l3_same('Présentation', $filtered_draft['post_excerpt'], 'Native excerpt sanitized');
+seed_l3_same('', $filtered_draft['post_excerpt'], 'New deprecated summary writes ignored');
 seed_l3_same(0, $filtered_draft['menu_order'], 'Native order clamped to zero');
 $_POST = array('wp_seed_content_directory_nonce' => 'valid', '_thumbnail_id' => '-1');
 $thumbnail_overrides = wp_seed_content_directory_collect_publication_overrides(array());
@@ -338,6 +338,26 @@ $GLOBALS['seed_l3_meta'][$post_id] = array(
     '_seed_directory_internal_note' => 'Strictement interne',
 );
 seed_l3_same(array(), wp_seed_content_directory_get_publication_errors($post_id), 'Valid entry has no publication errors');
+seed_l3_same(array(), wp_seed_content_directory_get_publication_errors($post_id, array(
+    '_seed_directory_profile_types' => array('intervenant'),
+    '_seed_directory_status' => '',
+)), 'Intervenant without status remains publishable');
+seed_l3_assert(in_array('invalid_status', wp_seed_content_directory_get_publication_errors($post_id, array(
+    '_seed_directory_profile_types' => array('praticien'),
+    '_seed_directory_status' => '',
+)), true), 'Practitioner without status is blocked');
+seed_l3_assert(in_array('invalid_status', wp_seed_content_directory_get_publication_errors($post_id, array(
+    '_seed_directory_profile_types' => array('praticien', 'intervenant'),
+    '_seed_directory_status' => '',
+)), true), 'Practitioner and intervenant without status is blocked');
+seed_l3_same(array(), wp_seed_content_directory_get_publication_errors($post_id, array(
+    '_seed_directory_profile_types' => array('praticien'),
+    '_seed_directory_status' => 'autre',
+)), 'Registry status autre satisfies practitioner publication');
+seed_l3_same(array(), wp_seed_content_directory_get_publication_errors($post_id, array(
+    '_seed_directory_profile_types' => array(),
+    '_seed_directory_status' => '',
+)), 'Entry without profile does not require a status');
 seed_l3_same(true, wp_seed_content_directory_is_publicly_eligible($post_id), 'Valid published entry eligible');
 seed_l3_same(array('phone' => '+33 1 23 45 67 89'), wp_seed_content_directory_get_public_contacts($post_id), 'Only valid visible contact returned');
 $GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_publicly_listed'] = '';
@@ -350,8 +370,8 @@ $invalid_public_contacts = array(
     '_seed_directory_phone' => array('letters only', 'invalid_public_phone'),
     '_seed_directory_email' => array('invalid', 'invalid_public_email'),
     '_seed_directory_website' => array('ftp://example.test', 'invalid_public_website'),
-    '_seed_directory_facebook' => array('https://example.test/facebook', 'invalid_public_facebook'),
-    '_seed_directory_instagram' => array('https://example.test/instagram', 'invalid_public_instagram'),
+    '_seed_directory_facebook' => array('ftp://example.test/facebook', 'invalid_public_facebook'),
+    '_seed_directory_instagram' => array('ftp://example.test/instagram', 'invalid_public_instagram'),
 );
 foreach ($invalid_public_contacts as $key => $case) {
     $original_value = isset($GLOBALS['seed_l3_meta'][$post_id][$key]) ? $GLOBALS['seed_l3_meta'][$post_id][$key] : '';
@@ -636,6 +656,11 @@ seed_l3_assert(false !== strpos($editor_script, '}, 20);'), 'Corrected publicati
 seed_l3_assert(false !== strpos($editor_script, "'blocked' === validation.state || 'drafted' === validation.state"), 'Only a blocked WPSCK publication can enter corrected publish finalization');
 seed_l3_assert(false !== strpos($editor_script, "'none' !== record.wpsck_directory_validation.state"), 'Gutenberg refuses final publication until the post-save validation state is clean');
 seed_l3_assert(false !== strpos($editor_script, "dispatch('core').saveEntityRecord("), 'Corrected publish finalization uses the native WordPress Core Data store');
+seed_l3_assert(false !== strpos($editor_script, "dispatch('core/editor')"), 'Directory name updates the canonical Core Editor title');
+seed_l3_assert(false !== strpos($editor_script, "editPost({ title: value })"), 'New directory name is present in the REST save payload');
+seed_l3_assert(false !== strpos($editor_script, "getEditedPostAttribute('title')"), 'Directory name field rehydrates from the canonical title');
+seed_l3_assert(false !== strpos($editor_script, "window.document.addEventListener('input', updateCanonicalTitle)"), 'Directory name uses delegated input binding for asynchronously mounted meta boxes');
+seed_l3_assert(false !== strpos(file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/admin.php'), "hash_file('sha256', \$editor_script)"), 'Directory editor asset uses deterministic content-based cache busting');
 seed_l3_assert(false !== strpos($editor_script, "'postType',\n                'seed_directory'"), 'Corrected publish finalization targets the directory post type');
 seed_l3_assert(false !== strpos(file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/admin.php'), "'wp-core-data'"), 'Gutenberg validation declares its Core Data dependency');
 seed_l3_assert(false !== strpos(file_get_contents(WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/admin.php'), "'wp-hooks'"), 'Gutenberg validation declares its Hooks dependency');
@@ -683,7 +708,7 @@ seed_l3_assert(false !== strpos($admin_source, 'wp_verify_nonce'), 'Save require
 seed_l3_assert(false !== strpos($admin_source, 'DOING_AUTOSAVE'), 'Save ignores autosave');
 seed_l3_assert(false !== strpos($admin_source, 'wp_is_post_revision'), 'Save ignores revision rows');
 seed_l3_assert(false !== strpos($admin_source, "current_user_can('edit_seed_directory_entry'"), 'Save requires object capability');
-seed_l3_assert(false !== strpos($admin_source, "Classement"), 'Classification panel title is explicit');
+seed_l3_assert(false !== strpos($admin_source, "Affichage et classement"), 'Classification panel title is explicit');
 seed_l3_assert(false !== strpos($admin_source, "_seed_directory_profile_types[]"), 'Profile panel supports multiple types');
 seed_l3_assert(false === strpos($admin_source, "Recherche actuellement des modèles"), 'Classification panel hides legacy seeking control');
 seed_l3_assert(false !== strpos($admin_source, "wp_seed_content_directory_profile_present"), 'Profile panel has a partial-save marker');
@@ -702,6 +727,26 @@ seed_l3_assert(false === strpos($bootstrap_source, 'register_rest_route'), 'No D
 seed_l3_assert(false === function_exists('wp_seed_content_directory_render'), 'No complete Directory renderer');
 seed_l3_assert(true === function_exists('wp_seed_content_directory_get_public_data'), 'L4 public Directory Data API available');
 seed_l3_assert(true === function_exists('wp_seed_content_directory_get_entries'), 'L4 public Directory Collection available');
+
+$GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_country'] = '';
+seed_l3_assert(!in_array('invalid_country', wp_seed_content_directory_get_publication_errors($post_id), true), 'Empty country is valid');
+seed_l3_same('Strasbourg', wp_seed_content_directory_get_location_label(array('city' => 'Strasbourg', 'country' => '')), 'Empty country leaves no separator');
+seed_l3_same('', wp_seed_content_directory_get_location_label(array('country' => '')), 'Empty location has no label');
+foreach (array('FR', 'LU') as $country) {
+    $GLOBALS['seed_l3_meta'][$post_id]['_seed_directory_country'] = $country;
+    seed_l3_assert(!in_array('invalid_country', wp_seed_content_directory_get_publication_errors($post_id), true), 'Existing valid country retained ' . $country);
+}
+$country_overrides = wp_seed_content_directory_collect_publication_overrides(array('meta_input' => array('_seed_directory_country' => 'ZZ')));
+seed_l3_same('ZZ', $country_overrides['_seed_directory_country'], 'Invalid nonempty country not confused with optional blank');
+seed_l3_assert(in_array('invalid_country', wp_seed_content_directory_get_publication_errors($post_id, $country_overrides), true), 'Invalid nonempty country rejected');
+$old_excerpt = "Legacy 'quote' <em>summary</em>\n";
+$GLOBALS['seed_l3_posts'][$post_id]->post_excerpt = $old_excerpt;
+$preserved = wp_seed_content_directory_filter_insert_post_data(array('post_type' => 'seed_directory', 'post_status' => 'draft', 'post_excerpt' => 'Replacement'), array('ID' => $post_id));
+seed_l3_same($old_excerpt, $preserved['post_excerpt'], 'Historical summary bytes preserved');
+$other_excerpt = wp_seed_content_directory_filter_insert_post_data(array('post_type' => 'seed_testimonial', 'post_excerpt' => 'New testimonial summary'), array());
+seed_l3_same('New testimonial summary', $other_excerpt['post_excerpt'], 'Other CPT excerpt writing untouched');
+seed_l3_assert(false === strpos($admin_source, 'name="wp_seed_content_directory_excerpt"'), 'Deprecated summary admin input removed');
+seed_l3_assert(false !== strpos($editor_script, "removeEditorPanel('post-excerpt')"), 'Gutenberg native excerpt UI hidden while REST contract remains');
 
 if (!empty($GLOBALS['seed_l3_failures'])) {
     fwrite(STDERR, 'FAIL ' . count($GLOBALS['seed_l3_failures']) . ' / ' . $GLOBALS['seed_l3_assertions'] . PHP_EOL);

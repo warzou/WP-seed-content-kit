@@ -11,8 +11,8 @@ function wp_seed_content_directory_add_meta_boxes()
     remove_meta_box('slugdiv', 'seed_directory', 'normal');
 
     add_meta_box('wp_seed_content_directory_identity', __('Identité', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_identity_box', 'seed_directory', 'normal', 'high');
-    add_meta_box('wp_seed_content_directory_profile', __('Classement', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_profile_box', 'seed_directory', 'normal', 'high');
     add_meta_box('wp_seed_content_directory_situation', __('Localisation et présentation', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_situation_box', 'seed_directory', 'normal', 'high');
+    add_meta_box('wp_seed_content_directory_profile', __('Affichage et classement', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_profile_box', 'seed_directory', 'normal', 'high');
     add_meta_box('wp_seed_content_directory_contacts', __('Coordonnées', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_contacts_box', 'seed_directory', 'normal', 'default');
     add_meta_box('wp_seed_content_directory_publication', __('Autorisation et suivi', 'wp-seed-content-kit'), 'wp_seed_content_directory_render_publication_box', 'seed_directory', 'normal', 'default');
 }
@@ -62,13 +62,26 @@ function wp_seed_content_directory_get_error_attributes($post_id, $field_id)
         : '';
 }
 
+function wp_seed_content_directory_get_more_editor_help($content)
+{
+    $parts = wp_seed_content_split_wordpress_more((string) $content);
+    if ($parts['has_more']) {
+        return __('Lire la suite : le bloc natif WordPress est déjà présent dans cette fiche. Déplacez-le entre votre introduction et la suite de votre présentation pour choisir la coupure. N’ajoutez pas de second bloc. Ce bloc est préinséré dans les nouvelles fiches.', 'wp-seed-content-kit');
+    }
+
+    return __('Lire la suite : un bloc natif WordPress est préinséré dans les nouvelles fiches. Cette fiche n’en contient pas : ajoutez le bloc Lire la suite depuis l’inserteur WordPress entre votre introduction et la suite de votre présentation. Un seul bloc suffit.', 'wp-seed-content-kit');
+}
+
 function wp_seed_content_directory_render_identity_box($post)
 {
     wp_nonce_field('wp_seed_content_directory_save', 'wp_seed_content_directory_nonce');
     ?>
-    <p><strong><?php esc_html_e('Nom de la personne', 'wp-seed-content-kit'); ?></strong></p>
+    <p>
+        <label for="wp_seed_content_directory_name"><strong><?php esc_html_e('Nom de la personne', 'wp-seed-content-kit'); ?></strong></label><br>
+        <input id="wp_seed_content_directory_name" name="wp_seed_content_directory_name" type="text" value="<?php echo esc_attr($post->post_title); ?>" class="widefat"<?php echo wp_seed_content_directory_get_error_attributes($post->ID, 'wp_seed_content_directory_name'); ?>>
+    </p>
     <p class="description"><?php esc_html_e('Ce nom est utilisé dans les affichages publics de l’annuaire.', 'wp-seed-content-kit'); ?></p>
-    <?php wp_seed_content_directory_render_field_error($post->ID, 'title'); ?>
+    <?php wp_seed_content_directory_render_field_error($post->ID, 'wp_seed_content_directory_name'); ?>
     <p>
         <label for="wp_seed_content_directory_professional_label"><strong><?php esc_html_e('Intitulé professionnel', 'wp-seed-content-kit'); ?></strong></label><br>
         <input id="wp_seed_content_directory_professional_label" name="seed_directory_professional_label" type="text" value="<?php echo esc_attr(wp_seed_content_directory_get_admin_field_value($post->ID, 'seed_directory_professional_label')); ?>" class="widefat">
@@ -81,11 +94,7 @@ function wp_seed_content_directory_render_identity_box($post)
         <input id="wp_seed_content_directory_photo_alt" name="_seed_directory_photo_alt" type="text" value="<?php echo esc_attr(wp_seed_content_directory_get_admin_field_value($post->ID, '_seed_directory_photo_alt')); ?>" class="widefat"<?php echo wp_seed_content_directory_get_error_attributes($post->ID, 'wp_seed_content_directory_photo_alt'); ?>>
         <?php wp_seed_content_directory_render_field_error($post->ID, 'wp_seed_content_directory_photo_alt'); ?>
     </p>
-    <p>
-        <label for="wp_seed_content_directory_excerpt"><strong><?php esc_html_e('Résumé', 'wp-seed-content-kit'); ?></strong></label><br>
-        <textarea id="wp_seed_content_directory_excerpt" name="wp_seed_content_directory_excerpt" rows="5" class="widefat"><?php echo esc_textarea($post->post_excerpt); ?></textarea>
-    </p>
-    <p class="description"><?php esc_html_e('Présentez brièvement l’activité, les modalités, les spécialités ou le public accompagné.', 'wp-seed-content-kit'); ?></p>
+    <p class="description seed-directory-more-help"><?php echo esc_html(wp_seed_content_directory_get_more_editor_help($post->post_content)); ?></p>
     <?php
 }
 
@@ -96,8 +105,8 @@ function wp_seed_content_directory_render_full_presentation_intro($post)
     }
     ?>
     <div class="seed-directory-editor-intro">
-        <h2><?php esc_html_e('Présentation complète', 'wp-seed-content-kit'); ?></h2>
-        <p class="description"><?php esc_html_e('Utilisez l’éditeur WordPress pour la présentation développée. Le résumé court reste indépendant dans le panneau Annuaire.', 'wp-seed-content-kit'); ?></p>
+        <h2><?php esc_html_e('Concernant la personne', 'wp-seed-content-kit'); ?></h2>
+        <p class="description"><?php esc_html_e('Utilisez l’éditeur WordPress pour la présentation développée.', 'wp-seed-content-kit'); ?></p>
     </div>
     <?php
 }
@@ -111,7 +120,7 @@ function wp_seed_content_directory_render_situation_box($post)
         <?php wp_seed_content_directory_render_text_input($post->ID, '_seed_directory_city', __('Ville', 'wp-seed-content-kit')); ?>
         <?php wp_seed_content_directory_render_text_input($post->ID, '_seed_directory_postal_code', __('Code postal', 'wp-seed-content-kit'), 'text', 16); ?>
         <?php wp_seed_content_directory_render_text_input($post->ID, '_seed_directory_department', __('Département', 'wp-seed-content-kit'), 'text', 12); ?>
-        <?php wp_seed_content_directory_render_text_input($post->ID, '_seed_directory_country', __('Pays', 'wp-seed-content-kit'), 'text', 2, __('Par exemple : FR pour France.', 'wp-seed-content-kit')); ?>
+        <?php wp_seed_content_directory_render_text_input($post->ID, '_seed_directory_country', __('Pays (facultatif)', 'wp-seed-content-kit'), 'text', 2, __('Par exemple : FR pour France. Vous pouvez laisser ce champ vide.', 'wp-seed-content-kit')); ?>
     </fieldset>
     <?php
 }
@@ -129,15 +138,15 @@ function wp_seed_content_directory_render_profile_box($post)
     ?>
     <input type="hidden" name="wp_seed_content_directory_profile_present" value="1">
     <fieldset class="seed-directory-field-group">
-        <legend><strong><?php esc_html_e('Type(s) de profil', 'wp-seed-content-kit'); ?></strong></legend>
+        <legend><strong><?php esc_html_e('Affichage du profil', 'wp-seed-content-kit'); ?></strong></legend>
         <?php foreach ($profile_registry as $profile_type => $definition) : ?>
             <?php if (empty($definition['active']) && !in_array($profile_type, $selected, true)) { continue; } ?>
             <p><label>
                 <input type="checkbox" name="_seed_directory_profile_types[]" value="<?php echo esc_attr($profile_type); ?>" <?php checked(in_array($profile_type, $selected, true)); ?>>
-                <?php echo esc_html($definition['label']); ?><?php if (empty($definition['active'])) { echo ' ' . esc_html__('(inactif)', 'wp-seed-content-kit'); } ?>
+                <?php echo esc_html(wp_seed_content_directory_get_profile_admin_label($profile_type, $definition)); ?><?php if (empty($definition['active'])) { echo ' ' . esc_html__('(inactif)', 'wp-seed-content-kit'); } ?>
             </label></p>
         <?php endforeach; ?>
-        <p class="description"><?php esc_html_e('Une fiche peut avoir plusieurs types ou rester temporairement non classée.', 'wp-seed-content-kit'); ?></p>
+        <p class="description"><?php esc_html_e('Sélectionnez les espaces du site dans lesquels cette personne doit apparaître. Plusieurs choix sont possibles.', 'wp-seed-content-kit'); ?></p>
     </fieldset>
     <fieldset class="seed-directory-field-group">
         <legend><strong><?php esc_html_e('Statut', 'wp-seed-content-kit'); ?></strong></legend>
@@ -148,11 +157,24 @@ function wp_seed_content_directory_render_profile_box($post)
                 <option value="<?php echo esc_attr($value); ?>" <?php selected($status, $value); ?>><?php echo esc_html($definition['label']); ?><?php if (empty($definition['active'])) { echo ' ' . esc_html__('(inactif)', 'wp-seed-content-kit'); } ?></option>
             <?php endforeach; ?>
         </select>
+        <p class="description"><?php esc_html_e('Le statut est utilisé pour l’affichage dans l’annuaire des praticiens.', 'wp-seed-content-kit'); ?></p>
         <?php wp_seed_content_directory_render_field_error($post->ID, 'seed-directory-status'); ?>
     </fieldset>
-    <p><label for="seed-directory-menu-order"><strong><?php esc_html_e('Ordre d’affichage', 'wp-seed-content-kit'); ?></strong></label><br><input id="seed-directory-menu-order" class="small-text" type="number" name="seed_directory_menu_order" value="<?php echo (int) $post->menu_order; ?>"></p>
+    <p><label for="seed-directory-menu-order"><strong><?php esc_html_e('Ordre d’affichage', 'wp-seed-content-kit'); ?></strong></label><br><input id="seed-directory-menu-order" class="small-text" type="number" min="0" name="seed_directory_menu_order" placeholder="<?php esc_attr_e('Automatique', 'wp-seed-content-kit'); ?>" value="<?php echo 'auto-draft' === $post->post_status && 0 === (int) $post->menu_order ? '' : (int) $post->menu_order; ?>"></p>
     <?php wp_seed_content_directory_render_checkbox($post->ID, '_seed_directory_featured', __('Mettre cette personne en avant dans l’annuaire', 'wp-seed-content-kit')); ?>
     <?php
+}
+
+function wp_seed_content_directory_get_profile_admin_label($profile_type, $definition)
+{
+    if ('praticien' === $profile_type) {
+        return __('Afficher dans l’annuaire des praticiens', 'wp-seed-content-kit');
+    }
+    if ('intervenant' === $profile_type) {
+        return __('Afficher parmi les intervenants', 'wp-seed-content-kit');
+    }
+
+    return isset($definition['label']) ? (string) $definition['label'] : (string) $profile_type;
 }
 
 function wp_seed_content_directory_render_contacts_box($post)
@@ -315,13 +337,13 @@ function wp_seed_content_directory_save_meta($post_id, $post)
     }
 
     if ($profile_panel_present) {
-        $status = isset($_POST['_seed_directory_status'])
-            ? wp_seed_content_directory_normalize_status_slug(wp_unslash($_POST['_seed_directory_status']), true)
-            : '';
         $profile_types = isset($_POST['_seed_directory_profile_types'])
             ? wp_seed_content_directory_normalize_profile_slugs(wp_unslash($_POST['_seed_directory_profile_types']), true)
             : array();
-        '' === $status ? delete_post_meta($post_id, 'seed_directory_status') : update_post_meta($post_id, 'seed_directory_status', $status);
+        if (array_key_exists('_seed_directory_status', $_POST)) {
+            $status = wp_seed_content_directory_normalize_status_slug(wp_unslash($_POST['_seed_directory_status']), true);
+            '' === $status ? delete_post_meta($post_id, 'seed_directory_status') : update_post_meta($post_id, 'seed_directory_status', $status);
+        }
         empty($profile_types) ? delete_post_meta($post_id, 'seed_directory_profile_types') : update_post_meta($post_id, 'seed_directory_profile_types', $profile_types);
     }
 
@@ -337,13 +359,14 @@ function wp_seed_content_directory_save_meta($post_id, $post)
         update_post_meta($thumbnail_id, '_wp_attachment_image_alt', sanitize_text_field(wp_unslash($_POST['_seed_directory_photo_alt'])));
     }
 
-    $excerpt = isset($_POST['wp_seed_content_directory_excerpt']) ? sanitize_textarea_field(wp_unslash($_POST['wp_seed_content_directory_excerpt'])) : (string) $post->post_excerpt;
     $menu_order = isset($_POST['seed_directory_menu_order']) ? (int) wp_unslash($_POST['seed_directory_menu_order']) : (int) $post->menu_order;
-    if ($excerpt !== (string) $post->post_excerpt || $menu_order !== (int) $post->menu_order) {
+    if ($menu_order !== (int) $post->menu_order) {
         $saving = true;
-        wp_update_post(array('ID' => (int) $post_id, 'post_excerpt' => $excerpt, 'menu_order' => $menu_order));
+        wp_update_post(array('ID' => (int) $post_id, 'menu_order' => $menu_order));
         $saving = false;
     }
+
+    wp_seed_content_directory_finish_initial_order($post_id);
 
     wp_seed_content_directory_reassign_pending_notice($post_id);
     wp_seed_content_directory_enforce_publication($post_id, get_post($post_id));
@@ -371,7 +394,7 @@ function wp_seed_content_directory_render_column($column, $post_id)
 {
     if ('directory_photo' === $column) {
         $thumbnail_id = (int) get_post_thumbnail_id($post_id);
-        echo $thumbnail_id ? wp_get_attachment_image($thumbnail_id, array(48, 48), false, array('alt' => '')) : '&mdash;';
+        echo $thumbnail_id ? wp_get_attachment_image($thumbnail_id, 'full', false, array('alt' => '', 'sizes' => '48px', 'loading' => false)) : '&mdash;';
     } elseif ('directory_status' === $column) {
         $statuses = wp_seed_content_directory_get_statuses();
         $status = wp_seed_content_directory_get_meta_value($post_id, '_seed_directory_status');
@@ -505,11 +528,13 @@ function wp_seed_content_directory_admin_assets($hook)
         return;
     }
     wp_enqueue_media();
+    $editor_script = WP_SEED_CONTENT_KIT_DIR . 'assets/js/directory-editor-validation.js';
+    $editor_hash = is_file($editor_script) ? hash_file('sha256', $editor_script) : false;
     wp_enqueue_script(
         'wp-seed-content-directory-editor-validation',
         WP_SEED_CONTENT_KIT_URL . 'assets/js/directory-editor-validation.js',
         array('wp-api-fetch', 'wp-components', 'wp-core-data', 'wp-data', 'wp-edit-post', 'wp-element', 'wp-hooks', 'wp-plugins'),
-        WP_SEED_CONTENT_KIT_VERSION,
+        $editor_hash ? substr($editor_hash, 0, 16) : WP_SEED_CONTENT_KIT_VERSION,
         true
     );
 }

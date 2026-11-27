@@ -22,6 +22,13 @@ function wp_seed_content_divi_testimonial_evaluate_has_more_condition($result, $
         return $result;
     }
 
+    if (
+        function_exists('wp_seed_content_kit_should_resolve_module_binding')
+        && !wp_seed_content_kit_should_resolve_module_binding('testimonials')
+    ) {
+        return false;
+    }
+
     $value_key = wp_seed_content_divi_testimonial_has_more_condition_value_key();
     $resolved_value = is_array($condition_settings) && isset($condition_settings[$value_key])
         ? (string) $condition_settings[$value_key]
@@ -54,6 +61,8 @@ function wp_seed_content_register_divi_testimonial_has_more_condition_assets()
 
     if (
         $registered
+        || (function_exists('wp_seed_content_kit_is_module_available_for_discovery')
+            && !wp_seed_content_kit_is_module_available_for_discovery('testimonials'))
         || !function_exists('et_core_is_fb_enabled')
         || !et_core_is_fb_enabled()
         || !class_exists('ET\\Builder\\VisualBuilder\\Assets\\PackageBuildManager')

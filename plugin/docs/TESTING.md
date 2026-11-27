@@ -1,5 +1,14 @@
 # Recette de test - WP Seed Content Kit
 
+## Calendrier Divi V3 (candidat local)
+
+Executer `tests/formation-divi-calendar-harness.php` sous PHP 7.0/8.4 : filtres,
+tris, champs scalaires, contexte clone, mise a jour fixture et activation.
+Le harnais `tests/wordpress-formation-divi-calendar-harness.php` exige WP-CLI,
+`WPSCK_FORMATION_TRANSACTIONAL_TEST`, Divi et une base de recette transactionnelle.
+Il n'a pas encore ete execute. Configuration et gates UI :
+`docs/FORMATION-DIVI-CALENDAR.md`. Aucun PASS UI/DEV ne decoule du harnais local.
+
 Ce document définit la recette minimale à exécuter sur le ZIP exact avant tout tag ou toute release.
 
 ## Préconditions
@@ -12,6 +21,10 @@ Ce document définit la recette minimale à exécuter sur le ZIP exact avant tou
 - accès aux logs PHP et à un rollback immédiat.
 
 ACF, Composer, npm et les services externes ne sont pas requis.
+
+## Enregistrement dynamique module-aware
+
+Exécuter `tests/module-aware-dynamic-registration-harness.php` sous PHP 7.0 et PHP 8.4. Le harnais couvre l'activation, la désactivation et la réactivation de Témoignages, Citations et Annuaire : découverte des providers Divi, valeur vide sûre pour un binding persisté, absence de token brut, retour des providers, conditions Divi masquées puis restaurées, registre Content Data stable et résolution historique Block Bindings conservée. La découverte est testée avec zéro Citation publiée : elle dépend uniquement de l'activation du module, jamais de l'existence d'un contenu ou d'une fixture.
 
 ## Installation et rollback
 
@@ -215,7 +228,7 @@ Retirer puis restaurer l’attribution Editor module par module. Désactiver un 
 
 Exécuter `tests/directory-l3-harness.php` sous PHP 7.0 et PHP 8.4, puis `tests/wordpress-directory-l3-harness.php` avec `WP_SEED_WORDPRESS_LOAD` vers un WordPress isolé.
 
-Vérifier brouillon vide, publication valide, autorisation absente, photo sans alt, fiche sans photo et les coordonnées en modes privé, public valide, public vide et public invalide. Sur une fiche publiée valide, tester pour site, e-mail, téléphone et nouvel alt manquant : sauvegarde invalide 1 maintenue publiée avec avertissement persistant et marqueur privé, sauvegarde 2 identique en brouillon, correction intermédiaire sans dépublication et nouvelle valeur invalide ouvrant un nouveau cycle. Reproduire aussi l’ordre Gutenberg réel : tentative REST de publication d’un brouillon encore invalide, sauvegarde séparée de la métaboxe corrigée, rafraîchissement REST propre, puis finalisation par le store Core Data dans le même clic utilisateur. Vérifier que l’état final est `publish`, que le marqueur et la notice disparaissent immédiatement, et qu’un simple enregistrement ne peut jamais déclencher cette finalisation. Exécuter `tests/directory-editor-validation-harness.js` avec Node pour contrôler l’intention Publier, l’unique finalisation Core Data, la disparition de la notice et l’absence d’auto-publication lors d’un simple Enregistrer. Vérifier aussi le grandfathering d’une erreur antérieure, le retrait d’autorisation strict, le blocage draft vers publish et la projection REST `wpsck_directory_validation` utilisée par Gutenberg. Un contact privé ou invalide reste absent de la Data API, du contexte Template et du shortcode.
+Vérifier brouillon vide, publication valide, autorisation absente, photo sans alt, fiche sans photo et les coordonnées en modes privé, public valide, public vide et public invalide. Sur une fiche publiée valide, tester pour site, e-mail, téléphone et nouvel alt manquant : sauvegarde invalide 1 maintenue publiée avec avertissement persistant et marqueur privé, sauvegarde 2 identique en brouillon, correction intermédiaire sans dépublication et nouvelle valeur invalide ouvrant un nouveau cycle. Reproduire aussi l’ordre Gutenberg réel : tentative REST de publication d’un brouillon encore invalide, sauvegarde séparée de la métaboxe corrigée, rafraîchissement REST propre, puis finalisation par le store Core Data dans le même clic utilisateur. Vérifier que l’état final est `publish`, que le marqueur et la notice disparaissent immédiatement, et qu’un simple enregistrement ne peut jamais déclencher cette finalisation. Exécuter `tests/directory-editor-validation-harness.js` avec Node pour contrôler l’intention Publier, l’unique finalisation Core Data, la disparition de la notice et l’absence d’auto-publication lors d’un simple Enregistrer. Sur `post-new.php?post_type=seed_directory`, vérifier aussi qu’un nom saisi dans la métaboxe Identité alimente immédiatement `core/editor.title`, y compris lorsque la métaboxe apparaît après le démarrage du script, survit à la création du brouillon et réhydrate le même champ après rechargement. Le header Gutenberg doit refléter le nom sans rechargement et l’URL de l’asset doit porter une version dérivée de son contenu. Vérifier enfin le grandfathering d’une erreur antérieure, le retrait d’autorisation strict, le blocage draft vers publish et la projection REST `wpsck_directory_validation` utilisée par Gutenberg. Un contact privé ou invalide reste absent de la Data API, du contexte Template et du shortcode.
 
 Avec Editor, vérifier création, publication valide, modification d’une fiche d’un autre éditeur, dépublication, corbeille et restauration. Confirmer l’absence de Configuration, Utilisation, Templates, Collections et outils techniques. Avec Administrator, confirmer la même fiche métier et les écrans avancés séparés. Tester les libellés, liens d’erreur, labels, fieldsets, clavier, focus, mobile, filtre de statut administratif, Quick Edit absent et publication en masse absente.
 
@@ -324,11 +337,17 @@ Tester deux designs sur la même donnée canonique : Annuaire détaillé et Inte
 
 Vérifier aussi le contrat portable de contenu : `post_excerpt` alimente uniquement `directory.summary`, `post_content` alimente uniquement `directory.presentation`/`full_presentation`, et les deux valeurs restent distinctes dans REST, Block Bindings, Dynamic Content et Native Loop. Exécuter `tests/directory-more-marker-harness.php` sous PHP 7.0 et PHP 8.4. Il couvre contenu vide, absence de marqueur, `<!--more-->`, libellé personnalisé, bloc Gutenberg `core/more`, `<!--noteaser-->`, marqueurs multiples, marqueur en début/fin, espaces, HTML, shortcodes et accents. Le premier marqueur définit la frontière; aucun marqueur technique ne subsiste dans les vues publiques.
 
-Confirmer que `directory.presentation_intro`, `directory.presentation_more` et `directory.has_more` sont dérivés à la lecture sans méta ni migration. Sans marqueur, introduction et présentation complète sont identiques, la suite est vide et `has_more` est faux. Aucun champ `read_more_open`, `accordion_state` ou stockage équivalent ne doit exister. Tester résumé vide, présentation vide, valeurs identiques, résumé préfixe et valeurs distinctes ; le composant « Lire la suite » reste une recette du builder, jamais une transformation WPSCK.
+Confirmer que `directory.presentation_intro`, `directory.presentation_more` et `directory.has_more` sont dérivés à la lecture sans méta ni migration. Sans marqueur, introduction et présentation complète sont identiques, la suite est vide et `has_more` est faux. Une nouvelle auto-draft Directory reçoit exactement un bloc Core More; une fiche existante reste inchangée, la suppression du bloc n'est pas annulée et un marqueur sans suite conserve `has_more=false` côté Directory. Aucun champ `read_more_open`, `accordion_state` ou stockage équivalent ne doit exister. Tester résumé vide, présentation vide, valeurs identiques, résumé préfixe et valeurs distinctes ; le composant « Lire la suite » reste une recette du builder, jamais une transformation WPSCK.
 
 Vérifier `seed_directory_professional_label` comme méta publique simple, facultative et REST-enabled. Tester la sanitization texte, la priorité canonique (y compris vide), le fallback et la migration non destructive depuis `_seed_directory_profession`, puis `directory.professional_label` dans la Data API, les Templates, Gutenberg Block Bindings, QueryResults et le provider Divi `loop_wpsck_directory_professional_label`.
 
 Dans Gutenberg, connecter les deux champs à des blocs Core compatibles et utiliser le bloc Details Core lorsqu'il est disponible. Dans Divi, utiliser des modules natifs et, si souhaité, un Toggle ou un Accordion. Documenter Spectra/Astra comme consommateurs possibles des mêmes données via blocs Core, Templates ou adaptateur, sans dépendance ni provider propriétaire. Toute recette repliable doit rester utilisable au clavier et reposer sur `<details>/<summary>` ou un bouton dont `aria-expanded` reflète l'état réel.
+
+## Parcours & calendrier
+
+Exécuter `tests/formation-foundation-harness.php`, `tests/formation-model-harness.php` et `tests/formation-ux-harness.php` sous PHP 7.0 et PHP 8.4. Vérifier le module désactivé par défaut, les quatre familles de capacités, les quatre CPT, les relations typées, les dates ISO, l'unicité annuelle, le report, les snapshots, l'exclusion des annulations, les tris stables et la structure sans dates. Le harnais UX couvre la sémantique native, le niveau de titre configurable, le statut Reporté textuel, les garde-fous de suppression des Sections et les conventions responsive sans palette éditoriale.
+
+Dans WordPress, activer le module puis créer uniquement des fixtures WPSCK Test. Vérifier les écrans Programmes, Thèmes et Calendrier annuel, les trois modes du shortcode, les bindings formation.*, puis désactiver/réactiver le module et confirmer que toutes les données sont intactes.
 
 ## Régression RC.3 `ids` + `exclude_ids`
 
@@ -356,7 +375,7 @@ Exécuter `tests/testimonial-summary-admin-harness.php` et `tests/testimonial-su
 
 ## Modèle éditorial Annuaire
 
-Exécuter `tests/directory-editorial-model-harness.php` sous PHP 7.0.33 et PHP 8.4.23. Il couvre les registries Statuts/Types, le renommage sans changement de slug, l'ajout, la désactivation sûre, la suppression explicite d'une valeur custom inutilisée, le blocage d'une valeur utilisée ou système, la priorité canonique, les fallbacks `practicing` et `seeking_models`, le multi-profile, la projection idempotente, le rebuild, l'audit d'écart, les filtres Collection, les tris simples/composés, l'adaptateur taxonomy Divi et le cycle synthétique dry-run/apply/rollback.
+Exécuter `tests/directory-editorial-model-harness.php` et `tests/directory-admin-ux-harness.php` sous PHP 7.0.33 et PHP 8.4.23. Le premier couvre les registries Statuts/Types, dont le statut système `autre`, le renommage sans changement de slug, l'ajout, la désactivation sûre, la suppression explicite d'une valeur custom inutilisée, le blocage d'une valeur utilisée ou système, la priorité canonique, les fallbacks `practicing` et `seeking_models`, le multi-profile, la projection idempotente, le rebuild, l'audit d'écart, les filtres Collection, les tris simples/composés, l'adaptateur taxonomy Divi et le cycle synthétique dry-run/apply/rollback. Le second vérifie que le champ admin « Nom de la personne » lit et écrit uniquement `post_title`, que les sauvegardes partielles restent non destructives, que le statut omis est préservé, que Localisation et présentation précède Affichage et classement et que le More initial reste limité aux nouveaux auto-drafts.
 
 Dans WordPress, vérifier que l'admin utilise `post_title` comme « Nom de la personne », l'image mise en avant comme « Photo de la personne » et un unique bloc Classement pour Types, Statut et `menu_order`. La case legacy Recherche de modèles ne doit plus être éditable. La Configuration Annuaire affiche uniquement Types de profil, Statuts et Types de coordonnées. Les trois registres proposent le retrait immédiat d'une ligne neuve, la suppression confirmée d'une valeur custom inutilisée, le blocage avec comptage d'usage et la désactivation non destructive.
 

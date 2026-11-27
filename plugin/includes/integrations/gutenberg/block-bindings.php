@@ -62,6 +62,20 @@ function wp_seed_content_get_gutenberg_binding_value($source_args, $block_instan
         'directory.location' => 'text',
         'directory.id' => 'text',
         'directory.anchor' => 'text',
+        'formation.program.title' => 'text',
+        'formation.program.summary' => 'text',
+        'formation.program.description' => 'text',
+        'formation.theme.title' => 'text',
+        'formation.theme.summary' => 'text',
+        'formation.theme.description' => 'text',
+        'formation.theme.image' => 'image',
+        'formation.section.title' => 'text',
+        'formation.schedule.title' => 'text',
+        'formation.schedule.start_date' => 'text',
+        'formation.schedule.end_date' => 'text',
+        'formation.schedule.status' => 'text',
+        'formation.schedule.section' => 'text',
+        'formation.schedule.year' => 'text',
     );
 
     if (function_exists('wp_seed_content_directory_individual_contact_provider_definitions')) {

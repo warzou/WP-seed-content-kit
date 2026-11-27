@@ -4,6 +4,22 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+function wp_seed_content_directory_default_presentation($content, $post)
+{
+    if (
+        !is_object($post)
+        || 'seed_directory' !== $post->post_type
+        || !isset($post->post_status)
+        || 'auto-draft' !== $post->post_status
+        || '' !== trim((string) $content)
+    ) {
+        return $content;
+    }
+
+    return "<!-- wp:more -->\n<!--more-->\n<!-- /wp:more -->";
+}
+add_filter('default_content', 'wp_seed_content_directory_default_presentation', 10, 2);
+
 function wp_seed_content_directory_register_post_type()
 {
     $labels = array(

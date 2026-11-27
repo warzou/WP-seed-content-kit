@@ -157,7 +157,7 @@ function wp_seed_content_directory_validate_migration_manifest($manifest)
         if (!in_array($entry['professional_status'], array('practicing', 'seeking_models'), true)) {
             wp_seed_content_directory_migration_error($errors, $path . '.professional_status', 'invalid_status');
         }
-        if (!is_string($entry['country']) || !isset(wp_seed_content_directory_get_country_codes()[strtoupper($entry['country'])])) {
+        if (!is_string($entry['country']) || ('' !== $entry['country'] && !isset(wp_seed_content_directory_get_country_codes()[strtoupper($entry['country'])]))) {
             wp_seed_content_directory_migration_error($errors, $path . '.country', 'invalid_country');
         }
         if (!in_array($entry['target_status'], array('publish', 'draft'), true)) {

@@ -21,6 +21,7 @@ function wp_seed_content_directory_classification_definitions()
             'defaults' => array(
                 'en_exercice' => __('En exercice', 'wp-seed-content-kit'),
                 'recherche_modeles' => __('En recherche de modèles', 'wp-seed-content-kit'),
+                'autre' => __('Autre', 'wp-seed-content-kit'),
             ),
         ),
     );

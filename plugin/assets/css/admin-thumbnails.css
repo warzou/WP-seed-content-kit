@@ -1,0 +1,23 @@
+body.post-type-seed_directory .column-directory_photo img,
+body.post-type-seed_testimonial .column-testimonial_photo img,
+body.post-type-seed_testimonial .seed-testimonial-photo-field__image {
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+body.post-type-seed_directory .column-directory_photo img {
+    max-width: min(100%, 48px);
+    max-height: 48px;
+}
+
+body.post-type-seed_testimonial .column-testimonial_photo img {
+    max-width: min(100%, 60px);
+    max-height: 60px;
+}
+
+body.post-type-seed_testimonial .seed-testimonial-photo-field__image {
+    max-width: min(100%, 150px);
+    max-height: 150px;
+}

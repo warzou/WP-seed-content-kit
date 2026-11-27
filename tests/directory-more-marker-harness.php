@@ -3,6 +3,7 @@
 define('ABSPATH', __DIR__ . '/');
 
 require_once __DIR__ . '/../plugin/includes/core/content-data.php';
+require_once __DIR__ . '/../plugin/includes/modules/directory/data.php';
 
 $assertions = 0;
 $failures = array();
@@ -62,6 +63,12 @@ $cases = array(
 foreach ($cases as $name => $case) {
     directory_more_same($case[1], wp_seed_content_split_wordpress_more($case[0]), $name);
 }
+
+$empty_more = wp_seed_content_split_wordpress_more("<!-- wp:more -->\n<!--more-->\n<!-- /wp:more -->");
+directory_more_same(true, $empty_more['has_more'], 'generic WordPress parser records the empty marker');
+directory_more_same(false, wp_seed_content_directory_has_more_content($empty_more), 'Directory hides an empty continuation');
+directory_more_same(false, wp_seed_content_directory_has_more_content(wp_seed_content_split_wordpress_more('Avant.<!--more-->')), 'Directory hides an empty trailing continuation');
+directory_more_same(true, wp_seed_content_directory_has_more_content(wp_seed_content_split_wordpress_more('Avant.<!--more-->Après.')), 'Directory exposes a real continuation');
 
 if ($failures) {
     fwrite(STDERR, 'FAIL ' . count($failures) . '/' . $assertions . ': ' . implode(', ', $failures) . PHP_EOL);

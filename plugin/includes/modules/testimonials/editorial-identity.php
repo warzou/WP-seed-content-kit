@@ -79,7 +79,7 @@ function wp_seed_content_testimonial_render_admin_column($column, $post_id)
     }
 
     if ('testimonial_photo' === $column) {
-        $thumbnail = get_the_post_thumbnail($post_id, array(60, 60), array('style' => 'width:60px;height:60px;object-fit:cover;'));
+        $thumbnail = get_the_post_thumbnail($post_id, 'full', array('sizes' => '60px', 'loading' => false));
         echo $thumbnail ? $thumbnail : '&mdash;';
         return;
     }

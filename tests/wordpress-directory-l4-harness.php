@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 }
 
 $root = dirname(__DIR__);
-$plugin_file = $root . '/plugin/wp-seed-content-kit.php';
+$plugin_file = getenv('WP_SEED_CONTENT_KIT_TEST_PLUGIN') ?: $root . '/plugin/wp-seed-content-kit.php';
 $fixture_file = __DIR__ . '/fixtures/directory-l4.json';
 $assertions = 0;
 $failures = array();
@@ -160,7 +160,9 @@ try {
     seed_l4_wp_same(array(), wp_seed_content_directory_get_entries(array('ids' => array($entry_ids[9], $entry_ids[15]))), 'Draft IDs cannot bypass eligibility');
 
     $first = wp_seed_content_directory_get_public_data($entry_ids[0]);
-    seed_l4_wp_same(array('id', 'name', 'professional_label', 'photo', 'summary', 'bio', 'presentation', 'full_presentation', 'presentation_intro', 'presentation_more', 'has_more', 'publicly_listed', 'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label', 'seeking_models', 'seeking_models_label', 'location', 'featured', 'display_order', 'contacts'), array_keys($first), 'Fixed public schema');
+    seed_l4_wp_same(array('id', 'name', 'professional_label', 'photo', 'summary', 'bio', 'presentation', 'full_presentation', 'presentation_intro', 'presentation_more', 'has_more', 'publicly_listed', 'status', 'status_label', 'profile_types', 'profile_type_labels', 'profile_types_label', 'seeking_models', 'seeking_models_label', 'location', 'location_label', 'featured', 'display_order', 'contacts', 'contact_rows', 'phone', 'email', 'phone_href', 'email_href', 'anchor'), array_keys($first), 'Fixed public schema with the default contact registry');
+    seed_l4_wp_same('publish', get_post_status($entry_ids[3]), 'Public legacy Facebook does not block publication');
+    seed_l4_wp_same('publish', get_post_status($entry_ids[4]), 'Public legacy Instagram does not block publication');
     seed_l4_wp_same(array('city', 'postal_code', 'department', 'country'), array_keys($first['location']), 'Fixed location schema');
     seed_l4_wp_same(array('phone'), array_keys($first['contacts']), 'Only visible contact in public API');
     seed_l4_wp_same($first['summary'], $first['bio'], 'Bio remains a strict summary alias');
@@ -251,7 +253,7 @@ try {
     seed_l4_wp_assert(shortcode_exists('seed_testimonials'), 'Testimonials shortcode unchanged');
     seed_l4_wp_assert(shortcode_exists('seed_quotes'), 'Quotes shortcode unchanged');
     seed_l4_wp_same('1.0', wp_seed_content_kit_get_contract_version(), 'Template Extension contract unchanged');
-    seed_l4_wp_same(25, count(wp_seed_content_kit_get_registered_template_placeholders('directory')), 'Exactly twenty-five Directory placeholders');
+    seed_l4_wp_same(26, count(wp_seed_content_kit_get_registered_template_placeholders('directory')), 'Exactly twenty-six Directory placeholders with the default contact registry');
 
     wp_cache_flush();
     $performance['data_api'] = seed_l4_wp_measure(function () use ($public_ids) { return wp_seed_content_directory_get_public_data($public_ids[0]); });

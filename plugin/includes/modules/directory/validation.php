@@ -45,17 +45,25 @@ function wp_seed_content_directory_get_publication_error_details($post_or_id, $o
         $details[] = wp_seed_content_directory_validation_error_detail('missing_name', 'post_title', $title);
     }
 
-    $statuses = function_exists('wp_seed_content_directory_classification_options')
-        ? wp_seed_content_directory_classification_options('status', false)
-        : wp_seed_content_directory_get_statuses();
-    $status = wp_seed_content_directory_get_value_for_validation($post_id, '_seed_directory_status', $overrides);
-    if (!isset($statuses[$status])) {
-        $details[] = wp_seed_content_directory_validation_error_detail('invalid_status', '_seed_directory_status', $status);
+    $profile_types = wp_seed_content_directory_get_value_for_validation(
+        $post_id,
+        '_seed_directory_profile_types',
+        $overrides
+    );
+    $profile_types = wp_seed_content_directory_normalize_profile_types($profile_types);
+    if (in_array('praticien', $profile_types, true)) {
+        $statuses = function_exists('wp_seed_content_directory_classification_options')
+            ? wp_seed_content_directory_classification_options('status', false)
+            : wp_seed_content_directory_get_statuses();
+        $status = wp_seed_content_directory_get_value_for_validation($post_id, '_seed_directory_status', $overrides);
+        if (!isset($statuses[$status])) {
+            $details[] = wp_seed_content_directory_validation_error_detail('invalid_status', '_seed_directory_status', $status);
+        }
     }
 
     $countries = wp_seed_content_directory_get_country_codes();
     $country = wp_seed_content_directory_get_value_for_validation($post_id, '_seed_directory_country', $overrides);
-    if (!isset($countries[$country])) {
+    if ('' !== $country && !isset($countries[$country])) {
         $details[] = wp_seed_content_directory_validation_error_detail('invalid_country', '_seed_directory_country', $country);
     }
 
@@ -342,13 +350,20 @@ function wp_seed_content_directory_collect_publication_overrides($postarr)
     $meta_input = isset($postarr['meta_input']) && is_array($postarr['meta_input']) ? $postarr['meta_input'] : array();
     foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
         if (array_key_exists($key, $meta_input)) {
-            $overrides[$key] = wp_seed_content_directory_sanitize_meta_value($key, $meta_input[$key]);
+            $overrides[$key] = 'country' === $definition['type']
+                ? strtoupper(sanitize_text_field($meta_input[$key]))
+                : wp_seed_content_directory_sanitize_meta_value($key, $meta_input[$key]);
         }
     }
 
     $has_form = isset($_POST['wp_seed_content_directory_nonce'])
         && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['wp_seed_content_directory_nonce'])), 'wp_seed_content_directory_save');
     if ($has_form) {
+        if (array_key_exists('wp_seed_content_directory_name', $_POST)) {
+            $overrides['post_title'] = sanitize_text_field(
+                wp_unslash($_POST['wp_seed_content_directory_name'])
+            );
+        }
         $profile_panel_present = isset($_POST['wp_seed_content_directory_profile_present']);
         $publication_panel_present = isset($_POST['wp_seed_content_directory_publication_present']);
         foreach (wp_seed_content_directory_get_meta_definitions() as $key => $definition) {
@@ -368,7 +383,9 @@ function wp_seed_content_directory_collect_publication_overrides($postarr)
             } elseif ('boolean' === $definition['type']) {
                 $overrides[$key] = isset($_POST[$key]) ? '1' : '';
             } elseif (array_key_exists($key, $_POST)) {
-                $overrides[$key] = wp_seed_content_directory_sanitize_meta_value($key, wp_unslash($_POST[$key]));
+                $overrides[$key] = 'country' === $definition['type']
+                    ? strtoupper(sanitize_text_field(wp_unslash($_POST[$key])))
+                    : wp_seed_content_directory_sanitize_meta_value($key, wp_unslash($_POST[$key]));
             }
         }
         if (isset($_POST['wp_seed_content_directory_contacts_present'])) {
@@ -478,7 +495,9 @@ function wp_seed_content_directory_prepare_meta_save_validation($post_id, $post)
 
     $details_before = wp_seed_content_directory_get_publication_error_details($post);
     $overrides = wp_seed_content_directory_collect_publication_overrides(array('ID' => (int) $post_id));
-    $overrides['post_title'] = $post->post_title;
+    if (!array_key_exists('post_title', $overrides)) {
+        $overrides['post_title'] = $post->post_title;
+    }
     $details_after = wp_seed_content_directory_get_publication_error_details($post, $overrides);
     $context = wp_seed_content_directory_build_validation_context(
         (int) $post_id,
@@ -497,11 +516,17 @@ function wp_seed_content_directory_filter_insert_post_data($data, $postarr)
         return $data;
     }
 
-    if (isset($data['post_title'])) {
+    $submitted_overrides = wp_seed_content_directory_collect_publication_overrides($postarr);
+    if (array_key_exists('post_title', $submitted_overrides)) {
+        $data['post_title'] = $submitted_overrides['post_title'];
+    } elseif (isset($data['post_title'])) {
         $data['post_title'] = sanitize_text_field($data['post_title']);
     }
     if (isset($data['post_excerpt'])) {
-        $data['post_excerpt'] = sanitize_textarea_field($data['post_excerpt']);
+        // Directory summaries are deprecated: keep historical bytes, not new writes.
+        $existing = !empty($postarr['ID']) ? get_post((int) $postarr['ID']) : null;
+        $excerpt = $existing && isset($existing->post_excerpt) ? (string) $existing->post_excerpt : '';
+        $data['post_excerpt'] = function_exists('wp_slash') ? wp_slash($excerpt) : $excerpt;
     }
     if (isset($data['menu_order'])) {
         $data['menu_order'] = max(0, (int) $data['menu_order']);
@@ -823,7 +848,7 @@ add_action('rest_api_init', 'wp_seed_content_directory_register_validation_rest_
 function wp_seed_content_directory_get_error_field_ids()
 {
     return array(
-        'missing_name' => 'title',
+        'missing_name' => 'wp_seed_content_directory_name',
         'invalid_status' => 'seed-directory-status',
         'invalid_country' => '_seed_directory_country',
         'invalid_photo' => 'postimagediv',

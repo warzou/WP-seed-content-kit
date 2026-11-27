@@ -10,6 +10,7 @@ function wp_seed_content_kit_get_default_module_options()
         'testimonials' => true,
         'quotes' => true,
         'directory' => true,
+        'formation' => false,
     );
 }
 
@@ -26,6 +27,7 @@ function wp_seed_content_kit_get_module_options()
         'testimonials' => (bool) $options['testimonials'],
         'quotes' => (bool) $options['quotes'],
         'directory' => (bool) $options['directory'],
+        'formation' => (bool) $options['formation'],
     );
 }
 
@@ -41,6 +43,10 @@ function wp_seed_content_kit_get_default_module_menu_visibility()
             'roles' => array('administrator'),
         ),
         'seed_directory' => array(
+            'show_in_menu' => false,
+            'roles' => array('administrator'),
+        ),
+        'seed_program' => array(
             'show_in_menu' => false,
             'roles' => array('administrator'),
         ),
@@ -152,6 +158,7 @@ function wp_seed_content_kit_get_admin_menu_icon($type)
         'testimonials' => 'dashicons-testimonial',
         'quotes' => 'dashicons-format-quote',
         'directory' => 'dashicons-admin-users',
+        'formation' => 'dashicons-welcome-learn-more',
     );
 
     $type = sanitize_key($type);
@@ -179,9 +186,34 @@ function wp_seed_content_kit_is_module_active($module)
     return isset($options[$module]) ? (bool) $options[$module] : false;
 }
 
+/**
+ * Whether a module may advertise new dynamic bindings in builder interfaces.
+ *
+ * Runtime compatibility is handled separately so persisted binding identifiers
+ * can remain recognized while their module is disabled.
+ */
+function wp_seed_content_kit_is_module_available_for_discovery($module)
+{
+    return wp_seed_content_kit_is_module_active($module);
+}
+
+/**
+ * Whether a persisted builder binding may resolve its module data.
+ *
+ * Disabled modules keep their identifiers but resolve to a safe empty value.
+ */
+function wp_seed_content_kit_should_resolve_module_binding($module)
+{
+    return wp_seed_content_kit_is_module_active($module);
+}
+
 function wp_seed_content_kit_get_module_content_capability($module)
 {
     $module = sanitize_key((string) $module);
+    $modules = wp_seed_content_kit_get_modules();
+    if (!empty($modules[$module]['content_capability'])) {
+        return sanitize_key($modules[$module]['content_capability']);
+    }
     $capabilities = wp_seed_content_kit_get_primitive_capabilities($module);
 
     return isset($capabilities[0]) ? $capabilities[0] : 'manage_wp_seed_content_kit';
@@ -251,6 +283,32 @@ function wp_seed_content_kit_get_modules()
             'content_capability' => 'edit_seed_directory_entries',
             'menu_icon' => wp_seed_content_kit_get_admin_menu_icon('directory'),
             'menu_supported' => true,
+            'usage' => wp_seed_content_kit_get_builder_usage_help(),
+        ),
+        'formation' => array(
+            'label' => __('Parcours & calendrier', 'wp-seed-content-kit'),
+            'description' => __('Programmes, thèmes et calendriers de parcours.', 'wp-seed-content-kit'),
+            'active' => wp_seed_content_kit_is_module_active('formation'),
+            'planned' => false,
+            'activable' => true,
+            'seo_opt_out' => true,
+            'shortcode' => '[seed_program_schedule]',
+            'post_type' => 'seed_program',
+            'content_capability' => 'edit_seed_programs',
+            'menu_icon' => wp_seed_content_kit_get_admin_menu_icon('formation'),
+            'menu_supported' => true,
+            'admin_post_types' => array(
+                array(
+                    'post_type' => 'seed_program',
+                    'label' => __('Programmes', 'wp-seed-content-kit'),
+                    'capability' => 'edit_seed_programs',
+                ),
+                array(
+                    'post_type' => 'seed_theme',
+                    'label' => __('Thèmes', 'wp-seed-content-kit'),
+                    'capability' => 'edit_seed_themes',
+                ),
+            ),
             'usage' => wp_seed_content_kit_get_builder_usage_help(),
         ),
         'audio' => array(

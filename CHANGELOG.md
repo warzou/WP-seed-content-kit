@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.9.0-rc.2] - Cumulative review candidate
+
+### Directory
+
+- Add the canonical editable person name and conditional practitioner status to the editor.
+- Make country optional and remove the legacy summary from the admin write path, preserving stored excerpts and read consumers.
+- Assign new intervenants the existing maximum position plus ten, preserving manual positions.
+- Preserve native More, public eligibility and individual contact providers across Content Data, Dynamic Data, Block Bindings and Native Loops.
+- Fix legacy Facebook and Instagram HTTP(S) contacts being treated as invalid during publication.
+
+### Formation
+
+- Add Program, Section, Theme and Schedule administration and the simple calendar.
+- Allow multiple Schedules for a Theme. Reject exact duplicates by Program, year, Theme, Section, start and end, with current-ID exclusion and a write guard.
+- Provide Structure, Grouped, Chronological and Next Date projections, explicit calendar filters and individual providers.
+
+### Builder integrations
+
+- Limit WPSCK discovery to enabled modules while preserving existing binding resolution and third-party providers.
+
+### Admin thumbnail display candidate (not an official release)
+
+- Bound Directory Photo list images to the existing 48px envelope for SVG and raster originals, including absent intermediate sizes or metadata.
+- Preserve proportions and small intrinsic images without cropping or enlargement.
+- Use native full-image framing with 48px/60px/150px responsive `sizes`; compatible WordPress srcsets can still select smaller uncropped derivatives. The media picker preview also keeps full framing.
+- Opt out of lazy loading on these small admin previews only, avoiding WordPress auto-sizes intrinsic containment enlarging tiny originals or losing unknown SVG ratios.
+- Apply the same admin-only containment to the existing 60px Testimonials Image column and 150px editor preview; remove the list column's forced square crop.
+- No MIME, upload, sanitization, media files/metadata, frontend, Divi, binding or data migration changes.
+- Human visual acceptance required before publishing.
+
 ## [0.8.1] - 2026-08-18
 
 ### Testimonials admin, summaries and More improvements

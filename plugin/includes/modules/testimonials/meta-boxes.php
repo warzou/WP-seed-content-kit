@@ -133,7 +133,7 @@ function wp_seed_content_enqueue_testimonial_admin_assets($hook_suffix)
                 frame.on('select', function() {
                     var attachment = frame.state().get('selection').first().toJSON();
                     var sizes = attachment.sizes || {};
-                    var preview = sizes.thumbnail || sizes.medium || sizes.full || attachment;
+                    var preview = sizes.full || attachment;
 
                     setPhoto(attachment.id, preview.url);
                 });
@@ -180,7 +180,7 @@ function wp_seed_content_render_testimonial_meta_box($post)
 {
     wp_nonce_field('wp_seed_content_save_testimonial_meta', 'wp_seed_content_testimonial_nonce');
     $thumbnail_id = get_post_thumbnail_id($post->ID);
-    $thumbnail = $thumbnail_id ? wp_get_attachment_image($thumbnail_id, 'thumbnail', false, array('class' => 'seed-testimonial-photo-field__image')) : '';
+    $thumbnail = $thumbnail_id ? wp_get_attachment_image($thumbnail_id, 'full', false, array('class' => 'seed-testimonial-photo-field__image', 'sizes' => '150px', 'loading' => false)) : '';
     $stored_date = (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_date');
     $testimonial_date = wp_seed_content_sanitize_iso_date($stored_date);
     $has_invalid_stored_date = '' !== $stored_date && '' === $testimonial_date;

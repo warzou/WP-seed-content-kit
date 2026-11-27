@@ -14,6 +14,62 @@
     var PluginPostStatusInfo = wp.editPost.PluginPostStatusInfo;
     var correctedPublishIntents = {};
 
+    function normalizeEditedTitle(title) {
+        if ('string' === typeof title) {
+            return title;
+        }
+        return title && 'string' === typeof title.raw ? title.raw : '';
+    }
+
+    function getDirectoryNameField() {
+        return window.document.getElementById('wp_seed_content_directory_name');
+    }
+
+    function getEditedTitle() {
+        var editor = wp.data.select('core/editor');
+        return normalizeEditedTitle(
+            editor && editor.getEditedPostAttribute
+                ? editor.getEditedPostAttribute('title')
+                : ''
+        );
+    }
+
+    function updateCanonicalTitle(event) {
+        var nameField = event && event.target;
+        if (!nameField || 'wp_seed_content_directory_name' !== nameField.id) {
+            return;
+        }
+        var value = nameField.value || '';
+        if (value === getEditedTitle()) {
+            return;
+        }
+        var editorDispatch = wp.data.dispatch('core/editor');
+        if (editorDispatch && editorDispatch.editPost) {
+            editorDispatch.editPost({ title: value });
+        }
+    }
+
+    function syncDirectoryNameField() {
+        var nameField = getDirectoryNameField();
+        var title = getEditedTitle();
+        if (nameField && window.document.activeElement !== nameField && nameField.value !== title) {
+            nameField.value = title;
+        }
+    }
+
+    function initializeDirectoryNameSync() {
+        window.document.addEventListener('input', updateCanonicalTitle);
+        window.document.addEventListener('change', updateCanonicalTitle);
+        wp.data.subscribe(syncDirectoryNameField);
+        syncDirectoryNameField();
+    }
+
+    if ('loading' === window.document.readyState) {
+        window.document.addEventListener('DOMContentLoaded', initializeDirectoryNameSync);
+    } else {
+        initializeDirectoryNameSync();
+    }
+
     wp.hooks.addFilter('editor.preSavePost', 'wp-seed-content-kit/directory-publish-intent', function (edits) {
         var editor = wp.data.select('core/editor');
         var record = editor && editor.getCurrentPost ? editor.getCurrentPost() : null;
@@ -78,6 +134,15 @@
         var setValidation = validationState[1];
         var wasSaving = useRef(false);
         var validationHydrated = useRef(false);
+
+        useEffect(function () {
+            var editor = wp.data.select('core/editor');
+            var panels = wp.data.dispatch('core/edit-post');
+            if (editor && editor.getCurrentPostType && 'seed_directory' === editor.getCurrentPostType()
+                && panels && panels.removeEditorPanel) {
+                panels.removeEditorPanel('post-excerpt');
+            }
+        }, []);
 
         useEffect(function () {
             if (editorState.validation && !validationHydrated.current) {

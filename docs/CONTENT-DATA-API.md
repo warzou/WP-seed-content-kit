@@ -341,6 +341,12 @@ Les sujets suivants restent hors du contrat Content Data API ou sont documentés
 - exposition inter-plugin ;
 - signatures PHP et organisation technique de l'API.
 
+## Extension Parcours & calendrier
+
+Le module optionnel expose quatre projections HTML-free : Programme, Thème, Section et Programmation. Les champs scalaires persistables portent les identifiants formation.program.*, formation.theme.*, formation.section.* et formation.schedule.*. Une programmation fournit notamment display_title, dates ISO, année, statut, Section snapshotée, personnes Directory ordonnées et clés normalisées source_type/source_id.
+
+Les collections et règles historiques complètes sont documentées dans docs/PARCOURS-CALENDRIER.md. Cette extension ne modifie pas le contrat V1 Citation/Témoignage et n'ajoute aucune dépendance à WP Seed Events.
+
 ## 15. Règle de lecture
 
 Ce document fixe le contrat métier V1 et décrit son implémentation actuelle.
@@ -361,10 +367,35 @@ Aucune donnée privée nouvelle n’est exposée. La projection ne fournit ni no
 
 Le contrat Native Loop réutilise cette projection fermée par `wp_seed_content_get_directory_data()` et le résolveur Dynamic Data partagé. Il ajoute uniquement des vues normalisées pour la localisation, les contacts publics, l'ID et l'ancre `annuaire-{ID}`. Les métas privées brutes ne deviennent jamais une Content Data API générale.
 
-`summary` et `presentation` sont deux sources de vérité distinctes. La première reste `post_excerpt`; la seconde reste le rendu public filtré de `post_content`. Le premier marqueur WordPress `<!--more-->`, y compris sa forme avec libellé ou le bloc Gutenberg `core/more`, dérive `presentation_intro`, `presentation_more` et le booléen `has_more`. Tous les marqueurs More résiduels et `<!--noteaser-->` sont retirés des vues publiques, sans perdre le contenu qui les entoure. Sans marqueur, `presentation_intro === presentation`, `presentation_more === ""` et `has_more === false`.
+`summary` et `presentation` sont deux sources de vérité distinctes. La première reste `post_excerpt`; la seconde reste le rendu public filtré de `post_content`. Le premier marqueur WordPress `<!--more-->`, y compris sa forme avec libellé ou le bloc Gutenberg `core/more`, dérive `presentation_intro` et `presentation_more`; `has_more` vaut vrai uniquement si la suite dérivée n'est pas vide. Tous les marqueurs More résiduels et `<!--noteaser-->` sont retirés des vues publiques, sans perdre le contenu qui les entoure. Sans marqueur, ou avec un marqueur sans suite, `presentation_more === ""` et `has_more === false`.
 
 `directory.summary`, `directory.presentation`, `directory.presentation_intro`, `directory.presentation_more` et `directory.has_more` projettent ces valeurs dans Dynamic Data, tandis que REST expose aussi les champs WordPress `excerpt` et `content` du CPT authentifié. Aucun état de Toggle, Accordion ou « Lire la suite » n'appartient à cette API, et aucune méta ne duplique la frontière native WordPress.
 
 `directory.professional_label` expose l'intitulé professionnel facultatif stocké dans `seed_directory_professional_label`. Cette donnée éditoriale est indépendante des types de profil servant au classement. La méta historique `_seed_directory_profession` reste uniquement un fallback et une source de migration non destructive ; une valeur canonique, y compris vide, reste prioritaire.
 
 Le rendu évite les doublons : lorsque résumé et présentation sont identiques, un consommateur ne les affiche pas simultanément. Lorsque le résumé est vide, le consommateur décide d’afficher directement la présentation ou de ne rien rendre. Cette règle de composition reste extérieure aux données et portable entre Gutenberg, Divi, Spectra/Astra et de futurs builders.
+
+## Formation: retired program/year experiment
+
+The functions described below have been removed following the 2026-09-08 product
+decision. This section is historical only, not an available API. Use explicit
+Programme/Year/Section Schedule queries. See SIMPLE-CALENDAR-DECISION.md.
+
+`wp_seed_content_formation_get_program_years($args)` and
+`wp_seed_content_formation_get_upcoming_programs($args)` are portable PHP
+collections, not registered REST routes or native builder query sources.
+Groups exist only while an effective non-cancelled Schedule ends on/after the
+site date. Published program visibility is required; no historical row is deleted.
+
+`wp_seed_content_formation_get_program_year_context($identity, $args)` re-resolves
+the explicit `program_id` + `year` identity. The resulting `year` is suitable for
+an editable consumer prefix, without storing heading text or semantic tags.
+`wp_seed_content_formation_get_program_year_schedules($context, $args)` binds
+Schedule filters to that identity; child program/year overrides are ignored.
+Missing or expired context returns empty rather than inferring a global post.
+
+Counts describe admissible dates. Historical rows within an eligible year remain
+available to the child collection unless `upcoming=true` is requested. Existing
+scalar Dynamic Data and Block Binding IDs are unchanged. Divi automatic nested
+context propagation is not implied by this PHP API; see
+`DYNAMIC-PROGRAM-YEAR-V4-IMPLEMENTATION.md` for the implementation boundary.

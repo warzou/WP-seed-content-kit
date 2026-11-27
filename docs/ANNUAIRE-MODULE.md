@@ -10,7 +10,7 @@ L3 fournit les champs, administration et eligibilite. L4 ajoute la Data API publ
 
 ## Champs
 
-Les champs WordPress natifs sont le titre (nom), l’image mise en avant (photo), son texte alternatif, le résumé (présentation) et menu_order.
+Les champs WordPress natifs sont le titre (nom), l’image mise en avant (photo), son texte alternatif, la présentation dans post_content et menu_order. Le résumé historique dans post_excerpt est DEPRECATED : ses valeurs et contrats de lecture restent conservés, mais sa saisie et les nouvelles écritures Directory sont retirées.
 
 Les vingt-deux métas privées sont :
 
@@ -18,7 +18,7 @@ Les vingt-deux métas privées sont :
 - _seed_directory_phone, _seed_directory_email, _seed_directory_website, _seed_directory_facebook, _seed_directory_instagram et leurs cinq indicateurs _visible ;
 - _seed_directory_publication_authorized, _seed_directory_internal_note, _seed_directory_last_verified.
 
-Les booléens vrais sont stockés sous la forme 1 ; une valeur fausse est supprimée. Le pays absent vaut FR. Les statuts autorisés sont practicing et seeking_models. Codes postaux et départements restent des chaînes afin de préserver les zéros initiaux, 2A et 2B.
+Les booléens vrais sont stockés sous la forme 1 ; une valeur fausse est supprimée. Le pays est facultatif et absent par défaut ; une valeur renseignée reste soumise à la validation des pays autorisés. Codes postaux et départements restent des chaînes afin de préserver les zéros initiaux, 2A et 2B.
 
 Les e-mails et dates sont validés strictement. Les URLs doivent être absolues en HTTP(S). Facebook et Instagram n’acceptent que leur domaine et ses sous-domaines. Le téléphone conserve une forme lisible, sans HTML.
 
@@ -27,18 +27,51 @@ Les e-mails et dates sont validés strictement. Les URLs doivent être absolues 
 Quatre panneaux structurent la saisie sans exposer les métadonnées techniques :
 
 1. Identité : nom affiché, statut et mise en avant.
-2. Localisation, présentation et photo : ville, code postal, département, pays, présentation courte et alt.
+2. Localisation, présentation et photo : ville, code postal, département, pays facultatif, présentation avec marqueur More natif et alt.
 3. Coordonnées : valeur et case d’affichage visuellement liées pour téléphone, e-mail, site, Facebook et Instagram.
 4. Autorisation et suivi : autorisation explicite, note interne facultative et dernière vérification facultative.
 
-Le panneau Photo natif porte l’image. La photo est facultative ; si elle existe, elle doit être une pièce jointe image avec URL HTTP(S) et texte alternatif non vide avant publication. Aucun alt ni média par défaut n’est généré. Le pays vaut FR par défaut ; statut, autorisation et cinq visibilités restent explicitement non sélectionnés à la création.
+Le panneau Photo natif porte l’image. La photo est facultative ; si elle existe, elle doit être une pièce jointe image avec URL HTTP(S) et texte alternatif non vide avant publication. Aucun alt ni média par défaut n’est généré. Le pays est vide par défaut ; statut, autorisation et cinq visibilités restent explicitement non sélectionnés à la création.
+
+### Ajustements administratifs post-Option 2 (2026-10-06)
+
+Pour un nouvel intervenant sans position explicite, menu_order reçoit le maximum
+des intervenants existants plus 10, ou 10 sans population exploitable. La requête
+Directory trie par menu_order puis ID. Aucun calcul n'est ajouté au rendu, aucune
+position existante ni aucun trou n'est renuméroté. Une position manuelle, y compris
+0, reste respectée ; une duplication conservant une position positive explicite
+la conserve également. Un marqueur privé temporaire permet d'attendre les types
+de profil lors du cycle REST puis métaboxes ; il est supprimé après attribution.
+
+Le mécanisme partagé d'ordre manuel reste disponible, mais son ancienne attribution
+initiale et sa réparation automatique ne s'appliquent plus au Directory : ce module
+gère désormais son initialisation. La colonne administrative Position indique le
+rang d'affichage, distinct de la valeur brute menu_order.
+
+Pays vide est valide, sans libellé ni séparateur artificiel ; filtres et providers
+conservent leurs valeurs pour les pays renseignés. Aucune migration des pays n'est
+effectuée.
+
+Résumé est DEPRECATED, non supprimé : les anciens post_excerpt restent byte-identiques.
+La métaboxe spécifique et le panneau Extrait Gutenberg sont masqués pour Directory
+uniquement. Les projections directory.summary / bio, Content Data, providers Divi,
+Block Bindings et la lecture REST restent compatibles. Les autres CPT ne changent pas.
+La présentation et More utilisent toujours post_content, indépendamment du résumé.
+Le consumer publié 2249 est une recette historique, pas une page finale de production ;
+les templates candidats historiques peuvent encore lire les valeurs. Les consommateurs
+API externes non inventoriés restent inconnus : aucun retrait du contrat de lecture.
+
+Option 2, les presets, la structure 1897 et ses classes sont gelés. Le brouillon de
+recette 3201 et ses 49 révisions ont été supprimés normalement le 2026-10-06 après
+autorisation distincte, backup et contrôle d'intégrité. Les rendus frais de 1896
+et 1897 fonctionnent sans ce brouillon ; aucun contrat de lecture n'en dépend.
 
 La liste affiche photo, nom, statut, ville, département, autorisation, types de coordonnées publiques, état WordPress et modification. Elle ne montre jamais la valeur d’une coordonnée, une note interne ou l’ordre technique. Le filtre de statut reste réservé à l’administration. Quick Edit et la publication en masse sont neutralisés ; corbeille et restauration restent disponibles.
 ## Publication et confidentialité
 
 wp_seed_content_directory_is_publicly_eligible( $post_id ) retourne vrai uniquement pour une fiche publiée, non protégée par mot de passe, autorisée, nommée, avec statut et pays valides et, le cas échéant, photo et alt valides.
 
-Une nouvelle publication invalide est ramenée en brouillon. Pour une fiche déjà publiée, les erreurs qui existaient avant une modification sans rapport sont conservées temporairement sans changer silencieusement son `post_status` ; un avertissement administratif persistant demande leur correction. Une nouvelle erreur éditoriale corrigible conserve également la publication lors de sa première sauvegarde et enregistre un marqueur privé composé du code, du champ ou de la ligne et d’une empreinte de l’état invalide. Une seconde sauvegarde du même état invalide place la fiche en brouillon ; une correction ou une autre valeur invalide efface ou renouvelle ce cycle. Le retrait d’autorisation et les erreurs critiques restent immédiatement stricts. La défense combine comparaison avant/après, validation avant écriture, contrôle après écriture ou transition et prédicat final.
+Une nouvelle publication invalide est ramenée en brouillon. Le statut Directory n'est requis que lorsqu'une fiche porte le type `praticien`; une fiche Intervenant ou sans type peut être publiée sans statut, et retirer le type Praticien ne supprime jamais un statut déjà enregistré. Pour une fiche déjà publiée, les erreurs qui existaient avant une modification sans rapport sont conservées temporairement sans changer silencieusement son `post_status` ; un avertissement administratif persistant demande leur correction. Une nouvelle erreur éditoriale corrigible conserve également la publication lors de sa première sauvegarde et enregistre un marqueur privé composé du code, du champ ou de la ligne et d’une empreinte de l’état invalide. Une seconde sauvegarde du même état invalide place la fiche en brouillon ; une correction ou une autre valeur invalide efface ou renouvelle ce cycle. Le retrait d’autorisation et les erreurs critiques restent immédiatement stricts. La défense combine comparaison avant/après, validation avant écriture, contrôle après écriture ou transition et prédicat final.
 
 Le marqueur technique n’est ni une donnée métier ni une méta publique. Gutenberg reçoit uniquement une projection REST en contexte `edit`, sans valeur fautive ni empreinte, afin d’afficher l’erreur, le maintien temporaire en ligne et la conséquence d’une seconde sauvegarde. Pour une coordonnée répétable, le message reprend le type de la ligne lorsque celui-ci est connu. Comme Gutenberg enregistre l’entité REST avant les métaboxes classiques, l’intention de publication est capturée par `editor.preSavePost`, puis finalisée par le store Core Data depuis `editor.savePost`, après la sauvegarde des métaboxes, uniquement si la validation rafraîchie est devenue entièrement propre. Un simple enregistrement ne publie jamais automatiquement la fiche.
 
@@ -123,7 +156,9 @@ Les Templates exposent `directory.summary`, `directory.bio`, `directory.presenta
 
 Le résumé et la présentation complète sont deux données portables indépendantes. `post_excerpt` est l’unique source du résumé ; `post_content` est l’unique source de la présentation complète. Un bloc More WordPress facultatif dans `post_content` définit une frontière portable : `presentation_intro` contient la partie avant le premier marqueur, `presentation_more` la partie après, et `has_more` indique sa présence. `presentation` et `full_presentation` conservent toujours l’intégralité du contenu public, sans commentaires techniques More ou `noteaser`. Sans marqueur, l’introduction est identique à la présentation complète, la suite est vide et `has_more` vaut faux.
 
-Le marqueur natif peut être inséré avec le bloc More Gutenberg ou avec `<!--more-->` dans l’éditeur de code. Son éventuel libellé personnalisé ne devient pas une donnée métier. La coupure doit être placée entre deux blocs ou paragraphes : le splitter reste déterministe et ne tente pas de réparer une balise HTML coupée. WPSCK ne stocke ni copie du découpage, ni état ouvert/fermé, ni réglage d’accordéon, ni comportement propre à un builder.
+Le marqueur natif peut être inséré avec le bloc More Gutenberg ou avec `<!--more-->` dans l’éditeur de code. Une nouvelle Personne reçoit un unique bloc Core More comme contenu initial de son auto-draft; aucune fiche existante n'est migrée et une suppression volontaire n'est jamais réinjectée. Le splitter générique reconnaît le marqueur, mais `directory.has_more` exige également une suite non vide : le séparateur initial vide ne crée donc aucun contrôle « Lire la suite » public. Son éventuel libellé personnalisé ne devient pas une donnée métier. La coupure doit être placée entre deux blocs ou paragraphes : le splitter reste déterministe et ne tente pas de réparer une balise HTML coupée. WPSCK ne stocke ni copie du découpage, ni état ouvert/fermé, ni réglage d’accordéon, ni comportement propre à un builder.
+
+Un rappel dans le panneau Identité, sous le Résumé, explique cette coupure dans les éditeurs classique et Gutenberg. Si le marqueur existe, il invite à déplacer le bloc natif entre introduction et suite, sans en ajouter un second. Pour une ancienne fiche sans marqueur, il propose l’inserteur WordPress sans prétendre que le bloc est déjà présent. Ce rappel ne modifie ni le contenu ni le Résumé et ne crée aucune mécanique d’insertion supplémentaire.
 
 Un rendu peut afficher le résumé puis proposer un contrôle « Lire la suite » vers la présentation complète lorsque les deux valeurs existent et diffèrent. Si le résumé est vide, le builder peut afficher directement la présentation complète. Si les deux valeurs sont identiques, elles ne doivent pas être rendues simultanément. Cette décision appartient au Template ou au builder et ne modifie jamais les données.
 
@@ -156,6 +191,43 @@ Le module de Collection reste indépendant du Loop Builder. En complément, le c
 ## Ordre des filtres Collections en RC.3
 
 `ids` et `exclude_ids` sont normalisés et dédupliqués séparément. Quand les deux sont présents, la Collection calcule la différence avant toute pagination. Elle applique ensuite les règles publiques, les types et statuts, les autres filtres, le tri, l'offset et la limite. Une différence vide reste vide. Cette correction ne modifie aucune donnée et ne nécessite aucune migration depuis RC.2.
+
+## Présentation structurelle des cartes Divi (Option 2)
+
+La page Intervenants 1897 utilise la Native Loop Directory et des presets Divi
+définitifs partagés. Cette architecture a reçu le HUMAN PASS de Guillaume le
+6 octobre 2026. WPSCK reste responsable des données, des providers et du contrat
+More ; Divi reste responsable de la décoration et de l'édition du design.
+
+Le défaut étudié provenait de ressources CSS Divi contenant une décoration liée
+aux indices des occurrences déjà connues : un cache établi avec onze clones ne
+couvrait pas correctement le portrait et le séparateur des clones supplémentaires.
+Une génération CSS à froid ne suffisait pas à en faire un contrat durable. La
+solution retenue porte la décoration commune sur des sélecteurs de presets natifs
+partagés, indépendants du nombre d'intervenants, sans ajouter de CSS par clone.
+
+Les classes `wpsck-loop--alternating`, `wpsck-loop__layout`, `wpsck-loop__media`
+et `wpsck-loop__content` conservent l'alternance et l'empilement responsive déjà
+fournis par l'asset structurel WPSCK. Les marqueurs `wpsck-loop__portrait` et
+`wpsck-loop__separator` identifient ces éléments ; les presets Divi portent leur
+rayon, leur trait et les autres réglages visuels. Les classes ordinales natives
+Divi peuvent toujours exister dans le DOM, mais ne constituent pas le mécanisme
+de décoration commune. Aucun style, preset ni niveau de heading n'entre dans
+les données métier Directory.
+
+La recette publiée a confirmé 11, 12, 13 et 20 cartes, ainsi que les transitions
+11 → 12 → 13 → 12 → 13, sans purge manuelle ni régénération CSS manuelle entre
+les changements de population. Éditabilité native, Save/Close/Reopen et les
+largeurs 1440/1024/820/768/390/360 ont été validés. Les données réelles n'ont pas
+été modifiées pour cette recette.
+
+Le cache HTML est distinct du cache CSS : il doit servir la population courante.
+Les requêtes HTTP WordPress authentifiées et les requêtes anonymes réelles ont
+retourné les mêmes nombres attendus après les sauvegardes normales des fixtures.
+Aucun correctif WP-Super-Cache WPSCK, appel à `wpsc_delete_url_cache()`, invalidation
+CSS spécifique aux clones ni purge frontend n'est nécessaire dans cette solution.
+Les invalidations automatiques de caches dérivés provoquées par les sauvegardes
+natives de presets Divi restent des effets natifs tracés, pas un correctif ajouté.
 
 ## Stockage portable et Native Loop
 
@@ -193,7 +265,7 @@ La requête Native Loop consomme exclusivement `wp_seed_content_directory_get_en
 
 ## Classifications canoniques et projections
 
-Les registries WPSCK Statuts et Types de profil stockent un slug stable, un libellé, un état actif et un ordre. Les slugs système `en_exercice`, `recherche_modeles`, `praticien` et `intervenant` sont protégés. Une valeur personnalisée inutilisée peut être supprimée explicitement après confirmation ; toute fiche qui l'utilise bloque cette suppression côté serveur et l'interface en indique le nombre. Désactiver une valeur reste toujours l'option non destructive et la retire des nouveaux choix sans invalider les fiches qui la portent. Une ligne neuve vide peut être retirée immédiatement. Une fiche accepte un statut et plusieurs types.
+Les registries WPSCK Statuts et Types de profil stockent un slug stable, un libellé, un état actif et un ordre. Les slugs système `en_exercice`, `recherche_modeles`, `autre`, `praticien` et `intervenant` sont protégés. Une valeur personnalisée inutilisée peut être supprimée explicitement après confirmation ; toute fiche qui l'utilise bloque cette suppression côté serveur et l'interface en indique le nombre. Désactiver une valeur reste toujours l'option non destructive et la retire des nouveaux choix sans invalider les fiches qui la portent. Une ligne neuve vide peut être retirée immédiatement. Une fiche accepte un statut et plusieurs types.
 
 Les coordonnées sont exposées uniquement par contrats individuels builder-agnostic. La Content Data API et les Block Bindings Gutenberg lisent les mêmes projections publiques que Divi, sans profil d'affichage, HTML agrégé ni état de présentation propre à un builder.
 

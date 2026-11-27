@@ -1,5 +1,11 @@
 # Divi 5 Dynamic Content V1
 
+## Activation des modules et découverte
+
+Les providers Divi gardent leurs identifiants canoniques enregistrés pour reconnaître les bindings persistés. Leur `register_option_callback()` ne les ajoute toutefois au catalogue du Visual Builder que si leur module est actif. Lorsqu'un module est désactivé, un binding existant produit une valeur vide sûre avant toute déférence de token ; aucun token brut n'atteint le frontend. Une réactivation suivie d'un rechargement du Visual Builder restaure le provider sans sauvegarde de page.
+
+Les évaluateurs PHP des conditions Témoignages et Annuaire restent disponibles pour les configurations existantes et retournent `false` lorsque leur module est désactivé. Le paquet JavaScript qui ajoute ces conditions au picker Divi n'est enregistré que pour un module actif. Un simple rechargement de l'administration ou du Visual Builder suffit après changement ; WPSCK ne maintient aucun cache de découverte et aucune purge globale n'est requise.
+
 Statut : providers class-based expérimentaux Témoignages et Citations, avec contexte Native Loop commun sous Divi 5.9.0
 
 Ce document définit le contrat du provider expérimental Divi 5 Dynamic Content de WP Seed Content Kit. Il fixe son périmètre, ses identifiants persistants, sa traduction du contexte Divi et ses garde-fous.

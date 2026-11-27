@@ -25,6 +25,13 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Photo extends DynamicCont
 
     public function register_option_callback(array $options, int $post_id, string $context): array
     {
+        if (
+            function_exists('wp_seed_content_kit_is_module_available_for_discovery')
+            && !wp_seed_content_kit_is_module_available_for_discovery('testimonials')
+        ) {
+            return $options;
+        }
+
         $name = $this->get_name();
 
         if (isset($options[$name])) {
@@ -51,6 +58,22 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Photo extends DynamicCont
 
         if (!wp_seed_content_divi_testimonial_dynamic_content_name_matches($this->get_name(), $name)) {
             return $value;
+        }
+
+        if (
+            function_exists('wp_seed_content_kit_should_resolve_module_binding')
+            && !wp_seed_content_kit_should_resolve_module_binding('testimonials')
+        ) {
+            return DynamicContentElements::get_wrapper_element(
+                array(
+                    'name' => $name,
+                    'post_id' => $this->get_wrapper_post_id($data_args),
+                    'value' => '',
+                    'settings' => isset($data_args['settings']) && is_array($data_args['settings'])
+                        ? $data_args['settings']
+                        : array(),
+                )
+            );
         }
 
         $resolver_context = $this->get_resolver_context($data_args);

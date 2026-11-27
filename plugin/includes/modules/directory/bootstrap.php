@@ -18,6 +18,7 @@ require_once __DIR__ . '/post-type.php';
 require_once __DIR__ . '/classification-taxonomies.php';
 require_once __DIR__ . '/validation.php';
 require_once __DIR__ . '/data.php';
+require_once __DIR__ . '/initial-order.php';
 require_once __DIR__ . '/admin.php';
 require_once __DIR__ . '/collections.php';
 require_once __DIR__ . '/assets.php';

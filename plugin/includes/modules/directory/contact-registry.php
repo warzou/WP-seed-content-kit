@@ -446,6 +446,13 @@ function wp_seed_content_directory_render_contact_type_settings_row($row, $index
 
 function wp_seed_content_directory_render_contact_type_settings()
 {
+    if (
+        function_exists('wp_seed_content_kit_is_module_available_for_discovery')
+        && !wp_seed_content_kit_is_module_available_for_discovery('directory')
+    ) {
+        return;
+    }
+
     $settings = wp_seed_content_directory_get_contact_type_settings();
     $usage_counts = wp_seed_content_directory_contact_type_usage_counts(array_keys($settings));
     ?>
@@ -520,6 +527,13 @@ add_action('wp_seed_content_kit_render_configuration_sections', 'wp_seed_content
 
 function wp_seed_content_directory_save_contact_type_settings()
 {
+    if (
+        function_exists('wp_seed_content_kit_is_module_available_for_discovery')
+        && !wp_seed_content_kit_is_module_available_for_discovery('directory')
+    ) {
+        return;
+    }
+
     if (empty($_POST['wp_seed_content_directory_contact_types_present'])) {
         return;
     }

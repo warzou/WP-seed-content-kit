@@ -65,6 +65,8 @@ function wp_seed_content_kit_register_modules_page()
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_testimonial');
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_quote');
     remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_directory');
+    remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_program');
+    remove_submenu_page('wp-seed-content-kit', 'edit.php?post_type=seed_theme');
 
     $position = 2;
     foreach (wp_seed_content_kit_get_modules() as $module_key => $module) {
@@ -94,15 +96,28 @@ function wp_seed_content_kit_register_module_submenu($module_key, $module, $posi
         return;
     }
 
-    add_submenu_page(
-        'wp-seed-content-kit',
-        $module['label'],
-        $module['label'],
-        wp_seed_content_kit_get_module_content_capability($module_key),
-        'edit.php?post_type=' . sanitize_key($module['post_type']),
-        '',
-        $position
-    );
+    $post_types = !empty($module['admin_post_types']) && is_array($module['admin_post_types'])
+        ? $module['admin_post_types']
+        : array(array(
+            'post_type' => $module['post_type'],
+            'label' => $module['label'],
+            'capability' => wp_seed_content_kit_get_module_content_capability($module_key),
+        ));
+
+    foreach (array_values($post_types) as $offset => $item) {
+        if (empty($item['post_type']) || empty($item['label']) || empty($item['capability'])) {
+            continue;
+        }
+        add_submenu_page(
+            'wp-seed-content-kit',
+            $item['label'],
+            $item['label'],
+            sanitize_key($item['capability']),
+            'edit.php?post_type=' . sanitize_key($item['post_type']),
+            '',
+            $position + ($offset / 100)
+        );
+    }
 }
 function wp_seed_content_kit_get_available_roles_for_menu_visibility()
 {
@@ -156,11 +171,10 @@ function wp_seed_content_kit_handle_modules_form()
     }
 
     $previous = wp_seed_content_kit_get_module_options();
-    $next = array(
-        'testimonials' => in_array('testimonials', $enabled_modules, true),
-        'quotes' => in_array('quotes', $enabled_modules, true),
-        'directory' => in_array('directory', $enabled_modules, true),
-    );
+    $next = array();
+    foreach (wp_seed_content_kit_get_default_module_options() as $module_key => $default) {
+        $next[$module_key] = in_array($module_key, $enabled_modules, true);
+    }
 
     $menu_visibility = wp_seed_content_kit_get_module_menu_visibility();
     $submitted = isset($_POST['wp_seed_content_kit_module_menu_visibility']) && is_array($_POST['wp_seed_content_kit_module_menu_visibility']) ? wp_unslash($_POST['wp_seed_content_kit_module_menu_visibility']) : array();
@@ -174,7 +188,7 @@ function wp_seed_content_kit_handle_modules_form()
 
     $submitted_roles = isset($_POST['wp_seed_content_kit_module_roles']) && is_array($_POST['wp_seed_content_kit_module_roles']) ? wp_unslash($_POST['wp_seed_content_kit_module_roles']) : array();
     $assignments = array();
-    foreach (wp_seed_content_kit_get_content_capability_definitions() as $module_key => $definition) {
+    foreach (wp_seed_content_kit_get_default_module_role_assignments() as $module_key => $default_roles) {
         $assignments[$module_key] = array('administrator');
         if (!empty($submitted_roles[$module_key]) && in_array('editor', array_map('sanitize_key', (array) $submitted_roles[$module_key]), true)) {
             $assignments[$module_key][] = 'editor';
@@ -230,6 +244,19 @@ function wp_seed_content_kit_refresh_module_rewrite_rules($modules)
         wp_seed_content_directory_register_post_type();
     } elseif (function_exists('unregister_post_type') && post_type_exists('seed_directory')) {
         unregister_post_type('seed_directory');
+    }
+
+    if (!empty($modules['formation'])) {
+        if (!function_exists('wp_seed_content_formation_register_post_types')) {
+            require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/formation/bootstrap.php';
+        }
+        wp_seed_content_formation_register_post_types();
+    } elseif (function_exists('unregister_post_type')) {
+        foreach (array('seed_program', 'seed_theme', 'seed_section', 'seed_schedule') as $post_type) {
+            if (post_type_exists($post_type)) {
+                unregister_post_type($post_type);
+            }
+        }
     }
 
     flush_rewrite_rules();
@@ -450,6 +477,7 @@ function wp_seed_content_kit_render_configuration_tab()
         <?php wp_nonce_field('wp_seed_content_kit_save_modules', 'wp_seed_content_kit_modules_nonce'); ?>
 
         <p><?php echo esc_html__('Administrator conserve tous les droits. Editor peut gérer uniquement les contenus des modules cochés ; l’emplacement du menu ne change jamais une autorisation.', 'wp-seed-content-kit'); ?></p>
+        <p class="description"><?php echo esc_html__('Lorsqu’un module est désactivé, ses contenus dynamiques ne sont plus proposés dans les builders. Les bindings existants restent préservés.', 'wp-seed-content-kit'); ?></p>
 
         <table class="widefat striped">
             <thead>

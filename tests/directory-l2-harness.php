@@ -133,7 +133,8 @@ $defaults = wp_seed_content_kit_get_default_module_options();
 seed_l2_same(true, $defaults['testimonials'], 'Testimonials default unchanged');
 seed_l2_same(true, $defaults['quotes'], 'Quotes default unchanged');
 seed_l2_same(true, $defaults['directory'], 'Directory enabled by default');
-seed_l2_same(array('testimonials', 'quotes', 'directory'), array_keys(wp_seed_content_kit_get_module_options()), 'Canonical module options');
+seed_l2_same(array('testimonials', 'quotes', 'directory', 'formation'), array_keys(wp_seed_content_kit_get_module_options()), 'Canonical module options');
+seed_l2_same(false, $defaults['formation'], 'Formation disabled by default');
 
 $modules = wp_seed_content_kit_get_modules();
 seed_l2_assert(isset($modules['directory']), 'Directory registered');

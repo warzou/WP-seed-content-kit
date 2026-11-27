@@ -291,6 +291,58 @@ function wp_seed_content_get_dynamic_data_fields()
         }
     }
 
+    $formation_fields = array(
+        'formation.program.title' => array('label' => __('Programme — Titre', 'wp-seed-content-kit'), 'post_type' => 'seed_program', 'data_key' => 'title', 'type' => 'text', 'empty_value' => ''),
+        'formation.program.summary' => array('label' => __('Programme — Résumé', 'wp-seed-content-kit'), 'post_type' => 'seed_program', 'data_key' => 'summary', 'type' => 'textarea', 'empty_value' => ''),
+        'formation.program.description' => array('label' => __('Programme — Description', 'wp-seed-content-kit'), 'post_type' => 'seed_program', 'data_key' => 'description', 'type' => 'textarea', 'empty_value' => ''),
+        'formation.theme.title' => array('label' => __('Thème — Nom', 'wp-seed-content-kit'), 'post_type' => 'seed_theme', 'data_key' => 'title', 'type' => 'text', 'empty_value' => ''),
+        'formation.theme.summary' => array('label' => __('Thème — Résumé', 'wp-seed-content-kit'), 'post_type' => 'seed_theme', 'data_key' => 'summary', 'type' => 'textarea', 'empty_value' => ''),
+        'formation.theme.description' => array('label' => __('Thème — Description', 'wp-seed-content-kit'), 'post_type' => 'seed_theme', 'data_key' => 'description', 'type' => 'textarea', 'empty_value' => ''),
+        'formation.theme.image' => array('label' => __('Thème — Image', 'wp-seed-content-kit'), 'post_type' => 'seed_theme', 'data_key' => 'image', 'type' => 'image', 'empty_value' => null),
+        'formation.section.title' => array('label' => __('Section — Libellé', 'wp-seed-content-kit'), 'post_type' => 'seed_section', 'data_key' => 'title', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.title' => array('label' => __('Programmation — Intitulé', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'display_title', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.start_date' => array('label' => __('Programmation — Date de début', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'start_date', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.end_date' => array('label' => __('Programmation — Date de fin', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'end_date', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.status' => array('label' => __('Programmation — Statut', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'status_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.section' => array('label' => __('Programmation — Section', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'section_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.year' => array('label' => __('Programmation — Année', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'calendar_year', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.id' => array('label' => __('Programmation — ID', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'id', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.date' => array('label' => __('Programmation — Date formatée', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'date_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.theme' => array('label' => __('Programmation — Thème', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'theme_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.annual_display_title' => array('label' => __('Programmation — Intitulé annuel', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'annual_display_title', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.program' => array('label' => __('Programmation — Programme', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'program_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.people' => array('label' => __('Programmation — Intervenants', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'people_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.url' => array('label' => __('Programmation — Lien', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'url', 'type' => 'url', 'empty_value' => ''),
+        'formation.schedule.order' => array('label' => __('Programmation — Ordre', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'display_order', 'type' => 'text', 'empty_value' => ''),
+    );
+    foreach ($formation_fields as $field_id => $definition) {
+        $fields[$field_id] = array_merge(array('id' => $field_id, 'module' => 'formation'), $definition);
+    }
+
+    return $fields;
+}
+
+/**
+ * Returns fields that may be offered for new bindings in the current request.
+ *
+ * The full registry remains stable for historical Content Data and Block
+ * Bindings resolution. Discovery consumers must use this filtered view.
+ */
+function wp_seed_content_get_discoverable_dynamic_data_fields()
+{
+    $fields = wp_seed_content_get_dynamic_data_fields();
+
+    if (!function_exists('wp_seed_content_kit_is_module_available_for_discovery')) {
+        return $fields;
+    }
+
+    foreach ($fields as $field_id => $definition) {
+        $module = isset($definition['module']) ? $definition['module'] : '';
+        if (!wp_seed_content_kit_is_module_available_for_discovery($module)) {
+            unset($fields[$field_id]);
+        }
+    }
+
     return $fields;
 }
 
@@ -405,6 +457,18 @@ function wp_seed_content_resolve_dynamic_data($field_id, $context = array())
         $data = wp_seed_content_get_testimonial_data($post_id, $args);
     } elseif ('directory' === $definition['module']) {
         $data = wp_seed_content_get_directory_data($post_id, $args);
+    } elseif ('formation' === $definition['module']) {
+        if ('seed_program' === $definition['post_type'] && function_exists('wp_seed_content_formation_get_program_data')) {
+            $data = wp_seed_content_formation_get_program_data($post_id, $args);
+        } elseif ('seed_theme' === $definition['post_type'] && function_exists('wp_seed_content_formation_get_theme_data')) {
+            $data = wp_seed_content_formation_get_theme_data($post_id, $args);
+        } elseif ('seed_section' === $definition['post_type'] && function_exists('wp_seed_content_formation_get_section_data')) {
+            $data = wp_seed_content_formation_get_section_data($post_id, $args);
+        } elseif ('seed_schedule' === $definition['post_type'] && function_exists('wp_seed_content_formation_get_schedule_data')) {
+            $data = wp_seed_content_formation_get_schedule_data($post_id, $args);
+        } else {
+            return $empty_value;
+        }
     } else {
         return $empty_value;
     }

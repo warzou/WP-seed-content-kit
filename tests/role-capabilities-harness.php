@@ -91,27 +91,31 @@ seed_role_same(array(
 ), $advanced, 'Advanced capability set is exact');
 
 $definitions = wp_seed_content_kit_get_content_capability_definitions();
-seed_role_same(array('testimonials', 'quotes', 'directory'), array_keys($definitions), 'Three native content modules registered');
+seed_role_same(array(
+    'testimonials', 'quotes', 'directory',
+    'formation_programs', 'formation_themes', 'formation_sections', 'formation_schedules',
+), array_keys($definitions), 'Native content capability families registered');
 seed_role_same(array('seed_testimonial', 'seed_testimonials'), array_values($definitions['testimonials']), 'Testimonials capability nouns');
 seed_role_same(array('seed_quote', 'seed_quotes'), array_values($definitions['quotes']), 'Quotes capability nouns');
 seed_role_same(array('seed_directory_entry', 'seed_directory_entries'), array_values($definitions['directory']), 'Directory capability nouns');
 
 $defaults = wp_seed_content_kit_get_default_module_role_assignments();
-foreach (array_keys($definitions) as $module) {
-    seed_role_same(array('administrator', 'editor'), $defaults[$module], $module . ' defaults to administrator and editor');
-    $primitives = wp_seed_content_kit_get_primitive_capabilities($module);
-    $map = wp_seed_content_kit_get_capability_map($module);
-    seed_role_same(4, count($primitives), $module . ' has four primitive capabilities');
-    seed_role_same(14, count($map), $module . ' has fourteen WordPress capability keys');
-    seed_role_same($primitives[0], $map['edit_posts'], $module . ' edit mapping');
-    seed_role_same($primitives[0], $map['edit_others_posts'], $module . ' edit others mapping');
-    seed_role_same($primitives[0], $map['edit_private_posts'], $module . ' edit private mapping');
-    seed_role_same($primitives[0], $map['edit_published_posts'], $module . ' edit published mapping');
-    seed_role_same($primitives[0], $map['create_posts'], $module . ' create mapping');
-    seed_role_same($primitives[1], $map['publish_posts'], $module . ' publish mapping');
-    seed_role_same($primitives[2], $map['read_private_posts'], $module . ' private read mapping');
-    seed_role_same($primitives[3], $map['delete_posts'], $module . ' delete mapping');
-    seed_role_same($primitives[3], $map['delete_others_posts'], $module . ' delete others mapping');
+foreach (array_keys($definitions) as $family) {
+    $module = wp_seed_content_kit_get_capability_family_module($family);
+    seed_role_same(array('administrator', 'editor'), $defaults[$module], $family . ' defaults to administrator and editor');
+    $primitives = wp_seed_content_kit_get_primitive_capabilities($family);
+    $map = wp_seed_content_kit_get_capability_map($family);
+    seed_role_same(4, count($primitives), $family . ' has four primitive capabilities');
+    seed_role_same(14, count($map), $family . ' has fourteen WordPress capability keys');
+    seed_role_same($primitives[0], $map['edit_posts'], $family . ' edit mapping');
+    seed_role_same($primitives[0], $map['edit_others_posts'], $family . ' edit others mapping');
+    seed_role_same($primitives[0], $map['edit_private_posts'], $family . ' edit private mapping');
+    seed_role_same($primitives[0], $map['edit_published_posts'], $family . ' edit published mapping');
+    seed_role_same($primitives[0], $map['create_posts'], $family . ' create mapping');
+    seed_role_same($primitives[1], $map['publish_posts'], $family . ' publish mapping');
+    seed_role_same($primitives[2], $map['read_private_posts'], $family . ' private read mapping');
+    seed_role_same($primitives[3], $map['delete_posts'], $family . ' delete mapping');
+    seed_role_same($primitives[3], $map['delete_others_posts'], $family . ' delete others mapping');
 }
 seed_role_same(array(), wp_seed_content_kit_get_primitive_capabilities('unknown'), 'Unknown module has no primitive capability');
 seed_role_same(array(), wp_seed_content_kit_get_capability_map('unknown'), 'Unknown module has no map');
@@ -122,8 +126,8 @@ foreach ($advanced as $capability) {
     seed_role_assert(!isset($GLOBALS['seed_role_roles']['editor']->capabilities[$capability]), 'Editor does not receive ' . $capability);
     seed_role_assert(!isset($GLOBALS['seed_role_roles']['author']->capabilities[$capability]), 'Author does not receive ' . $capability);
 }
-foreach (array_keys($definitions) as $module) {
-    foreach (wp_seed_content_kit_get_primitive_capabilities($module) as $capability) {
+foreach (array_keys($definitions) as $family) {
+    foreach (wp_seed_content_kit_get_primitive_capabilities($family) as $capability) {
         seed_role_assert(isset($GLOBALS['seed_role_roles']['administrator']->capabilities[$capability]), 'Administrator content capability ' . $capability);
         seed_role_assert(isset($GLOBALS['seed_role_roles']['editor']->capabilities[$capability]), 'Editor content capability ' . $capability);
         seed_role_assert(!isset($GLOBALS['seed_role_roles']['author']->capabilities[$capability]), 'Author lacks content capability ' . $capability);
@@ -134,6 +138,7 @@ $custom = array(
     'testimonials' => array('administrator', 'editor'),
     'quotes' => array('administrator'),
     'directory' => array('administrator'),
+    'formation' => array('administrator'),
 );
 wp_seed_content_kit_synchronize_role_capabilities($custom);
 foreach (wp_seed_content_kit_get_primitive_capabilities('testimonials') as $capability) {

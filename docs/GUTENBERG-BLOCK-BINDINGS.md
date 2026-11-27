@@ -66,6 +66,8 @@ La Query Loop sélectionne. Le résolveur fournit. Le provider adapte. Le bloc a
 
 L'état d'activation d'un module ne désenregistre pas la source et ne bloque pas un contenu publié explicitement compatible. La précondition « module actif » reste propre à la couche Collections V1.
 
+La source V1 n'expose pas de catalogue de champs dans l'éditeur : son enregistrement global ne crée donc aucun picker WPSCK à filtrer. Les futures interfaces de sélection doivent utiliser le registre de découverte module-aware, tandis que la source stable et son callback restent enregistrés pour résoudre sans rupture les bindings historiques dans Gutenberg, Spectra et les autres consommateurs compatibles.
+
 ## 3. Identifiant public de la source
 
 L'identifiant stable recommandé est :

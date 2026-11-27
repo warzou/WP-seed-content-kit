@@ -67,6 +67,13 @@ function wp_seed_content_divi_directory_evaluate_has_more_condition(
         return $result;
     }
 
+    if (
+        function_exists('wp_seed_content_kit_should_resolve_module_binding')
+        && !wp_seed_content_kit_should_resolve_module_binding('directory')
+    ) {
+        return false;
+    }
+
     $contact_value_key = wp_seed_content_divi_directory_contact_condition_value_key();
     $has_legacy_contact_value = $is_has_more
         && is_array($condition_settings)
@@ -111,6 +118,8 @@ function wp_seed_content_register_divi_directory_has_more_condition_assets()
 
     if (
         $registered
+        || (function_exists('wp_seed_content_kit_is_module_available_for_discovery')
+            && !wp_seed_content_kit_is_module_available_for_discovery('directory'))
         || !function_exists('et_core_is_fb_enabled')
         || !et_core_is_fb_enabled()
         || !class_exists('ET\\Builder\\VisualBuilder\\Assets\\PackageBuildManager')

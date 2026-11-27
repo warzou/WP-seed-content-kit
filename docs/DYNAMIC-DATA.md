@@ -69,6 +69,8 @@ Une boucle peut fournir un contenu courant au résolveur, mais elle reste propri
 
 Le registre et le résolveur restent chargés globalement. La désactivation d'un module ne bloque pas la résolution unitaire d'un contenu publié explicitement compatible. Elle contrôle les interfaces fonctionnelles du module et, dans Collections V1, l'éligibilité d'une sélection ; elle ne transforme pas Dynamic Data en résultat vide global.
 
+La découverte et la compatibilité d'exécution sont deux contrats distincts. `wp_seed_content_get_discoverable_dynamic_data_fields()` filtre le registre selon `wp_seed_content_kit_is_module_available_for_discovery()`. Le registre complet reste la référence des identifiants historiques. Les adaptateurs builders peuvent ainsi masquer les nouveaux choix d'un module désactivé tout en reconnaissant un binding persisté et en lui donnant une valeur vide sûre. La réactivation restaure le choix et la résolution sans réécriture du contenu.
+
 ## 3. Périmètre V1
 
 Le registre stable couvre les champs Citation, Témoignage et Annuaire documentés par leurs contrats respectifs. Les ajouts restent explicites : aucun builder ne peut étendre silencieusement le registre métier.

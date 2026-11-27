@@ -1,0 +1,176 @@
+.wpsck-formation,
+.wpsck-formation *,
+.wpsck-formation *::before,
+.wpsck-formation *::after {
+    box-sizing: border-box;
+}
+
+.wpsck-formation {
+    width: 100%;
+    max-width: 76rem;
+    min-width: 0;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2rem);
+}
+
+.wpsck-formation__group {
+    min-width: 0;
+    padding-block: clamp(1rem, 2vw, 1.5rem);
+    border-block-start: 1px solid currentColor;
+}
+
+.wpsck-formation__group:last-child {
+    border-block-end: 1px solid currentColor;
+}
+
+.wpsck-formation__group-title,
+.wpsck-formation__title,
+.wpsck-formation p {
+    overflow-wrap: anywhere;
+}
+
+.wpsck-formation__group-title {
+    margin-block: 0 1.1rem;
+}
+
+.wpsck-formation__list,
+.wpsck-formation__theme-list {
+    margin: 0;
+    padding: 0;
+    list-style: none !important;
+}
+
+.wpsck-formation__list > li::marker,
+.wpsck-formation__theme-list > li::marker {
+    content: "";
+}
+
+.wpsck-formation__list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+}
+
+.wpsck-formation--calendar .wpsck-formation__list {
+    grid-template-columns: 1fr;
+}
+
+.wpsck-formation__theme-list {
+    display: grid;
+    gap: .5rem;
+}
+
+.wpsck-formation__theme-list > li {
+    position: relative;
+    padding: .35rem 0 .35rem 1.15rem;
+}
+
+.wpsck-formation__theme-list > li::before {
+    position: absolute;
+    inset: .95rem auto auto 0;
+    width: .4rem;
+    height: .4rem;
+    border-radius: 50%;
+    background: currentColor;
+    content: "";
+}
+
+.wpsck-formation__item {
+    min-width: 0;
+    padding: .85rem 0;
+    border-block-end: 1px solid currentColor;
+    background: transparent;
+}
+
+.wpsck-formation__item > * {
+    margin-block: 0 .65rem;
+}
+
+.wpsck-formation__date {
+    font-variant-numeric: tabular-nums;
+}
+
+.wpsck-formation__status {
+    display: inline-block;
+    width: max-content;
+    max-width: 100%;
+    padding: .15rem .55rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+}
+
+@media (min-width: 48rem) {
+    .wpsck-formation--structure .wpsck-formation__group,
+    .wpsck-formation--grouped .wpsck-formation__group {
+        display: grid;
+        grid-template-columns: minmax(10rem, .28fr) minmax(0, 1fr);
+        gap: clamp(1rem, 3vw, 2.5rem);
+        align-items: start;
+    }
+
+    .wpsck-formation--structure .wpsck-formation__group-title,
+    .wpsck-formation--grouped .wpsck-formation__group-title {
+        margin: 0;
+    }
+
+    .wpsck-formation--structure .wpsck-formation__theme-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 2rem;
+    }
+
+    .wpsck-formation--grouped .wpsck-formation__item,
+    .wpsck-formation--calendar .wpsck-formation__item {
+        display: grid;
+        grid-template-columns: minmax(9rem, .26fr) minmax(0, 1fr) auto;
+        column-gap: clamp(1rem, 3vw, 2rem);
+        align-items: start;
+    }
+
+    .wpsck-formation--grouped .wpsck-formation__date,
+    .wpsck-formation--calendar .wpsck-formation__date {
+        grid-column: 1;
+        grid-row: 1 / span 4;
+    }
+
+    .wpsck-formation--grouped .wpsck-formation__title,
+    .wpsck-formation--grouped .wpsck-formation__section,
+    .wpsck-formation--grouped .wpsck-formation__people,
+    .wpsck-formation--calendar .wpsck-formation__title,
+    .wpsck-formation--calendar .wpsck-formation__section,
+    .wpsck-formation--calendar .wpsck-formation__people {
+        grid-column: 2;
+    }
+
+    .wpsck-formation--grouped .wpsck-formation__status,
+    .wpsck-formation--calendar .wpsck-formation__status {
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .wpsck-formation--grouped .wpsck-formation__status,
+    .wpsck-formation--calendar .wpsck-formation__status {
+        justify-self: start;
+    }
+}
+
+.wpsck-formation-page {
+    padding-block: clamp(2rem, 5vw, 4rem);
+}
+
+.wpsck-formation-page > h1,
+.wpsck-formation-page > h2 {
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2rem);
+}
+
+@media (max-width: 47.999rem) {
+    .wpsck-formation {
+        padding-inline: 1rem;
+    }
+
+    .wpsck-formation__group {
+        padding-block: 1.25rem;
+    }
+}

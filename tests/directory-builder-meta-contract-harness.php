@@ -12,6 +12,7 @@ $GLOBALS['directory_bindings'] = array();
 class WP_Block { public $name = 'core/paragraph'; public $context = array('postId' => 71, 'postType' => 'seed_directory'); }
 function __($value, $domain = null) { return $value; }
 function add_action($hook, $callback, $priority = 10, $accepted_args = 1) {}
+function add_filter($hook, $callback, $priority = 10, $accepted_args = 1) {}
 function register_block_bindings_source($name, $args) { $GLOBALS['directory_bindings'][$name] = $args; }
 function register_post_type($type, $args) { $GLOBALS['directory_registered_types'][$type] = $args; }
 function register_post_meta($type, $key, $args) { $GLOBALS['directory_registered_meta'][$key] = array($type, $args); }
