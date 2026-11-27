@@ -30,7 +30,9 @@ function wp_seed_content_directory_normalize_profile_type_filter($value)
         return null;
     }
 
-    $registered = wp_seed_content_directory_get_profile_types();
+    $registered = function_exists('wp_seed_content_directory_classification_options')
+        ? wp_seed_content_directory_classification_options('profile_type', false)
+        : wp_seed_content_directory_get_profile_types();
     $normalized = array();
     foreach ($value as $profile_type) {
         if (!is_scalar($profile_type)) {
@@ -96,16 +98,29 @@ function wp_seed_content_directory_normalize_collection_args($args)
     );
     $args = array_merge($defaults, $args);
 
-    $status = is_string($args['status']) ? strtolower($args['status']) : '';
+    $status_raw = is_string($args['status']) ? strtolower($args['status']) : '';
+    $status = 'all' === $status_raw
+        ? 'all'
+        : (function_exists('wp_seed_content_directory_normalize_status_slug')
+            ? wp_seed_content_directory_normalize_status_slug($status_raw, true)
+            : wp_seed_content_directory_sanitize_meta_value('_seed_directory_status', $status_raw));
     $featured = is_string($args['featured']) ? strtolower($args['featured']) : '';
-    $orderby = is_string($args['orderby']) ? strtolower($args['orderby']) : '';
+    $orderby_values = is_array($args['orderby']) ? $args['orderby'] : explode(',', (string) $args['orderby']);
+    $orderby = array();
+    $orderby_aliases = array('display_order' => 'menu_order', 'menu_order' => 'menu_order', 'name' => 'name', 'status' => 'status', 'profile_type' => 'profile_type', 'profile' => 'profile_type', 'date' => 'date', 'id' => 'id');
+    foreach ($orderby_values as $orderby_value) {
+        $orderby_value = sanitize_key(trim((string) $orderby_value));
+        if (isset($orderby_aliases[$orderby_value]) && !in_array($orderby_aliases[$orderby_value], $orderby, true)) {
+            $orderby[] = $orderby_aliases[$orderby_value];
+        }
+    }
     $order = is_string($args['order']) ? strtolower($args['order']) : '';
     $profile_type_operator = is_string($args['profile_type_operator'])
         ? strtolower($args['profile_type_operator'])
         : '';
-    if (!in_array($status, array('all', 'practicing', 'seeking_models'), true)
+    if (('all' !== $status_raw && '' === $status)
         || !in_array($featured, array('all', 'only', 'exclude'), true)
-        || !in_array($orderby, array('display_order', 'name', 'date', 'id'), true)
+        || empty($orderby)
         || !in_array($order, array('asc', 'desc'), true)
         || !in_array($profile_type_operator, array('or', 'and'), true)
         || !is_int($args['limit'])
@@ -173,15 +188,38 @@ function wp_seed_content_directory_normalize_comparison_text($value)
 
 function wp_seed_content_directory_compare_entries($left, $right, $orderby, $order)
 {
-    if ('name' === $orderby) {
+    $criteria = is_array($orderby) ? $orderby : array($orderby);
+    $comparison = 0;
+    foreach ($criteria as $criterion) {
+    if ('name' === $criterion) {
         $comparison = strcmp(
             wp_seed_content_directory_normalize_comparison_text($left->post_title),
             wp_seed_content_directory_normalize_comparison_text($right->post_title)
         );
-    } elseif ('date' === $orderby) {
+    } elseif ('date' === $criterion) {
         $comparison = strcmp((string) $left->post_date, (string) $right->post_date);
-    } elseif ('id' === $orderby) {
+    } elseif ('id' === $criterion) {
         $comparison = (int) $left->ID <=> (int) $right->ID;
+    } elseif ('status' === $criterion) {
+        $registry = function_exists('wp_seed_content_directory_get_classification_registry')
+            ? array_keys(wp_seed_content_directory_get_classification_registry('status', false))
+            : array_keys(wp_seed_content_directory_get_statuses());
+        $left_rank = array_search(wp_seed_content_directory_get_meta_value($left->ID, '_seed_directory_status'), $registry, true);
+        $right_rank = array_search(wp_seed_content_directory_get_meta_value($right->ID, '_seed_directory_status'), $registry, true);
+        $left_rank = false === $left_rank ? count($registry) : $left_rank;
+        $right_rank = false === $right_rank ? count($registry) : $right_rank;
+        $comparison = $left_rank <=> $right_rank;
+    } elseif ('profile_type' === $criterion) {
+        $registry = function_exists('wp_seed_content_directory_get_classification_registry')
+            ? array_keys(wp_seed_content_directory_get_classification_registry('profile_type', false))
+            : array_keys(wp_seed_content_directory_get_profile_types());
+        $left_types = wp_seed_content_directory_get_meta_value($left->ID, '_seed_directory_profile_types');
+        $right_types = wp_seed_content_directory_get_meta_value($right->ID, '_seed_directory_profile_types');
+        $left_rank = count($registry);
+        $right_rank = count($registry);
+        foreach ($left_types as $type) { $rank = array_search($type, $registry, true); if (false !== $rank) { $left_rank = min($left_rank, $rank); } }
+        foreach ($right_types as $type) { $rank = array_search($type, $registry, true); if (false !== $rank) { $right_rank = min($right_rank, $rank); } }
+        $comparison = $left_rank <=> $right_rank;
     } else {
         $comparison = (int) $left->menu_order <=> (int) $right->menu_order;
         if (0 === $comparison) {
@@ -189,6 +227,10 @@ function wp_seed_content_directory_compare_entries($left, $right, $orderby, $ord
                 wp_seed_content_directory_normalize_comparison_text($left->post_title),
                 wp_seed_content_directory_normalize_comparison_text($right->post_title)
             );
+        }
+    }
+        if (0 !== $comparison) {
+            break;
         }
     }
 
@@ -255,10 +297,10 @@ function wp_seed_content_directory_get_entries($args = array())
 
         $status = wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_status');
         $profile_types = wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_profile_types');
-        $seeking_models = '1' === get_post_meta($post->ID, '_seed_directory_seeking_models', true);
+        $seeking_models = '1' === wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_seeking_models');
         $department = wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_department');
         $country = wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_country');
-        $featured = '1' === get_post_meta($post->ID, '_seed_directory_featured', true);
+        $featured = '1' === wp_seed_content_directory_get_meta_value($post->ID, '_seed_directory_featured');
         if (('all' !== $args['status'] && $status !== $args['status'])
             || !wp_seed_content_directory_entry_matches_profile_types(
                 $profile_types,

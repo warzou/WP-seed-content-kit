@@ -7,9 +7,9 @@ if (!defined('ABSPATH')) {
 function wp_seed_content_register_template_post_type()
 {
     $labels = array(
-        'name' => __('Templates', 'wp-seed-content-kit'),
+        'name' => __('Templates WP Seed', 'wp-seed-content-kit'),
         'singular_name' => __('Template', 'wp-seed-content-kit'),
-        'menu_name' => __('Templates', 'wp-seed-content-kit'),
+        'menu_name' => __('Templates WP Seed', 'wp-seed-content-kit'),
         'add_new' => __('Ajouter', 'wp-seed-content-kit'),
         'add_new_item' => __('Ajouter un template', 'wp-seed-content-kit'),
         'edit_item' => __('Modifier le template', 'wp-seed-content-kit'),
@@ -18,7 +18,7 @@ function wp_seed_content_register_template_post_type()
         'search_items' => __('Rechercher des templates', 'wp-seed-content-kit'),
         'not_found' => __('Aucun template trouvé', 'wp-seed-content-kit'),
         'not_found_in_trash' => __('Aucun template trouvé dans la corbeille', 'wp-seed-content-kit'),
-        'all_items' => __('Templates', 'wp-seed-content-kit'),
+        'all_items' => __('Templates WP Seed', 'wp-seed-content-kit'),
         'items_list' => __('Liste des templates', 'wp-seed-content-kit'),
     );
 
@@ -416,6 +416,7 @@ function wp_seed_content_render_template_module_meta_box($post)
     $divi_layouts = $context['divi_layouts'];
     $divi_library_available = $context['divi_library_available'];
     $divi_detected = $context['divi_detected'];
+    $divi_available = $divi_detected && $divi_library_available;
     ?>
     <p><strong><?php esc_html_e('Réglages du template', 'wp-seed-content-kit'); ?></strong></p>
     <input type="hidden" name="wp_seed_content_template_meta_nonce" value="<?php echo esc_attr(wp_create_nonce('wp_seed_content_template_meta')); ?>" />
@@ -477,12 +478,13 @@ function wp_seed_content_render_template_module_meta_box($post)
     <p><strong><?php esc_html_e('Source du rendu', 'wp-seed-content-kit'); ?></strong></p>
     <p>
         <label>
-            <input type="radio" name="wp_seed_content_template_source" value="native" <?php checked('native', $template_source); ?> />
+            <input type="radio" name="wp_seed_content_template_source" value="native" <?php checked(!$divi_available || 'native' === $template_source); ?> />
             <?php esc_html_e('Contenu de ce template', 'wp-seed-content-kit'); ?>
         </label>
         <br />
         <span class="description"><?php esc_html_e('Utilise le contenu saisi dans cet éditeur WordPress.', 'wp-seed-content-kit'); ?></span>
         <br />
+        <?php if ($divi_available) : ?>
         <label>
             <input type="radio" name="wp_seed_content_template_source" value="divi_layout" <?php checked('divi_layout', $template_source); ?> />
             <?php esc_html_e('Layout Divi Library', 'wp-seed-content-kit'); ?>
@@ -490,12 +492,13 @@ function wp_seed_content_render_template_module_meta_box($post)
         <br />
         <span class="description"><?php esc_html_e('Utilise un layout créé dans Divi Library.', 'wp-seed-content-kit'); ?></span>
     </p>
-    <?php if (!$divi_library_available) : ?>
+        <?php endif; ?>
+    <?php if (!$divi_available) : ?>
         <p class="description">
-            <?php esc_html_e('Divi Library n’est pas disponible. Le rendu utilisera le contenu de ce template si le layout est indisponible.', 'wp-seed-content-kit'); ?>
+            <?php esc_html_e('La source Divi Library est disponible lorsque Divi est installé et actif.', 'wp-seed-content-kit'); ?>
         </p>
-    <?php endif; ?>
-    <div data-wp-seed-divi-layout-settings <?php echo 'divi_layout' !== $template_source ? 'style="display:none;"' : ''; ?>>
+    <?php else : ?>
+        <div data-wp-seed-divi-layout-settings <?php echo 'divi_layout' !== $template_source ? 'style="display:none;"' : ''; ?>>
         <?php wp_seed_content_render_template_divi_guidance_notice($divi_detected); ?>
         <p>
             <label for="wp-seed-template-divi-layout-id">
@@ -531,7 +534,8 @@ function wp_seed_content_render_template_module_meta_box($post)
             </p>
             <?php wp_seed_content_render_template_divi_actions($template_divi_layout_id); ?>
         <?php endif; ?>
-    </div>
+        </div>
+    <?php endif; ?>
 <?php
 }
 
@@ -1162,7 +1166,7 @@ function wp_seed_content_seed_template_init_admin_columns()
 
         add_meta_box(
             'wp-seed-content-kit-template-usage',
-            __('Comment utiliser ce template', 'wp-seed-content-kit'),
+            __('Utilisation & intégration', 'wp-seed-content-kit'),
             'wp_seed_content_render_template_usage_meta_box',
             'seed_template',
             'normal',

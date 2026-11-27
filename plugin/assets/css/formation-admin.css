@@ -1,0 +1,192 @@
+.wpsck-formation-section-row {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.wpsck-formation-section-actions,
+.wpsck-formation-filters,
+.wpsck-formation-admin__schedule-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.wpsck-formation-admin {
+    max-width: 1100px;
+}
+
+.wpsck-formation-filters {
+    margin: 16px 0 24px;
+}
+
+.wpsck-formation-admin__section {
+    margin: 20px 0;
+    scroll-margin-top: 48px;
+}
+
+.wpsck-formation-admin__section h3 {
+    margin-bottom: 8px;
+    font-size: 1.15rem;
+}
+
+.wpsck-formation-schedule-editor {
+    margin: 20px 0 28px;
+    padding: 20px;
+    border: 1px solid #c3c4c7;
+    background: #fff;
+    scroll-margin-top: 48px;
+}
+
+.wpsck-formation-schedule-editor > h2 {
+    margin-top: 0;
+}
+
+.wpsck-formation-admin__calendar-heading {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 28px 0 8px;
+}
+
+.wpsck-formation-admin__calendar-heading h2 {
+    margin: 0;
+}
+
+.wpsck-formation-admin__section-nav {
+    display: flex;
+    gap: 6px 14px;
+    flex-wrap: wrap;
+}
+
+.wpsck-formation-admin__section-nav span {
+    color: #646970;
+}
+
+.wpsck-formation-admin__schedules {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid #c3c4c7;
+}
+
+.wpsck-formation-admin__schedule {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    padding: 12px 14px;
+    border: 1px solid #c3c4c7;
+    border-top: 0;
+    background: #fff;
+}
+
+.wpsck-formation-admin__schedule-content,
+.wpsck-formation-admin__schedule-meta {
+    min-width: 0;
+}
+
+.wpsck-formation-admin__schedule-content > span,
+.wpsck-formation-admin__schedule-content > strong,
+.wpsck-formation-admin__schedule-meta > span {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.wpsck-formation-admin__schedule--cancelled {
+    border-left: 4px solid #d63638;
+}
+
+.wpsck-formation-admin__schedule--postponed {
+    border-left: 4px solid #dba617;
+}
+
+.wpsck-formation-admin__status {
+    font-weight: 600;
+}
+
+.wpsck-formation-schedule-form__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+    max-width: 900px;
+}
+
+.wpsck-formation-schedule-form__grid label {
+    display: grid;
+    gap: 6px;
+    font-weight: 600;
+    align-content: start;
+    min-width: 0;
+}
+
+.wpsck-formation-people {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.wpsck-formation-people legend {
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.wpsck-formation-people__list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px 16px;
+    max-height: 172px;
+    padding: 8px 10px;
+    overflow-y: auto;
+    border: 1px solid #8c8f94;
+    background: #fff;
+}
+
+.wpsck-formation-people__list label {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    padding: 4px 0;
+    font-weight: 400;
+}
+
+.wpsck-formation-people__list input {
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+.wpsck-formation-person { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.wpsck-formation-person-actions { display: flex; gap: 4px; }
+.wpsck-formation-person-actions[hidden] { display: none; }
+.wpsck-formation-person .dashicons { vertical-align: middle; }
+.wpsck-formation-person label span { overflow-wrap: anywhere; }
+
+.wpsck-formation-schedule-form__grid input[type="text"],
+.wpsck-formation-schedule-form__grid input[type="date"],
+.wpsck-formation-schedule-form__grid input[type="number"],
+.wpsck-formation-schedule-form__grid select {
+    width: 100%;
+    max-width: none;
+}
+
+.wpsck-formation-schedule-form__grid input[type="date"] {
+    align-self: start;
+}
+
+@media (max-width: 782px) {
+    .wpsck-formation-section-row,
+    .wpsck-formation-admin__schedule,
+    .wpsck-formation-schedule-form__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wpsck-formation-people__list {
+        grid-template-columns: 1fr;
+    }
+}

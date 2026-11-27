@@ -31,7 +31,30 @@ function wp_seed_content_kit_get_content_capability_definitions()
             'singular' => 'seed_directory_entry',
             'plural' => 'seed_directory_entries',
         ),
+        'formation_programs' => array(
+            'singular' => 'seed_program',
+            'plural' => 'seed_programs',
+        ),
+        'formation_themes' => array(
+            'singular' => 'seed_theme',
+            'plural' => 'seed_themes',
+        ),
+        'formation_sections' => array(
+            'singular' => 'seed_section',
+            'plural' => 'seed_sections',
+        ),
+        'formation_schedules' => array(
+            'singular' => 'seed_schedule',
+            'plural' => 'seed_schedules',
+        ),
     );
+}
+
+function wp_seed_content_kit_get_capability_family_module($family)
+{
+    $family = sanitize_key((string) $family);
+
+    return 0 === strpos($family, 'formation_') ? 'formation' : $family;
 }
 
 function wp_seed_content_kit_get_primitive_capabilities($module)
@@ -106,6 +129,7 @@ function wp_seed_content_kit_get_default_module_role_assignments()
         'testimonials' => array('administrator', 'editor'),
         'quotes' => array('administrator', 'editor'),
         'directory' => array('administrator', 'editor'),
+        'formation' => array('administrator', 'editor'),
     );
 }
 
@@ -159,10 +183,11 @@ function wp_seed_content_kit_synchronize_role_capabilities($assignments = null)
             continue;
         }
 
-        foreach (wp_seed_content_kit_get_content_capability_definitions() as $module => $definition) {
+        foreach (wp_seed_content_kit_get_content_capability_definitions() as $family => $definition) {
+            $module = wp_seed_content_kit_get_capability_family_module($family);
             $allowed = 'administrator' === $role_key
                 || (isset($assignments[$module]) && in_array($role_key, $assignments[$module], true));
-            foreach (wp_seed_content_kit_get_primitive_capabilities($module) as $capability) {
+            foreach (wp_seed_content_kit_get_primitive_capabilities($family) as $capability) {
                 if ($allowed) {
                     $role->add_cap($capability);
                 } else {
@@ -183,7 +208,7 @@ function wp_seed_content_kit_synchronize_role_capabilities($assignments = null)
 
 function wp_seed_content_kit_maybe_upgrade_role_capabilities()
 {
-    $schema = '1';
+    $schema = '2';
     if ($schema === (string) get_option('wp_seed_content_kit_capability_schema', '')) {
         return;
     }

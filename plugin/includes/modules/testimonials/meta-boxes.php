@@ -4,9 +4,52 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+function wp_seed_content_testimonial_editor_id()
+{
+    return 'wp_seed_content_testimonial_text';
+}
+
+function wp_seed_content_testimonial_editor_settings()
+{
+    return array(
+        'textarea_name' => 'seed_testimonial_text',
+        'textarea_rows' => 8,
+        'media_buttons' => false,
+        'teeny' => false,
+        'tinymce' => true,
+        'quicktags' => array(
+            'buttons' => 'strong,em,link,block,ul,ol,li,more,close',
+        ),
+        'editor_class' => 'wp-seed-content-testimonial-editor',
+    );
+}
+
+function wp_seed_content_testimonial_clean_mce_buttons($buttons, $editor_id = '')
+{
+    if (wp_seed_content_testimonial_editor_id() !== $editor_id || !is_array($buttons)) {
+        return $buttons;
+    }
+
+    $blocked = array('et_learn_more', 'et_box', 'et_button', 'et_tabs', 'et_author');
+    return array_values(array_diff($buttons, $blocked));
+}
+add_filter('mce_buttons', 'wp_seed_content_testimonial_clean_mce_buttons', PHP_INT_MAX, 2);
+
+function wp_seed_content_testimonial_clean_mce_plugins($plugins, $editor_id = '')
+{
+    if (wp_seed_content_testimonial_editor_id() === $editor_id && is_array($plugins)) {
+        unset($plugins['et_quicktags']);
+    }
+
+    return $plugins;
+}
+add_filter('mce_external_plugins', 'wp_seed_content_testimonial_clean_mce_plugins', PHP_INT_MAX, 2);
+
 function wp_seed_content_add_testimonial_meta_boxes()
 {
     remove_meta_box('postimagediv', 'seed_testimonial', 'side');
+    remove_meta_box('postexcerpt', 'seed_testimonial', 'normal');
+    remove_meta_box('postcustom', 'seed_testimonial', 'normal');
 
     add_meta_box(
         'wp_seed_content_testimonial_details',
@@ -33,6 +76,16 @@ function wp_seed_content_enqueue_testimonial_admin_assets($hook_suffix)
 
     wp_enqueue_media();
     wp_enqueue_script('jquery');
+
+    $editor_script = WP_SEED_CONTENT_KIT_DIR . 'assets/js/testimonial-editor.js';
+    $editor_version = is_file($editor_script) ? hash_file('sha256', $editor_script) : false;
+    wp_enqueue_script(
+        'wp-seed-content-testimonial-editor',
+        WP_SEED_CONTENT_KIT_URL . 'assets/js/testimonial-editor.js',
+        array('quicktags'),
+        $editor_version ? substr($editor_version, 0, 16) : WP_SEED_CONTENT_KIT_VERSION,
+        true
+    );
 
     wp_add_inline_script('jquery', "
         jQuery(function($) {
@@ -80,7 +133,7 @@ function wp_seed_content_enqueue_testimonial_admin_assets($hook_suffix)
                 frame.on('select', function() {
                     var attachment = frame.state().get('selection').first().toJSON();
                     var sizes = attachment.sizes || {};
-                    var preview = sizes.thumbnail || sizes.medium || sizes.full || attachment;
+                    var preview = sizes.full || attachment;
 
                     setPhoto(attachment.id, preview.url);
                 });
@@ -97,22 +150,63 @@ function wp_seed_content_enqueue_testimonial_admin_assets($hook_suffix)
 }
 add_action('admin_enqueue_scripts', 'wp_seed_content_enqueue_testimonial_admin_assets');
 
+/**
+ * Whether the testimonial publication checkbox is selected.
+ *
+ * New auto-drafts start enabled. Existing testimonials always reflect the
+ * stored canonical value so legacy records are never authorized implicitly.
+ *
+ * @param WP_Post $post Testimonial being edited.
+ *
+ * @return bool
+ */
+function wp_seed_content_testimonial_publication_consent_is_checked($post)
+{
+    if (!$post instanceof WP_Post || 'seed_testimonial' !== $post->post_type) {
+        return false;
+    }
+
+    if ('auto-draft' === $post->post_status) {
+        return true;
+    }
+
+    return '1' === (string) wp_seed_content_get_meta(
+        $post->ID,
+        wp_seed_content_testimonial_publication_consent_meta_key()
+    );
+}
+
 function wp_seed_content_render_testimonial_meta_box($post)
 {
     wp_nonce_field('wp_seed_content_save_testimonial_meta', 'wp_seed_content_testimonial_nonce');
     $thumbnail_id = get_post_thumbnail_id($post->ID);
-    $thumbnail = $thumbnail_id ? wp_get_attachment_image($thumbnail_id, 'thumbnail', false, array('class' => 'seed-testimonial-photo-field__image')) : '';
+    $thumbnail = $thumbnail_id ? wp_get_attachment_image($thumbnail_id, 'full', false, array('class' => 'seed-testimonial-photo-field__image', 'sizes' => '150px', 'loading' => false)) : '';
     $stored_date = (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_date');
     $testimonial_date = wp_seed_content_sanitize_iso_date($stored_date);
     $has_invalid_stored_date = '' !== $stored_date && '' === $testimonial_date;
+    $publication_authorized = wp_seed_content_testimonial_publication_consent_is_checked($post);
     ?>
-    <p>
+    <div class="seed-testimonial-text-field">
         <label for="wp_seed_content_testimonial_text"><strong><?php esc_html_e('Témoignage', 'wp-seed-content-kit'); ?></strong></label><br>
-        <textarea id="wp_seed_content_testimonial_text" name="_seed_testimonial_text" rows="8" class="widefat"><?php echo esc_textarea(wp_seed_content_get_meta($post->ID, '_seed_testimonial_text')); ?></textarea>
+        <?php
+        wp_editor(
+            wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_text'),
+            wp_seed_content_testimonial_editor_id(),
+            wp_seed_content_testimonial_editor_settings()
+        );
+        ?>
+        <p class="description"><?php esc_html_e('Utilisez le bouton More pour séparer l’introduction de la suite du témoignage.', 'wp-seed-content-kit'); ?></p>
+    </div>
+    <p>
+        <label for="wp_seed_content_testimonial_summary"><strong><?php esc_html_e('Résumé court', 'wp-seed-content-kit'); ?></strong></label><br>
+        <textarea id="wp_seed_content_testimonial_summary" name="wp_seed_content_testimonial_summary" rows="4" class="widefat"><?php echo esc_textarea((string) $post->post_excerpt); ?></textarea>
+    </p>
+    <p class="description">
+        <?php esc_html_e('Résumé affiché dans les formats courts, par exemple le carrousel de la page d’accueil.', 'wp-seed-content-kit'); ?>
     </p>
     <p>
         <label for="wp_seed_content_testimonial_name"><strong><?php esc_html_e('Nom ou initiales', 'wp-seed-content-kit'); ?></strong></label><br>
-        <input type="text" id="wp_seed_content_testimonial_name" name="_seed_testimonial_name" value="<?php echo esc_attr(wp_seed_content_get_meta($post->ID, '_seed_testimonial_name')); ?>" class="widefat">
+        <input type="text" id="wp_seed_content_testimonial_name" name="seed_testimonial_name" value="<?php echo esc_attr(wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_name')); ?>" class="widefat">
     </p>
     <div class="seed-testimonial-photo-field">
         <p><strong><?php esc_html_e('Photo du témoignage', 'wp-seed-content-kit'); ?></strong></p>
@@ -143,14 +237,26 @@ function wp_seed_content_render_testimonial_meta_box($post)
     <?php endif; ?>
     <p>
         <label for="wp_seed_content_testimonial_context"><strong><?php esc_html_e('Information complémentaire', 'wp-seed-content-kit'); ?></strong></label><br>
-        <input type="text" id="wp_seed_content_testimonial_context" name="_seed_testimonial_context" value="<?php echo esc_attr(wp_seed_content_get_meta($post->ID, '_seed_testimonial_context')); ?>" class="widefat">
+        <input type="text" id="wp_seed_content_testimonial_context" name="seed_testimonial_context" value="<?php echo esc_attr(wp_seed_content_get_testimonial_builder_meta($post->ID, 'seed_testimonial_context')); ?>" class="widefat">
     </p>
     <p class="description">
         <?php esc_html_e('Précision facultative affichée avec le témoignage, par exemple « En 3e année du parcours » ou « Après 2 ans de suivi ».', 'wp-seed-content-kit'); ?>
     </p>
+    <fieldset>
+        <legend><strong><?php esc_html_e('Publication du témoignage', 'wp-seed-content-kit'); ?></strong></legend>
+        <p>
+            <label>
+                <input type="checkbox" name="_seed_testimonial_publication_consent" value="1" <?php checked($publication_authorized); ?>>
+                <?php esc_html_e('Publication autorisée', 'wp-seed-content-kit'); ?>
+            </label>
+        </p>
+        <p class="description">
+            <?php esc_html_e('Décochez cette case pour retirer immédiatement ce témoignage de tous les affichages publics.', 'wp-seed-content-kit'); ?>
+        </p>
+    </fieldset>
     <p>
         <label>
-            <input type="checkbox" name="_seed_featured" value="1" <?php checked(wp_seed_content_is_truthy_meta($post->ID, '_seed_featured')); ?>>
+            <input type="checkbox" name="_seed_testimonial_featured" value="1" <?php checked('1' === (string) wp_seed_content_get_meta($post->ID, '_seed_testimonial_featured')); ?>>
             <?php esc_html_e('Mis en avant', 'wp-seed-content-kit'); ?>
         </label>
     </p>

@@ -15,8 +15,20 @@ abstract class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base extends Dyn
 {
     abstract protected function get_dynamic_data_field_id(): string;
 
+    protected function get_dynamic_content_type(): string
+    {
+        return 'text';
+    }
+
     public function register_option_callback(array $options, int $post_id, string $context): array
     {
+        if (
+            function_exists('wp_seed_content_kit_is_module_available_for_discovery')
+            && !wp_seed_content_kit_is_module_available_for_discovery('testimonials')
+        ) {
+            return $options;
+        }
+
         $name = $this->get_name();
 
         if (isset($options[$name])) {
@@ -25,10 +37,10 @@ abstract class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base extends Dyn
 
         $options[$name] = array(
             'id' => $name,
-            'label' => $this->get_label(),
-            'type' => 'text',
+            'label' => wp_seed_content_divi_testimonial_dynamic_content_label($this->get_label()),
+            'type' => $this->get_dynamic_content_type(),
             'custom' => false,
-            'group' => __('WP Seed — Témoignages', 'wp-seed-content-kit'),
+            'group' => wp_seed_content_divi_testimonial_dynamic_content_group_label(),
             'fields' => array(),
         );
 
@@ -41,11 +53,35 @@ abstract class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base extends Dyn
             ? $data_args['name']
             : '';
 
-        if ($this->get_name() !== $name) {
+        if (!wp_seed_content_divi_testimonial_dynamic_content_name_matches($this->get_name(), $name)) {
             return $value;
         }
 
-        $resolver_context = $this->get_resolver_context($data_args);
+        if (
+            function_exists('wp_seed_content_kit_should_resolve_module_binding')
+            && !wp_seed_content_kit_should_resolve_module_binding('testimonials')
+        ) {
+            return DynamicContentElements::get_wrapper_element(
+                array(
+                    'name' => $name,
+                    'post_id' => wp_seed_content_divi_get_dynamic_content_wrapper_post_id($data_args),
+                    'value' => '',
+                    'settings' => isset($data_args['settings']) && is_array($data_args['settings'])
+                        ? $data_args['settings']
+                        : array(),
+                )
+            );
+        }
+
+        $resolver_context = wp_seed_content_divi_get_dynamic_content_context(
+            $data_args,
+            'seed_testimonial'
+        );
+
+        if (wp_seed_content_divi_should_defer_dynamic_content($value, $resolver_context)) {
+            return $value;
+        }
+
         $resolved_value = '';
 
         if (function_exists('wp_seed_content_resolve_dynamic_data')) {
@@ -55,8 +91,12 @@ abstract class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base extends Dyn
             );
         }
 
-        if (is_wp_error($resolved_value) || !is_string($resolved_value)) {
+        if (is_wp_error($resolved_value) || !is_scalar($resolved_value)) {
             $resolved_value = '';
+        } elseif (is_bool($resolved_value)) {
+            $resolved_value = $resolved_value ? '1' : '';
+        } else {
+            $resolved_value = (string) $resolved_value;
         }
 
         $settings = isset($data_args['settings']) && is_array($data_args['settings'])
@@ -66,55 +106,26 @@ abstract class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base extends Dyn
         return DynamicContentElements::get_wrapper_element(
             array(
                 'name' => $name,
-                'post_id' => $this->get_wrapper_post_id($data_args),
+                'post_id' => wp_seed_content_divi_get_dynamic_content_wrapper_post_id($data_args),
                 'value' => $resolved_value,
                 'settings' => $settings,
             )
         );
     }
 
-    private function get_resolver_context(array $data_args): array
-    {
-        if (array_key_exists('loop_id', $data_args) && null !== $data_args['loop_id']) {
-            return $this->get_resolver_context_for_post_id($data_args['loop_id']);
-        }
+}
 
-        $post_id = array_key_exists('post_id', $data_args) ? $data_args['post_id'] : 0;
+function wp_seed_content_divi_testimonial_dynamic_content_group_label(): string
+{
+    return __('WPSCK — Témoignages', 'wp-seed-content-kit');
+}
 
-        return $this->get_resolver_context_for_post_id($post_id);
-    }
+function wp_seed_content_divi_testimonial_dynamic_content_label($label): string
+{
+    return wp_seed_content_divi_testimonial_dynamic_content_group_label() . ' — ' . $label;
+}
 
-    private function get_wrapper_post_id(array $data_args): int
-    {
-        if (
-            !array_key_exists('post_id', $data_args)
-            || !function_exists('_wp_seed_content_normalize_dynamic_data_post_id')
-        ) {
-            return 0;
-        }
-
-        return _wp_seed_content_normalize_dynamic_data_post_id($data_args['post_id']);
-    }
-
-    private function get_resolver_context_for_post_id($post_id): array
-    {
-        if (!function_exists('_wp_seed_content_normalize_dynamic_data_post_id')) {
-            return array('current_post_id' => 0);
-        }
-
-        $post_id = _wp_seed_content_normalize_dynamic_data_post_id($post_id);
-        if (!$post_id) {
-            return array('current_post_id' => 0);
-        }
-
-        $post = get_post($post_id);
-        if (!$post instanceof WP_Post || 'seed_testimonial' !== $post->post_type) {
-            return array('current_post_id' => 0);
-        }
-
-        return array(
-            'current_post_id' => (int) $post->ID,
-            'current_post_type' => 'seed_testimonial',
-        );
-    }
+function wp_seed_content_divi_testimonial_dynamic_content_name_matches($canonical_name, $candidate_name): bool
+{
+    return wp_seed_content_divi_dynamic_content_name_matches($canonical_name, $candidate_name);
 }

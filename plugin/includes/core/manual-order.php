@@ -212,6 +212,10 @@ function wp_seed_content_kit_manual_order_get_next_auto_position($post_type)
 
 function wp_seed_content_kit_manual_order_ensure_auto_position($post_id, $post, $update, $post_type)
 {
+    // Directory waits for its intervenant profile, including delayed REST metabox saves.
+    if ('seed_directory' === $post_type) {
+        return;
+    }
     if (!$post instanceof WP_Post || $post->post_type !== $post_type || $update) {
         return;
     }
@@ -236,6 +240,9 @@ function wp_seed_content_kit_manual_order_ensure_auto_position($post_id, $post, 
 
 function wp_seed_content_kit_manual_order_repair_legacy($post_type)
 {
+    if ('seed_directory' === $post_type) {
+        return;
+    }
     $all_posts = get_posts(array(
         'post_type' => $post_type,
         'post_status' => 'any',

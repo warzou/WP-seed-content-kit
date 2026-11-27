@@ -1,6 +1,12 @@
 # Divi 5 Dynamic Content V1
 
-Statut : provider class-based expérimental validé côté serveur pour huit champs texte et une photo sous Divi 5.9.0
+## Activation des modules et découverte
+
+Les providers Divi gardent leurs identifiants canoniques enregistrés pour reconnaître les bindings persistés. Leur `register_option_callback()` ne les ajoute toutefois au catalogue du Visual Builder que si leur module est actif. Lorsqu'un module est désactivé, un binding existant produit une valeur vide sûre avant toute déférence de token ; aucun token brut n'atteint le frontend. Une réactivation suivie d'un rechargement du Visual Builder restaure le provider sans sauvegarde de page.
+
+Les évaluateurs PHP des conditions Témoignages et Annuaire restent disponibles pour les configurations existantes et retournent `false` lorsque leur module est désactivé. Le paquet JavaScript qui ajoute ces conditions au picker Divi n'est enregistré que pour un module actif. Un simple rechargement de l'administration ou du Visual Builder suffit après changement ; WPSCK ne maintient aucun cache de découverte et aucune purge globale n'est requise.
+
+Statut : providers class-based expérimentaux Témoignages et Citations, avec contexte Native Loop commun sous Divi 5.9.0
 
 Ce document définit le contrat du provider expérimental Divi 5 Dynamic Content de WP Seed Content Kit. Il fixe son périmètre, ses identifiants persistants, sa traduction du contexte Divi et ses garde-fous.
 
@@ -8,7 +14,7 @@ L'option Date du témoignage relève du lot B de développement postérieur à l
 
 L'architecture retenue utilise les classes Divi 5 `DynamicContentOptionBase` et `DynamicContentOptionInterface`. Chaque option est portée par une classe concrète et enregistrée par un appel unique à `load()`. Les filtres WordPress observés dans Divi 5.6.2 et 5.9.0 restent le pipeline sous-jacent encapsulé par cette base ; WP Seed ne les inscrit pas manuellement.
 
-Ce contrat ne promet ni une compatibilité Divi générale, ni un support de Divi 4, Theme Builder ou Loop Builder. Il ne modifie pas les Templates WP Seed, les placeholders, les shortcodes ou le workflow Divi Library existant.
+Ce contrat ne promet ni une compatibilité Divi générale, ni un support de Divi 4 ou Theme Builder. Il ne modifie pas les Templates WP Seed, les placeholders, les shortcodes ou le workflow Divi Library existant.
 
 ## 1. Statut expérimental
 
@@ -17,11 +23,11 @@ Le provider est :
 - expérimental ;
 - limité à Divi 5 ;
 - fondé sur l'architecture class-based observée dans Divi 5.9.0 ;
-- validé côté serveur sous Divi 5.9.0 pour quatre options Citation et cinq options Témoignage ;
-- limité à `quote.quote`, `quote.author`, `quote.era`, `quote.source`, `testimonial.text`, `testimonial.name`, `testimonial.context`, `testimonial.testimonial_date` et `testimonial.photo` ;
+- validé côté serveur sous Divi 5.9.0 pour quatre options Citation et douze options Témoignage ;
+- limité aux mappings explicites du registre `wp_seed_content_divi_loop_dynamic_data_sources()` ;
 - absent de la promesse produit tant qu'une décision humaine de promotion n'a pas été prise.
 
-La validation runtime confirme le chargement class-based et la résolution serveur des neuf options. Leur sélection et leur persistance visuelles sont confirmées. Pour `testimonial.photo`, le rendu frontend est également confirmé ; l'aperçu Image du Visual Builder reste incomplet. Cette validation ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif.
+La validation runtime confirme le chargement class-based et la résolution serveur des seize options. Pour les Citations et Témoignages, la Native Loop Divi 5.9, le frontend, le Visual Builder, le Dynamic Content propre à chaque clone, la normalisation des bindings historiques, le contexte imbriqué par `loop_object`, le Group Carousel natif et les cycles Save/Close/Reopen sont validés, sans token brut. Cette validation ne transforme pas les classes internes Divi en API tierce officiellement garantie. Le chargement reste donc défensif.
 
 ## 2. Objectif et chaîne de responsabilité
 
@@ -60,9 +66,9 @@ Le provider utilise :
 - un appel unique à `load()` ;
 - aucune inscription procédurale manuelle des filtres Divi.
 
-Le bootstrap est `plugin/includes/integrations/divi/dynamic-content.php`. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` mutualise strictement le contrat Citation. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base` mutualise séparément le contrat texte Témoignage. Quatre classes concrètes distinctes exposent Texte, Auteur, Époque et Source pour les Citations ; quatre autres exposent Texte, Nom, Information complémentaire et Date du témoignage pour les Témoignages. Une classe indépendante expose Photo avec le type Divi `image`.
+Le bootstrap est `plugin/includes/integrations/divi/dynamic-content.php`. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Quote_Base` mutualise strictement le contrat Citation. La base abstraite `WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Base` mutualise séparément les onze sources textuelles Témoignage, dont le transport `1`/vide de `has_more`. Une classe indépendante expose Photo avec le type Divi `image`.
 
-Les neuf identifiants réservés par le contrat sont implémentés. Les deux familles conservent des bases, des listes fermées et des chargeurs indépendants afin qu'une collision compatible ou incompatible dans une famille ne neutralise pas l'autre. Une collision propre à la classe Photo ne neutralise pas les huit sources texte.
+Les seize identifiants réservés par le contrat sont implémentés. Les deux familles conservent des bases, des listes fermées et des chargeurs indépendants afin qu'une collision compatible ou incompatible dans une famille ne neutralise pas l'autre.
 
 ## 3. Versions et détection
 
@@ -160,21 +166,28 @@ Ces filtres sont des points d'extension WordPress observés et utilisables. Ils 
 - aucun type ou classe interne Divi ne doit devenir une dépendance obligatoire sans nécessité démontrée ;
 - la signature et les contextes doivent être confirmés par un prototype runtime avant commit.
 
-## 5. Identifiants persistants V1
+## 5. Identifiants persistants
 
 Divi persiste le nom d'une option dans son expression Dynamic Content. Les identifiants suivants constituent donc un contrat durable s'ils sont effectivement utilisés dans du contenu enregistré.
 
-La V1 définit exactement neuf identifiants :
+Le contrat Native Loop définit seize identifiants canoniques :
 
-1. `wp_seed_content_quote_quote`
-2. `wp_seed_content_quote_author`
-3. `wp_seed_content_quote_era`
-4. `wp_seed_content_quote_source`
-5. `wp_seed_content_testimonial_text`
-6. `wp_seed_content_testimonial_name`
-7. `wp_seed_content_testimonial_context`
-8. `wp_seed_content_testimonial_date`
-9. `wp_seed_content_testimonial_photo`
+1. `loop_wpsck_quote_text`
+2. `loop_wpsck_quote_author`
+3. `loop_wpsck_quote_era`
+4. `loop_wpsck_quote_source`
+5. `loop_wpsck_testimonial_visual`
+6. `loop_wpsck_testimonial_title`
+7. `loop_wpsck_testimonial_summary`
+8. `loop_wpsck_testimonial_full`
+9. `loop_wpsck_testimonial_intro`
+10. `loop_wpsck_testimonial_more`
+11. `loop_wpsck_testimonial_has_more`
+12. `loop_wpsck_testimonial_name`
+13. `loop_wpsck_testimonial_context`
+14. `loop_wpsck_testimonial_date`
+15. `loop_wpsck_testimonial_id`
+16. `loop_wpsck_testimonial_anchor`
 
 Cette convention :
 
@@ -182,11 +195,9 @@ Cette convention :
 - évite les caractères risqués dans le format persistant observé ;
 - appartient explicitement à WP Seed Content Kit ;
 - ne suggère pas un registre global partagé par tout l'écosystème WP Seed ;
-- reste identique en contexte normal et en contexte de boucle.
+- utilise le préfixe `loop_` requis par le résolveur de clones de Divi 5.9.0.
 
-Aucun alias préfixé pour les boucles n'est défini en V1. Un alias ne pourra être envisagé qu'après démonstration runtime qu'il est indispensable au fonctionnement ou à l'expérience utilisateur.
-
-Le contrat réserve et le provider implémente ces neuf identifiants persistants.
+Les anciens identifiants `wp_seed_content_*` restent acceptés par les callbacks. Les réponses REST utilisées par Divi les normalisent uniquement en mémoire vers les identifiants canoniques ; aucun contenu enregistré n'est réécrit automatiquement.
 
 ## 6. Mapping vers Dynamic Data
 
@@ -194,17 +205,24 @@ Le provider utilise une allowlist locale exacte.
 
 | Identifiant persistant Divi | Champ Dynamic Data WP Seed |
 | --- | --- |
-| `wp_seed_content_quote_quote` | `quote.quote` |
-| `wp_seed_content_quote_author` | `quote.author` |
-| `wp_seed_content_quote_era` | `quote.era` |
-| `wp_seed_content_quote_source` | `quote.source` |
-| `wp_seed_content_testimonial_text` | `testimonial.text` |
-| `wp_seed_content_testimonial_name` | `testimonial.name` |
-| `wp_seed_content_testimonial_context` | `testimonial.context` |
-| `wp_seed_content_testimonial_date` | `testimonial.testimonial_date` |
-| `wp_seed_content_testimonial_photo` | `testimonial.photo` |
+| `loop_wpsck_quote_text` | `quote.quote` |
+| `loop_wpsck_quote_author` | `quote.author` |
+| `loop_wpsck_quote_era` | `quote.era` |
+| `loop_wpsck_quote_source` | `quote.source` |
+| `loop_wpsck_testimonial_visual` | `testimonial.photo` |
+| `loop_wpsck_testimonial_title` | `testimonial.title` |
+| `loop_wpsck_testimonial_summary` | `testimonial.summary` |
+| `loop_wpsck_testimonial_full` | `testimonial.text` |
+| `loop_wpsck_testimonial_intro` | `testimonial.intro` |
+| `loop_wpsck_testimonial_more` | `testimonial.more` |
+| `loop_wpsck_testimonial_has_more` | `testimonial.has_more`, transporté en `1` ou chaîne vide |
+| `loop_wpsck_testimonial_name` | `testimonial.name` |
+| `loop_wpsck_testimonial_context` | `testimonial.context` |
+| `loop_wpsck_testimonial_date` | `testimonial.testimonial_date` |
+| `loop_wpsck_testimonial_id` | `testimonial.id` |
+| `loop_wpsck_testimonial_anchor` | `testimonial.anchor` |
 
-La V1 n'expose pas automatiquement les treize champs du registre Dynamic Data. Aucun filtre public du provider ne doit permettre d'étendre silencieusement cette allowlist.
+La V1 n'expose pas automatiquement tous les champs du registre Dynamic Data. Aucun filtre public du provider ne doit permettre d'étendre silencieusement cette allowlist fermée.
 
 ## 7. Groupes, labels et traduction
 
@@ -220,21 +238,15 @@ Labels des options Citation :
 - `Époque` ;
 - `Source`.
 
-Labels des options Témoignage :
-
-- `Texte` ;
-- `Nom` ;
-- `Information complémentaire` ;
-- `Date du témoignage` ;
-- `Photo`.
+Labels des options Témoignage : `Visuel`, `Titre`, `Résumé`, `Témoignage complet`, `Introduction`, `Suite du témoignage`, `Témoignage avec suite`, `Nom`, `Contexte`, `Date`, `ID` et `Ancre`.
 
 Le domaine de traduction est `wp-seed-content-kit`.
 
-Dans la structure Divi observée, `group` sert de chaîne de regroupement et de tri apparent dans l'interface. Aucun identifiant technique de groupe distinct n'a été identifié comme donnée persistante nécessaire à ce contrat. La V1 ne doit donc figer que les noms persistants des neuf options et les valeurs requises pour leur enregistrement.
+Dans la structure Divi observée, `group` sert de chaîne de regroupement et de tri apparent dans l'interface. Aucun identifiant technique de groupe distinct n'a été identifié comme donnée persistante nécessaire à ce contrat. La V1 ne doit donc figer que les noms persistants des douze options Témoignage et les valeurs requises pour leur enregistrement.
 
 ## 8. Type des options et filtrage
 
-Les huit options textuelles utilisent le type Divi `text`. La source Photo utilise le type Divi `image`.
+Les quinze options textuelles utilisent le type Divi `text`. La source Visuel utilise le type Divi `image`. Le booléen `testimonial.has_more` est volontairement transporté comme `1` ou chaîne vide pour le pipeline de condition Divi.
 
 Ces types permettent à Divi de limiter techniquement leur présentation aux propriétés compatibles. Une option texte ne doit notamment pas être proposée comme source d'une propriété image, et Photo doit être proposée dans une propriété image compatible.
 
@@ -472,13 +484,17 @@ Aucune compatibilité Theme Builder ne doit être annoncée avant la réussite d
 
 ## 17. Loop Builder
 
-L'utilisation directe des providers Content Kit dans une boucle native Divi Loop Builder n'est pas prise en charge sous Divi 5.9.0.
+Les providers Témoignages et Citations utilisent un contrat commun sous Divi 5.9.0 :
 
-Le frontend peut résoudre certaines valeurs, tandis que le vrai canevas du Visual Builder laisse des variables non résolues, notamment pour la photo. Les attributs de boucle reconnus par Divi utilisent le préfixe `loop_` et passent par `getLoopedAttrs()`, mais `loopIndex` n'est disponible que pendant un clonage interne. Aucun point d'interception public fiable n'est exposé avant ce clonage.
+- provider canonique préfixé par `loop_` ;
+- clé homologue sans préfixe ajoutée aux items de `/divi/v1/loop/query-results` ;
+- contexte serveur résolu dans l'ordre `loop_id`, `loop_object`, puis `post_id` ;
+- token différé conservé tant que le contexte d'item n'est pas disponible ;
+- résolution finale par le registre Dynamic Data commun.
 
-Aucun alias de boucle, correctif Webpack, interception React ou DOM, `MutationObserver` ou délai artificiel ne fait partie du produit.
+Ce contrat couvre une Native Loop simple et un Group répété dans un Group Carousel. Aucun correctif Webpack, interception React ou DOM, `MutationObserver` ou délai artificiel ne fait partie du produit.
 
-Le sujet pourra être rouvert uniquement si Elegant Themes publie une API pré-clonage ou un contrat officiel pour les variables Dynamic Content personnalisées dans Loop Builder, ou si une version ultérieure de Divi résout nativement ce cas dans le frontend et le Visual Builder.
+L'Annuaire n'expose pas encore de providers Dynamic Content Divi. Son futur mapping pourra rejoindre le même registre, mais les définitions de champs, les providers et les règles de visibilité doivent être implémentés et validés avant d'annoncer sa compatibilité Native Loop.
 
 ## 18. Divi Library et Templates WP Seed
 
@@ -620,8 +636,8 @@ Les providers Citation et Témoignage ont été validés sous WordPress 7.0.1, P
 
 Résultats confirmés :
 
-- neuf options REST WP Seed uniques, sans altération des autres sources Divi ;
-- mapping exact vers les quatre champs texte Citation, les quatre champs texte Témoignage et `testimonial.photo` ;
+- seize options REST WP Seed uniques, sans altération des autres sources Divi ;
+- mapping exact vers les quatre champs texte Citation, les onze champs texte Témoignage et `testimonial.photo` ;
 - single `seed_quote` et single `seed_testimonial` ;
 - page et CPT métier incompatible ;
 - `loop_id => null` hors boucle ;
@@ -630,21 +646,25 @@ Résultats confirmés :
 - chaîne vide, texte multiligne, Unicode et HTML historique ;
 - brouillons non exposés ;
 - aucune régression des shortcodes, templates ou providers existants ;
-- présence unique des neuf options dans le registre Divi ;
-- sélection, application, sauvegarde et réouverture visuelles validées pour les neuf options ;
+- présence unique des providers dans le registre Divi ;
+- sélection, application, sauvegarde et réouverture visuelles validées pour les providers Témoignages ;
 - persistance brute unique des trois identifiants texte Témoignage antérieurs dans trois modules Texte après le contrôle final ;
 - persistance brute unique de l'identifiant Date du témoignage dans un module Texte ;
 - persistance brute unique de l'identifiant Photo dans un module Image ;
 - projection de l'URL et rendu frontend Image en single et en boucle ;
 - reconstruction des IDs média, dimensions, `srcset` et `sizes` pour les pièces jointes locales testées ;
 - frontend avec les trois valeurs texte Témoignage antérieures distinctes ;
-- provider Citation et ses quatre classes inchangés ;
+- quatre providers Citation reliés au contexte Native Loop générique ;
+- frontend, Visual Builder et valeurs Dynamic Content distinctes pour chaque clone Citation ;
+- normalisation en mémoire des bindings Citation historiques, sans mutation du contenu stocké ;
+- résolution des contextes imbriqués par `loop_object` dans un Group Carousel natif ;
+- deux cycles Save/Close/Reopen avec persistance des connexions Citation ;
+- aucun token brut dans le frontend ou le Visual Builder Citations ;
 - `testimonial.testimonial_date` validé côté serveur avec une valeur ISO canonique ou une chaîne vide ; sa sélection, sa sauvegarde et sa persistance visuelles sont confirmées.
 
 Restent différés :
 
 - prévisualisation directe d'un corps Theme Builder sans contexte métier transmis par Divi ;
-- Loop Builder natif déclaré non pris en charge sous Divi 5.9.0 ;
 - aperçu dynamique de l'image dans le canvas du Visual Builder, qui reste vide malgré la source Photo persistée.
 
 Le provider conserve donc un statut expérimental. Il ne doit pas être présenté comme une compatibilité Divi générale ou une fonctionnalité couvrant tous les champs WP Seed.
@@ -663,9 +683,9 @@ Sont explicitement exclus :
 - nombres ;
 - Design Variables ;
 - support garanti de Theme Builder ;
-- utilisation directe des providers Content Kit dans Loop Builder ;
+- providers Native Loop Annuaire, qui restent à définir ;
 - requêtes ou collections ;
-- aliases propres aux boucles ;
+- mécanisme de présentation propriétaire pour les boucles ;
 - modification des CPT ;
 - modification des Templates WP Seed ;
 - modification des placeholders ;
@@ -735,7 +755,7 @@ Le prototype page/single doit être abandonné ou différé si :
 - les règles de publication de WP Seed ne peuvent pas être garanties ;
 - le coût runtime devient excessif sans solution simple et mesurée.
 
-Un échec propre à Theme Builder reporte uniquement le support Theme Builder si le contexte page/single reste fiable. Un échec propre à Loop Builder reporte uniquement le support Loop Builder : aucune promesse de boucle n'est publiée, aucun alias ou hack n'est ajouté et le provider page/single peut continuer. Theme Builder et Loop Builder sont des extensions de périmètre évaluées séparément.
+Un échec propre à Theme Builder reporte uniquement le support Theme Builder si le contexte page/single reste fiable. Un échec d'une famille de providers Native Loop reporte cette famille sans invalider Témoignages ou Citations déjà validés. Theme Builder et Native Loop restent des extensions de périmètre évaluées séparément.
 
 Le report est préférable à l'introduction d'une abstraction générale, d'un endpoint ou d'un module propriétaire uniquement pour contourner ces limites.
 
@@ -746,9 +766,9 @@ Le report est préférable à l'introduction d'une abstraction générale, d'un 
 Validé côté serveur sous Divi 5.9.0 :
 
 - chargement défensif et `load()` unique pour chaque source ;
-- neuf options WP Seed enregistrées une seule fois ;
-- identifiants exacts : `wp_seed_content_quote_quote`, `wp_seed_content_quote_author`, `wp_seed_content_quote_era`, `wp_seed_content_quote_source`, `wp_seed_content_testimonial_text`, `wp_seed_content_testimonial_name`, `wp_seed_content_testimonial_context`, `wp_seed_content_testimonial_date` et `wp_seed_content_testimonial_photo` ;
-- labels `Texte`, `Auteur`, `Époque` et `Source` dans le groupe `WP Seed — Citations` ; labels `Texte`, `Nom`, `Information complémentaire`, `Date du témoignage` et `Photo` dans le groupe `WP Seed — Témoignages` ; types `text` et `image`, `custom => false`, `fields => array()` ;
+- seize options WP Seed enregistrées une seule fois ;
+- quatre identifiants `loop_wpsck_quote_*` et douze identifiants `loop_wpsck_testimonial_*` ;
+- labels préfixés `WPSCK — Citations —` et `WPSCK — Témoignages —` ; types `text` et `image`, `custom => false`, `fields => array()` ;
 - 61 autres sources Divi préservées ;
 - aucune inscription manuelle des filtres Divi.
 
@@ -791,7 +811,7 @@ Validé côté serveur :
 - `loop_id` non nul autoritaire ;
 - probes serveur avec identifiants distincts, sans promesse Loop Builder.
 
-Reste différée : la prévisualisation directe d'un corps Theme Builder sans contexte métier. Le Loop Builder natif est explicitement non pris en charge sous Divi 5.9.0. Le frontend Theme Builder en contexte `seed_quote` est validé.
+Reste différée : la prévisualisation directe d'un corps Theme Builder sans contexte métier. Le Loop Builder natif prend en charge `seed_quote` et `seed_testimonial` avec résolution par `loop_id`, puis `loop_object` pour les Groups imbriqués et Group Carousel. Le frontend Theme Builder en contexte `seed_quote` reste validé.
 
 ### 28.4 Valeurs
 
@@ -826,7 +846,7 @@ La V1 respecte les invariants suivants :
 
 - Divi 5 uniquement ;
 - statut expérimental maintenu jusqu'à décision humaine ;
-- neuf identifiants persistants réservés et implémentés par le contrat ;
+- seize identifiants Native Loop réservés et implémentés par le contrat ;
 - une classe concrète par option ;
 - chargement par `DynamicContentOptionBase::load()` ;
 - aucune inscription procédurale manuelle des filtres Divi ;
@@ -836,14 +856,14 @@ La V1 respecte les invariants suivants :
 - résolution exclusivement par le résolveur Dynamic Data WP Seed ;
 - aucune lecture directe des métadonnées ;
 - aucun contenu non publié exposé ;
-- aucun endpoint, JavaScript ou module Divi WP Seed ;
-- Theme Builder visuel reporté et Loop Builder natif non pris en charge ;
-- booléens et nombres reportés ;
+- aucun endpoint propriétaire, JavaScript ou module Divi WP Seed ;
+- Theme Builder visuel reporté ; Native Loop prise en charge pour Témoignages et Citations ;
+- booléens et nombres non exposés comme types Divi natifs ; `testimonial.has_more` utilise le transport texte strict documenté ;
 - Templates WP Seed, placeholders, shortcodes et Divi Library conservés.
 
 ## 30. Règle de lecture
 
-Ce document fixe le contrat expérimental après l'implémentation et la validation serveur et visuelle des quatre champs Citation, des quatre champs texte Témoignage et de la source Photo. Il ne vaut ni compatibilité Divi générale, ni garantie universelle de l'aperçu ou des métadonnées média, ni promesse produit.
+Ce document fixe le contrat expérimental après l'implémentation et la validation serveur et visuelle des quatre champs Citation et des douze champs Témoignage. Il ne vaut ni compatibilité Divi générale, ni garantie universelle de l'aperçu ou des métadonnées média, ni promesse produit.
 
 En cas de contradiction entre une proposition technique future et ce contrat, la décision doit être réexaminée explicitement. Une contrainte de Divi ne doit pas modifier silencieusement le sens des données WP Seed, contourner le résolveur ou fragiliser les workflows existants.
 

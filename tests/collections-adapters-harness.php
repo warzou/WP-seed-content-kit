@@ -351,17 +351,18 @@ for ($id = 101; $id <= 126; $id++) {
     );
     wp_seed_test_set_meta($id, '_seed_testimonial_text', 'Texte ' . $id);
     wp_seed_test_set_meta($id, '_seed_testimonial_name', 'Nom ' . $id);
+    wp_seed_test_set_meta($id, '_seed_testimonial_publication_consent', '1');
 }
 
 wp_seed_test_set_meta(101, '_seed_testimonial_text', "Texte 101 <script>alert('x')</script>\nÉté");
 wp_seed_test_set_meta(101, '_seed_testimonial_context', 'Accueil');
 wp_seed_test_set_meta(101, '_seed_testimonial_date', '2024-02-29');
-wp_seed_test_set_meta(101, '_seed_featured', '1');
+wp_seed_test_set_meta(101, '_seed_testimonial_featured', '1');
 wp_seed_test_set_meta(102, '_seed_testimonial_context', 'Accueil');
 wp_seed_test_set_meta(102, '_seed_testimonial_date', '2023-01-01');
-wp_seed_test_set_meta(102, '_seed_featured', '0');
+wp_seed_test_set_meta(102, '_seed_testimonial_featured', '0');
 wp_seed_test_set_meta(103, '_seed_testimonial_date', '2026-02-31');
-wp_seed_test_set_meta(103, '_seed_featured', '1');
+wp_seed_test_set_meta(103, '_seed_testimonial_featured', '1');
 
 wp_seed_adapter_add_post(127, 'seed_testimonial', 'publish', 27, '2024-01-27 10:00:00', 'protected');
 wp_seed_adapter_add_post(128, 'seed_testimonial', 'draft', 28, '2024-01-28 10:00:00');
@@ -592,14 +593,13 @@ try {
 
     $GLOBALS['wp_seed_test_wp_query_count'] = 0;
     $default_quotes = wp_seed_content_quotes_shortcode(array());
-    wp_seed_test_same(1, $GLOBALS['wp_seed_test_wp_query_count'], 'quote historical default uses WP Query');
-    wp_seed_test_same('rand', $GLOBALS['wp_seed_test_last_wp_query']['orderby'], 'quote historical default remains random');
-    wp_seed_test_same(false, $GLOBALS['wp_seed_test_last_wp_query']['has_password'], 'quote historical query excludes protected');
-    wp_seed_adapter_contains('Citation 201', $default_quotes, 'quote historical renderer');
+    wp_seed_test_same(0, $GLOBALS['wp_seed_test_wp_query_count'], 'quote default uses canonical collection');
+    wp_seed_test_same('random', _wp_seed_content_collections_normalize_quote_args(array('orderby' => 'random'))['orderby'], 'quote historical default remains random');
+    wp_seed_adapter_contains('seed-card--quote', $default_quotes, 'quote historical renderer');
     wp_seed_adapter_not_contains('PROTECTED QUOTE', $default_quotes, 'quote historical output excludes protected');
 
     $random_quotes = wp_seed_content_quotes_shortcode(array('orderby' => 'random'));
-    wp_seed_test_same('rand', $GLOBALS['wp_seed_test_last_wp_query']['orderby'], 'quote explicit random remains random');
+    wp_seed_test_same(0, $GLOBALS['wp_seed_test_wp_query_count'], 'quote explicit random uses canonical collection');
     wp_seed_adapter_contains('data-orderby="random"', $random_quotes, 'quote random public attribute retained');
 
     $expected_daily_id = wp_seed_content_get_daily_quote();
@@ -617,8 +617,8 @@ try {
 
     $GLOBALS['wp_seed_test_wp_query_count'] = 0;
     $unknown_mode = wp_seed_content_quotes_shortcode(array('mode' => 'unknown'));
-    wp_seed_test_same(1, $GLOBALS['wp_seed_test_wp_query_count'], 'unknown quote mode uses historical WP Query');
-    wp_seed_test_same('rand', $GLOBALS['wp_seed_test_last_wp_query']['orderby'], 'unknown quote mode remains historically random');
+    wp_seed_test_same(0, $GLOBALS['wp_seed_test_wp_query_count'], 'unknown quote mode uses canonical collection');
+    wp_seed_adapter_contains('data-orderby="random"', $unknown_mode, 'unknown quote mode remains historically random');
 
     $daily_ignored_attributes = wp_seed_content_quotes_shortcode(
         array(

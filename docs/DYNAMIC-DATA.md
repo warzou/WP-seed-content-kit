@@ -69,9 +69,11 @@ Une boucle peut fournir un contenu courant au résolveur, mais elle reste propri
 
 Le registre et le résolveur restent chargés globalement. La désactivation d'un module ne bloque pas la résolution unitaire d'un contenu publié explicitement compatible. Elle contrôle les interfaces fonctionnelles du module et, dans Collections V1, l'éligibilité d'une sélection ; elle ne transforme pas Dynamic Data en résultat vide global.
 
+La découverte et la compatibilité d'exécution sont deux contrats distincts. `wp_seed_content_get_discoverable_dynamic_data_fields()` filtre le registre selon `wp_seed_content_kit_is_module_available_for_discovery()`. Le registre complet reste la référence des identifiants historiques. Les adaptateurs builders peuvent ainsi masquer les nouveaux choix d'un module désactivé tout en reconnaissant un binding persisté et en lui donnant une valeur vide sûre. La réactivation restaure le choix et la résolution sans réécriture du contenu.
+
 ## 3. Périmètre V1
 
-La V1 couvre exactement treize champs.
+Le registre stable couvre les champs Citation, Témoignage et Annuaire documentés par leurs contrats respectifs. Les ajouts restent explicites : aucun builder ne peut étendre silencieusement le registre métier.
 
 Citation :
 
@@ -84,7 +86,16 @@ Citation :
 
 Témoignage :
 
+- `testimonial.title` ;
+- `testimonial.summary` ;
 - `testimonial.text` ;
+- `testimonial.full_content` ;
+- `testimonial.intro` ;
+- `testimonial.more` ;
+- `testimonial.has_more` ;
+- `testimonial.id` ;
+- `testimonial.anchor` ;
+- `testimonial.anchor_url` ;
 - `testimonial.name` ;
 - `testimonial.context` ;
 - `testimonial.testimonial_date` ;
@@ -119,6 +130,8 @@ Il ne retourne pas de message d’aide, ne produit pas de HTML et ne tente aucun
 | `quote.featured` | Mise en avant | Citation | `seed_quote` | `boolean` | `featured` | `false` | Oui | Oui | Inclus | Peut être reporté |
 | `quote.display_order` | Position éditoriale | Citation | `seed_quote` | `number` | `display_order` | `0` | Oui | Oui | Inclus | Peut être reporté |
 
+Les champs éditoriaux Citations utilisent les métas publiques `seed_quote_text`, `seed_quote_author`, `seed_quote_era` et `seed_quote_source`. `seed_quote_featured` porte la mise en avant. Les anciennes clés préfixées par `_seed_quote_` sont conservées comme fallback de lecture uniquement lorsque la clé publique correspondante n'existe pas.
+
 `quote.featured` représente un état métier. Il ne désigne jamais une image mise en avant WordPress.
 
 `quote.display_order` expose une valeur éditoriale. Sa résolution ne déclenche aucune requête, aucun tri et aucune collection.
@@ -127,7 +140,16 @@ Il ne retourne pas de message d’aide, ne produit pas de HTML et ne tente aucun
 
 | Identifiant stable | Libellé utilisateur | Module | Type de contenu compatible | Type | Clé Content Data API | Valeur vide | Contexte courant | ID explicite | Registre V1 | Exposition par les providers |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `testimonial.title` | Titre technique | Témoignage | `seed_testimonial` | `text` | `testimonial_title` | Chaîne vide | Oui | Oui | Inclus | Divi |
+| `testimonial.summary` | Résumé court | Témoignage | `seed_testimonial` | `textarea` | `summary` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
 | `testimonial.text` | Témoignage | Témoignage | `seed_testimonial` | `textarea` | `text` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.full_content` | Témoignage complet | Témoignage | `seed_testimonial` | `textarea` | `full_content` | Chaîne vide | Oui | Oui | Inclus | API interne |
+| `testimonial.intro` | Introduction | Témoignage | `seed_testimonial` | `textarea` | `intro` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.more` | Suite du témoignage | Témoignage | `seed_testimonial` | `textarea` | `more` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
+| `testimonial.has_more` | Témoignage avec suite | Témoignage | `seed_testimonial` | `boolean` | `has_more` | `false` | Oui | Oui | Inclus | Divi condition |
+| `testimonial.id` | Identifiant | Témoignage | `seed_testimonial` | `text` | `id` | Chaîne vide | Oui | Oui | Inclus | Divi |
+| `testimonial.anchor` | Ancre | Témoignage | `seed_testimonial` | `text` | `anchor` | Chaîne vide | Oui | Oui | Inclus | Divi |
+| `testimonial.anchor_url` | Lien vers le témoignage | Témoignage | `seed_testimonial` | `text` | `anchor_url` | Chaîne vide | Oui | Oui | Inclus | API interne |
 | `testimonial.name` | Nom ou initiales | Témoignage | `seed_testimonial` | `text` | `name` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
 | `testimonial.context` | Information complémentaire | Témoignage | `seed_testimonial` | `text` | `context` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
 | `testimonial.testimonial_date` | Date du témoignage | Témoignage | `seed_testimonial` | `text` | `testimonial_date` | Chaîne vide | Oui | Oui | Inclus | Gutenberg et Divi |
@@ -136,6 +158,8 @@ Il ne retourne pas de message d’aide, ne produit pas de HTML et ne tente aucun
 | `testimonial.display_order` | Position éditoriale | Témoignage | `seed_testimonial` | `number` | `display_order` | `0` | Oui | Oui | Inclus | Peut être reporté |
 
 `testimonial.featured` est un booléen métier distinct de l’image mise en avant WordPress.
+
+`testimonial.summary` provient uniquement de `post_excerpt`, avec `_seed_testimonial_summary` comme fallback de lecture transitionnel. `testimonial.text`, `testimonial.intro` et `testimonial.more` dérivent du même `seed_testimonial_text`; `testimonial.has_more` reste un booléen strict. Le titre est une identité WordPress technique générée depuis `seed_testimonial_name`, et non un second champ éditorial.
 
 `testimonial.display_order` ne constitue pas une API de tri ou de collection.
 

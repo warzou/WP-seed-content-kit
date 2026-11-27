@@ -21,10 +21,10 @@ function wp_seed_content_render_quote_meta_box($post)
 {
     wp_nonce_field('wp_seed_content_save_quote_meta', 'wp_seed_content_quote_nonce');
 
-    $quote = wp_seed_content_get_meta($post->ID, '_seed_quote_text');
-    $author = wp_seed_content_get_meta($post->ID, '_seed_quote_author');
-    $era = wp_seed_content_get_meta($post->ID, '_seed_quote_era');
-    $source = wp_seed_content_get_meta($post->ID, '_seed_quote_source');
+    $quote = wp_seed_content_get_quote_builder_meta($post->ID, 'seed_quote_text');
+    $author = wp_seed_content_get_quote_builder_meta($post->ID, 'seed_quote_author');
+    $era = wp_seed_content_get_quote_builder_meta($post->ID, 'seed_quote_era');
+    $source = wp_seed_content_get_quote_builder_meta($post->ID, 'seed_quote_source');
     ?>
     <p>
         <strong><?php esc_html_e('Champs obligatoires', 'wp-seed-content-kit'); ?></strong>
@@ -33,7 +33,7 @@ function wp_seed_content_render_quote_meta_box($post)
         <label for="wp_seed_content_quote_text"><strong><?php esc_html_e('Citation', 'wp-seed-content-kit'); ?></strong></label><br />
         <textarea
             id="wp_seed_content_quote_text"
-            name="_seed_quote_text"
+            name="seed_quote_text"
             rows="6"
             class="widefat"
             required
@@ -48,7 +48,7 @@ function wp_seed_content_render_quote_meta_box($post)
         <input
             type="text"
             id="wp_seed_content_quote_author"
-            name="_seed_quote_author"
+            name="seed_quote_author"
             value="<?php echo esc_attr($author); ?>"
             class="widefat"
         />
@@ -59,7 +59,7 @@ function wp_seed_content_render_quote_meta_box($post)
         <input
             type="text"
             id="wp_seed_content_quote_era"
-            name="_seed_quote_era"
+            name="seed_quote_era"
             value="<?php echo esc_attr($era); ?>"
             class="widefat"
         />
@@ -70,7 +70,7 @@ function wp_seed_content_render_quote_meta_box($post)
         <input
             type="text"
             id="wp_seed_content_quote_source"
-            name="_seed_quote_source"
+            name="seed_quote_source"
             value="<?php echo esc_attr($source); ?>"
             class="widefat"
         />
@@ -78,7 +78,7 @@ function wp_seed_content_render_quote_meta_box($post)
     <p>
         <label>
             <span class="description"><?php esc_html_e('optionnel', 'wp-seed-content-kit'); ?></span>
-            <input type="checkbox" name="_seed_quote_featured" value="1" <?php checked(wp_seed_content_is_truthy_meta($post->ID, '_seed_quote_featured')); ?> />
+            <input type="checkbox" name="seed_quote_featured" value="1" <?php checked(wp_seed_content_quote_is_featured($post->ID)); ?> />
             <?php esc_html_e('Mis en avant', 'wp-seed-content-kit'); ?>
         </label>
     </p>

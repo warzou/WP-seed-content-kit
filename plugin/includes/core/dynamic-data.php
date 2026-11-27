@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 
 function wp_seed_content_get_dynamic_data_fields()
 {
-    return array(
+    $fields = array(
         'quote.quote' => array(
             'id' => 'quote.quote',
             'label' => __('Citation', 'wp-seed-content-kit'),
@@ -61,6 +61,24 @@ function wp_seed_content_get_dynamic_data_fields()
             'data_key' => 'display_order',
             'empty_value' => 0,
         ),
+        'testimonial.title' => array(
+            'id' => 'testimonial.title',
+            'label' => __('Titre du témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'text',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'testimonial_title',
+            'empty_value' => '',
+        ),
+        'testimonial.summary' => array(
+            'id' => 'testimonial.summary',
+            'label' => __('Résumé / citation mise en avant', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'textarea',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'summary',
+            'empty_value' => '',
+        ),
         'testimonial.text' => array(
             'id' => 'testimonial.text',
             'label' => __('Témoignage', 'wp-seed-content-kit'),
@@ -68,6 +86,69 @@ function wp_seed_content_get_dynamic_data_fields()
             'type' => 'textarea',
             'post_type' => 'seed_testimonial',
             'data_key' => 'text',
+            'empty_value' => '',
+        ),
+        'testimonial.full_content' => array(
+            'id' => 'testimonial.full_content',
+            'label' => __('Témoignage complet', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'textarea',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'full_content',
+            'empty_value' => '',
+        ),
+        'testimonial.intro' => array(
+            'id' => 'testimonial.intro',
+            'label' => __('Introduction', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'textarea',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'intro',
+            'empty_value' => '',
+        ),
+        'testimonial.more' => array(
+            'id' => 'testimonial.more',
+            'label' => __('Suite du témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'textarea',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'more',
+            'empty_value' => '',
+        ),
+        'testimonial.has_more' => array(
+            'id' => 'testimonial.has_more',
+            'label' => __('Témoignage avec suite', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'boolean',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'has_more',
+            'empty_value' => false,
+        ),
+        'testimonial.id' => array(
+            'id' => 'testimonial.id',
+            'label' => __('Identifiant du témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'text',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'id',
+            'empty_value' => '',
+        ),
+        'testimonial.anchor' => array(
+            'id' => 'testimonial.anchor',
+            'label' => __('Ancre du témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'text',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'anchor',
+            'empty_value' => '',
+        ),
+        'testimonial.anchor_url' => array(
+            'id' => 'testimonial.anchor_url',
+            'label' => __('Lien vers le témoignage', 'wp-seed-content-kit'),
+            'module' => 'testimonials',
+            'type' => 'text',
+            'post_type' => 'seed_testimonial',
+            'data_key' => 'anchor_url',
             'empty_value' => '',
         ),
         'testimonial.name' => array(
@@ -99,7 +180,7 @@ function wp_seed_content_get_dynamic_data_fields()
         ),
         'testimonial.photo' => array(
             'id' => 'testimonial.photo',
-            'label' => __('Photo', 'wp-seed-content-kit'),
+            'label' => __('Création associée', 'wp-seed-content-kit'),
             'module' => 'testimonials',
             'type' => 'image',
             'post_type' => 'seed_testimonial',
@@ -124,7 +205,145 @@ function wp_seed_content_get_dynamic_data_fields()
             'data_key' => 'display_order',
             'empty_value' => 0,
         ),
+        'directory.photo' => array(
+            'id' => 'directory.photo', 'label' => __('Visuel', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'image', 'post_type' => 'seed_directory', 'data_key' => 'photo', 'empty_value' => null,
+        ),
+        'directory.name' => array(
+            'id' => 'directory.name', 'label' => __('Nom', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'name', 'empty_value' => '',
+        ),
+        'directory.professional_label' => array(
+            'id' => 'directory.professional_label', 'label' => __('Intitulé professionnel', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'professional_label', 'empty_value' => '',
+        ),
+        'directory.summary' => array(
+            'id' => 'directory.summary', 'label' => __('Résumé', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'textarea', 'post_type' => 'seed_directory', 'data_key' => 'summary', 'empty_value' => '',
+        ),
+        'directory.presentation' => array(
+            'id' => 'directory.presentation', 'label' => __('Présentation', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'textarea', 'post_type' => 'seed_directory', 'data_key' => 'presentation', 'empty_value' => '',
+        ),
+        'directory.presentation_intro' => array(
+            'id' => 'directory.presentation_intro', 'label' => __('Introduction', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'textarea', 'post_type' => 'seed_directory', 'data_key' => 'presentation_intro', 'empty_value' => '',
+        ),
+        'directory.presentation_more' => array(
+            'id' => 'directory.presentation_more', 'label' => __('Suite de présentation', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'textarea', 'post_type' => 'seed_directory', 'data_key' => 'presentation_more', 'empty_value' => '',
+        ),
+        'directory.has_more' => array(
+            'id' => 'directory.has_more', 'label' => __('A une suite', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'boolean', 'post_type' => 'seed_directory', 'data_key' => 'has_more', 'empty_value' => false,
+        ),
+        'directory.status' => array(
+            'id' => 'directory.status', 'label' => __('Statut', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'status_label', 'empty_value' => '',
+        ),
+        'directory.profile_types' => array(
+            'id' => 'directory.profile_types', 'label' => __('Types de profil', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'profile_types_label', 'empty_value' => '',
+        ),
+        'directory.seeking_models' => array(
+            'id' => 'directory.seeking_models', 'label' => __('Recherche de modèles', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'seeking_models_label', 'empty_value' => '',
+        ),
+        'directory.location' => array(
+            'id' => 'directory.location', 'label' => __('Localisation', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'location_label', 'empty_value' => '',
+        ),
+        'directory.id' => array(
+            'id' => 'directory.id', 'label' => __('ID', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'id', 'empty_value' => '',
+        ),
+        'directory.anchor' => array(
+            'id' => 'directory.anchor', 'label' => __('Ancre', 'wp-seed-content-kit'), 'module' => 'directory',
+            'type' => 'text', 'post_type' => 'seed_directory', 'data_key' => 'anchor', 'empty_value' => '',
+        ),
     );
+
+    if (function_exists('wp_seed_content_directory_individual_contact_provider_definitions')) {
+        $provider_definitions = wp_seed_content_directory_individual_contact_provider_definitions();
+        foreach ($provider_definitions as $definition) {
+            $fields[$definition['display_field_id']] = array(
+                'id' => $definition['display_field_id'],
+                'label' => $definition['label'],
+                'module' => 'directory',
+                'type' => 'text',
+                'post_type' => 'seed_directory',
+                'data_key' => $definition['slug'],
+                'empty_value' => '',
+            );
+        }
+        foreach ($provider_definitions as $definition) {
+            if (!empty($definition['has_href'])) {
+                $fields[$definition['href_field_id']] = array(
+                    'id' => $definition['href_field_id'],
+                    'label' => $definition['label'] . ' — Lien',
+                    'module' => 'directory',
+                    'type' => 'url',
+                    'post_type' => 'seed_directory',
+                    'data_key' => $definition['slug'] . '_href',
+                    'empty_value' => '',
+                );
+            }
+        }
+    }
+
+    $formation_fields = array(
+        'formation.program.title' => array('label' => __('Programme — Titre', 'wp-seed-content-kit'), 'post_type' => 'seed_program', 'data_key' => 'title', 'type' => 'text', 'empty_value' => ''),
+        'formation.program.summary' => array('label' => __('Programme — Résumé', 'wp-seed-content-kit'), 'post_type' => 'seed_program', 'data_key' => 'summary', 'type' => 'textarea', 'empty_value' => ''),
+        'formation.program.description' => array('label' => __('Programme — Description', 'wp-seed-content-kit'), 'post_type' => 'seed_program', 'data_key' => 'description', 'type' => 'textarea', 'empty_value' => ''),
+        'formation.theme.title' => array('label' => __('Thème — Nom', 'wp-seed-content-kit'), 'post_type' => 'seed_theme', 'data_key' => 'title', 'type' => 'text', 'empty_value' => ''),
+        'formation.theme.summary' => array('label' => __('Thème — Résumé', 'wp-seed-content-kit'), 'post_type' => 'seed_theme', 'data_key' => 'summary', 'type' => 'textarea', 'empty_value' => ''),
+        'formation.theme.description' => array('label' => __('Thème — Description', 'wp-seed-content-kit'), 'post_type' => 'seed_theme', 'data_key' => 'description', 'type' => 'textarea', 'empty_value' => ''),
+        'formation.theme.image' => array('label' => __('Thème — Image', 'wp-seed-content-kit'), 'post_type' => 'seed_theme', 'data_key' => 'image', 'type' => 'image', 'empty_value' => null),
+        'formation.section.title' => array('label' => __('Section — Libellé', 'wp-seed-content-kit'), 'post_type' => 'seed_section', 'data_key' => 'title', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.title' => array('label' => __('Programmation — Intitulé', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'display_title', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.start_date' => array('label' => __('Programmation — Date de début', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'start_date', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.end_date' => array('label' => __('Programmation — Date de fin', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'end_date', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.status' => array('label' => __('Programmation — Statut', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'status_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.section' => array('label' => __('Programmation — Section', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'section_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.year' => array('label' => __('Programmation — Année', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'calendar_year', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.id' => array('label' => __('Programmation — ID', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'id', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.date' => array('label' => __('Programmation — Date formatée', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'date_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.theme' => array('label' => __('Programmation — Thème', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'theme_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.annual_display_title' => array('label' => __('Programmation — Intitulé annuel', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'annual_display_title', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.program' => array('label' => __('Programmation — Programme', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'program_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.people' => array('label' => __('Programmation — Intervenants', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'people_label', 'type' => 'text', 'empty_value' => ''),
+        'formation.schedule.url' => array('label' => __('Programmation — Lien', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'url', 'type' => 'url', 'empty_value' => ''),
+        'formation.schedule.order' => array('label' => __('Programmation — Ordre', 'wp-seed-content-kit'), 'post_type' => 'seed_schedule', 'data_key' => 'display_order', 'type' => 'text', 'empty_value' => ''),
+    );
+    foreach ($formation_fields as $field_id => $definition) {
+        $fields[$field_id] = array_merge(array('id' => $field_id, 'module' => 'formation'), $definition);
+    }
+
+    return $fields;
+}
+
+/**
+ * Returns fields that may be offered for new bindings in the current request.
+ *
+ * The full registry remains stable for historical Content Data and Block
+ * Bindings resolution. Discovery consumers must use this filtered view.
+ */
+function wp_seed_content_get_discoverable_dynamic_data_fields()
+{
+    $fields = wp_seed_content_get_dynamic_data_fields();
+
+    if (!function_exists('wp_seed_content_kit_is_module_available_for_discovery')) {
+        return $fields;
+    }
+
+    foreach ($fields as $field_id => $definition) {
+        $module = isset($definition['module']) ? $definition['module'] : '';
+        if (!wp_seed_content_kit_is_module_available_for_discovery($module)) {
+            unset($fields[$field_id]);
+        }
+    }
+
+    return $fields;
 }
 
 function wp_seed_content_get_dynamic_data_field($field_id)
@@ -177,7 +396,7 @@ function _wp_seed_content_get_dynamic_data_context_post_id($context)
 
 function _wp_seed_content_normalize_dynamic_data_value($value, $type)
 {
-    if ('text' === $type || 'textarea' === $type) {
+    if ('text' === $type || 'textarea' === $type || 'url' === $type) {
         return is_scalar($value) ? (string) $value : '';
     }
 
@@ -229,12 +448,27 @@ function wp_seed_content_resolve_dynamic_data($field_id, $context = array())
         && true === $context['allow_unpublished'];
     $args = array(
         'allow_unpublished' => $allow_unpublished,
+        'allow_unconsented' => $allow_unpublished,
     );
 
     if ('quotes' === $definition['module']) {
         $data = wp_seed_content_get_quote_data($post_id, $args);
     } elseif ('testimonials' === $definition['module']) {
         $data = wp_seed_content_get_testimonial_data($post_id, $args);
+    } elseif ('directory' === $definition['module']) {
+        $data = wp_seed_content_get_directory_data($post_id, $args);
+    } elseif ('formation' === $definition['module']) {
+        if ('seed_program' === $definition['post_type'] && function_exists('wp_seed_content_formation_get_program_data')) {
+            $data = wp_seed_content_formation_get_program_data($post_id, $args);
+        } elseif ('seed_theme' === $definition['post_type'] && function_exists('wp_seed_content_formation_get_theme_data')) {
+            $data = wp_seed_content_formation_get_theme_data($post_id, $args);
+        } elseif ('seed_section' === $definition['post_type'] && function_exists('wp_seed_content_formation_get_section_data')) {
+            $data = wp_seed_content_formation_get_section_data($post_id, $args);
+        } elseif ('seed_schedule' === $definition['post_type'] && function_exists('wp_seed_content_formation_get_schedule_data')) {
+            $data = wp_seed_content_formation_get_schedule_data($post_id, $args);
+        } else {
+            return $empty_value;
+        }
     } else {
         return $empty_value;
     }

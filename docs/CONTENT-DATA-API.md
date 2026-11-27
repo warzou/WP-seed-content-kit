@@ -79,7 +79,7 @@ Les consommateurs doivent pouvoir distinguer simplement une valeur absente d'un 
 | Champ | Type | État vide ou règle |
 | --- | --- | --- |
 | `id` | entier | Un objet sans identifiant valide n'est pas retourné comme Citation valide. |
-| `title` | chaîne | Chaîne vide autorisée. Le titre reste une donnée WordPress. |
+| `title` | chaîne | Identifiant WordPress technique synchronisé depuis `name`, jamais une seconde source éditoriale. |
 | `slug` | chaîne | Chaîne vide si aucun identifiant d'URL exploitable n'est disponible. |
 | `status` | chaîne | Statut WordPress normalisé du contenu. |
 | `permalink` | chaîne | Chaîne vide si aucun permalien n'est disponible. Conservé tant que le CPT reste public. |
@@ -122,6 +122,10 @@ Les consommateurs doivent pouvoir distinguer simplement une valeur absente d'un 
 | Champ | Type | État vide ou règle |
 | --- | --- | --- |
 | `text` | chaîne | Valeur métier principale. Chaîne vide si absente. |
+| `full_content` | chaîne | Contenu complet sans marqueur technique More. Alias explicite de `text`. |
+| `intro` | chaîne | Partie avant le premier marqueur WordPress More, ou contenu complet sans marqueur. |
+| `more` | chaîne | Partie après le premier marqueur WordPress More, vide sans marqueur. |
+| `has_more` | booléen | `true` lorsqu'un marqueur WordPress More est présent. |
 | `name` | chaîne | Nom ou initiales. Chaîne vide si absent. |
 | `context` | chaîne | Information complémentaire. Chaîne vide si absente. |
 | `photo` | objet média ou `null` | `null` si aucune photo n'est associée. |
@@ -131,8 +135,11 @@ Les consommateurs doivent pouvoir distinguer simplement une valeur absente d'un 
 
 ### 5.3 Règles propres à Témoignage
 
-- `text` est la valeur métier principale ;
-- `title` ne remplace jamais `text` ;
+- `text` est la valeur métier principale et reste stocké une seule fois dans `seed_testimonial_text` ;
+- `summary` est stocké uniquement dans `post_excerpt` ; `_seed_testimonial_summary` reste un fallback transitionnel de lecture pour les installations non migrées ;
+- le premier `<!--more-->`, y compris avec libellé personnalisé ou enveloppe Gutenberg Core More, définit la séparation ;
+- aucun marqueur More ou `noteaser` n'est exposé dans `text`, `full_content`, `intro` ou `more` ;
+- `title` ne remplace jamais `name`, `summary` ou `text`, et l'ancien `_seed_testimonial_title` n'est plus consommé ;
 - `name`, `context` et `testimonial_date` peuvent être vides ;
 - `context` reste dans le contrat stable, conserve son stockage historique et porte le libellé utilisateur « Information complémentaire » ;
 - `testimonial_date` est une date civile stricte, sans heure ni conversion de fuseau ; une valeur historique invalide est normalisée en `''` sans réécriture ;
@@ -250,13 +257,17 @@ Le moteur de templates reçoit des valeurs préparées par ses fournisseurs de p
 
 ## 11. Compatibilités historiques
 
-### 11.1 Contexte du témoignage
+### 11.1 Champs éditoriaux historiques
+
+Les métas privées `_seed_testimonial_name`, `_seed_testimonial_text` et `_seed_testimonial_context` restent des fallbacks de lecture pour les installations existantes. Une méta canonique publique présente, y compris vide, reste toujours prioritaire. `_seed_testimonial_summary` joue le même rôle transitionnel derrière `post_excerpt` jusqu'à l'exécution de la migration explicite et non destructive. `_seed_testimonial_title` n'est plus lu : `post_title` est un identifiant technique dérivé du nom canonique.
+
+### 11.2 Contexte du témoignage
 
 Le contexte du témoignage fait partie du contrat stable V1.
 
 Son stockage historique actuel est `_seed_testimonial_context`. Cette clé est un détail interne et ne doit pas être exposée aux consommateurs. Le contrat public utilise `context`.
 
-### 11.2 Date du témoignage
+### 11.3 Date du témoignage
 
 La donnée stockée sous `_seed_testimonial_date` alimente le champ stable `testimonial_date`.
 
@@ -266,13 +277,13 @@ La donnée stockée sous `_seed_testimonial_date` alimente le champ stable `test
 - une valeur historique invalide n'est ni réécrite ni supprimée au chargement ;
 - la localisation appartient uniquement aux renderers et placeholders de présentation.
 
-### 11.3 Consentement historique
+### 11.4 Consentement historique
 
 La donnée historique `_seed_testimonial_consent` est écartée du contrat V1.
 
 Elle n'est plus utilisée par le comportement actuel. Les éventuelles valeurs encore stockées ne doivent toutefois pas être supprimées automatiquement.
 
-### 11.4 Principe de conservation
+### 11.5 Principe de conservation
 
 La normalisation en lecture ne constitue jamais une autorisation de réécrire, migrer ou supprimer les données existantes.
 
@@ -330,6 +341,12 @@ Les sujets suivants restent hors du contrat Content Data API ou sont documentés
 - exposition inter-plugin ;
 - signatures PHP et organisation technique de l'API.
 
+## Extension Parcours & calendrier
+
+Le module optionnel expose quatre projections HTML-free : Programme, Thème, Section et Programmation. Les champs scalaires persistables portent les identifiants formation.program.*, formation.theme.*, formation.section.* et formation.schedule.*. Une programmation fournit notamment display_title, dates ISO, année, statut, Section snapshotée, personnes Directory ordonnées et clés normalisées source_type/source_id.
+
+Les collections et règles historiques complètes sont documentées dans docs/PARCOURS-CALENDRIER.md. Cette extension ne modifie pas le contrat V1 Citation/Témoignage et n'ajoute aucune dépendance à WP Seed Events.
+
 ## 15. Règle de lecture
 
 Ce document fixe le contrat métier V1 et décrit son implémentation actuelle.
@@ -344,6 +361,41 @@ En 0.8.0-rc.1, cette structure ajoute les types normalisés et le statut tempora
 
 ## Annuaire 0.8.0-rc.2 — présentations publiques
 
-La projection Annuaire ajoute `summary`, `full_presentation` et `publicly_listed`. `bio` reste strictement égal à `summary`. `full_presentation` provient de `post_content`, suit le rendu WordPress puis le filtrage HTML public; une valeur absente devient `""`. `publicly_listed` vaut toujours `true` dans une projection obtenue avec succès, car une fiche non listée retourne `false` avant toute donnée.
+La projection Annuaire ajoute `summary`, `presentation`, `full_presentation`, `presentation_intro`, `presentation_more`, `has_more` et `publicly_listed`. `bio` reste strictement égal à `summary`, et `full_presentation` reste un alias rétrocompatible de `presentation`. Les vues de présentation proviennent uniquement de `post_content`, suivent le rendu WordPress puis le filtrage HTML public; une valeur absente devient `""`. `publicly_listed` vaut toujours `true` dans une projection obtenue avec succès, car une fiche non listée retourne `false` avant toute donnée.
 
 Aucune donnée privée nouvelle n’est exposée. La projection ne fournit ni note interne, valeur de consentement, coordonnées masquées ni méta brute de visibilité.
+
+Le contrat Native Loop réutilise cette projection fermée par `wp_seed_content_get_directory_data()` et le résolveur Dynamic Data partagé. Il ajoute uniquement des vues normalisées pour la localisation, les contacts publics, l'ID et l'ancre `annuaire-{ID}`. Les métas privées brutes ne deviennent jamais une Content Data API générale.
+
+`summary` et `presentation` sont deux sources de vérité distinctes. La première reste `post_excerpt`; la seconde reste le rendu public filtré de `post_content`. Le premier marqueur WordPress `<!--more-->`, y compris sa forme avec libellé ou le bloc Gutenberg `core/more`, dérive `presentation_intro` et `presentation_more`; `has_more` vaut vrai uniquement si la suite dérivée n'est pas vide. Tous les marqueurs More résiduels et `<!--noteaser-->` sont retirés des vues publiques, sans perdre le contenu qui les entoure. Sans marqueur, ou avec un marqueur sans suite, `presentation_more === ""` et `has_more === false`.
+
+`directory.summary`, `directory.presentation`, `directory.presentation_intro`, `directory.presentation_more` et `directory.has_more` projettent ces valeurs dans Dynamic Data, tandis que REST expose aussi les champs WordPress `excerpt` et `content` du CPT authentifié. Aucun état de Toggle, Accordion ou « Lire la suite » n'appartient à cette API, et aucune méta ne duplique la frontière native WordPress.
+
+`directory.professional_label` expose l'intitulé professionnel facultatif stocké dans `seed_directory_professional_label`. Cette donnée éditoriale est indépendante des types de profil servant au classement. La méta historique `_seed_directory_profession` reste uniquement un fallback et une source de migration non destructive ; une valeur canonique, y compris vide, reste prioritaire.
+
+Le rendu évite les doublons : lorsque résumé et présentation sont identiques, un consommateur ne les affiche pas simultanément. Lorsque le résumé est vide, le consommateur décide d’afficher directement la présentation ou de ne rien rendre. Cette règle de composition reste extérieure aux données et portable entre Gutenberg, Divi, Spectra/Astra et de futurs builders.
+
+## Formation: retired program/year experiment
+
+The functions described below have been removed following the 2026-09-08 product
+decision. This section is historical only, not an available API. Use explicit
+Programme/Year/Section Schedule queries. See SIMPLE-CALENDAR-DECISION.md.
+
+`wp_seed_content_formation_get_program_years($args)` and
+`wp_seed_content_formation_get_upcoming_programs($args)` are portable PHP
+collections, not registered REST routes or native builder query sources.
+Groups exist only while an effective non-cancelled Schedule ends on/after the
+site date. Published program visibility is required; no historical row is deleted.
+
+`wp_seed_content_formation_get_program_year_context($identity, $args)` re-resolves
+the explicit `program_id` + `year` identity. The resulting `year` is suitable for
+an editable consumer prefix, without storing heading text or semantic tags.
+`wp_seed_content_formation_get_program_year_schedules($context, $args)` binds
+Schedule filters to that identity; child program/year overrides are ignored.
+Missing or expired context returns empty rather than inferring a global post.
+
+Counts describe admissible dates. Historical rows within an eligible year remain
+available to the child collection unless `upcoming=true` is requested. Existing
+scalar Dynamic Data and Block Binding IDs are unchanged. Divi automatic nested
+context propagation is not implied by this PHP API; see
+`DYNAMIC-PROGRAM-YEAR-V4-IMPLEMENTATION.md` for the implementation boundary.

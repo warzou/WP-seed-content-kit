@@ -1,5 +1,125 @@
 # Changelog
 
+## [0.9.0] - 2026-11-27
+
+### Directory
+
+- Add the canonical editable person name and conditional practitioner status to the editor.
+- Make country optional and remove the legacy summary from the admin write path, preserving stored excerpts and read consumers.
+- Assign new intervenants the existing maximum position plus ten, preserving manual positions.
+- Preserve native More, public eligibility and individual contact providers across Content Data, Dynamic Data, Block Bindings and Native Loops.
+- Fix legacy Facebook and Instagram HTTP(S) contacts being treated as invalid during publication.
+
+### Formation
+
+- Add Program, Section, Theme and Schedule administration and the simple calendar.
+- Allow multiple Schedules for a Theme. Reject exact duplicates by Program, year, Theme, Section, start and end, with current-ID exclusion and a write guard.
+- Provide Structure, Grouped, Chronological and Next Date projections, explicit calendar filters and individual providers.
+
+### Builder integrations
+
+- Limit WPSCK discovery to enabled modules while preserving existing binding resolution and third-party providers.
+
+### Admin thumbnails
+
+- Bound Directory Photo list images to the existing 48px envelope for SVG and raster originals, including absent intermediate sizes or metadata.
+- Preserve proportions and small intrinsic images without cropping or enlargement.
+- Use native full-image framing with 48px/60px/150px responsive `sizes`; compatible WordPress srcsets can still select smaller uncropped derivatives. The media picker preview also keeps full framing.
+- Opt out of lazy loading on these small admin previews only, avoiding WordPress auto-sizes intrinsic containment enlarging tiny originals or losing unknown SVG ratios.
+- Apply the same admin-only containment to the existing 60px Testimonials Image column and 150px editor preview; remove the list column's forced square crop.
+- No MIME, upload, sanitization, media files/metadata, frontend, Divi, binding or data migration changes.
+
+## [0.8.1] - 2026-08-18
+
+### Testimonials admin, summaries and More improvements
+
+- Uses the canonical testimonial name as the primary admin identity and keeps `post_title` as a generated technical label only.
+- Adds a clean WordPress editor for testimonial text and preserves native `<!--more-->`, custom More labels and `<!--noteaser-->` through sanitization and save paths.
+- Makes `post_excerpt` the canonical Short Summary while retaining historical `_seed_testimonial_summary` values as a non-destructive compatibility fallback.
+- Exposes testimonial summary, introduction, continuation and `has_more` consistently through Content Data, Dynamic Data, Block Bindings and Divi Native Loops.
+- Adds the clone-aware Divi condition `WPSCK — Témoignages — Témoignage avec suite` without frontend JavaScript or builder-specific business storage.
+- Stabilizes generic alternating Native Loops in the Divi Visual Builder and adds opt-in responsive content-first and media-first ordering classes while preserving the historical media-first default.
+
+### Compatibility
+
+- Keeps the historical testimonial name, text, context and summary fallbacks for upgrades and imports.
+- Removes the obsolete combined title/summary migration and the `_seed_testimonial_title` read fallback.
+- No testimonial, page or Directory data migration is run automatically by this release.
+
+## [0.8.0] - 2026-08-17
+
+### Annuaire portable et intégrations builder-agnostic
+
+- Ajoute le support Annuaire dans les Native Loops Divi avec filtres taxonomiques pour les statuts et types de profil, ordre stable et intitulé professionnel facultatif.
+- Expose le résumé, la présentation complète et le découpage portable WordPress `<!--more-->` sans stockage propre à un builder.
+- Remplace les contacts fixes par des coordonnées individuelles à lien complet, avec providers d'affichage, de lien et de présence générés depuis un registre extensible.
+- Conserve la maîtrise de la structure, des icônes et du design dans les builders, avec compatibilité Divi Link, Gutenberg, Block Bindings et Content Data API pour les intégrations Spectra/Astra.
+- Sécurise l'édition des registres : suppression des valeurs personnalisées inutilisées, blocage des valeurs utilisées ou système et désactivation non destructive.
+- Améliore la validation de publication en deux étapes : avertissement initial, protection contre une erreur persistante et republication en un cycle après correction.
+- Supprime le rendu composite des coordonnées et le stockage d'icônes personnalisées devenus sans consommateur actif.
+
+### Native Loops Divi
+
+- Stabilise l'alternance gauche/droite dans le Visual Builder en excluant les overlays Divi du calcul impair/pair des clones.
+- Conserve l'ordre sémantique du DOM, le rendu frontend desktop et le comportement media-first sur tablette et téléphone.
+- Valide les contrats Native Loop, Dynamic Content et Group Carousel pour Témoignages, Citations et Annuaire/Intervenants.
+
+## [0.8.0-rc.7] - 2026-08-17
+
+### Fixed
+
+- Stabilise les layouts alternés des Native Loops dans le Visual Builder Divi.
+- Les overlays de l'éditeur ne modifient plus la parité impair/pair des clones lors du survol ou de la sélection des Rows et modules.
+- Le frontend et le comportement responsive media-first restent inchangés.
+- Correctif validé visuellement sur Témoignages et Annuaire/Intervenants.
+
+## [0.8.0-rc.6] - 2026-08-17
+
+### Annuaire : modèle portable et Native Loop
+
+- Remplace les classifications historiques par des registres extensibles de statuts et types de profil, avec projections taxonomiques natives, ordre stable et suppression sûre des valeurs personnalisées inutilisées.
+- Ajoute le filtrage Annuaire des Native Loops Divi par statut, types, IDs, exclusions, limite, offset et ordre canonique, sans stockage métier propre à Divi.
+- Expose l’intitulé professionnel, le résumé, la présentation complète et le découpage portable WordPress `<!--more-->` aux builders, à la Content Data API et aux Block Bindings.
+- Ajoute des conditions Divi clone-aware pour la suite de présentation et la présence de chaque coordonnée publique dans une Native Loop.
+- Remplace les champs de contact fixes par des lignes répétables ordonnées, privées par défaut, avec libellé facultatif et lien complet validé (`tel:`, `mailto:` ou HTTP(S)).
+- Génère depuis le registre les providers individuels d’affichage, de lien et de présence, y compris pour les futurs types personnalisés compatibles ; Divi conserve la responsabilité des icônes, du layout et du style.
+- Rend les liens compatibles avec les champs URL et modules Link Divi tout en conservant les mêmes projections pour Gutenberg, Spectra/Astra et les autres consommateurs builder-agnostic.
+- Améliore la validation éditoriale : première nouvelle erreur corrigible signalée sans dépublication, seconde sauvegarde identique placée en brouillon, publication invalide bloquée et correction publiable en un cycle Gutenberg.
+- Protège les registres contre la suppression de types utilisés ou système, tout en autorisant désactivation, retrait des lignes neuves et suppression confirmée des valeurs personnalisées inutilisées.
+- Supprime le rendu composite des coordonnées, ses profils d’affichage et le stockage d’icônes personnalisées ; les anciens champs de contacts restent disponibles uniquement comme fallbacks de lecture et sources de migration non destructive.
+
+### Notes pour les testeurs RC
+
+- Vérifier les fiches Annuaire existantes, les conditions de présence par clone et les liens téléphone/e-mail/web dans les Native Loops Divi.
+- Tester le cycle Gutenberg avertissement, correction et republication, ainsi que les contrôles de suppression/désactivation des registres.
+- Les bindings individuels, slugs de taxonomies et métas canoniques restent stables. Aucun binding composite actif n’a été trouvé sur le DEV validé.
+
+## [0.8.0-rc.5] - 2026-08-13
+
+### Citations : contrat Native Divi Loop
+
+- Rend `seed_quote_text`, `seed_quote_author`, `seed_quote_era`, `seed_quote_source` et `seed_quote_featured` publics et canoniques pour les builders, avec fallback de lecture sur les anciennes métas privées.
+- Ajoute une migration privée vers publique explicite, non destructive et réversible ; toute valeur publique existante reste autoritaire.
+- Centralise les Citations publiées et non protégées dans une Collection canonique avec limite, mise en avant, hasard déterministe et tris par auteur, date, ordre éditorial ou ID.
+- Conserve `[seed_quotes]`, son HTML historique, ses Templates et son mode quotidien.
+- Expose quatre providers `loop_wpsck_quote_*` et hydrate chaque clone Native Loop via QueryResults, `loop_id` ou `loop_object`, y compris dans un Group Carousel natif Divi.
+- Normalise les anciens bindings uniquement dans les réponses remises à Divi, sans réécrire le contenu stocké.
+- Généralise le transport du contexte Divi pour Témoignages, Citations et les futurs adaptateurs, sans ajouter de provider Annuaire.
+- Valide frontend, Visual Builder, Group Carousel, deux cycles Save/Close/Reopen, Gutenberg, REST et les régressions Témoignages.
+
+## [0.8.0-rc.4] - 2026-08-13
+
+### Témoignages : contrat Native Divi Loop
+
+- Ferme toutes les Collections publiques par `_seed_testimonial_publication_consent=1`, y compris les sélections explicites et le Visual Builder.
+- Ajoute le champ indépendant `_seed_testimonial_featured=1` et les modes `all`, `featured`, `random` et `featured_or_random`, avec limite et tirage Builder déterministe.
+- Regroupe sous « WPSCK — Témoignages » les neuf sources Loop officielles : Visuel, Titre, Résumé, Témoignage complet, Nom, Contexte, Date, ID et Ancre.
+- Rend `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context` publics et canoniques pour les builders ; les anciennes métas privées restent des fallbacks de compatibilité.
+- Prend en charge les Native Loops Témoignages, y compris une Loop placée sur une slide de Group Carousel natif Divi avec résolution imbriquée par `loop_id` ou `loop_object`.
+- Maintient un stockage builder-agnostic compatible avec les custom fields et Gutenberg : WPSCK fournit données, requête, providers et consentement, tandis que Divi fournit structure et design.
+- Limite le CSS WPSCK au support structurel opt-in de l’alternance Detailed, Divi 5.9.0 n’exposant aucune condition impair/pair utilisable sur l’index du clone Loop.
+- Ajoute une migration explicite, ciblée, idempotente et réversible du consentement, sans exécution automatique.
+- Conserve le module et le renderer Témoignages existants comme parcours compatibles en complément du Native Loop Builder.
 ## [0.8.0-rc.3] - 2026-07-29
 
 ### Annuaire : combinaison `ids` et `exclude_ids`

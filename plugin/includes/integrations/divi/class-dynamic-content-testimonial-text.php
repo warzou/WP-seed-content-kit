@@ -11,12 +11,12 @@ class WP_Seed_Content_Divi_Dynamic_Content_Testimonial_Text extends WP_Seed_Cont
 {
     public function get_name(): string
     {
-        return 'wp_seed_content_testimonial_text';
+        return 'loop_wpsck_testimonial_full';
     }
 
     public function get_label(): string
     {
-        return __('Texte', 'wp-seed-content-kit');
+        return __('Témoignage complet', 'wp-seed-content-kit');
     }
 
     protected function get_dynamic_data_field_id(): string

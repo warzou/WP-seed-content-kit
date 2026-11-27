@@ -11,7 +11,7 @@ class WP_Seed_Content_Divi_Dynamic_Content_Quote_Era extends WP_Seed_Content_Div
 {
     public function get_name(): string
     {
-        return 'wp_seed_content_quote_era';
+        return 'loop_wpsck_quote_era';
     }
 
     public function get_label(): string

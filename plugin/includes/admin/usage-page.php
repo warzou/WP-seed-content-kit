@@ -234,7 +234,11 @@ function wp_seed_content_kit_get_usage_template_placeholder_catalog()
             wp_seed_content_kit_usage_placeholder('directory.photo', __('Photo', 'wp-seed-content-kit'), 'image', __('Photo et texte alternatif validés.', 'wp-seed-content-kit'), $public, __('Image absente', 'wp-seed-content-kit')),
             wp_seed_content_kit_usage_placeholder('directory.summary', __('Présentation courte', 'wp-seed-content-kit'), 'textarea', __('Résumé public issu de post_excerpt.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.bio', __('Présentation courte (alias historique)', 'wp-seed-content-kit'), 'textarea', __('Alias rétrocompatible strict de directory.summary.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.presentation', __('Présentation', 'wp-seed-content-kit'), 'html', __('Contenu public complet issu de post_content, sans marqueur More technique.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.full_presentation', __('Présentation complète', 'wp-seed-content-kit'), 'html', __('Contenu public développé issu de post_content.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.presentation_intro', __('Introduction de la présentation', 'wp-seed-content-kit'), 'html', __('Partie située avant le premier bloc More WordPress.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.presentation_more', __('Suite de la présentation', 'wp-seed-content-kit'), 'html', __('Partie située après le premier bloc More WordPress.', 'wp-seed-content-kit'), $public, $empty),
+            wp_seed_content_kit_usage_placeholder('directory.has_more', __('Présentation avec une suite', 'wp-seed-content-kit'), 'text', __('Retourne 1 lorsqu’un bloc More WordPress délimite la présentation.', 'wp-seed-content-kit'), $public, __('Vide sans bloc More', 'wp-seed-content-kit')),
             wp_seed_content_kit_usage_placeholder('directory.status', __('Code du statut', 'wp-seed-content-kit'), 'text', __('Valeur technique du statut professionnel.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.status_label', __('Statut', 'wp-seed-content-kit'), 'text', __('Libellé public du statut professionnel.', 'wp-seed-content-kit'), $public, $empty),
             wp_seed_content_kit_usage_placeholder('directory.profile_types', __('Types de profil', 'wp-seed-content-kit'), 'text', __('Libellés publics des types de profil.', 'wp-seed-content-kit'), $public, $empty),
@@ -444,9 +448,9 @@ function wp_seed_content_kit_render_usage_gutenberg()
     </ol>
     <?php wp_seed_content_kit_render_usage_example('seed-usage-gutenberg-directory', __('Exemple Annuaire', 'wp-seed-content-kit'), '[seed_directory]'); ?>
     <?php wp_seed_content_kit_render_usage_status('indirect', __('Block Bindings', 'wp-seed-content-kit')); ?>
-    <p><?php esc_html_e('Le provider serveur couvre huit champs texte Citations et Témoignages dans les blocs Core Paragraphe et Titre. Une Query Loop doit fournir le contenu courant.', 'wp-seed-content-kit'); ?></p>
+    <p><?php esc_html_e('Le provider serveur couvre les champs texte autorisés des modules Citations, Témoignages et Annuaire dans les blocs Core Paragraphe et Titre. Une Query Loop doit fournir le contenu courant.', 'wp-seed-content-kit'); ?></p>
     <?php wp_seed_content_kit_render_usage_status('unavailable', __('Interface dédiée', 'wp-seed-content-kit')); ?>
-    <p><?php esc_html_e('Aucun bloc WP Seed ni sélecteur finalisé n’est fourni. Les Block Bindings ne couvrent pas encore Annuaire.', 'wp-seed-content-kit'); ?></p>
+    <p><?php esc_html_e('Aucun bloc WP Seed ni sélecteur finalisé n’est fourni. Les champs booléens restent hors des bindings texte Core.', 'wp-seed-content-kit'); ?></p>
     <?php
 }
 

@@ -1,11 +1,117 @@
 # Project Snapshot - WP Seed Content Kit
 
-Date : 29 juillet 2026
-Statut : 0.8.0-rc.3 ; Release Candidate locale en validation, non stable
-Version courante du code : 0.8.0-rc.3
-Version stable publiee de reference : 0.7.0
-Commit de base de preparation stable : 8a6fb735a729d4b14c753c78f5304fb59349b287
-Tag stable publie de reference : v0.7.0
+## Canonical development and release source
+
+The official repository is https://github.com/warzou/WP-seed-content-kit and
+the cumulative reference is its `main` branch. The stable 0.9.0 release
+reference is the commit resolved by `git rev-parse 'v0.9.0^{commit}'`. Start
+new work from a freshly fetched `origin/main`. An approved change is not
+finished while it exists only in a local worktree: record it in Git and
+integrate it into the official branch. Do not reset other worktrees to do so.
+See `docs/CONSOLIDATED-RELEASE-GIT.md` for tests, build, distribution and
+release safety. Keep site data, credentials and private validation artifacts
+outside Git.
+
+## Cumulative release review (2026-11-27)
+
+The isolated `codex/consolidated-release` checkout starts from official
+`v0.8.1` (`889afc0`) and consolidates the validated Directory, Formation
+Simple Calendar, and module discovery changes from the Directory worktree.
+The admin thumbnail fix is integrated as targeted hunks. Candidate version:
+`0.9.0-rc.2`, not published. See `docs/CONSOLIDATED-RELEASE.md` for scope,
+MariaDB validation and Human Pass, and `docs/CONSOLIDATED-RELEASE-GIT.md`
+for the exact state and publication plan. The sections below describe historical
+checkpoints, not the current DEV manifest.
+
+## Directory 3201 removed without dependency (2026-10-06)
+
+New explicit authorization supersedes previous preservation/browser-stop decisions.
+Normal wp_delete_post(3201,true) removed the draft, 49 revisions and 73 metadata
+rows. Verified temporary private database/resource backup preceded deletion and
+was removed with the helper after final technical validation. Native hooks stayed
+enabled; no SQL deletion, global restoration or manual cache purge.
+Fresh SQL comparison: no other post/postmeta or business/taxonomy/preset change.
+One Divi Global Feature cache option and four transient rows individually qualified;
+six native derived files added for diagnostic HTTP/404 requests. No UNKNOWN delta.
+1896/1897 content unchanged; fresh HTTP200, three Directory loops and twelve cards.
+Before/fresh loop DOM hashes and all six checked CSS resources exactly match.
+3201 HTTP404, no remaining revisions or orphan metadata. No product fix required.
+PHP7/8: NativeLoop282, More20, Bindings91, L3/providers209, L4/Data68 PASS each;
+151 PHP files lint PASS each, three JS assets syntax PASS, index empty.
+Technical PASS; HUMAN VISUAL CHECK PENDING (Computer Use unavailable, no screenshot
+or viewport/overflow PASS claimed). Pixel/6354, Events, Formation untouched.
+Evidence: ../intervenants-display-audit-20261005/REMOVE3201-FINAL-REPORT.md.
+No commit/push/tag/release. Earlier sections below describe their historical state.
+
+## Directory administrative follow-up (2026-10-06)
+
+Approved scoped follow-up implemented and deployed: new intervenant menu_order
+is max(existing intervenants)+10 (empty population: 10), respecting explicit
+manual positions and existing records; country optional; historical summary
+DEPRECATED in admin/write paths, existing post_excerpt and read contracts preserved.
+Directory now owns initial allocation; shared manual-order automatic allocation
+and repair defer only for Directory. Manual moves and other CPTs are unchanged.
+An initial transactional WordPress test exposed the shared allocator conflict;
+the transaction rolled back exactly, the conflict was corrected and retested.
+Final real WordPress fixture harness: 13 assertions PASS, transaction rolled back.
+Post-shutdown raw SQL check: posts/postmeta/presets exactly match the fresh baseline.
+DEV runtime: 251 files exact; HTTP frontend/editor asset: 200/200.
+PHP 7.0/8.4 targeted tests pass; no full-suite claim for this lot.
+Option 2/1897, 1896/3201, real people, Formation, Events, Pixel and 6354 unchanged.
+3201 remains a draft with 49 revisions. 2249 is a historical recipe consumer.
+No fixture, page or preset persists from this lot. No commit/push/tag/release.
+Closure resumed after PC interruption: fresh HTTP 200 / 12 cards, raw SQL and
+presets exactly unchanged; runtime/source 251 files exact; Pixel/Events manifest
+unchanged. Targeted local tests and lint rerun PASS. No redeployment or fixture
+recreation. Scoped helpers removed, index empty, prior worktree changes preserved.
+
+## Directory Option 2 final closure (2026-10-06)
+
+Guillaume HUMAN PASS: PASS. Page 1897 is final; no further Directory behavior,
+preset, real-person or page change belongs to this closure. Native Directory
+Loop data/providers/More remain unchanged. Shared definitive native Divi presets
+own common card, portrait and separator decoration; structural WPSCK classes
+retain desktop alternation and responsive stacking without per-clone CSS.
+11/12/13/20 cards, 11->12->13->12->13 transitions, authenticated/anonymous HTTP,
+native editing, Save/Close/Reopen and six responsive widths passed. No manual
+purge, clone-specific invalidation or WP-Super-Cache fix was added.
+Final read-only SQL qualification: all post fingerprints unchanged since the
+technical acceptance; only qualified native Divi cache metadata deltas. Presets,
+WPSCK/Events/Pixel runtime, real business metadata, 1896/3201 and 6354 unchanged.
+Directory TEMP pages/fixtures/revisions/presets and remote helpers: zero.
+The external historical TEMP Formation page 4462 is outside this Directory lot
+and remains untouched, as required by its prior preservation decision.
+New closure execution helpers removed; useful historical reports and source
+evidence retained outside the delivered plugin. Following explicit scoped approval,
+48 historical local execution scripts were inventoried, checked for external
+execution references, hash-verified and removed. The inventory and historical
+evidence remain in the external audit folder. Product code unchanged.
+See docs/ANNUAIRE-MODULE.md, section "Option 2". No commit/push/tag/release.
+Functional chantier closed with HUMAN PASS; scoped historical-script cleanup completed.
+
+## Current product decision: simple calendar (2026-09-08)
+
+Full Dynamic Calendar, Program/Year discovery, experimental Child Modules and
+Annual Planning are abandoned and removed locally. WPSCK owns data and the
+normal administrative calendar; Divi owns manually duplicated annual sections.
+Schedule multiplicity, explicit filters and individual providers are retained.
+See docs/SIMPLE-CALENDAR-DECISION.md. Earlier V4/V5 entries below are historical,
+not currently available features. DEV rollback now deployed and verified: 250
+files exact, normal Formation transactional tests pass. Following separate
+authorization accepting normal Divi invalidation, TEMP drafts 4989/5007/5154,
+their 19 revisions and 76 metadata rows were permanently removed. Published
+TEMP 4462 is preserved. Full database and wp-content backups were verified.
+Final comparison: no other post changes; 16 derived Divi cache rows generated
+by frontend checks, explicitly journaled. Historical baselines remain intact.
+See docs/SIMPLE-CALENDAR-PROTOTYPES-DELETION-COMPLETE.md. The preceding rollback
+in SIMPLE-CALENDAR-FINAL-CLEANUP-REPORT.md remains historical evidence.
+
+Date : 18 août 2026
+Statut : 0.8.1 stable ; contrats Testimonials, Annuaire portable et Native Divi Loop validés
+Version courante du code : 0.8.1
+Version stable publiee de reference : 0.8.1
+Commit de base de preparation stable : commit portant le tag v0.8.1
+Tag stable publie de reference : v0.8.1
 WordPress minimum : 6.5
 PHP minimum : 7.0
 
@@ -38,9 +144,13 @@ Il combine actuellement :
 
 Pour les Templates Témoignages fondés sur un Layout Divi Library, le renderer transmet désormais explicitement l'ID de chaque témoignage. `value.post_id` est injecté dans la représentation JSON directe ou sérialisée des cinq variables Dynamic Content autorisées avant le parsing frontend, puis le Layout est parsé et resérialisé uniquement en mémoire. Une pile interne bornée, restaurée dans `finally`, isole les cartes. Un signal attendu/résolu refuse les cartes dynamiques non résolues et laisse le fallback natif prendre le relais sur la seule carte en erreur. Le Layout, ses révisions et ses métadonnées restent inchangés.
 
-Sous Divi 5.9.0, les parcours pris en charge sont le module `WP Seed — Témoignages`, `[seed_testimonials]`, le Dynamic Content sur un témoignage individuel et les Templates Content Kit utilisant un Layout Divi avec contexte distinct par carte. L'utilisation directe des providers Content Kit dans une boucle native Divi Loop Builder n'est pas prise en charge : le frontend peut résoudre certaines valeurs alors que le Visual Builder laisse des champs non résolus, notamment les médias.
+Sous Divi 5.9.0, le groupe Dynamic Content « WPSCK — Témoignages » expose douze champs compatibles avec une Native Loop et résolus par item dans le frontend et le Visual Builder. Le contrat inclut le résumé court, le texte complet et les projections WordPress More `intro`, `more` et `has_more`. La condition `WPSCK — Témoignages — Témoignage avec suite` utilise le provider canonique `loop_wpsck_testimonial_has_more`. Les Grid Offset Rules de Divi ciblent seulement les enfants directs du conteneur courant ; elles ne peuvent pas inverser les colonnes internes selon la parité du clone Loop parent. L’alternance utilise donc un CSS structurel opt-in, sans style éditorial. Son owner peut être une Section, une Row ou un Group. Le responsive historique reste média puis contenu ; les classes génériques `wpsck-loop--mobile-content-first` et `wpsck-loop--mobile-media-first` permettent un choix explicite par recette.
 
 Le plugin ne doit pas devenir un builder, un thème ou le registre central de l'écosystème WP Seed.
+
+### Travail local en cours — Parcours & calendrier
+
+Le worktree contient un module optionnel formation, visible sous **Parcours & calendrier** et désactivé par défaut. Il ajoute les fondations Programme, Thème, Section et Programmation annuelle, leurs capacités, l'administration native, les snapshots historiques, les collections HTML-free, Dynamic Data, Block Bindings et un shortcode natif unique. Ce travail n'est ni committé ni publié; docs/PARCOURS-CALENDRIER.md constitue son contrat courant. WP Seed Events reste hors périmètre.
 
 ## 2. Référence d'écosystème
 
@@ -66,8 +176,11 @@ Témoignages :
 
 - CPT `seed_testimonial` ;
 - module activable, actif par défaut ;
-- nom ou initiales ;
-- texte ;
+- nom ou initiales canonique dans `seed_testimonial_name` ;
+- titre WordPress technique synchronisé depuis le nom ;
+- résumé court canonique dans `post_excerpt` ;
+- texte canonique dans `seed_testimonial_text` avec marqueur WordPress More facultatif ;
+- projections texte complet, introduction, suite et `has_more` ;
 - photo via l'image mise en avant WordPress ;
 - mise en avant ;
 - ordre manuel ;
@@ -311,7 +424,7 @@ Le socle PHP Dynamic Data V1 est implémenté dans :
 
 Il est chargé globalement après `core/content-data.php` et avant `core/modules.php`, indépendamment des modules actifs et des builders.
 
-Le registre V1 comprend exactement treize champs :
+Le registre Dynamic Data conserve les champs Citations et Annuaire existants et expose le contrat Témoignages consolidé :
 
 - `quote.quote` ;
 - `quote.author` ;
@@ -319,7 +432,16 @@ Le registre V1 comprend exactement treize champs :
 - `quote.source` ;
 - `quote.featured` ;
 - `quote.display_order` ;
+- `testimonial.title` ;
+- `testimonial.summary` ;
 - `testimonial.text` ;
+- `testimonial.full_content` ;
+- `testimonial.intro` ;
+- `testimonial.more` ;
+- `testimonial.has_more` ;
+- `testimonial.id` ;
+- `testimonial.anchor` ;
+- `testimonial.anchor_url` ;
 - `testimonial.name` ;
 - `testimonial.context` ;
 - `testimonial.testimonial_date` ;
@@ -359,16 +481,17 @@ Il est chargé globalement après `core/dynamic-data.php` et avant `core/modules
 
 La source publique est `wp-seed-content-kit/dynamic-data`. Elle est enregistrée sur `init` à la priorité 10 par `wp_seed_content_register_gutenberg_block_bindings_source()` et résolue par `wp_seed_content_get_gutenberg_binding_value()`. Elle utilise les contextes `postId` et `postType`.
 
-Le provider texte V1 expose uniquement huit champs, annoncés comme `string` côté Gutenberg :
+Le provider texte expose une allowlist explicite, annoncée comme `string` côté Gutenberg. Pour les Témoignages, elle contient :
 
-- `quote.quote` ;
-- `quote.author` ;
-- `quote.era` ;
-- `quote.source` ;
+- `testimonial.summary` ;
 - `testimonial.text` ;
+- `testimonial.intro` ;
+- `testimonial.more` ;
 - `testimonial.name` ;
 - `testimonial.context` ;
 - `testimonial.testimonial_date`.
+
+Les quatre champs texte Citation et les champs Annuaire documentés restent disponibles. `testimonial.has_more` demeure un booléen métier hors des bindings texte Core ; Divi le transporte séparément en `1` ou chaîne vide pour sa condition clone-aware.
 
 Les cibles V1 sont `core/paragraph.content` et `core/heading.content`. Les arguments serveur sont `field_id`, obligatoire, et `post_id`, facultatif et autoritaire. Un `post_id` explicite ne retombe jamais sur le contexte courant après un échec.
 
@@ -596,3 +719,470 @@ Cette intégration ne prend pas en charge le Loop Builder natif Divi et n’util
 ## 25. Annuaire - contrat `ids` + `exclude_ids` - 0.8.0-rc.3
 
 La sélection publique normalise et déduplique séparément `ids` et `exclude_ids`. Si `ids` est fourni, la Collection calcule d'abord `ids - exclude_ids`; une intersection totale retourne immédiatement le résultat vide. Sans `ids`, `exclude_ids` filtre la population publique complète. Les règles d'éligibilité restent non contournables, puis viennent les filtres métier, le tri canonique, l'offset et la limite. L'ordre textuel de `ids` n'est pas un tri : `orderby` et `order` conservent le comportement historique. Aucun schéma, aucune méta et aucune donnée ne sont migrés entre RC.2 et RC.3.
+
+## 26. Témoignages — Native Divi Loop — 0.8.0-rc.4
+
+Le contrat public exige désormais la valeur exacte `_seed_testimonial_publication_consent=1`. La mise en avant indépendante utilise `_seed_testimonial_featured=1`. La Collection prend en charge `all`, `featured`, `random` et `featured_or_random`, tandis que le Visual Builder reçoit un ordre aléatoire déterministe.
+
+Le stockage portable canonique utilise `post_title`, `post_excerpt`, l’image mise en avant, puis `seed_testimonial_text`, `seed_testimonial_name` et `seed_testimonial_context`. La date métier reste optionnelle. Les anciennes métas `_seed_testimonial_*` ne sont lues qu’en fallback de compatibilité lorsqu’aucune valeur canonique n’existe.
+
+Divi 5 reste responsable de la présentation. Content Kit fournit les données, la requête publique, le consentement et les neuf providers « WPSCK — Témoignages ». Une Native Loop placée sur une Row ou sur le Group d’une slide de Group Carousel natif conserve son contexte par item : les providers utilisent `loop_id`, puis `loop_object`. Content Kit ne fournit aucun Carousel propriétaire.
+
+Cette architecture ne stocke aucune donnée propre à Divi et reste exploitable par Gutenberg, les custom fields et de futurs adaptateurs Spectra/Astra. Divi 5.9.0 n’expose pas de condition impair/pair sur l’index du clone Loop ; l’alternance Detailed utilise donc uniquement le support CSS structurel opt-in WPSCK, sans style éditorial.
+
+Le renderer et le module historiques restent disponibles. La migration des 22 témoignages historiques est un appel explicite ciblé et réversible, jamais une migration automatique.
+
+## Parcours & calendrier V4.1 - 2026-09-07
+
+Reprise du candidat V4 sans nouveau changement produit ni déploiement : manifeste
+local/DEV `f88ce80514af8c0fbf2de85e15d659ad03dfee7144e4e2760186e5efae6c46d1`,
+246 fichiers. Matrice et preuves détaillées :
+[audit V4.1](docs/PARCOURS-CALENDRIER-V4-1-AUDIT.md).
+
+47 harnais autonomes passent sous PHP 7.0 et 8.4 ; 61 assertions WordPress
+transactionnelles passent, dont le handler admin des sections et les Block
+Bindings réellement rendus. La programmation TEMP V4 4581 et sa révision 4582
+ont été supprimées sous backup exact ; les 27 programmations représentatives
+restent présentes. Les autres posts et métadonnées sont inchangés.
+
+Revue visuelle V4.1 bloquée par la protection Computer Use : URL Chrome courante
+non vérifiable avec assez de certitude. Aucun contournement. Ce n'est pas un
+échec serveur : préflight authentifié HTTP 200. Mobile, workflow UI complet et
+seconde passe visuelle restent non validés. Verdict SAFE_STOP, jamais HUMAN PASS
+ni READY produit. Aucun commit/push/tag/release.
+
+## Parcours & calendrier V4.2 - 2026-09-07
+
+La validation visuelle est désormais possible avec Playwright/Chromium déjà
+installés, authentification normale et aucune dépendance produit ajoutée.
+Deux matrices de captures DEV couvrent les sept largeurs 1440 à 360px.
+CRUD réel sur TEMP 4648 : création, modification, réouverture et suppression
+validées ; 4648/4649 nettoyés sous backup, 27 références conservées.
+
+Un défaut de largeur des cases à cocher mobiles est corrigé : suppression du
+width:auto local pour conserver les dimensions WordPress natives 25x25px.
+Runtime local/DEV exact, 246 fichiers, manifeste
+`852d7025e3fd7e1ab3aadcee4d4461a45d6040481cb4d78ae593e1eb637ec5d1`.
+Backend 61 assertions V4.1 conservé, 47 harnais autonomes PHP 7.0/8.4 PASS.
+Deuxième passe mobile/visuelle achevée, aucune mutation de page/Events/Directory.
+Voir [validation V4.2](docs/PARCOURS-CALENDRIER-V4-2-VALIDATION.md).
+READY FOR GUILLAUME FINAL PRODUCT JUDGEMENT, pas HUMAN PASS.
+Aucun commit/push/tag/release.
+
+## Schedule Multiplicity V1 - 2026-09-07
+
+Programmations multiples autorisées par identité exacte Programme/année/Thème/
+Section/date début/date fin. Verrou applicatif MySQL par site ; Structure
+dédupliquée, calendriers complets. Aucun import réel ni migration.
+
+48/48 harnais autonomes sur PHP 7.0 et 8.4, 89 assertions WordPress DEV PASS.
+Empreinte posts/postmeta identique après rollback des fixtures transactionnelles.
+Runtime DEV déployé et vérifié, 246 fichiers :
+`bb80d9bccc9e7a48983a22924877a7cbe47dbd160a831dcaf5e6835f16cafc8f`.
+
+SAFE_STOP : préflight HTTP 200, puis contrôle HTTP final 403 après déploiement.
+Aucun retry, aucune recette UI/mobile supplémentaire. Le candidat reste déployé
+avec backup exact disponible. Pas de READY import ni de HUMAN PASS.
+Voir [rapport V1](docs/PARCOURS-CALENDRIER-SCHEDULE-MULTIPLICITY-V1.md).
+
+### Vérification post-déploiement V1.1
+
+Diagnostic read-only : Accueil et page TEMP authentifiés HTTP 200 ; page TEMP
+non authentifiée HTTP 401 attendu. Le 403 concerne le CSS Formation servi par
+Apache. Cause identifiée : extraction sous umask 077 sans normalisation, runtime
+en 700/600 contre 755/644 dans le backup. Les 246 fichiers correspondent toujours
+exactement au candidat. Aucun changement de permissions effectué.
+
+SAFE_STOP maintenu : réparation ciblée des permissions à autoriser séparément,
+puis validation des assets et recette UI/mobile. Aucun import réel.
+Voir [diagnostic V1.1](docs/PARCOURS-CALENDRIER-MULTIPLICITY-POST-DEPLOY-V1-1.md).
+
+### Permissions post-Multiplicity corrigées
+
+Réparation autorisée effectuée : 34 dossiers 755, 246 fichiers 644, zéro
+exception, SHA produit inchangé. Accueil, page TEMP et les trois assets Formation
+retournent HTTP 200 ; les corps CSS/JS correspondent aux hashes locaux.
+Aucun changement de code, page ou donnée. Backup précédent conservé.
+
+Le navigateur contrôlé est bloqué par ERR_INVALID_AUTH_CREDENTIALS ; recette
+CRUD/frontends/mobile non validée, à effectuer en session authentifiée.
+ASSETS RESTORED / READY FOR VISUAL REVIEW, pas HUMAN PASS ni READY import.
+Garde-fou obligatoire au prochain deploy : normalisation 755/644 du candidat
+après extraction, avant swap, et validation des permissions en plus du manifeste.
+Voir [rapport de réparation](docs/PARCOURS-CALENDRIER-MULTIPLICITY-PERMISSIONS-FIX.md).
+
+### Multiplicity V1.2 - validation navigateur finale
+
+Playwright/Chromium indépendant authentifié fonctionne. Trois programmations
+TEMP du même Thème ont été créées via l'UI, doublon exact refusé, date modifiée,
+puis suppression UI et nettoyage privé des révisions. Les 27 références et
+l'empreinte globale posts/postmeta sont strictement conservées.
+
+25 captures : admin et Structure/Grouped/Chronologique à 1440/390/360, puis
+seconde passe viewport mobile. 31 contrôles navigateur PASS, assets Chromium
+200 avec hashes exacts, backend 82 assertions PHP 7.0/8.4 PASS. Aucun changement
+produit ; manifeste DEV reste bb80d9bccc9e7a48983a22924877a7cbe47dbd160a831dcaf5e6835f16cafc8f.
+
+SCHEDULE_MULTIPLICITY_V1_FINAL_VALIDATED, sans nouveau HUMAN PASS ni import réel.
+Voir [validation V1.2](docs/PARCOURS-CALENDRIER-MULTIPLICITY-V1-2-VALIDATION.md).
+
+### Import reel Parcours 2026/2027 - 2026-09-07
+
+Import explicitement autorise termine : programme reel 4723, six sections,
+32 themes (4 reutilises, 28 crees), 35 programmations 2026 et 36 en 2027.
+Supervision : sept dates par an ; quatre stages residentiels au total.
+Les 17 et 19 decembre 2027 sont deux journees distinctes, sans le 18.
+Equivalences Odyssée/Ma légende et Santé Mentale/Psychopathologies non supposees.
+
+Backup prive formation-real-2026-2027-20260907T062229Z ; import transactionnel
+avec verrou et controle des anciennes lignes posts/postmeta. Pages, Directory,
+Events, runtime et donnees preexistantes inchanges. Recettes conservees et listees,
+dont la page 4462 et le programme 4446 ; ne pas supprimer les quatre themes partages.
+
+Verification independante 82 controles PASS, WordPress transactionnel 89 PASS,
+48/48 harnais sur PHP 7.0 et PHP 8.4. Revue Chromium des six rendus serveur
+en preview locale, 18 captures a 1440/820/390, aucun overflow. Aucune integration
+automatique dans une page existante. Warning tiers iFolders CLI documente.
+Pas de commit/push/tag/release ; aucun changement produit.
+Voir [rapport et matrice exhaustive](docs/PARCOURS-CALENDRIER-REAL-DATA-2026-2027-IMPORT.md).
+
+## Calendrier Divi V3 - candidat local, 2026-09-07
+
+Cartes Section manuelles, boucle Schedule unique avec filtres natifs Programme /
+annee / Section / Theme / statut. Providers scalaires loop_* issus du registre
+portable ; aucun contexte parent prive, aucune carte HTML imposee. Shortcode
+preserve. Voir [configuration et limites](docs/FORMATION-DIVI-CALENDAR.md).
+
+49 harnais autonomes PASS sous PHP 7.0 et 8.4 ; harnais Calendrier 87 assertions,
+lint PHP PASS, syntaxe JS PASS, Gutenberg JS 14 PASS. Le harnais WordPress
+transactionnel est ajoute mais NON EXECUTE. DEV NON DEPLOYE dans ce lot.
+Prototype et responsive NON TESTES : ouverture du Visual Builder refusee avec
+net::ERR_INVALID_AUTH_CREDENTIALS. Aucun contournement Basic Auth. Aucun changement
+de page/donnee ; aucun commit/push/tag/release. Ne pas annoncer IMPLEMENTED en DEV.
+
+## Calendrier Divi V3.1 - deploy et recette WordPress, 2026-09-07
+
+Le statut local-only V3 ci-dessus est historique : candidat identique deploye
+sur DEV, 248 fichiers, manifeste GNU-sort compatible
+207f25b66575d80676aaa02cb238560cc5a2c7ceec2d2de263bc3476431880fd.
+Backup prive wpsck-calendar-v31-20260907T094517Z ; permissions 755/644 verifiees
+avant et apres swap. Preflight, accueil et trois assets Formation HTTP 200.
+
+49 harnais PHP 7.0/8.4 PASS par version ; 85 controles WordPress read-only et
+11 controles transactionnels PASS. Filtres/tris/providers, 35/36 programmations
+et Supervision 7/7 verifies. Fixtures rollbackees ; empreintes exactes de tous
+les posts, metas, relations et option modules conservees. Aucun code produit
+modifie pendant V3.1, aucune page existante ni donnee reelle modifiee.
+
+Recette UI toujours ouverte : navigateur integre ERR_INVALID_AUTH_CREDENTIALS ;
+Chromium isole ERR_NETWORK_ACCESS_DENIED. Aucun contournement Basic Auth.
+Nouvelle page TEMP native non creee, editabilite/activation UI/responsive et
+mise a jour dynamique du rendu de page non testes. Tests serveur de desactivation
+par filtre d'option en memoire seulement, pas preuve de discovery dans le builder.
+SAFE_STOP sur ces validations precises, pas un echec du deploy ni un HUMAN PASS.
+Rapport prive : WPSCK-DYNAMIC-CALENDAR-DIVI-V3-1-REPORT.md.
+Temporaires nettoyes ; index vide ; aucun commit/push/tag/release.
+
+## Calendrier Divi V3.2 - acces UI et arret LOW TRAFFIC, 2026-09-07
+
+Chromium isole avec permission reseau explicite : Basic Auth puis login WordPress
+Codex Superviseur fonctionnels. Nouvelle page TEMP 5007 en draft, titre
+WPSCK TEMP — Calendrier dynamique Divi V3.2. Contenu Divi initial vide cree via UI.
+Le flag natif _et_pb_use_builder restait vide apres conversion ; seule cette
+nouvelle page a recu on via REST WordPress public avec garde ID/titre.
+Le vrai Visual Builder s'ouvre maintenant. Aucune API privee Divi utilisee.
+
+Arret avant construction : chargement automatique de
+/wp-json/wp-seed-events/v1/person-types retourne HTTP 401 inattendu.
+Politique LOW TRAFFIC appliquee, aucun retry ni changement Events/auth.
+Cartes 2026/2027, edition dynamique et responsive NON VALIDES. Ne pas reporter
+le blocage comme un nouvel echec Basic Auth : l'acces navigateur est prouve.
+TEMP 5007 conservee en brouillon ; aucune autre page ni donnee reelle modifiee.
+Aucun deploy/code produit/commit/push/tag/release ; helper et navigateur fermes.
+Rapport prive : WPSCK-DYNAMIC-CALENDAR-DIVI-V3-2-REPORT.md.
+
+## Calendrier Divi V3.3 - discovery corrigee, recette interrompue, 2026-09-07
+
+Le 401 person-types provient du bundle event-people WP Seed Events au chargement
+du Visual Builder. Aucun nonce REST observe sur cette requete. Probleme externe
+NON BLOQUANT : navigation, selection, reglages Loop et picker fonctionnent.
+Events et ses credentials/routes/donnees restent inchanges.
+
+Bug WPSCK reel : Divi enumere les CPT show_ui avant son allowlist query-types.
+Le CPT technique seed_schedule etait donc absent. La route publique query-types
+ouvre temporairement show_ui puis restaure exactement le flag, y compris pour
+les appels imbriques. Pas de modification persistante du CPT ni API privee.
+Harnais calendrier 97 assertions sur PHP 7.0/8.4 ; 49 harnais standalone sur
+chaque version ; lint PHP/JS PASS. Test WordPress transactionnel 11 controles
+PASS, fixtures supprimees et empreintes donnees conservees.
+
+Runtime deploye : 248 fichiers, manifeste
+82bad60cd69e0ff33289ccf68d8035f88b30b1c4140d26313ada7c01784981ae.
+Backup prive : .wpsck-rollbacks/wpsck-calendar-v33-20260907T102636Z.
+
+5007 uniquement : seed natif configure et sauvegarde dans le vrai Divi avec
+filtre programme 4723, annee 2026, section 4725, provider Date. Puis dix cartes
+natives 2026/2027 soumises via REST WordPress public, sous garde du contenu
+precedent et sauvegarde locale exacte du seed. Reponse HTTP 200, ID 5007 draft.
+Deux relectures context=edit expirent ensuite a 30s, avec backoff : STOP reseau.
+Le match=false du POST ne prouve pas un mismatch (content.raw peut etre absent
+du contexte de reponse). Ne pas annoncer le prototype ou responsive PASS.
+Relecture brute finale, clones frontend, editabilite complete et responsive
+restent NON VALIDES. Les 4 stages residentiels sont exclus des cartes demandees
+(population attendue 33/34, dont Supervision 7/7), sans supprimer leurs donnees.
+71 programmations reelles non editees. Aucune autre page ni Events modifies.
+Aucun commit/push/tag/release. Rapport prive V3.3 conserve hors depot.
+
+## Calendrier Divi V3.4 - persistance prouvee, filtrage FAIL, 2026-09-07
+
+Relecture REST limitee a content.raw HTTP 200 : 10 cartes conservees et attributs
+natifs semantiquement identiques a la soumission V3.3 (echappement JSON seulement).
+Frontend et Visual Builder HTTP 200. Chaque carte rend cependant 71 items des
+deux annees : 710 au total, Supervision 71 au lieu de 7 pour chaque annee.
+Les metaQuery programme/annee/section sont stockees mais inefficaces au rendu.
+Cause exacte dans le pipeline a auditer, aucun correctif produit dans ce lot.
+
+Test UI autorise sur premiere carte 5007 : Date 18px/interligne 1.5em/paragraphes
+0.5em ; Intitule 20px/interligne 1.4em. Save Divi, relecture brute et reload
+frontend confirment styles et bindings. Builder rouvert. Filtres inchanges.
+SHA final 5007 : ac71ef611e5cd8437f485efd6dd4f6aa3bc449ed45b0d79c9264ba38e43c3076.
+1440/1024 deux colonnes ; 820/768/390/360 une colonne. Overflow document 0 sauf
+360 (30px, environnement admin a isoler). Pas de PASS responsive global.
+Fixture dynamique, cycle module off/on et move/hide non executes apres echec
+fonctionnel. Ni donnees reelles ni autres pages ni runtime modifies.
+SAFE_STOP fonctionnel, pas Events/connectivite. Ne pas reconstruire 5007.
+Rapport prive WPSCK-DYNAMIC-CALENDAR-DIVI-V3-4-REPORT.md et captures conserves.
+
+## Calendrier Divi V3.5 - combinaison des filtres corrigee, 2026-09-07
+
+Cause prouvee : Divi build_meta_query combine les lignes natives en OR. Le
+programme suffit alors a inclure 71 fiches. Valeurs conservees, relation erronee
+pour les dimensions calendrier. Adapter WPSCK commun REST/frontend : AND pour
+egalites scalaires plates sur dimensions connues distinctes seulement. Autres
+CPT/requetes complexes preserves. Aucun changement modele, donnees ou page.
+
+Deploy atomique d'un fichier apres audit courant et backup exact :
+.wpsck-rollbacks/wpsck-calendar-v35-20260907T105803Z.
+248 fichiers, permissions 755/644, manifeste exact :
+8f9f72f465b6170c204ccc524a7e6400d06d7f5ef56abd96a6716044796f3f25.
+49 harnais PHP 7.0 et 8.4 chacun, calendrier 112 assertions, lint PHP/JS PASS.
+Matrice WordPress de 20 requetes reelles et 16 controles transactionnels PASS.
+Fixtures 5019/5020/5021/5022 rollbackees. Empreintes posts/metas/options conservees.
+
+Frontend reel 5007 HTTP 200 : comptes 7/7/6/6/7 puis 7/7/6/7/7, annees isolees.
+Supervision 7/7 ; plus aucune carte a 71. 67 rendus, les 4 stages residentiels
+restent hors des cartes demandees. Raw tokens 0. Builder rouvert HTTP 200.
+SHA page et styles V3.4 inchanges :
+ac71ef611e5cd8437f485efd6dd4f6aa3bc449ed45b0d79c9264ba38e43c3076.
+Mise a jour de fixture validee backend/provider + requete, pas par un cycle
+navigateur de fixture. Module off/on teste transactionnellement, pas via UI.
+Stacking responsive conserve. Overflow document connecte mesure 52px a 768 et
+30px a 360 ; ne pas annoncer zero overflow global ni PASS visuel complet.
+Aucun CSS/design modifie pour masquer ce constat hors correctif de filtres.
+Rapport prive WPSCK-DYNAMIC-CALENDAR-FILTER-PIPELINE-V3-5-REPORT.md.
+Aucun commit/push/tag/release.
+
+## Calendrier Divi V3.6 - prototype fonctionnel valide, 2026-09-07
+
+Vrai Visual Builder authentifie et frontend : 10 cartes, comptes 7/7/6/6/7 puis
+7/7/6/7/7. Supervision 7/7 ; 17 et 19 decembre 2027 restent distincts. Date,
+intitule, intervenants et statut prouves avec fixture temporaire 5025 creee via
+admin, modifiee puis supprimee definitivement sous garde. Les 71 programmations
+reelles, programme, sections, themes et Directory sont exactement preserves.
+
+UI Divi : Date 19px, espacement paragraphes 0.6em, titre 21px et masquage Desktop
+du Statut verifies apres Save/Close/Reopen. Retour ensuite aux styles 18px,
+0.5em, 20px et statut visible. Seul delta semantique final : disabledOn desktop
+explicitement false au lieu d'absent. Les 85 blocs, bindings et 10 filtres restent
+identiques. SHA final 5007 draft :
+39d53c6409832eee6d94187d8d68535aadc5d80bf8f4314fca96246369d2d792.
+
+Module Formation off/on teste dans le vrai picker : 13 -> 0 -> 13 options,
+IDs/labels restaures. Option modules restauree exactement. Aucune sauvegarde de
+page pendant la desactivation. Donnees temporaires 0, helpers supprimes.
+
+Overflow precedent localise : section/row du header Divi conservant brievement
+l'ancienne largeur au resize (390 vers 360 = 30px, 820 vers 768 = 52px).
+Apres stabilisation : zero aux six largeurs 1440/1024/820/768/390/360, sans CSS
+ajoute ni overflow-x masque. Le transient au redimensionnement n'est pas corrige.
+
+Reste presentation non bloquante : typographie disparate premiere carte/autres,
+rythme vertical trop espace, repetition Prevu. Aucun redesign ni autre page,
+Events, Directory ou runtime modifies. Pas de commit/push/tag/release.
+Rapport : docs/DYNAMIC-CALENDAR-DIVI-V3-6-FINAL-PROTOTYPE.md.
+READY_FOR_GUILLAUME_FINAL_REVIEW, pas une autorisation de publication.
+
+## Dynamic Calendar V3.7 - readable filters (2026-09-07)
+
+Public Divi field/settings/query hooks now expose Programme, Annee, Section,
+Theme, Statut and Tri on native containers. Explicit opt-in, internal canonical
+IDs preserved, sections restricted to program, same frontend/builder query path.
+Real UI A/B/C, Supervision 7/7, save/reopen, module off/on and six responsive
+widths validated. TEMP draft 5007 kept: 85 blocks, only ten new filter attributes.
+No card/style/binding rewrite; all 71 schedules and other page contents unchanged.
+Seven derived Divi cache metadata rows were invalidated, not business data.
+DEV 250 files, manifest 8b44fa9160d6cfb311a0ad35ca45eb5666552bc9e90af2a384cd7977d6fa96a5.
+49 PHP harnesses pass on 7.0/8.4; native filter JS harness 15 assertions.
+No commit/push/tag/release. Report: docs/DYNAMIC-CALENDAR-DIVI-V3-7-REPORT.md.
+
+## Program/year discovery architectural audit (2026-09-07)
+
+No product/runtime/page change. Portable collection prototype kept under tests,
+not plugin: PROGRAM_YEAR and UPCOMING_PROGRAMS reuse canonical effective dates.
+Fresh read-only DEV: Divi 5.11.1, 35/36 schedules intact, site date 2026-09-07;
+eligible counts 10/36, next starts 2026-09-25 / 2027-01-15. 2028 and expiration
+proved synthetically. Parent clone context remains unproven for nested Schedule
+queries in both builder and frontend. A flat group removes one nesting level,
+not the context requirement. No fake CPT/year posts, private API or heuristic.
+V3.7 page 5007 and its filters remain unchanged. No new Divi UI PASS claimed.
+Report: docs/DYNAMIC-PROGRAM-YEAR-DISCOVERY-AUDIT.md.
+WPSCK_DYNAMIC_PROGRAM_YEAR_DISCOVERY_LIMITATION.
+
+## Program/year V4 core implementation (2026-09-07)
+
+calendar-discovery.php now implements portable PROGRAM_YEAR, UPCOMING_PROGRAMS,
+explicit context resolution and context-bound Schedule queries locally. Audit
+wrappers delegate to production functions; no duplicated prototype algorithm.
+WordPress fixture transaction: 22 checks PASS, eight fixture posts rolled back,
+all wp_posts/postmeta rows restored. Active DEV runtime NOT deployed/changed.
+No page edit, no false Divi automatic-year-zone PASS. V3.7 remains active.
+Missing public parent-clone query context still limits full automatic Divi cards.
+Report: docs/DYNAMIC-PROGRAM-YEAR-V4-IMPLEMENTATION.md.
+No commit/push/tag/release. WPSCK_DYNAMIC_PROGRAM_YEAR_V4_LIMITATION.
+
+## Program/year Divi V4.1 context feasibility (2026-09-07)
+
+Audit only, no DEV access or product changes. Public Divi read-only parent/ancestor
+selectors exist; saved parent attributes are not a proven current PROGRAM_YEAR
+clone context. A-E reviewed beyond query hooks. Recommend E, a dedicated Calendar
+consumer with separately styled elements, classified PARTIAL. Exact Divi 5.11.1
+API availability, repeated editing and minimum column/responsive freedom still
+need proof. No claim of native child-loop context injection or generic CURRENT
+YEAR Heading token. Multi-program Section ownership and batched query requirements
+documented. No prototype, deployment, page/data mutation or Git release operation.
+Report: docs/DYNAMIC-PROGRAM-YEAR-DIVI-V4-1-CONTEXT-AUDIT.md.
+
+## Dedicated Calendar V4.2 implementation (2026-09-07)
+
+Local module wp-seed-content-kit/formation-calendar: structured data, independent
+Divi elements/styles, automatic program/year groups. 53/53 PHP harnesses PASS on
+7.0/8.4. Public module APIs verified on real Divi 5.11.1. Initial 255-file deploy
+and WP transaction checks passed, but real prototype rendering was empty; both
+TEMP page attempts rolled back. Local correction uses public skipAttrChildren /
+skipChildren options. Corrected deploy stopped before replacement on global
+postmeta fingerprint mismatch (page contents and wp_posts guards passed).
+DEV then restored to exact original 250-file runtime under manifest guard.
+No working V4.2 prototype retained; 5007 unchanged. No Visual Builder PASS:
+controlled browser Basic Auth failed with ERR_INVALID_AUTH_CREDENTIALS.
+No bypass, no commit/push/tag/release. Metadata drift attribution remains open;
+do not silently relax guard or call V4.2 ready. Original runtime backup retained.
+Report: docs/DYNAMIC-CALENDAR-DIVI-V4-2-REPORT.md.
+
+### V4.2 qualified-baseline deployment (2026-09-07, subsequent authorized run)
+
+The state above is historical. Metadata drift was attributed exactly to seven
+derived Divi cache additions (49346-49352); no remaining historical row changed.
+Separate detailed baseline qualified and preserved, old baseline unchanged.
+Corrected V4.2 is now deployed: 255 files exact, permissions 755/644, HTTP and
+new asset 200. Strict wp_posts/postmeta checks pass with zero row differences.
+No guard exclusion. All 27 real WP transaction checks pass; fixtures rolled back.
+53/53 standalone harnesses pass on both PHP versions. Public pages/5007 unchanged.
+Real Divi visual validation still blocked by ERR_INVALID_AUTH_CREDENTIALS;
+no editability, persistence, responsive or real visual 2028 PASS claimed.
+No commit/push/tag/release. See docs/DYNAMIC-CALENDAR-DIVI-V4-2-QUALIFIED-DEPLOY.md.
+
+### Annual planning V5 (local; deployment stopped before backup)
+
+Preview/confirmation and transactional next-year draft creation implemented,
+reusing Program/Section/Theme, without dates or historical status. Existing dated
+save publishes completed drafts after capability and exact-duplicate validation.
+54/54 standalone harnesses PASS on PHP 7.0/8.4; real WP V5 harness NOT RUN.
+DEV remains exact V4.2 (255 files). One new Divi font cache on TEMP 5007,
+meta_id 49388, stopped V5 before backup/replacement. No guard bypass or new baseline.
+No real data/page/Directory/Events changes. No remote fixture retained.
+Divi human validation and per-section layout freedom remain open.
+See docs/ANNUAL-PLANNING-V5.md. No commit/push/tag/release.
+
+### Annual planning V5: real DEV validation (2026-09-07)
+
+Supersedes the preceding deployment STOP. Explicitly qualified cache 49388 was
+matched exactly; all old detailed rows were retained in the guard. No baseline
+replacement or global cache exclusion. Runtime manifest ./ prefix mismatch fixed
+in the temporary comparator only, then all old 255 runtime files matched.
+V5 now deployed atomically: 257 exact files, 755/644, site/Calendar asset HTTP 200.
+Real WP fixture tests pass: 2027->2028 draft creation, inherited refs/people/order,
+no dates, injected transaction rollback, source preservation, automatic year/title,
+expiry, multi-program isolation and real Divi server rendering. Fixtures removed;
+global posts and postmeta hashes unchanged after tests and final HTTP checks.
+4723 remains 6 Sections / 32 used Themes / 71 Schedules (35/36). All pages unchanged.
+Private rollback: .wpsck-rollbacks/annual-planning-v5-20260907T210016Z.
+54/54 standalone tests pass on PHP 7.0/8.4. No product edits in this validation run.
+Visual Builder still returns ERR_INVALID_AUTH_CREDENTIALS: visual editability,
+responsive and real picker activation cycle NOT VERIFIED. No full visual PASS.
+See docs/ANNUAL-PLANNING-V5-REAL-DEV-VALIDATION.md. No commit/push/tag/release.
+
+### Full dynamic Calendar V5.1 (local candidate, visual authorization gate)
+
+One generic module passes the exact local A/2026+A/2027+A/2028+B/2027 matrix,
+without attr changes. Seven supervision occurrences/year preserved. Added opt-in
+separate start/end/theme/annual-title/section/program native elements; defaults off.
+No canonical data change or new private Divi API. 55 standalone harnesses PASS on
+PHP 7.0/8.4; PHP/JS render contracts remain separate, not an HTML blob preview.
+DEV remains V5/257 files: no V5.1 deployment or real fixture mutation this run.
+Playwright/Chrome standard credential context hit ERR_NETWORK_ACCESS_DENIED;
+elevated browser execution was denied by approval controls. No bypass attempted.
+Divi editing, Save/Reopen, responsive and real activation proof remain pending.
+No final product PASS. See docs/FULL-DYNAMIC-CALENDAR-V5-1.md. No Git release action.
+
+### Full dynamic Calendar V5.2 (DEV deployed; visual gate remains)
+
+Resumed V5.1 candidate: four Calendar runtime files changed, 257 files exact.
+Candidate SHA 8a6fb8fad000d24813f6a0fdd04b130253c7138623cf7b4b6e3c89e2993d4a7d.
+Backup .wpsck-rollbacks/calendar-v52-20260907T213343Z, atomic exchange, 755/644,
+active plugin and authenticated site/Calendar asset 200. Detailed postmeta guard
+matched every baseline row plus exact qualified cache 49388; unknown differences 0.
+Both real WP harnesses pass: annual planning and exact single-template matrix
+A/2026+A/2027+A/2028+B/2027, 2028 removal, expiry, empty/cancelled programs,
+isolated fields and seven Supervision occurrences/year. Runtime activation cycle
+and module option restoration pass; global posts/postmeta hashes unchanged.
+All TEMP data rolled back; 4723/Directory/Events/pages/5007 unchanged.
+One real browser attempt on 5007 failed ERR_INVALID_AUTH_CREDENTIALS before VB.
+No bypass. GUI editability, Save/Reopen, responsive and picker cycle NOT VERIFIED.
+55/55 local harnesses pass on PHP 7.0/8.4; no commit/push/tag/release.
+See docs/FULL-DYNAMIC-CALENDAR-V5-2.md. Verdict SAFE_STOP for visual acceptance only.
+
+### Calendar architecture gap: actual page vs deployed module (2026-09-08)
+
+Fresh read of 5007: SHA f30d916cedf02f2d12f136e4cefba5247948aaad2dbdab2742a076b522c594cc,
+draft, modified 2026-09-07 18:03:32, 35236 bytes. Zero dedicated Calendar instances.
+Two literal year trees, ten seed_schedule native Group loops with static
+4723/year/section filters. This is V3 construction, not a V5.2 single template.
+V5.2 deployment preserved 5007; its real WP proof used a harness block string.
+PROGRAM_YEAR is consumed inside the dedicated Calendar, not registered as a
+general Native Loop source or inherited context for arbitrary child modules.
+No page/data/product changes in diagnostic phase. New TEMP single-module visual
+proof still required. See docs/DIVI-SINGLE-TEMPLATE-ARCHITECTURE-GAP.md.
+Real Chrome follow-up confirms the dedicated Calendar in the native insert picker.
+No insertion/save into5007. Separate new-page UI allocated incomplete TEMP5152;
+title input failed UIA CacheRequest 0x80070057 and focus remained address bar.
+No new Calendar instance or real four-pair visual proof completed. No fixture
+Formation records created; TEMP5152 is retained explicitly, not claimed cleaned.
+Local single-template harness243 cumulative assertions PASS on PHP7.0 and8.4.
+
+### Directory 1896 role/order rendering (2026-10-13)
+
+Latest scoped DEV correction: ordinal Divi selectors collided with changing
+Directory clone indices. 1896 now uses 26 dedicated native presets and stable
+card/portrait classes; native mask render flags remain on the template while
+the drawing is shared by preset CSS. Conditions, bindings and animations are
+preserved. No product code change or plugin deployment in this run.
+Five final fixture permutation states PASS across all three loops. Fixtures and
+remote helpers removed; real Directory/Pixel/6354/Events/Formation unchanged.
+1897 remains byte-identical, 12 cards, portraits/separators/alternation intact.
+Responsive checks PASS (390 bracketed at 389/391 because of existing Chrome zoom).
+PHP 7.0/8.4 targeted tests/lint and JS syntax PASS. No Git release action.
+Guillaume's HUMAN PASS is now VALIDATED: cream panel, wave, dark name, orange
+icons and card consistency confirmed. Lot CLOSED; this final acceptance update
+changes local documentation only. Private rollback and exact mutation evidence
+remain archived outside the plugin. No new DEV/data/preset/product change or
+Git release action. See docs/DIRECTORY-1896-ROLE-ORDER-FIX-REPORT.md.

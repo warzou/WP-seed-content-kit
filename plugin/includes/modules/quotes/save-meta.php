@@ -6,13 +6,7 @@ if (!defined('ABSPATH')) {
 
 function wp_seed_content_quote_meta_definitions()
 {
-    return array(
-        '_seed_quote_text' => array('type' => 'textarea'),
-        '_seed_quote_author' => array('type' => 'text'),
-        '_seed_quote_era' => array('type' => 'text'),
-        '_seed_quote_source' => array('type' => 'text'),
-        '_seed_quote_featured' => array('type' => 'checkbox'),
-    );
+    return wp_seed_content_quote_builder_meta_definitions();
 }
 
 function wp_seed_content_get_quote_title_from_text($text, $post_id = 0)
@@ -36,8 +30,8 @@ function wp_seed_content_update_quote_post_title($post_id, $post)
         return;
     }
 
-    $quote_text = isset($_POST['_seed_quote_text']) ? wp_unslash($_POST['_seed_quote_text']) : '';
-    $quote_text = wp_kses_post($quote_text);
+    $quote_text = isset($_POST['seed_quote_text']) ? wp_unslash($_POST['seed_quote_text']) : '';
+    $quote_text = wp_seed_content_sanitize_quote_text_meta($quote_text);
 
     $generated_title = wp_seed_content_get_quote_title_from_text($quote_text, $post_id);
     if (trim($post->post_title) === $generated_title) {
@@ -77,19 +71,8 @@ function wp_seed_content_save_quote_meta($post_id, $post)
     foreach (wp_seed_content_quote_meta_definitions() as $key => $definition) {
         $type = isset($definition['type']) ? $definition['type'] : 'text';
         $raw = isset($_POST[$key]) ? wp_unslash($_POST[$key]) : '';
-        $value = wp_seed_content_sanitize_meta_value($raw, $definition);
-
-        if ('checkbox' === $type && !$value) {
-            delete_post_meta($post_id, $key);
-            continue;
-        }
-
-        if ('' === $value) {
-            delete_post_meta($post_id, $key);
-            continue;
-        }
-
-        update_post_meta($post_id, $key, $value);
+        $value = wp_seed_content_sanitize_quote_builder_meta($raw, $key);
+        update_post_meta($post_id, $key, 'boolean' === $type ? (bool) $value : $value);
     }
 
     wp_seed_content_update_quote_post_title($post_id, $post);

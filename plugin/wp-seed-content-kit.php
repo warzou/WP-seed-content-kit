@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Seed Content Kit
  * Description: Modular editorial content and reusable displays for WordPress.
- * Version: 0.8.0-rc.3
+ * Version: 0.9.0
  * Requires at least: 6.5
  * Requires PHP: 7.0
  * Author: WP Seed Content Kit
@@ -13,12 +13,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP_SEED_CONTENT_KIT_VERSION', '0.8.0-rc.3');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.9.0');
 define('WP_SEED_CONTENT_KIT_FILE', __FILE__);
 define('WP_SEED_CONTENT_KIT_DIR', plugin_dir_path(__FILE__));
 define('WP_SEED_CONTENT_KIT_URL', plugin_dir_url(__FILE__));
 
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/helpers.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/modules.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/builder-meta.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/builder-meta.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/contact-registry.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/capabilities.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/render-context.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/template-contract.php';
@@ -34,12 +38,16 @@ $wp_seed_content_divi_dynamic_content_file = WP_SEED_CONTENT_KIT_DIR . 'includes
 if (file_exists($wp_seed_content_divi_dynamic_content_file)) {
     require_once $wp_seed_content_divi_dynamic_content_file;
 }
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-has-more-condition.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/directory-has-more-condition.php';
 $wp_seed_content_divi_testimonial_layout_context_file = WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-layout-context.php';
 if (file_exists($wp_seed_content_divi_testimonial_layout_context_file)) {
     require_once $wp_seed_content_divi_testimonial_layout_context_file;
 }
-require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/modules.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/collections.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/collection-query.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/formation-calendar.php';
+require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/native-loop-structural-assets.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/assets.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/manual-order.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/core/module-menu.php';
@@ -51,6 +59,7 @@ require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/cards/render.php';
 require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/cards/shortcode.php';
 
 if (is_admin()) {
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/admin/thumbnails.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/admin/modules-page.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/admin/generators-page.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/admin/usage-page.php';
@@ -62,28 +71,38 @@ if (wp_seed_content_kit_is_module_active('testimonials')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/post-type.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/meta-boxes.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/save-meta.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/editorial-identity.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/migration.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/render.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/template-data.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/collection-renderer.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/testimonials/shortcode.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-collection.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-collection-query.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-loop-context.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/testimonial-native-loop-assets.php';
 }
 if (wp_seed_content_kit_is_module_active('quotes')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/post-type.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/meta-boxes.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/save-meta.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/migration.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/render.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/template-data.php';
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/quotes/shortcode.php';
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/integrations/divi/quote-collection-query.php';
 }
 if (wp_seed_content_kit_is_module_active('directory')) {
     require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/directory/bootstrap.php';
+}
+if (wp_seed_content_kit_is_module_active('formation')) {
+    require_once WP_SEED_CONTENT_KIT_DIR . 'includes/modules/formation/bootstrap.php';
 }
 
 function wp_seed_content_kit_activate()
 {
     wp_seed_content_kit_synchronize_role_capabilities();
-    update_option('wp_seed_content_kit_capability_schema', '1', false);
+    update_option('wp_seed_content_kit_capability_schema', '2', false);
     wp_seed_content_register_template_post_type();
 
     if (wp_seed_content_kit_is_module_active('testimonials')) {
@@ -95,6 +114,9 @@ function wp_seed_content_kit_activate()
     if (wp_seed_content_kit_is_module_active('directory')) {
         wp_seed_content_directory_grant_capabilities();
         wp_seed_content_directory_register_post_type();
+    }
+    if (wp_seed_content_kit_is_module_active('formation')) {
+        wp_seed_content_formation_register_post_types();
     }
 
     flush_rewrite_rules();
@@ -119,6 +141,9 @@ function wp_seed_content_kit_init()
     }
     if (wp_seed_content_kit_is_module_active('directory')) {
         wp_seed_content_directory_register_post_type();
+    }
+    if (wp_seed_content_kit_is_module_active('formation')) {
+        wp_seed_content_formation_register_post_types();
     }
 }
 add_action('init', 'wp_seed_content_kit_init');
