@@ -1,5 +1,17 @@
 # Project Snapshot - WP Seed Content Kit
 
+## Canonical development and release source
+
+The official repository is https://github.com/warzou/WP-seed-content-kit and
+the cumulative reference is its `main` branch. The stable 0.9.0 release
+reference is the commit resolved by `git rev-parse 'v0.9.0^{commit}'`. Start
+new work from a freshly fetched `origin/main`. An approved change is not
+finished while it exists only in a local worktree: record it in Git and
+integrate it into the official branch. Do not reset other worktrees to do so.
+See `docs/CONSOLIDATED-RELEASE-GIT.md` for tests, build, distribution and
+release safety. Keep site data, credentials and private validation artifacts
+outside Git.
+
 ## Cumulative release review (2026-11-27)
 
 The isolated `codex/consolidated-release` checkout starts from official

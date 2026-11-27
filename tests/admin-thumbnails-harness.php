@@ -1,7 +1,7 @@
 <?php
 define('ABSPATH', __DIR__ . '/');
 define('WP_SEED_CONTENT_KIT_URL', 'https://example.test/plugin/');
-define('WP_SEED_CONTENT_KIT_VERSION', '0.9.0-rc.2');
+define('WP_SEED_CONTENT_KIT_VERSION', '0.9.0');
 $default = dirname(__DIR__) . '/plugin';
 if (!is_file($default . '/includes/admin/thumbnails.php')) { $default = dirname(__DIR__, 2) . '/dist/admin-thumbnails-svg/candidate/plugin'; }
 $plugin = isset($argv[1]) ? $argv[1] : $default;

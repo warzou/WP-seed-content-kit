@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.9.0-rc.2] - Cumulative review candidate
+## [0.9.0] - 2026-11-27
 
 ### Directory
 
@@ -20,7 +20,7 @@
 
 - Limit WPSCK discovery to enabled modules while preserving existing binding resolution and third-party providers.
 
-### Admin thumbnail display candidate (not an official release)
+### Admin thumbnails
 
 - Bound Directory Photo list images to the existing 48px envelope for SVG and raster originals, including absent intermediate sizes or metadata.
 - Preserve proportions and small intrinsic images without cropping or enlargement.
@@ -28,7 +28,6 @@
 - Opt out of lazy loading on these small admin previews only, avoiding WordPress auto-sizes intrinsic containment enlarging tiny originals or losing unknown SVG ratios.
 - Apply the same admin-only containment to the existing 60px Testimonials Image column and 150px editor preview; remove the list column's forced square crop.
 - No MIME, upload, sanitization, media files/metadata, frontend, Divi, binding or data migration changes.
-- Human visual acceptance required before publishing.
 
 ## [0.8.1] - 2026-08-18
 

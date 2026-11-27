@@ -1,5 +1,35 @@
 # Source and publication plan
 
+## Start here for 0.9.0 and later
+
+Official source: [warzou/WP-seed-content-kit](https://github.com/warzou/WP-seed-content-kit),
+branch `main`. Latest stable at this checkpoint: tag `v0.9.0`; resolve the
+exact reference commit with `git rev-parse 'v0.9.0^{commit}'`. Check the
+official tags and release list on later resumes rather than treating this
+checkpoint as permanently current.
+
+1. In a clean checkout of the official remote, use `git fetch --tags origin`
+   and `git switch -c codex/<task> origin/main`. Preserve existing worktrees.
+2. See `plugin/docs/TESTING.md`. Run the focused `php tests/<module>-harness.php`
+   and `node tests/<module>-harness.js` tests, PHP lint and JS syntax, and
+   `git diff --check`. For Directory, run the WordPress L3/L4 harnesses
+   with `WP_SEED_WORDPRESS_LOAD` pointing to a disposable installation;
+   run Formation concurrency as described below. Never use production fixtures.
+3. Commit only approved source, documentation and permanent tests. Integrate
+   them into official `main` through a reviewed PR. A validated change is not
+   considered complete until it is part of this cumulative Git reference.
+4. With explicit publication authorization, build from a clean export of
+   the exact release commit: `python tools/build-release-zip.py --output dist/wp-seed-content-kit.zip`.
+   Validate the per-file manifest, exact ZIP SHA-256 and two independent
+   builds from that commit using the same Python/zlib version.
+5. Rehearse the native WordPress upgrade in isolation, including the updater
+   and the auto-update path for existing opt-in sites. Tag the tested commit
+   and publish the stable GitHub release with the canonical
+   `wp-seed-content-kit.zip` asset. Verify its downloaded SHA-256 and tag
+   target. Never attach private review archives, DEV configuration or data.
+
+## Historical 0.9.0 candidate recovery plan
+
 - Designated branch: `codex/consolidated-release`, base `v0.8.1` at
   `889afc0e53200ae96fe187304851551f341b1632`. Before approval, HEAD is still the
   base and the cumulative changes are unstaged. The branch name alone does not
